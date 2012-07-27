@@ -4,11 +4,13 @@ frequently used items toward the root such that they can be accessed the
 most quickly.  This CommonJS package includes a `SplaySet` and
 `SplayMap` in `splay-set` and `splay-map` modules.
 
-Additionally, this implementation applies the insight that any Map can
-be implemented in terms of a Set provided that you can override
-functions that operate on the values within that set.  All of the splay
-tree reference implementations opted to implement a map interface
-instead.
+All "map" implementations use an underlying "set" implementation.  Any
+map can be implemented trivially atop a set by wrapping "compare",
+"equals", or "hash" to operate on the key of an item.
+
+The default equality comparison function is `===` or `Object.equals` if
+it is shimmed.  The default comparator uses `>` and `<` or
+`Object.compare` if that has been shimmed.
 
 Both `SplaySet` and `SplayMap` implement a `log` function which can
 produce NPM-style visualizations of the internal state of the splay
