@@ -19,228 +19,131 @@ SplaySet.compare = function (a, b) {
 };
 
 SplaySet.prototype.has = function has(value) {
-    var node = this.search(value);
-    return node && this.equals(node.value, value);
-};
-
-SplaySet.prototype.get = function get(value, noSplay) {
-    var node = this.search(value);
-    if (node && this.equals(node.value, value)) {
-        noSplay || this.splay(node);
-        return node.value;
+    if (this.root) {
+        this.splay(value);
+        return this.equals(value, this.root.value);
+    } else {
+        return false;
     }
 };
 
-SplaySet.prototype.add = function add(value, noSplay) {
+SplaySet.prototype.get = function get(value) {
+    if (this.root) {
+        this.splay(value);
+        if (this.equals(value, this.root.value)) {
+            return this.root.value;
+        }
+    }
+};
+
+SplaySet.prototype.add = function add(value) {
     var node = new SplayNode(value);
-    if (this.root === null) {
-        this.root = node;
+    if (this.root) {
+        this.splay(value);
+        if (!this.equals(value, this.root.value)) {
+            if (this.compare(value, this.root.value) < 0) {
+                // rotate right
+                node.right = this.root;
+                node.left = this.root.left;
+                this.root.left = null;
+            } else {
+                // rotate left
+                node.left = this.root;
+                node.right = this.root.right;
+                this.root.right = null;
+            }
+            this.root = node;
+        }
     } else {
-        var parent = this.search(value);
-        if (this.equals(parent.value, value)) {
-            return;
-        }
-        if (parent.comparison < 0) {
-            parent.setLeft(node);
-        } else { // always adds duplicates to the end
-            parent.setRight(node);
-        }
-        noSplay || this.splay(node);
+        this.root = node;
     }
 };
 
 SplaySet.prototype['delete'] = function (value) {
-    var node = this.search(value);
-    if (!node)
-        return;
-    if (!this.equals(node.value, value))
-        return;
-
-    // bring the node to root so we only have to deal with
-    // rotations about the root
-    this.splay(node);
-
-    if (!node.left && !node.right) {
-        this.root = null;
-    } else {
-        if (!node.right) {
-            //   n
-            //  /   ->  l
-            // l
-            this.root = node.left;
-        } else if (!node.left) {
-            //   n
-            //    \  ->  r
-            //     r
-            this.root = node.right;
-        } else {
-            //    n         r
-            //   / \   ->    \
-            //  l   r        .:.
-            // .:.          /
-            //             l
-            var at = node.right;
-            while (at.left) {
-                at = at.left;
+    if (this.root) {
+        this.splay(value);
+        if (this.equals(value, this.root.value)) {
+            if (!this.root.left) {
+                this.root = this.root.right;
+            } else {
+                // remove the right side of the tree,
+                var right = this.root.right;
+                this.root = this.root.left;
+                // the tree now only contains the left side of the tree, so all
+                // values are less than the value deleted.
+                // splay so that the root has an empty right child
+                this.splay(value);
+                // put the right side of the tree back
+                this.root.right = right;
             }
-            at.left = node.left;
-            at.left.parent = at;
-            this.root = node.right;
         }
-        this.root.parent = null;
     }
-
 };
 
-SplaySet.prototype.search = function search(value) {
-    var at = this.root;
-    var next = at;
+// This is the simplified top-down splaying algorithm from: "Self-adjusting
+// Binary Search Trees" by Sleator and Tarjan
+SplaySet.prototype.splay = function splay(value) {
+    var stub, left, right, temp, root;
 
-    while (next) {
-        at = next;
+    if (!this.root) {
+        return;
+    }
 
-        var comparison = this.compare(value, at.value);
-        at.comparison = comparison; // remember
-        if (comparison === 0) {
-            // advance to the right-most node with an equal value
-            while (at.right) {
-                var comparison = this.compare(value, at.right.value);
-                at.right.comparison = comparison;
-                if (comparison !== 0) {
-                    break;
+    stub = left = right = new SplayNode();
+    root = this.root;
+
+    while (true) {
+        var comparison = this.compare(value, root.value);
+        if (comparison < 0) {
+            if (root.left) {
+                if (this.compare(value, root.left.value) < 0) {
+                    // rotate right
+                    temp = root.left;
+                    root.left = temp.right;
+                    temp.right = root;
+                    root = temp;
+                    if (!root.left) {
+                        break;
+                    }
                 }
-                at = at.right;
+                // link right
+                right.left = root;
+                right = root;
+                root = root.left;
+            } else {
+                break;
             }
+        } else if (comparison > 0) {
+            if (root.right) {
+                if (this.compare(value, root.right.value) > 0) {
+                    // rotate left
+                    temp = root.right;
+                    root.right = temp.left;
+                    temp.left = root;
+                    root = temp;
+                    if (!root.right) {
+                        break;
+                    }
+                }
+                // link left
+                left.right = root;
+                left = root;
+                root = root.right;
+            } else {
+                break;
+            }
+        } else { // equal or incomparable
             break;
-        } else if (comparison <= 0) {
-            next = at.left;
-        } else {
-            next = at.right;
         }
     }
 
-    return at;
-};
+    // assemble
+    left.right = root.left;
+    right.left = root.right;
+    root.left = stub.right;
+    root.right = stub.left;
+    this.root = root;
 
-SplaySet.prototype.splay = function splay(node) {
-    while (node !== this.root) { // implies node.parent === null
-        // assert node.parent !== null
-        // single zig or zag only if there is only one level of depth
-        if (node.parent === this.root) {
-            // assert node.parent.parent === null
-            var root = this.root;
-
-            if (node === root.left) {
-                // zig
-                //   r
-                //  / \
-                // n
-                root.setLeft(node.right);
-                node.setRight(root);
-            } else {
-                // zag
-                //   r
-                //  / \
-                //     n
-                root.setRight(node.left);
-                node.setLeft(root);
-            }
-            this.root = node;
-            this.root.parent = null;
-
-        // if the node is two or more levels deep, rotate it up by two
-        // using a combination of zig and zag
-        } else {
-            // assert node.parent.parent !== null
-
-            var parent = node.parent;
-            var grand = parent.parent;
-            var great = grand.parent; // may be null (float to root)
-
-            if (
-                parent.left === node &&
-                grand.left === parent
-            ) {
-                // zig-zig
-                //     g
-                //    / \
-                //   p
-                //  / \
-                // n
-                grand.setLeft(parent.right);
-                parent.setRight(grand);
-                parent.setLeft(node.right);
-                node.setRight(parent);
-            } else if (
-                parent.right === node &&
-                grand.right === parent
-            ) {
-                // zag-zag
-                //  g
-                // / \
-                //    p
-                //   / \
-                //      n
-                grand.setRight(parent.left);
-                parent.setLeft(grand);
-                parent.setRight(node.left);
-                node.setLeft(parent);
-            } else if (parent.right === node) {
-                // zig-zag
-                //    g
-                //   / \
-                //  p
-                // / \
-                //    n
-                grand.setLeft(node.right);
-                parent.setRight(node.left);
-                node.setRight(grand);
-                node.setLeft(parent);
-            } else {
-                // zag-zig
-                //  g
-                // / \
-                //    p
-                //   / \
-                //  n
-                grand.setRight(node.left);
-                parent.setLeft(node.right);
-                node.setLeft(grand);
-                node.setRight(parent);
-            }
-
-            // return to the tree
-            if (great) {
-                //     gg
-                //    /  \
-                //   g
-                //  -p-
-                // --n--
-                if (great.left === grand) {
-                    //    gg
-                    //   /
-                    //  n
-                    // p-g
-                    great.left = node;
-                } else {
-                    //    gg
-                    //      \
-                    //       n
-                    //      p-g
-                    great.right = node;
-                }
-            } else { // great === null
-                // so node floats to the top of the tree
-                //  n
-                // p-g
-                this.root = node;
-            }
-
-            // great may be null if the node floats up to the root
-            node.parent = great;
-
-        }
-    }
 };
 
 SplaySet.prototype.forEach = function forEach(callback, thisp) {
@@ -305,27 +208,9 @@ SplaySet.ascii = {
 
 function SplayNode(value) {
     this.value = value;
-    this.parent = null;
     this.left = null;
     this.right = null;
-    // the most recent comparison on this node to any key, just for
-    // speed:
-    this.comparison = null;
 }
-
-SplayNode.prototype.setLeft = function setLeft(node) {
-    this.left = node;
-    if (node) {
-        node.parent = this;
-    }
-};
-
-SplayNode.prototype.setRight = function setRight(node) {
-    this.right = node;
-    if (node) {
-        node.parent = this;
-    }
-};
 
 SplayNode.prototype.forEach = function forEach(callback, thisp, tree, depth) {
     depth = depth || 0;
