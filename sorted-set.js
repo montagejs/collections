@@ -2,23 +2,16 @@
 module.exports = SortedSet;
 
 var Iterable = require("./iterable");
+var Operators = require("./operators");
 
 function SortedSet(copy, equals, compare) {
-    this.equals = equals || Object.equals || SortedSet.equals;
-    this.compare = compare || Object.compare || SortedSet.compare;
+    this.equals = equals || Object.equals || Operators.equals;
+    this.compare = compare || Object.compare || Operators.compare;
     this.root = null;
     if (copy) {
         copy.forEach(this.add, this);
     }
 }
-
-SortedSet.equals = function (a, b) {
-    return a === b;
-};
-
-SortedSet.compare = function (a, b) {
-    return a > b ? 1 : a < b ? -1 : 0;
-};
 
 SortedSet.prototype.has = function has(value) {
     if (this.root) {

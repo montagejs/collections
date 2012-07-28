@@ -1,6 +1,8 @@
 
 var Iterable = module.exports = {};
 
+var Operators = require("./operators");
+
 Iterable.reduce = function (basis, callback, thisp) {
     var iterator = this.iterate();
     try {
@@ -62,14 +64,14 @@ Iterable.any = function any() {
 };
 
 Iterable.min = function min(compare) {
-    compare = this.compare || Object.compare || this.constructor.compare;
+    compare = this.compare || Object.compare || Operators.compare;
     return this.reduce(function (basis, value) {
         return compare(value, basis) < 0 ? value : basis;
     }, Infinity);
 };
 
 Iterable.max = function max(compare) {
-    compare = this.compare || Object.compare || this.constructor.compare;
+    compare = this.compare || Object.compare || Operators.compare;
     return this.reduce(function (basis, value) {
         return compare(value, basis) > 0 ? value : basis;
     }, -Infinity);

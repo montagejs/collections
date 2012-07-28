@@ -67,7 +67,7 @@ tree.
   list and splay multi-map
 - LRU cache sets and maps
 - ARC cache sets and maps
-- linked list types
+- ordered set type based on list
 - trie set and map
 - immutable set and map structures using hash tries
 - heap
