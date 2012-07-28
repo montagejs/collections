@@ -1,6 +1,8 @@
 
 module.exports = SplaySet;
 
+var Iterable = require("./iterable");
+
 function SplaySet(copy, equals, compare) {
     this.equals = equals || Object.equals || SplaySet.equals;
     this.compare = compare || Object.compare || SplaySet.compare;
@@ -80,6 +82,52 @@ SplaySet.prototype['delete'] = function (value) {
     }
 };
 
+SplaySet.prototype.find = function find(value) {
+    if (this.root) {
+        this.splay(value);
+        if (this.equals(value, this.root.value)) {
+            return this.root;
+        }
+    }
+};
+
+SplaySet.prototype.one = function () {
+    if (!this.root) {
+        throw new Error("Can't get one value from empty set");
+    }
+    return this.root.value;
+};
+
+SplaySet.prototype.only = function () {
+    if (!this.root) {
+        throw new Error("Can't get only value in empty set");
+    }
+    if (this.root.left || this.root.right) {
+        throw new Error("Can't get only value in set with multiple values");
+    }
+    return this.root.value;
+};
+
+SplaySet.prototype.sorted = function (compare, by, order) {
+    compare = Comparator(compare || this.compare, by, order);
+    return new SplaySet(this, compare, this.equals);
+};
+
+SplaySet.prototype.clone = function (depth, memo) {
+    if (depth === undefined) {
+        depth = Infinity;
+    } else if (depth === 0) {
+        return this;
+    }
+    return new SplaySet(this.map(function (value) {
+        return Object.clone(value, depth - 1, memo);
+    }));
+};
+
+SplaySet.prototype.wipe = function () {
+    this.root = null;
+};
+
 // This is the simplified top-down splaying algorithm from: "Self-adjusting
 // Binary Search Trees" by Sleator and Tarjan
 SplaySet.prototype.splay = function splay(value) {
@@ -146,17 +194,33 @@ SplaySet.prototype.splay = function splay(value) {
 
 };
 
-SplaySet.prototype.forEach = function forEach(callback, thisp) {
-    this.root && this.root.forEach(callback, thisp, this);
+SplaySet.prototype.reduce = function reduce(callback, basis, thisp) {
+    if (this.root) {
+        basis = this.root.reduce(callback, basis, thisp, this);
+    }
+    return basis;
 };
 
-SplaySet.prototype.map = function map(callback, thisp) {
-    var array = [];
-    this.forEach(function (value, node, tree, depth) {
-        array.push(callback.call(thisp, value, node, tree, depth));
-    });
-    return array;
+SplaySet.prototype.reduceRight = function reduce(callback, basis, thisp) {
+    if (this.root) {
+        basis = this.root.reduceRight(callback, basis, thisp, this);
+    }
+    return basis;
 };
+
+SplaySet.prototype.forEach = Iterable.forEach;
+SplaySet.prototype.map = Iterable.map;
+SplaySet.prototype.filter = Iterable.filter;
+SplaySet.prototype.every = Iterable.every;
+SplaySet.prototype.some = Iterable.some;
+SplaySet.prototype.all = Iterable.all;
+SplaySet.prototype.any = Iterable.any;
+SplaySet.prototype.min = Iterable.min;
+SplaySet.prototype.max = Iterable.max;
+SplaySet.prototype.count = Iterable.count;
+SplaySet.prototype.sum = Iterable.sum;
+SplaySet.prototype.average = Iterable.average;
+SplaySet.prototype.flatten = Iterable.flatten;
 
 SplaySet.prototype.values = function values() {
     return this.map(function (value) {
@@ -212,12 +276,32 @@ function SplayNode(value) {
     this.right = null;
 }
 
-SplayNode.prototype.forEach = function forEach(callback, thisp, tree, depth) {
+// TODO case where no basis is provided for reduction
+
+SplayNode.prototype.reduce = function reduce(callback, basis, thisp, tree, depth) {
     depth = depth || 0;
-    this.left && this.left.forEach(callback, thisp, tree, depth + 1);
-    callback.call(thisp, this.value, this, tree, depth);
-    this.right && this.right.forEach(callback, thisp, tree, depth + 1);
+    if (this.left) {
+        basis = this.left.reduce(callback, basis, thisp, tree, depth + 1);
+    }
+    basis = callback.call(thisp, basis, this.value, this, tree, depth);
+    if (this.right) {
+        basis = this.right.reduce(callback, basis, thisp, tree, depth + 1);
+    }
+    return basis;
 };
+
+SplayNode.prototype.reduceRight = function reduce(callback, basis, thisp, tree, depth) {
+    depth = depth || 0;
+    if (this.right) {
+        basis = this.right.reduce(callback, basis, thisp, tree, depth + 1);
+    }
+    basis = callback.call(thisp, basis, this.value, this, tree, depth);
+    if (this.left) {
+        basis = this.left.reduce(callback, basis, thisp, tree, depth + 1);
+    }
+    return basis;
+};
+
 
 SplayNode.prototype.log = function log(charmap, stringify, leader, above, below) {
     leader = leader || "";

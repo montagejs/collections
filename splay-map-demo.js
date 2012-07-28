@@ -29,3 +29,4 @@ map.log();
 console.log('got', map.get(0));
 map.delete(0);
 console.log('got', map.get(0));
+

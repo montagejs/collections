@@ -33,6 +33,10 @@ tree.log();
 console.log("delete", 1);
 tree.delete(1);
 tree.log();
-//tree.add(1);
-//tree.log();
+
+console.log("min", tree.min());
+console.log("max", tree.max());
+console.log("count", tree.count());
+console.log("sum", tree.sum());
+console.log("average", tree.average());
 

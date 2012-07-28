@@ -1,5 +1,6 @@
 
 var SplaySet = require("./splay-set");
+var Iterable = require("./iterable");
 
 module.exports = SplayMap;
 
@@ -30,47 +31,55 @@ function SplayMap(copy, equals, compare) {
 }
 
 SplayMap.prototype.get = function (key) {
-    var entry = this.internal.get(new SplayEntry(key));
-    return entry && entry.value;
+    var item = this.internal.get(new Item(key));
+    return item && item.value;
 };
 
 SplayMap.prototype.set = function (key, value) {
-    var entry = new SplayEntry(key, value);
-    var found = this.internal.get(entry);
+    var item = new Item(key, value);
+    var found = this.internal.get(item);
     if (found) { // update
         found.value = value;
     } else { // create
-        this.internal.add(entry);
+        this.internal.add(item);
     }
 };
 
 SplayMap.prototype.has = function (key) {
-    return this.internal.has(new SplayEntry(key));
+    return this.internal.has(new Item(key));
 };
 
 SplayMap.prototype['delete'] = function (key) {
-    this.internal['delete'](new SplayEntry(key));
+    this.internal['delete'](new Item(key));
 };
 
-SplayMap.prototype.forEach = function (callback, thisp) {
-    this.internal.forEach(function (pair) {
-        callback.call(thisp, pair.value, pair.key, this);
-    }, this);
+SplayMap.prototype.reduce = function (callback, basis, thisp) {
+    return this.internal.reduce(function (basis, item) {
+        return callback.call(thisp, basis, item.value, item.key, this);
+    }, basis, this);
 };
 
-SplayMap.prototype.map = function (callback, thisp) {
-    return this.internal.map(function (pair) {
-        return callback.call(thisp, pair.value, pair.key, this);
-    }, this);
+SplayMap.prototype.forEach = Iterable.forEach;
+SplayMap.prototype.map = Iterable.map;
+SplayMap.prototype.filter = Iterable.filter;
+SplayMap.prototype.every = Iterable.every;
+SplayMap.prototype.some = Iterable.some;
+SplayMap.prototype.all = Iterable.all;
+SplayMap.prototype.any = Iterable.any;
+SplayMap.prototype.min = Iterable.min;
+SplayMap.prototype.max = Iterable.max;
+SplayMap.prototype.count = Iterable.count;
+SplayMap.prototype.sum = Iterable.sum;
+SplayMap.prototype.average = Iterable.average;
+SplayMap.prototype.flatten = Iterable.flatten;
+
+SplayMap.prototype.log = function (stringifyItem, charmap) {
+    this.internal.log(null, function (item, leader) {
+        return leader + ' ' + item.key + ': ' + item.value;
+    });
 };
 
-SplayMap.prototype.log = function (stringifyEntry, charmap) {
-    this.internal.log(function (entry, leader) {
-        return leader + ' ' + entry.key + ': ' + entry.value;
-    })
-};
-
-function SplayEntry(key, value) {
+function Item(key, value) {
     this.key = key;
     this.value = value;
 }
