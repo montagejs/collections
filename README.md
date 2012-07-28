@@ -1,8 +1,9 @@
 
 A binary splay tree is a balanced binary tree that rotates the most
 frequently used items toward the root such that they can be accessed the
-most quickly.  This CommonJS package includes a `SplaySet` and
-`SplayMap` in `splay-set` and `splay-map` modules.
+most quickly.  This CommonJS package includes a `SortedSet` and
+`SortedMap` in `sorted-set` and `sorted-map` modules that implement a
+splay tree internally.
 
 All "map" implementations use an underlying "set" implementation.  Any
 map can be implemented trivially atop a set by wrapping "compare",
@@ -12,12 +13,12 @@ The default equality comparison function is `===` or `Object.equals` if
 it is shimmed.  The default comparator uses `>` and `<` or
 `Object.compare` if that has been shimmed.
 
-Both `SplaySet` and `SplayMap` implement a `log` function which can
-produce NPM-style visualizations of the internal state of the splay
+Both `SortedSet` and `SortedMap` implement a `log` function which can
+produce NPM-style visualizations of the internal state of the sorted
 tree.
 
 ```
-> set.log(SplaySet.ascii)
+> set.log(SortedSet.ascii)
   .-+ -3
   | '-- -2
 .-+ -1
@@ -28,7 +29,7 @@ tree.
 ```
 
 ```
-> set.log(SplaySet.unicodeRound)
+> set.log(SortedSet.unicodeRound)
   ╭━┳ -3
   ┃ ╰━━ -2
 ╭━┻ -1
@@ -59,7 +60,6 @@ tree.
 
 - tests
 - docs
-- incorporate all array-like methods
 - incorporate iterability
 - incorporate comprehensive introspection functions for slicing ranges
 - hash string map and set, using underlying object

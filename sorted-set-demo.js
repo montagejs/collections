@@ -1,7 +1,7 @@
 
-var SplaySet = require("./splay-set");
+var SortedSet = require("./sorted-set");
 
-var tree = new SplaySet();
+var tree = new SortedSet();
 tree.add(1);
 tree.add(2);
 tree.add(3);

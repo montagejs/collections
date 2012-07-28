@@ -1,7 +1,7 @@
 
-var SplayMap = require("./splay-map");
+var SortedMap = require("./sorted-map");
 
-var map = new SplayMap();
+var map = new SortedMap();
 
 console.log('set 1 a');
 map.set(1, 'a');

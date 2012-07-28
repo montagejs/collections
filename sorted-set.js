@@ -1,26 +1,26 @@
 
-module.exports = SplaySet;
+module.exports = SortedSet;
 
 var Iterable = require("./iterable");
 
-function SplaySet(copy, equals, compare) {
-    this.equals = equals || Object.equals || SplaySet.equals;
-    this.compare = compare || Object.compare || SplaySet.compare;
+function SortedSet(copy, equals, compare) {
+    this.equals = equals || Object.equals || SortedSet.equals;
+    this.compare = compare || Object.compare || SortedSet.compare;
     this.root = null;
     if (copy) {
         copy.forEach(this.add, this);
     }
 }
 
-SplaySet.equals = function (a, b) {
+SortedSet.equals = function (a, b) {
     return a === b;
 };
 
-SplaySet.compare = function (a, b) {
+SortedSet.compare = function (a, b) {
     return a > b ? 1 : a < b ? -1 : 0;
 };
 
-SplaySet.prototype.has = function has(value) {
+SortedSet.prototype.has = function has(value) {
     if (this.root) {
         this.splay(value);
         return this.equals(value, this.root.value);
@@ -29,7 +29,7 @@ SplaySet.prototype.has = function has(value) {
     }
 };
 
-SplaySet.prototype.get = function get(value) {
+SortedSet.prototype.get = function get(value) {
     if (this.root) {
         this.splay(value);
         if (this.equals(value, this.root.value)) {
@@ -38,8 +38,8 @@ SplaySet.prototype.get = function get(value) {
     }
 };
 
-SplaySet.prototype.add = function add(value) {
-    var node = new SplayNode(value);
+SortedSet.prototype.add = function add(value) {
+    var node = new this.constructor.Node(value);
     if (this.root) {
         this.splay(value);
         if (!this.equals(value, this.root.value)) {
@@ -61,7 +61,7 @@ SplaySet.prototype.add = function add(value) {
     }
 };
 
-SplaySet.prototype['delete'] = function (value) {
+SortedSet.prototype['delete'] = function (value) {
     if (this.root) {
         this.splay(value);
         if (this.equals(value, this.root.value)) {
@@ -82,7 +82,7 @@ SplaySet.prototype['delete'] = function (value) {
     }
 };
 
-SplaySet.prototype.find = function find(value) {
+SortedSet.prototype.find = function find(value) {
     if (this.root) {
         this.splay(value);
         if (this.equals(value, this.root.value)) {
@@ -91,14 +91,14 @@ SplaySet.prototype.find = function find(value) {
     }
 };
 
-SplaySet.prototype.one = function () {
+SortedSet.prototype.one = function () {
     if (!this.root) {
         throw new Error("Can't get one value from empty set");
     }
     return this.root.value;
 };
 
-SplaySet.prototype.only = function () {
+SortedSet.prototype.only = function () {
     if (!this.root) {
         throw new Error("Can't get only value in empty set");
     }
@@ -108,36 +108,36 @@ SplaySet.prototype.only = function () {
     return this.root.value;
 };
 
-SplaySet.prototype.sorted = function (compare, by, order) {
+SortedSet.prototype.sorted = function (compare, by, order) {
     compare = Comparator(compare || this.compare, by, order);
-    return new SplaySet(this, compare, this.equals);
+    return new SortedSet(this, compare, this.equals);
 };
 
-SplaySet.prototype.clone = function (depth, memo) {
+SortedSet.prototype.clone = function (depth, memo) {
     if (depth === undefined) {
         depth = Infinity;
     } else if (depth === 0) {
         return this;
     }
-    return new SplaySet(this.map(function (value) {
+    return new SortedSet(this.map(function (value) {
         return Object.clone(value, depth - 1, memo);
     }));
 };
 
-SplaySet.prototype.wipe = function () {
+SortedSet.prototype.wipe = function () {
     this.root = null;
 };
 
 // This is the simplified top-down splaying algorithm from: "Self-adjusting
 // Binary Search Trees" by Sleator and Tarjan
-SplaySet.prototype.splay = function splay(value) {
+SortedSet.prototype.splay = function splay(value) {
     var stub, left, right, temp, root;
 
     if (!this.root) {
         return;
     }
 
-    stub = left = right = new SplayNode();
+    stub = left = right = new this.constructor.Node();
     root = this.root;
 
     while (true) {
@@ -194,53 +194,53 @@ SplaySet.prototype.splay = function splay(value) {
 
 };
 
-SplaySet.prototype.reduce = function reduce(callback, basis, thisp) {
+SortedSet.prototype.reduce = function reduce(callback, basis, thisp) {
     if (this.root) {
         basis = this.root.reduce(callback, basis, thisp, this);
     }
     return basis;
 };
 
-SplaySet.prototype.reduceRight = function reduce(callback, basis, thisp) {
+SortedSet.prototype.reduceRight = function reduce(callback, basis, thisp) {
     if (this.root) {
         basis = this.root.reduceRight(callback, basis, thisp, this);
     }
     return basis;
 };
 
-SplaySet.prototype.forEach = Iterable.forEach;
-SplaySet.prototype.map = Iterable.map;
-SplaySet.prototype.filter = Iterable.filter;
-SplaySet.prototype.every = Iterable.every;
-SplaySet.prototype.some = Iterable.some;
-SplaySet.prototype.all = Iterable.all;
-SplaySet.prototype.any = Iterable.any;
-SplaySet.prototype.min = Iterable.min;
-SplaySet.prototype.max = Iterable.max;
-SplaySet.prototype.count = Iterable.count;
-SplaySet.prototype.sum = Iterable.sum;
-SplaySet.prototype.average = Iterable.average;
-SplaySet.prototype.flatten = Iterable.flatten;
+SortedSet.prototype.forEach = Iterable.forEach;
+SortedSet.prototype.map = Iterable.map;
+SortedSet.prototype.filter = Iterable.filter;
+SortedSet.prototype.every = Iterable.every;
+SortedSet.prototype.some = Iterable.some;
+SortedSet.prototype.all = Iterable.all;
+SortedSet.prototype.any = Iterable.any;
+SortedSet.prototype.min = Iterable.min;
+SortedSet.prototype.max = Iterable.max;
+SortedSet.prototype.count = Iterable.count;
+SortedSet.prototype.sum = Iterable.sum;
+SortedSet.prototype.average = Iterable.average;
+SortedSet.prototype.flatten = Iterable.flatten;
 
-SplaySet.prototype.values = function values() {
+SortedSet.prototype.values = function values() {
     return this.map(function (value) {
         return value;
     });
 };
 
-SplaySet.prototype.log = function log(charmap, stringify) {
-    charmap = charmap || SplaySet.unicodeRound;
-    stringify = stringify || SplaySet.stringify;
+SortedSet.prototype.log = function log(charmap, stringify) {
+    charmap = charmap || SortedSet.unicodeRound;
+    stringify = stringify || SortedSet.stringify;
     if (this.root) {
         this.root.log(charmap, stringify);
     }
 };
 
-SplaySet.stringify = function stringify(value, leader, below, above) {
+SortedSet.stringify = function stringify(value, leader, below, above) {
     return leader + " " + value;
 };
 
-SplaySet.unicodeRound = {
+SortedSet.unicodeRound = {
     intersection: "\u254b",
     through: "\u2501",
     branchUp: "\u253b",
@@ -250,7 +250,7 @@ SplaySet.unicodeRound = {
     strafe: "\u2503"
 };
 
-SplaySet.unicodeSharp = {
+SortedSet.unicodeSharp = {
     intersection: "\u254b",
     through: "\u2501",
     branchUp: "\u253b",
@@ -260,7 +260,7 @@ SplaySet.unicodeSharp = {
     strafe: "\u2503"
 };
 
-SplaySet.ascii = {
+SortedSet.ascii = {
     intersection: "+",
     through: "-",
     branchUp: "+",
@@ -270,7 +270,9 @@ SplaySet.ascii = {
     strafe: "|"
 };
 
-function SplayNode(value) {
+SortedSet.Node = Node;
+
+function Node(value) {
     this.value = value;
     this.left = null;
     this.right = null;
@@ -278,7 +280,7 @@ function SplayNode(value) {
 
 // TODO case where no basis is provided for reduction
 
-SplayNode.prototype.reduce = function reduce(callback, basis, thisp, tree, depth) {
+Node.prototype.reduce = function reduce(callback, basis, thisp, tree, depth) {
     depth = depth || 0;
     if (this.left) {
         basis = this.left.reduce(callback, basis, thisp, tree, depth + 1);
@@ -290,7 +292,7 @@ SplayNode.prototype.reduce = function reduce(callback, basis, thisp, tree, depth
     return basis;
 };
 
-SplayNode.prototype.reduceRight = function reduce(callback, basis, thisp, tree, depth) {
+Node.prototype.reduceRight = function reduce(callback, basis, thisp, tree, depth) {
     depth = depth || 0;
     if (this.right) {
         basis = this.right.reduce(callback, basis, thisp, tree, depth + 1);
@@ -303,7 +305,7 @@ SplayNode.prototype.reduceRight = function reduce(callback, basis, thisp, tree, 
 };
 
 
-SplayNode.prototype.log = function log(charmap, stringify, leader, above, below) {
+Node.prototype.log = function log(charmap, stringify, leader, above, below) {
     leader = leader || "";
     above = above || "";
     below = below || "";
