@@ -1,12 +1,13 @@
 
 var SortedSet = require("./sorted-set");
-var Iterable = require("./iterable");
+var Reducible = require("./reducible");
+var Operators = require("./operators");
 
 module.exports = SortedMap;
 
 function SortedMap(copy, equals, compare) {
-    equals = equals || SortedSet.equals || Object.equals;
-    compare = compare || SortedSet.compare || Object.compare;
+    equals = equals || this.equals || Object.equals || Operators.equals;
+    compare = compare || this.compare || Object.compare || Operators.compare;
     this.internal = new SortedSet(
         null,
         function (a, b) {
@@ -31,12 +32,12 @@ function SortedMap(copy, equals, compare) {
 }
 
 SortedMap.prototype.get = function (key) {
-    var item = this.internal.get(new this.constructor.Item(key));
+    var item = this.internal.get(new this.Item(key));
     return item && item.value;
 };
 
 SortedMap.prototype.set = function (key, value) {
-    var item = new this.constructor.Item(key, value);
+    var item = new this.Item(key, value);
     var found = this.internal.get(item);
     if (found) { // update
         found.value = value;
@@ -46,11 +47,11 @@ SortedMap.prototype.set = function (key, value) {
 };
 
 SortedMap.prototype.has = function (key) {
-    return this.internal.has(new this.constructor.Item(key));
+    return this.internal.has(new this.Item(key));
 };
 
 SortedMap.prototype['delete'] = function (key) {
-    this.internal['delete'](new this.constructor.Item(key));
+    this.internal['delete'](new this.Item(key));
 };
 
 SortedMap.prototype.reduce = function (callback, basis, thisp) {
@@ -59,28 +60,56 @@ SortedMap.prototype.reduce = function (callback, basis, thisp) {
     }, basis, this);
 };
 
-SortedMap.prototype.forEach = Iterable.forEach;
-SortedMap.prototype.map = Iterable.map;
-SortedMap.prototype.filter = Iterable.filter;
-SortedMap.prototype.every = Iterable.every;
-SortedMap.prototype.some = Iterable.some;
-SortedMap.prototype.all = Iterable.all;
-SortedMap.prototype.any = Iterable.any;
-SortedMap.prototype.min = Iterable.min;
-SortedMap.prototype.max = Iterable.max;
-SortedMap.prototype.count = Iterable.count;
-SortedMap.prototype.sum = Iterable.sum;
-SortedMap.prototype.average = Iterable.average;
-SortedMap.prototype.flatten = Iterable.flatten;
+// TODO keys, values, items
 
-SortedMap.prototype.log = function (charmap, stringify) {
-    // TODO use stringify
-    this.internal.log(charmap, function (item, leader) {
-        return leader + ' ' + item.key + ': ' + item.value;
-    });
+SortedMap.prototype.forEach = Reducible.forEach;
+SortedMap.prototype.map = Reducible.map;
+SortedMap.prototype.filter = Reducible.filter;
+SortedMap.prototype.every = Reducible.every;
+SortedMap.prototype.some = Reducible.some;
+SortedMap.prototype.all = Reducible.all;
+SortedMap.prototype.any = Reducible.any;
+SortedMap.prototype.min = Reducible.min;
+SortedMap.prototype.max = Reducible.max;
+SortedMap.prototype.count = Reducible.count;
+SortedMap.prototype.sum = Reducible.sum;
+SortedMap.prototype.average = Reducible.average;
+SortedMap.prototype.flatten = Reducible.flatten;
+
+SortedMap.prototype.keys = function () {
+    return this.map(getKey);
 };
 
-SortedMap.Item = Item;
+function getKey(value, key) {
+    return key;
+}
+
+SortedMap.prototype.values = function () {
+    return this.map(getValue);
+};
+
+function getValue(value) {
+    return value;
+}
+
+SortedMap.prototype.items = function () {
+    return this.map(getItem);
+};
+
+function getItem(value, key) {
+    return [key, value];
+}
+
+SortedMap.prototype.log = function (charmap, stringifyItem) {
+    stringifyItem = stringifyItem || this.stringifyItem;
+    this.internal.log(charmap, stringifyItem);
+};
+
+SortedMap.prototype.stringifyItem = function (item, leader) {
+    return leader + ' ' + item.key + ': ' + item.value;
+};
+
+SortedMap.prototype.Item = Item;
 
 function Item(key, value) {
     this.key = key;

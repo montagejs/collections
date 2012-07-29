@@ -1,12 +1,12 @@
 
 module.exports = SortedSet;
 
-var Iterable = require("./iterable");
+var Reducible = require("./reducible");
 var Operators = require("./operators");
 
 function SortedSet(copy, equals, compare) {
-    this.equals = equals || Object.equals || Operators.equals;
-    this.compare = compare || Object.compare || Operators.compare;
+    this.equals = equals || this.equals || Object.equals || Operators.equals;
+    this.compare = compare || this.compare || Object.compare || Operators.compare;
     this.root = null;
     if (copy) {
         copy.forEach(this.add, this);
@@ -32,7 +32,7 @@ SortedSet.prototype.get = function get(value) {
 };
 
 SortedSet.prototype.add = function add(value) {
-    var node = new this.constructor.Node(value);
+    var node = new this.Node(value);
     if (this.root) {
         this.splay(value);
         if (!this.equals(value, this.root.value)) {
@@ -84,45 +84,67 @@ SortedSet.prototype.find = function find(value) {
     }
 };
 
-SortedSet.prototype.one = function () {
-    if (!this.root) {
-        throw new Error("Can't get one value from empty set");
+SortedSet.prototype.findGreatest = function (at) {
+    if (this.root) {
+        at = at || this.root;
+        while (at.right) {
+            at = at.right;
+        }
+        return at;
     }
-    return this.root.value;
 };
 
-SortedSet.prototype.only = function () {
-    if (!this.root) {
-        throw new Error("Can't get only value in empty set");
+SortedSet.prototype.findLeast = function (at) {
+    if (this.root) {
+        at = at || this.root;
+        while (at.left) {
+            at = at.left;
+        }
+        return at;
     }
-    if (this.root.left || this.root.right) {
-        throw new Error("Can't get only value in set with multiple values");
-    }
-    return this.root.value;
 };
 
-SortedSet.prototype.sorted = function (compare, by, order) {
-    compare = Comparator(compare || this.compare, by, order);
-    return new SortedSet(this, compare, this.equals);
-};
-
-SortedSet.prototype.clone = function (depth, memo) {
-    if (depth === undefined) {
-        depth = Infinity;
-    } else if (depth === 0) {
-        return this;
+SortedSet.prototype.findGreatestLessThanOrEqual = function (value) {
+    if (this.root) {
+        this.splay(value);
+        // assert root.value <= value
+        return this.root;
     }
-    return new SortedSet(this.map(function (value) {
-        return Object.clone(value, depth - 1, memo);
-    }));
 };
 
-SortedSet.prototype.wipe = function () {
-    this.root = null;
+SortedSet.prototype.findGreatestLessThan = function (value) {
+    if (this.root) {
+        this.splay(value);
+        // assert root.value <= value
+        return this.root.getPrevious();
+    }
+};
+
+SortedSet.prototype.findLeastGreaterThanOrEqual = function (value) {
+    if (this.root) {
+        this.splay(value);
+        // assert root.value <= value
+        var comparison = this.compare(value, this.root.value);
+        if (comparison === 0) {
+            return this.root;
+        } else {
+            return this.root.getNext();
+        }
+    }
+};
+
+SortedSet.prototype.findLeastGreaterThan = function (value) {
+    if (this.root) {
+        this.splay(value);
+        // assert root.value <= value
+        var comparison = this.compare(value, this.root.value);
+        return this.root.getNext();
+    }
 };
 
 // This is the simplified top-down splaying algorithm from: "Self-adjusting
 // Binary Search Trees" by Sleator and Tarjan
+// guarantees that the root.value <= value if root exists
 SortedSet.prototype.splay = function splay(value) {
     var stub, left, right, temp, root;
 
@@ -130,7 +152,7 @@ SortedSet.prototype.splay = function splay(value) {
         return;
     }
 
-    stub = left = right = new this.constructor.Node();
+    stub = left = right = new this.Node();
     root = this.root;
 
     while (true) {
@@ -201,19 +223,31 @@ SortedSet.prototype.reduceRight = function reduce(callback, basis, thisp) {
     return basis;
 };
 
-SortedSet.prototype.forEach = Iterable.forEach;
-SortedSet.prototype.map = Iterable.map;
-SortedSet.prototype.filter = Iterable.filter;
-SortedSet.prototype.every = Iterable.every;
-SortedSet.prototype.some = Iterable.some;
-SortedSet.prototype.all = Iterable.all;
-SortedSet.prototype.any = Iterable.any;
-SortedSet.prototype.min = Iterable.min;
-SortedSet.prototype.max = Iterable.max;
-SortedSet.prototype.count = Iterable.count;
-SortedSet.prototype.sum = Iterable.sum;
-SortedSet.prototype.average = Iterable.average;
-SortedSet.prototype.flatten = Iterable.flatten;
+SortedSet.prototype.forEach = Reducible.forEach;
+SortedSet.prototype.map = Reducible.map;
+SortedSet.prototype.filter = Reducible.filter;
+SortedSet.prototype.every = Reducible.every;
+SortedSet.prototype.some = Reducible.some;
+SortedSet.prototype.all = Reducible.all;
+SortedSet.prototype.any = Reducible.any;
+SortedSet.prototype.count = Reducible.count;
+SortedSet.prototype.sum = Reducible.sum;
+SortedSet.prototype.average = Reducible.average;
+SortedSet.prototype.flatten = Reducible.flatten;
+
+SortedSet.prototype.min = function (at) {
+    var least = this.findLeast(at);
+    if (least) {
+        return least.value;
+    }
+};
+
+SortedSet.prototype.max = function (at) {
+    var greatest = this.findGreatest(at);
+    if (greatest) {
+        return greatest.value;
+    }
+};
 
 SortedSet.prototype.values = function values() {
     return this.map(function (value) {
@@ -221,15 +255,53 @@ SortedSet.prototype.values = function values() {
     });
 };
 
+SortedSet.prototype.one = function () {
+    if (!this.root) {
+        throw new Error("Can't get one value from empty set");
+    }
+    return this.root.value;
+};
+
+SortedSet.prototype.only = function () {
+    if (!this.root) {
+        throw new Error("Can't get only value in empty set");
+    }
+    if (this.root.left || this.root.right) {
+        throw new Error("Can't get only value in set with multiple values");
+    }
+    return this.root.value;
+};
+
+SortedSet.prototype.clone = function (depth, memo) {
+    if (depth === undefined) {
+        depth = Infinity;
+    } else if (depth === 0) {
+        return this;
+    }
+    return new SortedSet(this.map(function (value) {
+        return Object.clone(value, depth - 1, memo);
+    }));
+};
+
+SortedSet.prototype.wipe = function () {
+    this.root = null;
+};
+
+SortedSet.prototype.iterate = function (start, end) {
+    return new this.Iterator(this, start, end);
+};
+
+SortedSet.prototype.Iterator = Iterator;
+
 SortedSet.prototype.log = function log(charmap, stringify) {
     charmap = charmap || SortedSet.unicodeRound;
-    stringify = stringify || SortedSet.stringify;
+    stringify = stringify || this.stringify;
     if (this.root) {
         this.root.log(charmap, stringify);
     }
 };
 
-SortedSet.stringify = function stringify(value, leader, below, above) {
+SortedSet.prototype.stringify = function stringify(value, leader, below, above) {
     return leader + " " + value;
 };
 
@@ -263,7 +335,7 @@ SortedSet.ascii = {
     strafe: "|"
 };
 
-SortedSet.Node = Node;
+SortedSet.prototype.Node = Node;
 
 function Node(value) {
     this.value = value;
@@ -297,6 +369,29 @@ Node.prototype.reduceRight = function reduce(callback, basis, thisp, tree, depth
     return basis;
 };
 
+// ge the next node in this subtree
+Node.prototype.getNext = function () {
+    var node = this;
+    if (node.right) {
+        node = node.right;
+        while (node.left) {
+            node = node.left;
+        }
+        return node;
+    }
+};
+
+// ge the previous node in this subtree
+Node.prototype.getPrevious = function () {
+    var node = this;
+    if (node.left) {
+        node = node.left;
+        while (node.right) {
+            node = node.right;
+        }
+        return node;
+    }
+};
 
 Node.prototype.log = function log(charmap, stringify, leader, above, below) {
     leader = leader || "";
@@ -336,5 +431,38 @@ Node.prototype.log = function log(charmap, stringify, leader, above, below) {
         below + charmap.strafe + " ",
         below + "  "
     );
+};
+
+function Iterator(set, start, end) {
+    this.set = set;
+    this.prev = null;
+    this.end = end;
+    if (start) {
+        var next = this.set.findLeastGreaterThanOrEqual(start);
+        if (next) {
+            this.set.splay(next.value);
+            this.prev = next.getPrevious();
+        }
+    }
+}
+
+Iterator.prototype.next = function () {
+    var next;
+    if (this.prev) {
+        next = this.set.findLeastGreaterThan(this.prev.value);
+    } else {
+        next = this.set.findLeast();
+    }
+    if (!next) {
+        throw StopIteration;
+    }
+    if (
+        this.end !== undefined &&
+        this.set.compare(next.value, this.end) >= 0
+    ) {
+        throw StopIteration;
+    }
+    this.prev = next;
+    return next.value;
 };
 

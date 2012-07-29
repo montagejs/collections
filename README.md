@@ -1,9 +1,27 @@
 
+# Collections
+
+This package contains JavaScript implementations of common data
+structures with idiomatic iterfaces.
+
+-   `sorted-set` a collection of unique values stored in stored order,
+    backed by a splay tree.  The `equals` and `compare` functions can be
+    overridden to provide alternate definitions of "unique".
+-   `sorted-map` a collection of key value pairs stored in sorted order,
+    backed by a sorted set.
+-   `list` an ordered collection of values with fast insertion and
+    deletion and forward and backward traversal, backed by a cyclic
+    doubly linked list with a head node.
+-   `iterator` a wrapper for any iterator the implements `next`,
+    providing a rich lazy traversal interface.
+-   `reducible` provides generic array-like methods for collections that
+    implement `reduce`.
+
+## Sorted Set and Sorted Map
+
 A binary splay tree is a balanced binary tree that rotates the most
 frequently used items toward the root such that they can be accessed the
-most quickly.  This CommonJS package includes a `SortedSet` and
-`SortedMap` in `sorted-set` and `sorted-map` modules that implement a
-splay tree internally.
+most quickly.  `sorted-set` and `sorted-map` are backed by a splay tree.
 
 All "map" implementations use an underlying "set" implementation.  Any
 map can be implemented trivially atop a set by wrapping "compare",
@@ -13,7 +31,7 @@ The default equality comparison function is `===` or `Object.equals` if
 it is shimmed.  The default comparator uses `>` and `<` or
 `Object.compare` if that has been shimmed.
 
-Both `SortedSet` and `SortedMap` implement a `log` function which can
+Both `sorted-set` and `sorted-map` implement a `log` function which can
 produce NPM-style visualizations of the internal state of the sorted
 tree.
 

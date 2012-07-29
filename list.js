@@ -1,14 +1,14 @@
 
 module.exports = List;
 
-var Iterable = require("./iterable");
+var Reducible = require("./reducible");
 var Operators = require("./operators");
 
 function List(copy, equals) {
-    var head = this.head = new Node();
+    var head = this.head = new this.constructor.Node();
     head.next = head;
     head.prev = head;
-    this.equals = equals || Object.equals || Operators.equals;
+    this.equals = equals || this.equals || Object.equals || Operators.equals;
     if (copy) {
         copy.forEach(this.add, this);
     }
@@ -127,6 +127,25 @@ List.prototype.swap = function (at, length, plus) {
     return swapped;
 };
 
+List.prototype.iterate = function () {
+    return new ListIterator(this.head);
+};
+
+function ListIterator(head) {
+    this.head = head;
+    this.at = head.next;
+};
+
+ListIterator.prototype.next = function next() {
+    if (this.at === this.head) {
+        throw StopIteration;
+    } else {
+        var value = this.at.value;
+        this.at = this.at.next;
+        return value;
+    }
+};
+
 List.prototype.reduce = function (callback, basis, thisp) {
     var head = this.head;
     var at = head.next;
@@ -137,19 +156,19 @@ List.prototype.reduce = function (callback, basis, thisp) {
     return basis;
 };
 
-List.prototype.forEach = Iterable.forEach;
-List.prototype.map = Iterable.map;
-List.prototype.filter = Iterable.filter;
-List.prototype.every = Iterable.every;
-List.prototype.some = Iterable.some;
-List.prototype.all = Iterable.all;
-List.prototype.any = Iterable.any;
-List.prototype.min = Iterable.min;
-List.prototype.max = Iterable.max;
-List.prototype.count = Iterable.count;
-List.prototype.sum = Iterable.sum;
-List.prototype.average = Iterable.average;
-List.prototype.flatten = Iterable.flatten;
+List.prototype.forEach = Reducible.forEach;
+List.prototype.map = Reducible.map;
+List.prototype.filter = Reducible.filter;
+List.prototype.every = Reducible.every;
+List.prototype.some = Reducible.some;
+List.prototype.all = Reducible.all;
+List.prototype.any = Reducible.any;
+List.prototype.min = Reducible.min;
+List.prototype.max = Reducible.max;
+List.prototype.count = Reducible.count;
+List.prototype.sum = Reducible.sum;
+List.prototype.average = Reducible.average;
+List.prototype.flatten = Reducible.flatten;
 
 List.Node = Node;
 
