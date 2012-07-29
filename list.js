@@ -5,7 +5,7 @@ var Reducible = require("./reducible");
 var Operators = require("./operators");
 
 function List(copy, equals) {
-    var head = this.head = new this.constructor.Node();
+    var head = this.head = new this.Node();
     head.next = head;
     head.prev = head;
     this.equals = equals || this.equals || Object.equals || Operators.equals;
@@ -56,13 +56,13 @@ List.prototype['delete'] = function (value) {
 };
 
 List.prototype.add = function add(value) {
-    this.head.addAfter(new this.constructor.Node(value));
+    this.head.addAfter(new this.Node(value));
 };
 
 List.prototype.push = function () {
     var head = this.head;
     for (var i = 0; i < arguments.length; i++) {
-        var node = new this.constructor.Node(arguments[i]);
+        var node = new this.Node(arguments[i]);
         head.addAfter(node);
     }
 };
@@ -70,7 +70,7 @@ List.prototype.push = function () {
 List.prototype.unshift = function () {
     var at = this.head;
     for (var i = 0; i < arguments.length; i++) {
-        var node = new this.constructor.Node(arguments[i]);
+        var node = new this.Node(arguments[i]);
         at.addBefore(node);
         at = node;
     }
@@ -121,7 +121,7 @@ List.prototype.swap = function (at, length, plus) {
         at = at.next;
     }
     for (var i = 0; i < plus.length; i++) {
-        var node = new this.constructor.Node(plus[i]);
+        var node = new this.Node(plus[i]);
         at.addAfter(node);
     }
     return swapped;
@@ -170,7 +170,7 @@ List.prototype.sum = Reducible.sum;
 List.prototype.average = Reducible.average;
 List.prototype.flatten = Reducible.flatten;
 
-List.Node = Node;
+List.prototype.Node = Node;
 
 function Node(value) {
     this.value = value;

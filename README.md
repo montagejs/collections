@@ -78,8 +78,6 @@ tree.
 
 - tests
 - docs
-- incorporate iterability
-- incorporate comprehensive introspection functions for slicing ranges
 - hash string map and set, using underlying object
 - relax unique content constraint on splay trees to implement splay
   list and splay multi-map
