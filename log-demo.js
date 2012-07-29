@@ -1,7 +1,7 @@
 
-var SplaySet = require("./splay-set");
+var SortedSet = require("./sorted-set");
 
-var tree = new SplaySet();
+var tree = new SortedSet();
 tree.add(1);
 tree.add(3);
 tree.add(0);
@@ -12,10 +12,10 @@ tree.add(-2);
 tree.get(0);
 
 console.log("ASCII");
-tree.log(SplaySet.ascii);
+tree.log(SortedSet.ascii);
 
 console.log("ASCII boxes");
-tree.log(SplaySet.ascii, function (value, leader, below, above) {
+tree.log(SortedSet.ascii, function (value, leader, below, above) {
     value = "" + value;
     return (
         above + ' +' + Array(value.length + 3).join("-") + "+\n" +
@@ -25,7 +25,7 @@ tree.log(SplaySet.ascii, function (value, leader, below, above) {
 });
 
 console.log("Unicode sharp");
-tree.log(SplaySet.unicodeSharp);
+tree.log(SortedSet.unicodeSharp);
 
 console.log("Unicode round");
 tree.log();
