@@ -9,6 +9,7 @@ function List(copy, equals) {
     head.next = head;
     head.prev = head;
     this.equals = equals || this.equals || Object.equals || Operators.equals;
+    this.length = 0;
     if (copy) {
         copy.forEach(this.add, this);
     }
@@ -48,15 +49,19 @@ List.prototype.get = function get(value) {
     }
 };
 
+// LIFO (delete removes the most recently added equivalent value)
 List.prototype['delete'] = function (value) {
-    var found = this.find(value);
+    var found = this.findLast(value);
     if (found) {
         found['delete']();
+        return true;
     }
+    return false;
 };
 
 List.prototype.add = function add(value) {
     this.head.addAfter(new this.Node(value));
+    this.length++;
 };
 
 List.prototype.push = function () {
@@ -64,6 +69,7 @@ List.prototype.push = function () {
     for (var i = 0; i < arguments.length; i++) {
         var node = new this.Node(arguments[i]);
         head.addAfter(node);
+        this.length++;
     }
 };
 
@@ -72,6 +78,7 @@ List.prototype.unshift = function () {
     for (var i = 0; i < arguments.length; i++) {
         var node = new this.Node(arguments[i]);
         at.addBefore(node);
+        this.length++;
         at = node;
     }
 };
@@ -82,6 +89,7 @@ List.prototype.pop = function () {
     if (head.prev !== head) {
         value = head.prev.value;
         head.prev['delete']();
+        this.length--;
     }
     return value;
 };
@@ -92,6 +100,7 @@ List.prototype.shift = function () {
     if (head.prev !== head) {
         value = head.prev.value;
         head.prev['delete']();
+        this.length--;
     }
     return value;
 };
@@ -120,14 +129,71 @@ List.prototype.swap = function (at, length, plus) {
         at['delete']();
         at = at.next;
     }
+    this.length -= length;
     for (var i = 0; i < plus.length; i++) {
         var node = new this.Node(plus[i]);
         at.addAfter(node);
     }
+    this.length += plus.length;
     return swapped;
 };
 
-List.prototype.iterate = function () {
+// TODO account for missing basis argument
+List.prototype.reduce = function (callback, basis /*, thisp*/) {
+    var thisp = arguments[2];
+    var head = this.head;
+    var at = head.next;
+    while (at !== head) {
+        basis = callback.call(thisp, basis, at.value, at, this);
+        at = at.next;
+    }
+    return basis;
+};
+
+List.prototype.reduceRight = function (callback, basis /*, thisp*/) {
+    var thisp = arguments[2];
+    var head = this.head;
+    var at = head.prev;
+    while (at !== head) {
+        basis = callback.call(thisp, basis, at.value, at, this);
+        at = at.prev;
+    }
+    return basis;
+};
+
+List.prototype.forEach = Reducible.forEach;
+List.prototype.map = Reducible.map;
+List.prototype.toArray = Reducible.toArray;
+List.prototype.filter = Reducible.filter;
+List.prototype.every = Reducible.every;
+List.prototype.some = Reducible.some;
+List.prototype.all = Reducible.all;
+List.prototype.any = Reducible.any;
+List.prototype.min = Reducible.min;
+List.prototype.max = Reducible.max;
+List.prototype.count = Reducible.count;
+List.prototype.sum = Reducible.sum;
+List.prototype.average = Reducible.average;
+List.prototype.flatten = Reducible.flatten;
+
+List.prototype.one = function one() {
+    if (this.head === this.head.next) {
+        throw new Error("Can't get one value from empty list");
+    }
+    return this.head.next.value;
+};
+
+List.prototype.only = function () {
+    if (this.head === this.head.next) {
+        throw new Error("Can't get only value in empty list");
+    }
+    if (this.head.prev !== this.head.next) {
+        throw new Error("Can't get only value in list with multiple values");
+    }
+    return this.head.next.value;
+};
+
+List.prototype.iterate = function iterate() {
     return new ListIterator(this.head);
 };
 
@@ -145,30 +211,6 @@ ListIterator.prototype.next = function next() {
         return value;
     }
 };
-
-List.prototype.reduce = function (callback, basis, thisp) {
-    var head = this.head;
-    var at = head.next;
-    while (at !== head) {
-        basis = callback.call(thisp, basis, at.value, at, this);
-        at = at.next;
-    }
-    return basis;
-};
-
-List.prototype.forEach = Reducible.forEach;
-List.prototype.map = Reducible.map;
-List.prototype.filter = Reducible.filter;
-List.prototype.every = Reducible.every;
-List.prototype.some = Reducible.some;
-List.prototype.all = Reducible.all;
-List.prototype.any = Reducible.any;
-List.prototype.min = Reducible.min;
-List.prototype.max = Reducible.max;
-List.prototype.count = Reducible.count;
-List.prototype.sum = Reducible.sum;
-List.prototype.average = Reducible.average;
-List.prototype.flatten = Reducible.flatten;
 
 List.prototype.Node = Node;
 

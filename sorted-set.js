@@ -3,11 +3,13 @@ module.exports = SortedSet;
 
 var Reducible = require("./reducible");
 var Operators = require("./operators");
+var TreeLog = require("./tree-log");
 
 function SortedSet(copy, equals, compare) {
     this.equals = equals || this.equals || Object.equals || Operators.equals;
     this.compare = compare || this.compare || Object.compare || Operators.compare;
     this.root = null;
+    this.length = 0;
     if (copy) {
         copy.forEach(this.add, this);
     }
@@ -48,9 +50,11 @@ SortedSet.prototype.add = function add(value) {
                 this.root.right = null;
             }
             this.root = node;
+            this.length++;
         }
     } else {
         this.root = node;
+        this.length++;
     }
 };
 
@@ -71,6 +75,7 @@ SortedSet.prototype['delete'] = function (value) {
                 // put the right side of the tree back
                 this.root.right = right;
             }
+            this.length--;
         }
     }
 };
@@ -216,7 +221,7 @@ SortedSet.prototype.reduce = function reduce(callback, basis, thisp) {
     return basis;
 };
 
-SortedSet.prototype.reduceRight = function reduce(callback, basis, thisp) {
+SortedSet.prototype.reduceRight = function reduceRight(callback, basis, thisp) {
     if (this.root) {
         basis = this.root.reduceRight(callback, basis, thisp, this);
     }
@@ -225,6 +230,7 @@ SortedSet.prototype.reduceRight = function reduce(callback, basis, thisp) {
 
 SortedSet.prototype.forEach = Reducible.forEach;
 SortedSet.prototype.map = Reducible.map;
+SortedSet.prototype.toArray = Reducible.toArray;
 SortedSet.prototype.filter = Reducible.filter;
 SortedSet.prototype.every = Reducible.every;
 SortedSet.prototype.some = Reducible.some;
@@ -247,12 +253,6 @@ SortedSet.prototype.max = function (at) {
     if (greatest) {
         return greatest.value;
     }
-};
-
-SortedSet.prototype.values = function values() {
-    return this.map(function (value) {
-        return value;
-    });
 };
 
 SortedSet.prototype.one = function () {
@@ -305,35 +305,9 @@ SortedSet.prototype.stringify = function stringify(value, leader, below, above) 
     return leader + " " + value;
 };
 
-SortedSet.unicodeRound = {
-    intersection: "\u254b",
-    through: "\u2501",
-    branchUp: "\u253b",
-    branchDown: "\u2533",
-    fromBelow: "\u256d", // round corner
-    fromAbove: "\u2570", // round corner
-    strafe: "\u2503"
-};
-
-SortedSet.unicodeSharp = {
-    intersection: "\u254b",
-    through: "\u2501",
-    branchUp: "\u253b",
-    branchDown: "\u2533",
-    fromBelow: "\u250f", // sharp corner
-    fromAbove: "\u2517", // sharp corner
-    strafe: "\u2503"
-};
-
-SortedSet.ascii = {
-    intersection: "+",
-    through: "-",
-    branchUp: "+",
-    branchDown: "+",
-    fromBelow: ".",
-    fromAbove: "'",
-    strafe: "|"
-};
+SortedSet.unicodeRound = TreeLog.unicodeRound;
+SortedSet.unicodeSharp = TreeLog.unicodeSharp;
+SortedSet.ascii = TreeLog.ascii;
 
 SortedSet.prototype.Node = Node;
 

@@ -21,6 +21,14 @@ Reducible.map = function map(callback /*, thisp*/) {
     return result;
 };
 
+Reducible.toArray = function toArray() {
+    return this.map(identity);
+};
+
+function identity(value) {
+    return value;
+}
+
 Reducible.filter = function filter(callback /*, thisp*/) {
     var thisp = arguments[1];
     var result = [];

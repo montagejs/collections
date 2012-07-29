@@ -8,6 +8,10 @@ exports.compare = function (a, b) {
 };
 
 exports.hash = function (object) {
-    return "~" + object;
+    if (Object(object) === object && typeof object.hash === "function") {
+        return "" + object.hash();
+    } else {
+        return "" + object;
+    }
 };
 
