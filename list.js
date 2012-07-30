@@ -8,19 +8,22 @@ function List(copy, equals) {
     var head = this.head = new this.Node();
     head.next = head;
     head.prev = head;
-    this.equals = equals || this.equals || Object.equals || Operators.equals;
+    this.contentEquals = equals || Object.equals || Operators.equals;
     this.length = 0;
     if (copy) {
         copy.forEach(this.add, this);
     }
 }
 
+List.prototype.constructClone = function (copy) {
+    return new this.constructor(copy, this.contentEquals);
+};
 
 List.prototype.find = function find(value) {
     var head = this.head;
     var at = head.next;
     while (at !== head) {
-        if (this.equals(at.value, value)) {
+        if (this.contentEquals(at.value, value)) {
             return at;
         }
         at = at.next;
@@ -31,7 +34,7 @@ List.prototype.findLast = function (value) {
     var head = this.head;
     var at = head.prev;
     while (at !== head) {
-        if (this.equals(at.value, value)) {
+        if (this.contentEquals(at.value, value)) {
             return at;
         }
         at = at.prev;
@@ -57,6 +60,10 @@ List.prototype['delete'] = function (value) {
         return true;
     }
     return false;
+};
+
+List.prototype.wipe = function () {
+    this.head.next = this.head.prev = this.head;
 };
 
 List.prototype.add = function add(value) {
@@ -175,6 +182,11 @@ List.prototype.count = Reducible.count;
 List.prototype.sum = Reducible.sum;
 List.prototype.average = Reducible.average;
 List.prototype.flatten = Reducible.flatten;
+List.prototype.zip = Reducible.zip;
+List.prototype.equals = Reducible.equals;
+List.prototype.compare = Reducible.compare;
+List.prototype.sorted = Reducible.sorted;
+List.prototype.clone = Reducible.clone;
 
 List.prototype.one = function one() {
     if (this.head === this.head.next) {

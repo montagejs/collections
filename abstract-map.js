@@ -16,12 +16,20 @@ AbstractMap.set = function (key, value) {
     }
 };
 
+AbstractMap.value = function (value, key) {
+    this.set(key, value);
+};
+
 AbstractMap.has = function (key) {
     return this.internal.has(new this.Item(key));
 };
 
 AbstractMap['delete'] = function (key) {
     this.internal['delete'](new this.Item(key));
+};
+
+AbstractMap.wipe = function () {
+    this.internal.wipe();
 };
 
 AbstractMap.reduce = function (callback, basis, thisp) {

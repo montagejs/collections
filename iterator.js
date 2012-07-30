@@ -254,16 +254,8 @@ Iterator.prototype.zip = function () {
     );
 };
 
-Iterator.prototype.enumerate = function (start, key, value) {
-    var enumeration = Iterator.count(start).zip(this);
-    if (arguments.length > 1) {
-        enumeration = enumeration.mapIterator(function (pair) {
-            pair[key] = pair[0];
-            pair[value] = pair[1];
-            return pair;
-        });
-    }
-    return enumeration;
+Iterator.prototype.enumerate = function (start) {
+    return Iterator.count(start).zip(this);
 };
 
 // coerces arrays to iterators
@@ -326,7 +318,7 @@ Iterator.concat = function (iterators) {
             return next();
         } catch (exception) {
             if (isStopIteration(exception)) {
-                iteration = iterators.next();
+                iteration = Iterator(iterators.next());
                 next = iteration.next.bind(iteration);
                 return next();
             } else {

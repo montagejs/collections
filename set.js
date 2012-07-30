@@ -15,8 +15,8 @@ function Set(copy, equals, hash) {
     }
     equals = equals || Set.equals || Operators.equals;
     hash = hash || Set.hash || Operators.hash;
-    this.equals = equals;
-    this.hash = hash;
+    this.contentEquals = equals;
+    this.contentHash = hash;
     this.buckets = {};
     this.length = 0;
     if (copy) {
@@ -24,16 +24,20 @@ function Set(copy, equals, hash) {
     }
 }
 
+Set.prototype.constructClone = function (copy) {
+    return new this.constructor(copy, this.contentEquals, this.contentHash);
+};
+
 Set.prototype.Bucket = List;
 
 Set.prototype.has = function (value) {
-    var hash = this.hash(value);
+    var hash = this.contentHash(value);
     var buckets = this.buckets;
     return object_has.call(buckets, hash) && buckets[hash].has(value);
 };
 
 Set.prototype.get = function (value) {
-    var hash = this.hash(value);
+    var hash = this.contentHash(value);
     var buckets = this.buckets;
     if (object_has.call(buckets, hash)) {
         return buckets[hash].get(value);
@@ -41,7 +45,7 @@ Set.prototype.get = function (value) {
 };
 
 Set.prototype['delete'] = function (value) {
-    var hash = this.hash(value);
+    var hash = this.contentHash(value);
     var buckets = this.buckets;
     if (object_has.call(buckets, hash)) {
         var bucket = buckets[hash];
@@ -56,11 +60,18 @@ Set.prototype['delete'] = function (value) {
     return false;
 };
 
+Set.prototype.wipe = function () {
+    var buckets = this.buckets;
+    for (var hash in buckets) {
+        delete buckets[hash];
+    }
+};
+
 Set.prototype.add = function (value) {
-    var hash = this.hash(value);
+    var hash = this.contentHash(value);
     var buckets = this.buckets;
     if (!object_has.call(buckets, hash)) {
-        buckets[hash] = new this.Bucket(null, this.equals);
+        buckets[hash] = new this.Bucket(null, this.contentEquals);
     }
     if (!buckets[hash].has(value)) {
         buckets[hash].add(value);
@@ -91,6 +102,11 @@ Set.prototype.count = Reducible.count;
 Set.prototype.sum = Reducible.sum;
 Set.prototype.average = Reducible.average;
 Set.prototype.flatten = Reducible.flatten;
+Set.prototype.zip = Reducible.zip;
+Set.prototype.sorted = Reducible.sorted;
+Set.prototype.clone = Reducible.clone;
+
+// TODO compare, equals (order agnostic)
 
 Set.prototype.iterate = function () {
     var buckets = this.buckets;

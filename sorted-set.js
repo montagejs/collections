@@ -6,8 +6,8 @@ var Operators = require("./operators");
 var TreeLog = require("./tree-log");
 
 function SortedSet(copy, equals, compare) {
-    this.equals = equals || this.equals || Object.equals || Operators.equals;
-    this.compare = compare || this.compare || Object.compare || Operators.compare;
+    this.contentEquals = equals || Object.equals || Operators.equals;
+    this.contentCompare = compare || Object.compare || Operators.compare;
     this.root = null;
     this.length = 0;
     if (copy) {
@@ -15,10 +15,14 @@ function SortedSet(copy, equals, compare) {
     }
 }
 
+SortedSet.prototype.constructClone = function (copy) {
+    return new this.constructor(copy, this.contentEquals, this.contentCompare);
+};
+
 SortedSet.prototype.has = function has(value) {
     if (this.root) {
         this.splay(value);
-        return this.equals(value, this.root.value);
+        return this.contentEquals(value, this.root.value);
     } else {
         return false;
     }
@@ -27,7 +31,7 @@ SortedSet.prototype.has = function has(value) {
 SortedSet.prototype.get = function get(value) {
     if (this.root) {
         this.splay(value);
-        if (this.equals(value, this.root.value)) {
+        if (this.contentEquals(value, this.root.value)) {
             return this.root.value;
         }
     }
@@ -37,8 +41,8 @@ SortedSet.prototype.add = function add(value) {
     var node = new this.Node(value);
     if (this.root) {
         this.splay(value);
-        if (!this.equals(value, this.root.value)) {
-            if (this.compare(value, this.root.value) < 0) {
+        if (!this.contentEquals(value, this.root.value)) {
+            if (this.contentCompare(value, this.root.value) < 0) {
                 // rotate right
                 node.right = this.root;
                 node.left = this.root.left;
@@ -61,7 +65,7 @@ SortedSet.prototype.add = function add(value) {
 SortedSet.prototype['delete'] = function (value) {
     if (this.root) {
         this.splay(value);
-        if (this.equals(value, this.root.value)) {
+        if (this.contentEquals(value, this.root.value)) {
             if (!this.root.left) {
                 this.root = this.root.right;
             } else {
@@ -83,7 +87,7 @@ SortedSet.prototype['delete'] = function (value) {
 SortedSet.prototype.find = function find(value) {
     if (this.root) {
         this.splay(value);
-        if (this.equals(value, this.root.value)) {
+        if (this.contentEquals(value, this.root.value)) {
             return this.root;
         }
     }
@@ -129,7 +133,7 @@ SortedSet.prototype.findLeastGreaterThanOrEqual = function (value) {
     if (this.root) {
         this.splay(value);
         // assert root.value <= value
-        var comparison = this.compare(value, this.root.value);
+        var comparison = this.contentCompare(value, this.root.value);
         if (comparison === 0) {
             return this.root;
         } else {
@@ -142,7 +146,7 @@ SortedSet.prototype.findLeastGreaterThan = function (value) {
     if (this.root) {
         this.splay(value);
         // assert root.value <= value
-        var comparison = this.compare(value, this.root.value);
+        var comparison = this.contentCompare(value, this.root.value);
         return this.root.getNext();
     }
 };
@@ -161,10 +165,10 @@ SortedSet.prototype.splay = function splay(value) {
     root = this.root;
 
     while (true) {
-        var comparison = this.compare(value, root.value);
+        var comparison = this.contentCompare(value, root.value);
         if (comparison < 0) {
             if (root.left) {
-                if (this.compare(value, root.left.value) < 0) {
+                if (this.contentCompare(value, root.left.value) < 0) {
                     // rotate right
                     temp = root.left;
                     root.left = temp.right;
@@ -183,7 +187,7 @@ SortedSet.prototype.splay = function splay(value) {
             }
         } else if (comparison > 0) {
             if (root.right) {
-                if (this.compare(value, root.right.value) > 0) {
+                if (this.contentCompare(value, root.right.value) > 0) {
                     // rotate left
                     temp = root.right;
                     root.right = temp.left;
@@ -240,6 +244,9 @@ SortedSet.prototype.count = Reducible.count;
 SortedSet.prototype.sum = Reducible.sum;
 SortedSet.prototype.average = Reducible.average;
 SortedSet.prototype.flatten = Reducible.flatten;
+SortedSet.prototype.zip = Reducible.flatten;
+SortedSet.prototype.sorted = Reducible.sorted;
+SortedSet.prototype.clone = Reducible.clone;
 
 SortedSet.prototype.min = function (at) {
     var least = this.findLeast(at);
@@ -270,17 +277,6 @@ SortedSet.prototype.only = function () {
         throw new Error("Can't get only value in set with multiple values");
     }
     return this.root.value;
-};
-
-SortedSet.prototype.clone = function (depth, memo) {
-    if (depth === undefined) {
-        depth = Infinity;
-    } else if (depth === 0) {
-        return this;
-    }
-    return new SortedSet(this.map(function (value) {
-        return Object.clone(value, depth - 1, memo);
-    }));
 };
 
 SortedSet.prototype.wipe = function () {
@@ -432,7 +428,7 @@ Iterator.prototype.next = function () {
     }
     if (
         this.end !== undefined &&
-        this.set.compare(next.value, this.end) >= 0
+        this.set.contentCompare(next.value, this.end) >= 0
     ) {
         throw StopIteration;
     }

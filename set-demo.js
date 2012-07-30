@@ -51,3 +51,5 @@ console.log(set.iterate().mapIterator(function (item) {
     return item.value;
 }).toArray());
 
+//console.log(new Set([1, 2, 3]).equals([1, 2, 3]));
+

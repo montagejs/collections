@@ -21,3 +21,6 @@ map.forEach(function (value, key) {
 map.delete(a);
 console.log(map.values());
 
+console.log('\nclone');
+console.log(map.clone().items());
+

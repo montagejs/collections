@@ -7,8 +7,10 @@ var AbstractMap = require("./abstract-map");
 module.exports = SortedMap;
 
 function SortedMap(copy, equals, compare) {
-    equals = equals || this.equals || Object.equals || Operators.equals;
-    compare = compare || this.compare || Object.compare || Operators.compare;
+    equals = equals || Object.equals || Operators.equals;
+    compare = compare || Object.compare || Operators.compare;
+    this.contentEquals = equals;
+    this.contentCompare = compare;
     this.internal = new SortedSet(
         null,
         function (a, b) {
@@ -19,23 +21,21 @@ function SortedMap(copy, equals, compare) {
         }
     );
     if (copy) {
-        // use Object.forEach sham if available
-        if (Object.forEach) {
-            Object.forEach(copy, function (value, key) {
-                this.set(key, value);
-            }, this);
-        } else {
-            copy.forEach(function (value, key) {
-                this.set(key, value);
-            }, this);
-        }
+        // TODO copy object literals
+        copy.forEach(this.add, this);
     }
 }
+
+SortedMap.prototype.constructClone = function (copy) {
+    return new this.constructor(copy, this.contentEquals, this.contentCompare);
+};
 
 SortedMap.prototype.has = AbstractMap.has;
 SortedMap.prototype.get = AbstractMap.get;
 SortedMap.prototype.set = AbstractMap.set;
+SortedMap.prototype.add = AbstractMap.add;
 SortedMap.prototype['delete'] = AbstractMap['delete'];
+SortedMap.prototype.wipe = AbstractMap.wipe;
 SortedMap.prototype.reduce = AbstractMap.reduce;
 SortedMap.prototype.keys = AbstractMap.keys;
 SortedMap.prototype.values = AbstractMap.values;
@@ -56,6 +56,8 @@ SortedMap.prototype.count = Reducible.count;
 SortedMap.prototype.sum = Reducible.sum;
 SortedMap.prototype.average = Reducible.average;
 SortedMap.prototype.flatten = Reducible.flatten;
+SortedMap.prototype.zip = Reducible.zip;
+SortedMap.prototype.clone = Reducible.clone;
 
 SortedMap.prototype.log = function (charmap, stringifyItem) {
     stringifyItem = stringifyItem || this.stringifyItem;

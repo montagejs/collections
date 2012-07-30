@@ -25,3 +25,11 @@ console.log(list.splice(list.find(0), 2, 'a', 'b', 'c'), list.slice());
 console.log(new List([1]).only());
 console.log(new List([1, 2, 3]).one());
 
+console.log(new List([4, 2, 3, 1]).sorted());
+
+console.log(new List([1, 2, 3]).zip([1, 2, 3, 4]));
+console.log(new List([1, 2, 3]).equals([1, 2, 3]));
+console.log(new List([1, 2, 3]).equals([1, 2, 3, 4]));
+console.log(new List([1, 2, 3, 4]).equals([1, 2, 3]));
+console.log(new List([1, 2, 3]).equals([3, 2, 1]));
+

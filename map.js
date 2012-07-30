@@ -7,11 +7,13 @@ var AbstractMap = require("./abstract-map");
 module.exports = Map;
 
 function Map(copy, equals, hash) {
-    equals = equals || this.equals || Object.equals || Operators.equals;
-    hash = hash || this.hash || Object.hash || Operators.hash;
     if (!(this instanceof Map)) {
-        return new Map(reserved, options);
+        return new Map(copy, equals, hash);
     }
+    equals = equals || Object.equals || Operators.equals;
+    hash = hash || Object.hash || Operators.hash;
+    this.contentEquals = equals;
+    this.contentHash = hash;
     this.internal = new Set(
         undefined,
         function (a, b) {
@@ -22,23 +24,21 @@ function Map(copy, equals, hash) {
         }
     );
     if (copy) {
-        // use Object.forEach sham if available
-        if (Object.forEach) {
-            Object.forEach(copy, function (value, key) {
-                this.set(key, value);
-            }, this);
-        } else {
-            copy.forEach(function (value, key) {
-                this.set(key, value);
-            }, this);
-        }
+        // TODO copy object literals
+        copy.forEach(this.add, this);
     }
 }
+
+Map.prototype.constructClone = function (copy) {
+    return new this.constructor(copy, this.contentEquals, this.contentHash);
+};
 
 Map.prototype.has = AbstractMap.has;
 Map.prototype.get = AbstractMap.get;
 Map.prototype.set = AbstractMap.set;
+Map.prototype.add = AbstractMap.add;
 Map.prototype['delete'] = AbstractMap['delete'];
+Map.prototype.wipe = AbstractMap.wipe;
 Map.prototype.reduce = AbstractMap.reduce;
 Map.prototype.keys = AbstractMap.keys;
 Map.prototype.values = AbstractMap.values;
@@ -59,6 +59,9 @@ Map.prototype.count = Reducible.count;
 Map.prototype.sum = Reducible.sum;
 Map.prototype.average = Reducible.average;
 Map.prototype.flatten = Reducible.flatten;
+Map.prototype.sorted = Reducible.sorted;
+Map.prototype.zip = Reducible.zip;
+Map.prototype.clone = Reducible.clone;
 
 Map.prototype.log = function (charmap, stringify) {
     stringify = stringify || this.stringify;

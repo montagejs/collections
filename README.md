@@ -13,9 +13,13 @@ structures with idiomatic iterfaces.
     a hash table.  The underlying storage is a plain JavaScript object
     that maps hashes to lists of values that share the same hash.
     Values may be objects.  The `equals` and `hash` functions can be
-    overridden to provide alternate definitions of "unique".
+    overridden to provide alternate definitions of "unique".  This
+    collection is intended to be replaced by a native implementation
+    that does not rely on `hash`.
 -   `Map(copy, equals, hash)`: a collection of key and value items with
-    unique keys, backed by a set.  Keys may be objects.
+    unique keys, backed by a set.  Keys may be objects.  This collection
+    is intended to be replaced by a native implementation that does not
+    rely on `hash`.
 -   `SortedSet(copy, equals, compare)`: a collection of unique values
     stored in stored order, backed by a splay tree.  The `equals` and
     `compare` functions can be overridden to provide alternate
@@ -39,6 +43,9 @@ structures with idiomatic iterfaces.
 -   `set(key, value)`: (Map, SortedMap) sets the value for a key.
 -   `add(value)`: (List, Set, SortedSet) adds a value.  Sets silently
     drop the value if an equivalent value already exists.
+-   `add(value, key)`: (Map, SortedMap) sets the value for a key,
+    convenient in conjunction with `forEach` due to the callback
+    argument order.
 -   `delete(key)`: (Map, SortedMap) deletes the value for a given key.
     Returns whether the key was found.
 -   `delete(value)`: (List, Set, SortedSet) deletes a value.  Returns
@@ -67,39 +74,63 @@ structures with idiomatic iterfaces.
 -   `splice(start, length, ...values)`: (List, Array)
 -   `swap(start, length, values)`: (List) performs a splice without
     variadic arguments.
+-   `concat(...iterables)`: (Iterator, TODO List)
 -   `keys()`: (Map, SortedMap) returns an array of the keys
 -   `values()`: (Map, SortedMap) returns an array of the values
 -   `items()`: (`items`, SortedMap) returns an array of `[key, value]`
     pairs for each item
--   `reduce(callback(result, value, key, object, depth), basis, thisp)`: (List, Set, Map, SortedSet, SortedMap)
--   `reduceRight(callback(result, value, key, object, depth), basis, thisp)`: (List, Map, SortedSet, SortedMap)
--   `forEach(callback(value, key, object, depth), thisp)`: (List, Set, Map, SortedSet, SortedMap)
--   `map(callback(value, key, object, depth), thisp)`: (List, Set, Map, SortedSet, SortedMap)
--   `toArray()`: (List, Set, Map, SortedSet, SortedMap)
--   `filter(callback(value, key, object, depth), thisp)`: (List, Set, Map, SortedSet, SortedMap)
--   `every(callback(value, key, object, depth), thisp)`: (List, Set, Map, SortedSet, SortedMap)
--   `some(callback(value, key, object, depth), thisp)`: (List, Set, Map, SortedSet, SortedMap)
--   `any()`: (List, Set, Map, SortedSet, SortedMap) whether any value is
-    truthy
--   `all()`: (List, Set, Map, SortedSet, SortedMap) whether all values
-    are truthy
--   `min()`: (List, Set, Map, SortedSet, SortedMap) the smallest value.
-    This is fast for sorted collections (logarithic), but slow for
-    everything else (linear).
--   `max()`: (List, Set, Map, SortedSet, SortedMap) the largest value.
-    This is fast for sorted collections (logarithic), but slow for
-    everything else (linear).
+-   `reduce(callback(result, value, key, object, depth), basis, thisp)`:
+    (Iterator, List, Set, Map, SortedSet, SortedMap)
+-   `reduceRight(callback(result, value, key, object, depth), basis,
+    thisp)`: (List, Map, SortedSet, SortedMap)
+-   `forEach(callback(value, key, object, depth), thisp)`:
+    (Iterator, List, Set, Map, SortedSet, SortedMap)
+-   `map(callback(value, key, object, depth), thisp)`:
+    (Iterator, List, Set, Map, SortedSet, SortedMap)
+-   `toArray()`:
+    (Iterator, List, Set, Map, SortedSet, SortedMap)
+-   `filter(callback(value, key, object, depth), thisp)`:
+    (List, Set, Map, SortedSet, SortedMap)
+-   `every(callback(value, key, object, depth), thisp)`:
+    (Iterator, List, Set, Map, SortedSet, SortedMap) whether every
+    value passes a given guard.  Stops evaluating the guard after the
+    first failure.  Iterators stop consuming after the the first
+    failure.
+-   `some(callback(value, key, object, depth), thisp)`:
+    (List, Set, Map, SortedSet, SortedMap) whether there is a value that
+    passes a given guard.  Stops evaluating the guard after the first
+    success.  Iterators stop consuming after the first success.
+-   `any()`: (Iterator, List, Set, Map, SortedSet, SortedMap) whether
+    any value is truthy
+-   `all()`: (Iterator, List, Set, Map, SortedSet, SortedMap) whether
+    all values are truthy
+-   `min()`: (Iterator, List, Set, Map, SortedSet, SortedMap) the
+    smallest value.  This is fast for sorted collections (logarithic),
+    but slow for everything else (linear).
+-   `max()`: (Iterator, List, Set, Map, SortedSet, SortedMap) the
+    largest value.  This is fast for sorted collections (logarithic),
+    but slow for everything else (linear).
 -   `one()`: (List, SortedSet) any single value, or throws an exception
     if there are no values.  This is very fast (constant) for all
     collections.  For a sorted set, the value is not deterministic.
 -   `only()`: (List, SortedSet) the one and only value, or throws an
     exception if there are no values or more than one value.
 -   `count()`: (List, Set, Map, SortedSet, SortedMap)
--   `sum()`: (List, Set, Map, SortedSet, SortedMap)
--   `average()`: (List, Set, Map, SortedSet, SortedMap)
--   `flatten()`: (List, Set, Map, SortedSet, SortedMap)
--   `clone(depth, memo)`: (SortedSet, TODO all others)
--   `wipe()`: (SortedSet, TODO all others)
+-   `sum()`: (Iterator, List, Set, Map, SortedSet, SortedMap)
+-   `average()`: (Iterator, List, Set, Map, SortedSet, SortedMap)
+-   `flatten()`: (Iterator, List, Set, Map, SortedSet, SortedMap)
+-   `zip(...collections)`: (List, Set, Map, SortedSet, SortedMap)
+-   `enuemrate(zero)`: (Iterator, TODO List, Set, Map, SortedSet,
+    SortedMap)
+-   `sorted(compare)`: (List, Set, Map)
+-   `clone(depth, memo)`: (List, Set, Map, SortedSet, SortedMap)
+    replicates the collection.  If `Object.clone` is shimmed, clones the
+    values deeply, to the specified depth, using the given memo to
+    resolve reference cycles (which must the `has` and `set` parts of
+    the Map interface, allowing objects for keys)
+-   `wipe()`: (List, Set, Map, SortedSet, SortedMap)
+-   `equals(that)`: (TODO)
+-   `compare(that)`: (TODO)
 -   `iterate()`: (List, Set, SortedSet, SortedMap)
 -   `iterate(start, end)`: (SortedSet) returns an iterator for all
     values in the half-open interval [start, end), that is, greater than
@@ -109,6 +140,64 @@ structures with idiomatic iterfaces.
     describing the internal state of the data structure to the console.
 -   `splay(value)`: (SortedSet) rotates the internal splay tree such
     that the root node is less than or equal to the given value.
+
+Iterator
+
+-   `dropWhile(callback(value, index, iterator), thisp)`
+-   `takeWhile(callback(value, index, iterator), thisp)`
+-   `mapIterator(callback(value, index, iterator))`: (Iterator) returns
+    an iterator for a mapping on the source values.  Values are consumed
+    on demand.
+-   `filterIterator(callback(value, index, iterator))`: (Iterator) returns
+    an iterator for those values from the source that pass the given
+    guard.  Values are consumed on demand.
+
+Iterator utilities
+
+-   `cycle(iterable, times)`
+-   `concat(iterables)`
+-   `transpose(iterables)`
+-   `zip(...iterables)`: variadic transpose
+-   `chain(...iterables)`: variadic concat
+-   `range(start, stop, step)`: iterates from start to stop by step
+-   `count(start, step)`: iterates from start by step, indefinitely
+-   `repeat(value, times)`: repeats the given value either finite times
+    or indefinitely
+
+## List
+
+Lists are backed by a cyclic doubly-linked list with a head node.  The
+nodes are returned by "find" methods and accepted by "slice" and
+"splice" as representatives of positions within the list.  Their
+properties and methods are part of the interface of the structure.
+
+-   `prev`: the previous node, or the `head` of the list if this is the
+    first node
+-   `next`: the next node, or the `head` of the list if this is the last
+    node
+
+## Set and Map
+
+Set and map are like hash tables, but not implemented with a block of
+memory as they would be in a lower-level language.  Most of the work of
+providing fast insertion and lookup based on a hash is performed by the
+underlying plain JavaScript object.  Each key of the object is a hash
+string and each value is a List of values with that hash.  The inner
+list resolves collisions.  With a good `hash` method, the use of the
+list can be avoided.
+
+Sets and maps both have a `log` function that displays the internal
+structure of the bucket list in an NPM-style.
+
+```
+┣━┳ 1
+┃ ┗━━ {"key":1,"value":"a"}
+┣━┳ 2
+┃ ┣━━ {"key":2,"value":"c"}
+┃ ┗━━ {"key":2,"value":"d"}
+┗━┳ 3
+  ┗━━ {"key":3,"value":"b"}
+```
 
 ## Sorted Set and Sorted Map
 
@@ -169,18 +258,53 @@ tree.
 
 ## Future work
 
+Goals
+
 - tests
 - docs
-- hash string map and set, using underlying object
-- relax unique content constraint on splay trees to implement splay
-  list and splay multi-map
-- LRU cache sets and maps
-- ARC cache sets and maps
-- ordered set type based on list
-- trie set and map
-- immutable set and map structures using hash tries
-- heap
-- binary heap
-- observable variants of all collection types
+- shallow change dispatch and listeners
 - alternative module systems song and dance
+- optional new on constructors
+- missing value constructor
+
+More methods
+
+- equals
+- compare
+- fast list splicing
+
+More collections
+
+- sorted-list (sorted, can contain duplicates, perhaps backed by splay
+  tree with relaxation on the uniqueness invariant)
+- sorted-multi-map (sorted, can contain duplicate entries, perhaps
+  backed by sorted-list)
+- multi-map (unordered, can contain duplicates)
+- ordered-set (preserves traversal order based on insertion, unique
+  values)
+- ordered-map (preserves traversal order based on insertion, unique
+  keys)
+- ordered-multi-map (preserves traversal order based on insertion, may
+  contain duplicate keys)
+- string-set (set of strings, backed by a trie)
+- dict (string-map, map of strings to values, backed by a string set)
+- immutable-* (mutation functions return new objects that largely share
+  the previous version's internal state, some perhaps backed by a hash
+  trie)
+- lru-set (least recently used cache)
+- lru-map
+- arc-set (adaptive replacement cache)
+- arc-map
+
+Consolidate shims from ES5-Shim and elsewhere
+
+- weak-map-shim
+- object-shim
+- object-sham
+- array-shim
+- array-sham
+- date-shim
+
+- array heap implementation
+- binary heap implementation
 
