@@ -89,6 +89,9 @@ Label][] to objects.
 -   `add(value, key)`: (Map, SortedMap) sets the value for a key,
     convenient in conjunction with `forEach` due to the callback
     argument order.
+-   `addEach(values)`: (List, Set, Map, SortedSet, SortedMap) adds all
+    values or key value pairs to this collection.  Works for arrays and
+    objects as well as any other collection.
 -   `delete(key)`: (Map, SortedMap) deletes the value for a given key.
     Returns whether the key was found.
 -   `delete(value)`: (List, Set, SortedSet) deletes a value.  Returns
