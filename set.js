@@ -19,9 +19,7 @@ function Set(values, equals, hash) {
     this.contentHash = hash;
     this.buckets = {};
     this.length = 0;
-    if (values) {
-        values.forEach(this.add, this);
-    }
+    this.addEach(values);
 }
 
 Set.prototype.constructClone = function (values) {
@@ -92,6 +90,7 @@ Set.prototype.reduce = function (callback, basis /*, thisp*/) {
     }, basis);
 };
 
+Set.prototype.addEach = Reducible.addEach;
 Set.prototype.forEach = Reducible.forEach;
 Set.prototype.map = Reducible.map;
 Set.prototype.toArray = Reducible.toArray;

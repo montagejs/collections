@@ -11,7 +11,7 @@ function SortedMap(values, equals, compare) {
     compare = compare || Object.compare || Operators.compare;
     this.contentEquals = equals;
     this.contentCompare = compare;
-    this.internal = new SortedSet(
+    this.itemSet = new SortedSet(
         null,
         function (a, b) {
             return equals(a.key, b.key);
@@ -20,15 +20,7 @@ function SortedMap(values, equals, compare) {
             return compare(a.key, b.key);
         }
     );
-    if (values && Object(values) === values) {
-        if (typeof values.forEach === "function") {
-            values.forEach(this.add, this);
-        } else {
-            Object.keys(values).forEach(function (key) {
-                this.set(key, values[key]);
-            }, this);
-        }
-    }
+    this.addEach(values);
 }
 
 SortedMap.prototype.constructClone = function (values) {
@@ -48,6 +40,7 @@ SortedMap.prototype.values = AbstractMap.values;
 SortedMap.prototype.items = AbstractMap.items;
 SortedMap.prototype.Item = AbstractMap.Item;
 
+SortedMap.prototype.addEach = Reducible.addEach;
 SortedMap.prototype.forEach = Reducible.forEach;
 SortedMap.prototype.map = Reducible.map;
 SortedMap.prototype.toArray = Reducible.toArray;
@@ -67,7 +60,7 @@ SortedMap.prototype.clone = Reducible.clone;
 
 SortedMap.prototype.log = function (charmap, stringifyItem) {
     stringifyItem = stringifyItem || this.stringifyItem;
-    this.internal.log(charmap, stringifyItem);
+    this.itemSet.log(charmap, stringifyItem);
 };
 
 SortedMap.prototype.stringifyItem = function (item, leader) {

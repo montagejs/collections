@@ -3,6 +3,18 @@ var Reducible = module.exports = {};
 
 var Operators = require("./operators");
 
+Reducible.addEach = function addEach(values) {
+    if (values && Object(values) === values) {
+        if (typeof values.forEach === "function") {
+            values.forEach(this.add, this);
+        } else {
+            Object.keys(values).forEach(function (key) {
+                this.add(values[key], key);
+            }, this);
+        }
+    }
+};
+
 // all of the following functions are implemented in terms of "reduce".
 
 Reducible.forEach = function forEach(callback /*, thisp*/) {

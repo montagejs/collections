@@ -1,8 +1,10 @@
 
 var AbstractMap = module.exports = {};
 
+// all of these methods depend on the constructor providing an `itemSet`
+
 AbstractMap.get = function (key) {
-    var item = this.internal.get(new this.Item(key));
+    var item = this.itemSet.get(new this.Item(key));
     if (item) {
         return item.value;
     }
@@ -14,11 +16,11 @@ AbstractMap.getDefault = function (key) {
 
 AbstractMap.set = function (key, value) {
     var item = new this.Item(key, value);
-    var found = this.internal.get(item);
+    var found = this.itemSet.get(item);
     if (found) { // update
         found.value = value;
     } else { // create
-        this.internal.add(item);
+        this.itemSet.add(item);
     }
 };
 
@@ -31,25 +33,25 @@ AbstractMap.value = function (value, key) {
 };
 
 AbstractMap.has = function (key) {
-    return this.internal.has(new this.Item(key));
+    return this.itemSet.has(new this.Item(key));
 };
 
 AbstractMap['delete'] = function (key) {
-    this.internal['delete'](new this.Item(key));
+    this.itemSet['delete'](new this.Item(key));
 };
 
 AbstractMap.wipe = function () {
-    this.internal.wipe();
+    this.itemSet.wipe();
 };
 
 AbstractMap.reduce = function (callback, basis, thisp) {
-    return this.internal.reduce(function (basis, item) {
+    return this.itemSet.reduce(function (basis, item) {
         return callback.call(thisp, basis, item.value, item.key, this);
     }, basis, this);
 };
 
 AbstractMap.reduceRight = function (callback, basis, thisp) {
-    return this.internal.reduceRight(function (basis, item) {
+    return this.itemSet.reduceRight(function (basis, item) {
         return callback.call(thisp, basis, item.value, item.key, this);
     }, basis, this);
 };

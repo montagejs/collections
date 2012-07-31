@@ -10,9 +10,7 @@ function List(values, equals) {
     head.prev = head;
     this.contentEquals = equals || Object.equals || Operators.equals;
     this.length = 0;
-    if (values) {
-        values.forEach(this.add, this);
-    }
+    this.addEach(values);
 }
 
 List.prototype.constructClone = function (values) {
@@ -172,6 +170,7 @@ List.prototype.reduceRight = function (callback, basis /*, thisp*/) {
     return basis;
 };
 
+List.prototype.addEach = Reducible.addEach;
 List.prototype.forEach = Reducible.forEach;
 List.prototype.map = Reducible.map;
 List.prototype.toArray = Reducible.toArray;

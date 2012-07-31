@@ -10,9 +10,7 @@ function SortedSet(values, equals, compare) {
     this.contentCompare = compare || Object.compare || Operators.compare;
     this.root = null;
     this.length = 0;
-    if (values) {
-        values.forEach(this.add, this);
-    }
+    this.addEach(values);
 }
 
 SortedSet.prototype.constructClone = function (values) {
@@ -236,6 +234,7 @@ SortedSet.prototype.reduceRight = function reduceRight(callback, basis, thisp) {
     return basis;
 };
 
+SortedSet.prototype.addEach = Reducible.addEach;
 SortedSet.prototype.forEach = Reducible.forEach;
 SortedSet.prototype.map = Reducible.map;
 SortedSet.prototype.toArray = Reducible.toArray;

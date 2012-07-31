@@ -14,7 +14,7 @@ function Map(values, equals, hash) {
     hash = hash || Object.hash || Operators.hash;
     this.contentEquals = equals;
     this.contentHash = hash;
-    this.internal = new Set(
+    this.itemSet = new Set(
         undefined,
         function (a, b) {
             return equals(a.key, b.key);
@@ -23,15 +23,7 @@ function Map(values, equals, hash) {
             return hash(item.key);
         }
     );
-    if (values && Object(values) === values) {
-        if (typeof values.forEach === "function") {
-            values.forEach(this.add, this);
-        } else {
-            Object.keys(values).forEach(function (key) {
-                this.set(key, values[key]);
-            }, this);
-        }
-    }
+    this.addEach(values);
 }
 
 Map.prototype.constructClone = function (values) {
@@ -55,6 +47,7 @@ Map.prototype.values = AbstractMap.values;
 Map.prototype.items = AbstractMap.items;
 Map.prototype.Item = AbstractMap.Item;
 
+Map.prototype.addEach = Reducible.addEach;
 Map.prototype.forEach = Reducible.forEach;
 Map.prototype.map = Reducible.map;
 Map.prototype.toArray = Reducible.toArray;
@@ -75,7 +68,7 @@ Map.prototype.clone = Reducible.clone;
 
 Map.prototype.log = function (charmap, stringify) {
     stringify = stringify || this.stringify;
-    this.internal.log(charmap, stringify);
+    this.itemSet.log(charmap, stringify);
 };
 
 Map.prototype.stringify = function (item, leader) {

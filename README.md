@@ -288,6 +288,14 @@ tree.
 ╰━┻ 3
 ```
 
+## Map and SortedMap
+
+Maps share most of their implementation through `abstract-map`,
+delegating to an `itemSet` property and overriding their operators to
+follow the `key` property of each item in the set.  The set does most of
+the work.
+
+
 ## Coupling
 
 These collections strive to maximize overlapping implementations where
@@ -342,7 +350,6 @@ More methods
 - equals
 - compare
 - fast list splicing
-- addEach, factored out of constructor
 
 More collections
 
