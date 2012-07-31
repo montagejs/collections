@@ -6,7 +6,7 @@ var AbstractMap = require("./abstract-map");
 
 module.exports = SortedMap;
 
-function SortedMap(copy, equals, compare) {
+function SortedMap(values, equals, compare) {
     equals = equals || Object.equals || Operators.equals;
     compare = compare || Object.compare || Operators.compare;
     this.contentEquals = equals;
@@ -20,18 +20,24 @@ function SortedMap(copy, equals, compare) {
             return compare(a.key, b.key);
         }
     );
-    if (copy) {
-        // TODO copy object literals
-        copy.forEach(this.add, this);
+    if (values && Object(values) === values) {
+        if (typeof values.forEach === "function") {
+            values.forEach(this.add, this);
+        } else {
+            Object.keys(values).forEach(function (key) {
+                this.set(key, values[key]);
+            }, this);
+        }
     }
 }
 
-SortedMap.prototype.constructClone = function (copy) {
-    return new this.constructor(copy, this.contentEquals, this.contentCompare);
+SortedMap.prototype.constructClone = function (values) {
+    return new this.constructor(values, this.contentEquals, this.contentCompare);
 };
 
 SortedMap.prototype.has = AbstractMap.has;
 SortedMap.prototype.get = AbstractMap.get;
+SortedMap.prototype.getDefault = AbstractMap.getDefault;
 SortedMap.prototype.set = AbstractMap.set;
 SortedMap.prototype.add = AbstractMap.add;
 SortedMap.prototype['delete'] = AbstractMap['delete'];

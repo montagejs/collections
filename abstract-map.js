@@ -3,7 +3,13 @@ var AbstractMap = module.exports = {};
 
 AbstractMap.get = function (key) {
     var item = this.internal.get(new this.Item(key));
-    return item && item.value;
+    if (item) {
+        return item.value;
+    }
+    return this.getDefault(key);
+};
+
+AbstractMap.getDefault = function (key) {
 };
 
 AbstractMap.set = function (key, value) {
@@ -14,6 +20,10 @@ AbstractMap.set = function (key, value) {
     } else { // create
         this.internal.add(item);
     }
+};
+
+AbstractMap.add = function (value, key) {
+    this.set(key, value);
 };
 
 AbstractMap.value = function (value, key) {

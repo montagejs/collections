@@ -5,18 +5,18 @@ var Reducible = require("./reducible");
 var Operators = require("./operators");
 var TreeLog = require("./tree-log");
 
-function SortedSet(copy, equals, compare) {
+function SortedSet(values, equals, compare) {
     this.contentEquals = equals || Object.equals || Operators.equals;
     this.contentCompare = compare || Object.compare || Operators.compare;
     this.root = null;
     this.length = 0;
-    if (copy) {
-        copy.forEach(this.add, this);
+    if (values) {
+        values.forEach(this.add, this);
     }
 }
 
-SortedSet.prototype.constructClone = function (copy) {
-    return new this.constructor(copy, this.contentEquals, this.contentCompare);
+SortedSet.prototype.constructClone = function (values) {
+    return new this.constructor(values, this.contentEquals, this.contentCompare);
 };
 
 SortedSet.prototype.has = function has(value) {
@@ -35,6 +35,10 @@ SortedSet.prototype.get = function get(value) {
             return this.root.value;
         }
     }
+    return this.getDefault(value);
+};
+
+SortedSet.prototype.getDefault = function () {
 };
 
 SortedSet.prototype.add = function add(value) {

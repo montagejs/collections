@@ -4,31 +4,71 @@
 This package contains JavaScript implementations of common data
 structures with idiomatic iterfaces.
 
--   `List(copy, equals)`: an ordered collection of values with fast
+-   `List(values, equals)`: an ordered collection of values with fast
     insertion and deletion and forward and backward traversal, backed by
     a cyclic doubly linked list with a head node.  Lists support most of
     the Array interface, except that they use and return nodes instead
     of integer indicies in analogous functions.
--   `Set(copy, equals, hash)`: a collection of unique values stored like
+-   `Set(values, equals, hash)`: a collection of unique values stored like
     a hash table.  The underlying storage is a plain JavaScript object
     that maps hashes to lists of values that share the same hash.
     Values may be objects.  The `equals` and `hash` functions can be
     overridden to provide alternate definitions of "unique".  This
     collection is intended to be replaced by a native implementation
     that does not rely on `hash`.
--   `Map(copy, equals, hash)`: a collection of key and value items with
+-   `Map(map, equals, hash)`: a collection of key and value items with
     unique keys, backed by a set.  Keys may be objects.  This collection
     is intended to be replaced by a native implementation that does not
     rely on `hash`.
--   `SortedSet(copy, equals, compare)`: a collection of unique values
+-   `SortedSet(values, equals, compare)`: a collection of unique values
     stored in stored order, backed by a splay tree.  The `equals` and
     `compare` functions can be overridden to provide alternate
     definitions of "unique".
--   `SortedMap(copy, equals, compare)`: a collection of key value pairs
+-   `SortedMap(map, equals, compare)`: a collection of key value pairs
     stored in sorted order, backed by a sorted set.
 -   `Iterator(iterable)`: a wrapper for any iterable that implements
     `iterate` or iterator the implements `next`, providing a rich lazy
     traversal interface.
+
+For all of these constructors, the argument `values` is an optional
+collection of initial values, and may be an array.  If the `values` are
+in a map collection, the the values are taken, but the keys are ignored.
+
+The `map` argument is an optional collection to copy shallowly into the
+new mapping.  The `map` may be an object literal.  If `map` implements
+`forEach`, the values for each key are copied.  So, `map` may be an
+array, where each index is accepted as the key.
+
+`equals(x, y)`, `compare(x, y)`, and `hash(value)` are all optional
+arguments overriding the meaning of equality, comparability, and
+consistent hashing for the purposes of the collection.  `equals` must
+return a boolean.  `compare` must return an integer with the same
+relationship to zero as x to y.  `hash` should consistently return the same
+string for any given object.
+
+The default `equals` operator is implemented in terms of `===`, but
+treats `NaN` as equal to itself and `-0` as distinct from `+0`.  It also
+delegates to an `equals` method of either the left or right argument if
+one exists.  The default can be overridden by shimming `Object.equals`.
+
+The default `compare` operator is implemented in terms of `<` and `>`.
+It delegates to the `compare` method of either the left or right
+argument if one exists.  It inverts the result if it uses the falls to
+the right argument.  The default can be overridden by shimming
+`Object.compare`.
+
+The default `hash` operator is implemented in terms of `toString`, but
+defers to the value's own `hash` member function if it provides one.  If
+the hash changes, corresponding values will not be retrievable within
+sets or maps that use it.  The default `hash` operator can be overridden
+by shimming `Object.hash`.
+
+Consistent hashing is tricky in JavaScript since the language
+deliberately avoids providing unique values for each object.  However,
+in conjunction with `WeakMap`, it is relatively easy to add a [Unique
+Label][] to objects.
+
+[Unique Label]: (http://wiki.ecmascript.org/doku.php?id=harmony:weak_maps#unique_labeler)
 
 ## Collection Methods
 
@@ -37,9 +77,12 @@ structures with idiomatic iterfaces.
 -   `has(value)`: (List, Set, SortedSet) whether a value exists.
     collection.  This is slow for list (linear), but fast (logarithmic)
     for Set and SortedSet.
--   `get(key)`: (Map, SortedMap) the value for a key, or undefined.
+-   `get(key)`: (Map, SortedMap) the value for a key, or falls back to
+    `getDefault(key)`.
+-   `getDefault(value)`: (Map, SortedMap) returns undefined.
 -   `get(value)`: (List, Set, SortedSet) gets the equivalent value, or
-    undefined.
+    falls back to `getDefault(value).
+-   `getDefault(key)`: (List, Set, SortedSet) returns undefined.
 -   `set(key, value)`: (Map, SortedMap) sets the value for a key.
 -   `add(value)`: (List, Set, SortedSet) adds a value.  Sets silently
     drop the value if an equivalent value already exists.
@@ -74,6 +117,7 @@ structures with idiomatic iterfaces.
 -   `splice(start, length, ...values)`: (List, Array)
 -   `swap(start, length, values)`: (List) performs a splice without
     variadic arguments.
+-   `wipe()`: (List, Set, Map, SortedSet, SortedMap)
 -   `concat(...iterables)`: (Iterator, TODO List)
 -   `keys()`: (Map, SortedMap) returns an array of the keys
 -   `values()`: (Map, SortedMap) returns an array of the values
@@ -128,7 +172,12 @@ structures with idiomatic iterfaces.
     values deeply, to the specified depth, using the given memo to
     resolve reference cycles (which must the `has` and `set` parts of
     the Map interface, allowing objects for keys)
--   `wipe()`: (List, Set, Map, SortedSet, SortedMap)
+-   `constructClone(values)`: (List, Set, Map, SortedSet, SortedMap)
+    replicates a collection shallowly.  This is used by each `clone`
+    implementation to create a new collection of the same type, with the
+    same options (`equals`, `compare`, `hash` options), but it leaves
+    the job of deeply cloning the values to the more general `clone`
+    method.
 -   `equals(that)`: (TODO)
 -   `compare(that)`: (TODO)
 -   `iterate()`: (List, Set, SortedSet, SortedMap)
@@ -141,7 +190,7 @@ structures with idiomatic iterfaces.
 -   `splay(value)`: (SortedSet) rotates the internal splay tree such
     that the root node is less than or equal to the given value.
 
-Iterator
+### Iterator
 
 -   `dropWhile(callback(value, index, iterator), thisp)`
 -   `takeWhile(callback(value, index, iterator), thisp)`
@@ -152,7 +201,7 @@ Iterator
     an iterator for those values from the source that pass the given
     guard.  Values are consumed on demand.
 
-Iterator utilities
+### Iterator utilities
 
 -   `cycle(iterable, times)`
 -   `concat(iterables)`
@@ -205,13 +254,13 @@ A binary splay tree is a balanced binary tree that rotates the most
 frequently used items toward the root such that they can be accessed the
 most quickly.  `sorted-set` and `sorted-map` are backed by a splay tree.
 
-All "map" implementations use an underlying "set" implementation.  Any
-map can be implemented trivially atop a set by wrapping "compare",
-"equals", or "hash" to operate on the key of an item.
+All map implementations use an underlying set implementation.  Any map
+can be implemented trivially atop a set by wrapping `compare`, `equals`,
+or `hash` to operate on the key of an item.
 
-The default equality comparison function is `===` or `Object.equals` if
-it is shimmed.  The default comparator uses `>` and `<` or
-`Object.compare` if that has been shimmed.
+The sorted set has a `root` node.  Each node has a `left` and `right`
+property, which may be null.  Nodes are returned by all of the "find"
+functions, and provided as the `key` argument to callbacks.
 
 Both `sorted-set` and `sorted-map` implement a `log` function which can
 produce NPM-style visualizations of the internal state of the sorted
@@ -239,6 +288,27 @@ tree.
 ╰━┻ 3
 ```
 
+## Coupling
+
+These collections strive to maximize overlapping implementations where
+possible, but also be as loosely coupled as possible so developers only
+pay for the features they need in the cost of download or execution
+time.
+
+For example, the default operators are simple, but much more powerful
+operators can be shimmed, enhancing all of the collections.
+
+Also, collections supply a `clone` method, but it can only do shallow
+clones unless you shim `Object.clone`.  `Object.clone` works fine by
+itself, but can only resolve reference cycles if you either explicitly
+provide a map for its `memo` argument, or shim `WeakMap`.
+
+Another example, every collection provides an `iterate` implementation,
+but each is only obligated to return an iterator that implements `next`.
+For a much richer iterator, you can buy the `iterator` module and use
+`Iterate(collection)` to get a much richer interface.
+
+
 ## References
 
 - a SplayTree impementation buried in Fedor Indutny’s super-secret
@@ -265,13 +335,14 @@ Goals
 - shallow change dispatch and listeners
 - alternative module systems song and dance
 - optional new on constructors
-- missing value constructor
+- all functions named
 
 More methods
 
 - equals
 - compare
 - fast list splicing
+- addEach, factored out of constructor
 
 More collections
 

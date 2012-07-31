@@ -9,9 +9,9 @@ var object_has = Object.prototype.hasOwnProperty;
 
 module.exports = Set;
 
-function Set(copy, equals, hash) {
+function Set(values, equals, hash) {
     if (!(this instanceof Set)) {
-        return new Set(copy, options);
+        return new Set(values, options);
     }
     equals = equals || Set.equals || Operators.equals;
     hash = hash || Set.hash || Operators.hash;
@@ -19,13 +19,13 @@ function Set(copy, equals, hash) {
     this.contentHash = hash;
     this.buckets = {};
     this.length = 0;
-    if (copy) {
-        copy.forEach(this.add, this);
+    if (values) {
+        values.forEach(this.add, this);
     }
 }
 
-Set.prototype.constructClone = function (copy) {
-    return new this.constructor(copy, this.contentEquals, this.contentHash);
+Set.prototype.constructClone = function (values) {
+    return new this.constructor(values, this.contentEquals, this.contentHash);
 };
 
 Set.prototype.Bucket = List;
@@ -42,6 +42,10 @@ Set.prototype.get = function (value) {
     if (object_has.call(buckets, hash)) {
         return buckets[hash].get(value);
     }
+    return this.getDefault(value);
+};
+
+Set.prototype.getDefault = function () {
 };
 
 Set.prototype['delete'] = function (value) {

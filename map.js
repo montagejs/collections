@@ -6,9 +6,9 @@ var AbstractMap = require("./abstract-map");
 
 module.exports = Map;
 
-function Map(copy, equals, hash) {
+function Map(values, equals, hash) {
     if (!(this instanceof Map)) {
-        return new Map(copy, equals, hash);
+        return new Map(values, equals, hash);
     }
     equals = equals || Object.equals || Operators.equals;
     hash = hash || Object.hash || Operators.hash;
@@ -23,18 +23,28 @@ function Map(copy, equals, hash) {
             return hash(item.key);
         }
     );
-    if (copy) {
-        // TODO copy object literals
-        copy.forEach(this.add, this);
+    if (values && Object(values) === values) {
+        if (typeof values.forEach === "function") {
+            values.forEach(this.add, this);
+        } else {
+            Object.keys(values).forEach(function (key) {
+                this.set(key, values[key]);
+            }, this);
+        }
     }
 }
 
-Map.prototype.constructClone = function (copy) {
-    return new this.constructor(copy, this.contentEquals, this.contentHash);
+Map.prototype.constructClone = function (values) {
+    return new this.constructor(
+        values,
+        this.contentEquals,
+        this.contentHash
+    );
 };
 
 Map.prototype.has = AbstractMap.has;
 Map.prototype.get = AbstractMap.get;
+Map.prototype.getDefault = AbstractMap.getDefault;
 Map.prototype.set = AbstractMap.set;
 Map.prototype.add = AbstractMap.add;
 Map.prototype['delete'] = AbstractMap['delete'];

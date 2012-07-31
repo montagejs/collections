@@ -4,19 +4,19 @@ module.exports = List;
 var Reducible = require("./reducible");
 var Operators = require("./operators");
 
-function List(copy, equals) {
+function List(values, equals) {
     var head = this.head = new this.Node();
     head.next = head;
     head.prev = head;
     this.contentEquals = equals || Object.equals || Operators.equals;
     this.length = 0;
-    if (copy) {
-        copy.forEach(this.add, this);
+    if (values) {
+        values.forEach(this.add, this);
     }
 }
 
-List.prototype.constructClone = function (copy) {
-    return new this.constructor(copy, this.contentEquals);
+List.prototype.constructClone = function (values) {
+    return new this.constructor(values, this.contentEquals);
 };
 
 List.prototype.find = function find(value) {
@@ -50,6 +50,10 @@ List.prototype.get = function get(value) {
     if (found) {
         return found.value;
     }
+    return this.getDefault();
+};
+
+List.prototype.getDefault = function getDefault() {
 };
 
 // LIFO (delete removes the most recently added equivalent value)
