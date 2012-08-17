@@ -26,6 +26,14 @@ structures with idiomatic iterfaces.
     definitions of "unique".
 -   `SortedMap(map, equals, compare)`: a collection of key value pairs
     stored in sorted order, backed by a sorted set.
+-   `WeakMap()`: a non-iterable collection of key value pairs.  Keys
+    must objects and do not benefit from `hash` functions.  Some engines
+    already implement `WeakMap`.  The non-iterable requirement makes it
+    possible for weak maps to collect garbage when the key is no longer
+    available, without betraying when the key is collected.  The shimmed
+    implementation undetectably annotates the given key and thus does
+    not necessarily leak memory, but cannot collect certain reference
+    graphs.  This WeakMap shim was implemented by Mark Miller of Google.
 -   `Iterator(iterable)`: a wrapper for any iterable that implements
     `iterate` or iterator the implements `next`, providing a rich lazy
     traversal interface.
@@ -70,25 +78,38 @@ Label][] to objects.
 
 [Unique Label]: (http://wiki.ecmascript.org/doku.php?id=harmony:weak_maps#unique_labeler)
 
+The `hash` module provides such an implementation.  Since it entrains
+all the weight of the the `weap-map` module, you must opt in by
+requiring the module.  If loaded, all new `Map` instances benefit from
+fewer hash collisions without the need for per-key-type implementations
+of `hash`.
+
+
 ## Collection Methods
 
 Where these methods coincide with the specification of an existing
-method of Array, Array is noted as an implementation.  Array* refers to
-shimmed arrays, as installed with the `array` module.
+method of Array, Array is noted as an implementation.  `Array*` refers
+to shimmed arrays, as installed with the `array` module.  `Object`
+refers to methods implemented on the `Object` constructor function, as
+opposed to the `Object.prototype`.  `Object*` in turn refers to methods
+shimmed on the object constructor by the `object` module.  These
+functions accept the object as the first argument instead of the `this`
+implied argument.
 
 -   `has(key)`: (Map, SortedMap, WeakMap) whether a value for the given
     key exists.
--   `has(value, opt_equals)`: (List, Set, SortedSet, Array*) whether a
-    value exists.  collection.  This is slow for list (linear), but
-    fast (logarithmic) for Set and SortedSet.
--   `get(key)`: (Map, SortedMap, WeakMap, Array*) the value for a key.
-    If a Map or SortedMap lacks a key, returns `getDefault(key)`.
+-   `has(value, opt_equals)`: (List, Set, SortedSet, Array*, Object*)
+    whether a value exists.  collection.  This is slow for list
+    (linear), but fast (logarithmic) for Set and SortedSet.
+-   `get(key)`: (Map, SortedMap, WeakMap, Array*, Object*) the value for
+    a key.  If a Map or SortedMap lacks a key, returns
+    `getDefault(key)`.
 -   `getDefault(value)`: (Map, SortedMap) returns undefined.
 -   `get(value)`: (List, Set, SortedSet) gets the equivalent value, or
     falls back to `getDefault(value).
 -   `getDefault(key)`: (List, Set, SortedSet) returns undefined.
--   `set(key, value)`: (Map, SortedMap, WeakMap, Array*) sets the value
-    for a key.
+-   `set(key, value)`: (Map, SortedMap, WeakMap, Array*, Object*) sets
+    the value for a key.
 -   `add(value)`: (List, Set, SortedSet) adds a value.  Sets silently
     drop the value if an equivalent value already exists.
 -   `add(value, key)`: (Map, SortedMap, Array*) sets the value for a
@@ -126,8 +147,8 @@ shimmed arrays, as installed with the `array` module.
 -   `splice(start, length, ...values)`: (Array, List)
 -   `swap(start, length, values)`: (List, Array*) performs a splice
     without variadic arguments.
--   `wipe()`: (List, Set, Map, SortedSet, SortedMap, Array*) Deletes the
-    all values.
+-   `wipe()`: (List, Set, Map, SortedSet, SortedMap, Array*, Object*)
+    Deletes the all values.
 -   `concat(...iterables)`: (Array, Iterator, List, Set, Map, SortedSet,
     SortedMap) Produces a new collection of the same type containing all
     the values of itself and the values of any number of other
@@ -137,17 +158,17 @@ shimmed arrays, as installed with the `array` module.
     index to value.  List, Set, and SortedSet are like maps from nodes
     to values.
 -   `keys()`: (Map, SortedMap, Object) returns an array of the keys
--   `values()`: (Map, SortedMap) returns an array of the values
--   `items()`: (`items`, SortedMap) returns an array of `[key, value]`
+-   `values()`: (Map, SortedMap, Object*) returns an array of the values
+-   `items()`: (Map, SortedMap, Object) returns an array of `[key, value]`
     pairs for each item
 -   `reduce(callback(result, value, key, object, depth), basis, thisp)`:
     (Array, Iterator, List, Set, Map, SortedSet, SortedMap)
 -   `reduceRight(callback(result, value, key, object, depth), basis,
     thisp)`: (Array, List, Map, SortedSet, SortedMap)
 -   `forEach(callback(value, key, object, depth), thisp)`: (Array,
-    Iterator, List, Set, Map, SortedSet, SortedMap)
+    Iterator, List, Set, Map, SortedSet, SortedMap, Object*)
 -   `map(callback(value, key, object, depth), thisp)`: (Array, Iterator,
-    List, Set, Map, SortedSet, SortedMap)
+    List, Set, Map, SortedSet, SortedMap, Object*)
 -   `toArray()`: (Iterator, List, Set, Map, SortedSet, SortedMap,
     Array*)
 -   `toObject()`: (Iterator, Map, SortedMap, Array*) converts any
@@ -189,7 +210,8 @@ shimmed arrays, as installed with the `array` module.
 -   `enuemrate(zero)`: (Iterator, TODO List, Set, Map, SortedSet,
     SortedMap, Array*)
 -   `sorted(compare)`: (List, Set, Map, Array*)
--   `clone(depth, memo)`: (List, Set, Map, SortedSet, SortedMap, Array*)
+-   `clone(depth, memo)`: (List, Set, Map, SortedSet, SortedMap, Array*,
+    Object*)
     replicates the collection.  If `Object.clone` is shimmed, clones the
     values deeply, to the specified depth, using the given memo to
     resolve reference cycles (which must the `has` and `set` parts of
@@ -201,7 +223,7 @@ shimmed arrays, as installed with the `array` module.
     options), but it leaves the job of deeply cloning the values to the
     more general `clone` method.
 -   `equals(that)`: (List, Set, Array*, TODO SortedSet, Map, SortedMap)
--   `compare(that)`: (TODO)
+-   `compare(that)`: (Object*, TODO)
 -   `iterate()`: (List, Set, SortedSet, SortedMap, TODO Array*)
 -   `iterate(start, end)`: (SortedSet, TODO List) returns an iterator
     for all values in the half-open interval [start, end), that is,
@@ -318,6 +340,31 @@ follow the `key` property of each item in the set.  The set does most of
 the work.
 
 
+## Object Shim
+
+The collection methods on the `Object` constructor all polymorphically
+defer to the corresponding method of any object that implements the
+method of the same name.  So, `Object.has` can be used to check whether
+a key exists on an object, or in any collection that implements `has`.
+This permits the `Object` interface to be agnostic of the input type.
+
+The `object` module additionally provides an `Object.empty` frozen
+object that can be reused as a default empty object to reduce
+unnecessary allocations.
+
+`Object.isObject(value)` tests whether it is safe to attempt to access
+properties of a given value.
+
+`Object.is(a, b)` compares objects for exact identity and is a good
+alternative to `Object.equals` in many collections.
+
+`Object.getValueOf(value)` safely and idempotently returns the value of
+an object or value by only calling the `valueOf()` if the value
+implements that method.
+
+`Object.owns` is a shorthand for `Object.prototype.hasOwnProperty.call`.
+
+
 ## Coupling
 
 These collections strive to maximize overlapping implementations where
@@ -329,9 +376,9 @@ For example, the default operators are simple, but much more powerful
 operators can be shimmed, enhancing all of the collections.
 
 Also, collections supply a `clone` method, but it can only do shallow
-clones unless you shim `Object.clone`.  `Object.clone` works fine by
-itself, but can only resolve reference cycles if you either explicitly
-provide a map for its `memo` argument, or shim `WeakMap`.
+clones unless you shim `Object.clone` with the `object` module.
+`Object.clone` works fine by itself, but can only resolve reference
+cycles if you provide a map (WeakMap or Map) as its `memo` argument.
 
 Another example, every collection provides an `iterate` implementation,
 but each is only obligated to return an iterator that implements `next`.
