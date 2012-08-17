@@ -44,3 +44,24 @@ console.log(
     .toArray()
 );
 
+var list = new List([1,2,3,4]);
+console.log(list.slice());
+console.log(list.slice(0));
+console.log(list.slice(1));
+console.log(list.slice(-2));
+console.log(list.slice(-3, 2));
+console.log(list.slice(-3, -2));
+console.log(list.slice(-3, -1));
+console.log(list.slice(0, 0));
+console.log(list.slice(-1, 0));
+console.log(list.slice(0, 1));
+console.log(list.slice(1, 1));
+console.log(list.slice(1, 2));
+console.log(list.slice(list.head.next, 2));
+console.log(list.slice(list.head.next, list.head));
+console.log(list.slice(list.head.next, list.head.prev));
+
+list.reverse();
+console.log(list.slice());
+console.log(list.sorted());
+

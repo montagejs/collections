@@ -203,6 +203,10 @@ Reducible.sorted = function (compare, by, order) {
     });
 };
 
+Reducible.reversed = function () {
+    return this.constructClone(this).reverse();
+};
+
 Reducible.clone = function (depth, memo) {
     if (depth === undefined) {
         depth = Infinity;

@@ -36,6 +36,9 @@ exports.compare = function (a, b) {
     if (Object(b) === b && typeof b.compare === "function") {
         return -b.compare(a);
     }
+    if (typeof a !== typeof b) {
+        return 0;
+    }
     return a > b ? 1 : a < b ? -1 : 0;
 };
 

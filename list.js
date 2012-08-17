@@ -17,34 +17,36 @@ List.prototype.constructClone = function (values) {
     return new this.constructor(values, this.contentEquals);
 };
 
-List.prototype.find = function find(value) {
+List.prototype.find = function find(value, equals) {
+    equals = equals || this.contentEquals;
     var head = this.head;
     var at = head.next;
     while (at !== head) {
-        if (this.contentEquals(at.value, value)) {
+        if (equals(at.value, value)) {
             return at;
         }
         at = at.next;
     }
 };
 
-List.prototype.findLast = function (value) {
+List.prototype.findLast = function (value, equals) {
+    equals = equals || this.contentEquals;
     var head = this.head;
     var at = head.prev;
     while (at !== head) {
-        if (this.contentEquals(at.value, value)) {
+        if (equals(at.value, value)) {
             return at;
         }
         at = at.prev;
     }
 };
 
-List.prototype.has = function has(value) {
-    return !!this.find(value);
+List.prototype.has = function has(value, equals) {
+    return !!this.find(value, equals);
 };
 
-List.prototype.get = function get(value) {
-    var found = this.find(value);
+List.prototype.get = function get(value, equals) {
+    var found = this.find(value, equals);
     if (found) {
         return found.value;
     }
@@ -55,8 +57,8 @@ List.prototype.getDefault = function getDefault() {
 };
 
 // LIFO (delete removes the most recently added equivalent value)
-List.prototype['delete'] = function (value) {
-    var found = this.findLast(value);
+List.prototype['delete'] = function (value, equals) {
+    var found = this.findLast(value, equals);
     if (found) {
         found['delete']();
         return true;
@@ -114,15 +116,49 @@ List.prototype.shift = function () {
     return value;
 };
 
+// an internal utility for coercing index offsets to nodes
+List.prototype.scan = function (at, alt) {
+    var head = this.head;
+    if (typeof at === "number") {
+        var count = at;
+        if (count >= 0) {
+            at = head.next;
+            while (count) {
+                count--;
+                at = at.next;
+                if (at == head) {
+                    break;
+                }
+            }
+        } else {
+            at = head;
+            while (count < 0) {
+                count++;
+                at = at.prev;
+                if (at == head) {
+                    break;
+                }
+            }
+        }
+        return at;
+    } else {
+        return at || alt;
+    }
+};
+
+// at and end may both be positive or negative numbers (in which cases they
+// correspond to numeric indicies, or nodes)
 List.prototype.slice = function (at, end) {
     var sliced = [];
     var head = this.head;
-    at = at || head.next;
-    end = end || head;
-    while (at !== end) {
+    at = this.scan(at, head.next);
+    end = this.scan(end, head);
+
+    while (at !== end && at !== head) {
         sliced.push(at.value);
         at = at.next;
     }
+
     return sliced;
 };
 
@@ -132,7 +168,7 @@ List.prototype.splice = function (at, length /*...plus*/) {
 
 List.prototype.swap = function (at, length, plus) {
     var swapped = [];
-    at = at || this.head.next;
+    at = this.scan(at, this.head.next);
     while (length--) {
         swapped.push(at.value);
         at['delete']();
@@ -145,6 +181,17 @@ List.prototype.swap = function (at, length, plus) {
     }
     this.length += plus.length;
     return swapped;
+};
+
+List.prototype.reverse = function () {
+    var at = this.head;
+    do {
+        var temp = at.next;
+        at.next = at.prev;
+        at.prev = temp;
+        at = at.next;
+    } while (at !== this.head);
+    return this;
 };
 
 // TODO account for missing basis argument
@@ -190,6 +237,7 @@ List.prototype.zip = Reducible.zip;
 List.prototype.equals = Reducible.equals;
 List.prototype.compare = Reducible.compare;
 List.prototype.sorted = Reducible.sorted;
+List.prototype.reversed = Reducible.reversed;
 List.prototype.clone = Reducible.clone;
 
 List.prototype.equals = function (that, equals) {
@@ -207,7 +255,6 @@ List.prototype.equals = function (that, equals) {
         })
     );
 };
-
 
 List.prototype.one = function one() {
     if (this.head === this.head.next) {

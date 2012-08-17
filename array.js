@@ -90,6 +90,8 @@ Array.prototype.average = Reducible.average;
 Array.prototype.unique = Reducible.unique;
 Array.prototype.flatten = Reducible.flatten;
 Array.prototype.sorted = Reducible.sorted;
+Array.prototype.reversed = Reducible.reversed;
+Array.prototype.clone = Reducible.clone;
 
 Array.prototype.count = function () {
     return this.length;
@@ -112,10 +114,26 @@ Array.prototype.only = function () {
     return this[0];
 };
 
-Array.prototype.clone = Reducible.clone;
-
 Array.prototype.wipe = function () {
     this.length = 0;
     return this;
+};
+
+Array.prototype.iterate = function (start, end) {
+    return new ArrayIterator(this, start, end);
+};
+
+function ArrayIterator(array, start, end) {
+    this.array = array;
+    this.start = start == null ? 0 : start;
+    this.end = end;
+};
+
+ArrayIterator.prototype.next = function () {
+    if (this.start === (this.end == null ? this.array.length : this.end)) {
+        throw StopIteration;
+    } else {
+        return this.array[this.start++];
+    }
 };
 
