@@ -16,6 +16,7 @@ Reducible.addEach = function addEach(values) {
 };
 
 // all of the following functions are implemented in terms of "reduce".
+// some need "constructClone".
 
 Reducible.forEach = function forEach(callback /*, thisp*/) {
     var thisp = arguments[1];
@@ -37,9 +38,21 @@ Reducible.toArray = function toArray() {
     return this.map(identity);
 };
 
+// this depends on stringable keys, which apply to Array and Iterator
+// because they have numeric keys and all Maps since they may use
+// strings as keys.  List, Set, and SortedSet have nodes for keys, so
+// toObject would not be meaningful.
+Reducible.toObject = function toObject() {
+    var object = {};
+    this.reduce(function (undefined, value, key) {
+        object[key] = value;
+    }, undefined);
+    return object;
+};
+
 Reducible.filter = function filter(callback /*, thisp*/) {
     var thisp = arguments[1];
-    var result = [];
+    var result = this.constructClone();
     this.reduce(result, function (undefined, value, key, object, depth) {
         if (callback.call(thisp, value, key, object, depth)) {
             result.push(value);
@@ -112,8 +125,16 @@ Reducible.average = function average(zero) {
     return sum / count;
 };
 
+Reducible.concat = function () {
+    var result = this.constructClone(this);
+    for (var i = 0; i < arguments.length; i++) {
+        result.addEach(arguments[i]);
+    }
+    return result;
+};
+
 Reducible.flatten = function flatten() {
-    return this.reduce(flattenReducer, []);
+    return this.reduce(flattenReducer, this.constructClone());
 };
 
 function flattenReducer(result, array) {
@@ -125,6 +146,7 @@ function thisPush(value) {
     this.push(value);
 }
 
+// TODO consider the type of the result.  is an array proper?
 Reducible.zip = function () {
     var table = Array.prototype.slice.call(arguments);
     table.unshift(this);
@@ -153,22 +175,6 @@ function transpose(table) {
     }
     return transpose;
 }
-
-Reducible.equals = function (that, equals) {
-    var equals = equals || this.contentEquals || Object.equals || Operators.equals;
-
-    if (this === that) {
-        return true;
-    }
-
-    var self = this;
-    return (
-        this.length === that.length &&
-        this.zip(that).every(function (pair) {
-            return equals(pair[0], pair[1]);
-        })
-    );
-};
 
 // TODO compare
 

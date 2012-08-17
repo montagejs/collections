@@ -184,12 +184,30 @@ List.prototype.max = Reducible.max;
 List.prototype.count = Reducible.count;
 List.prototype.sum = Reducible.sum;
 List.prototype.average = Reducible.average;
+List.prototype.concat = Reducible.concat;
 List.prototype.flatten = Reducible.flatten;
 List.prototype.zip = Reducible.zip;
 List.prototype.equals = Reducible.equals;
 List.prototype.compare = Reducible.compare;
 List.prototype.sorted = Reducible.sorted;
 List.prototype.clone = Reducible.clone;
+
+List.prototype.equals = function (that, equals) {
+    var equals = equals || this.contentEquals || Object.equals || Operators.equals;
+
+    if (this === that) {
+        return true;
+    }
+
+    var self = this;
+    return (
+        this.length === that.length &&
+        this.zip(that).every(function (pair) {
+            return equals(pair[0], pair[1]);
+        })
+    );
+};
+
 
 List.prototype.one = function one() {
     if (this.head === this.head.next) {

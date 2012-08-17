@@ -36,26 +36,12 @@ function Iterator(iterable) {
 
 }
 
-Iterator.prototype.toArray = function () {
-    var self = Iterator(this),
-        i = 0,
-        values = [];
-
-    if (Array.isArray(this))
-        return this;
-
-    try {
-        while (true) {
-            values[i] = self.next();
-            i++;
-        }
-    } catch (exception) {
-        if (isStopIteration(exception)) {
-            return values;
-        } else {
-            throw exception;
-        }
-    }
+// this is a bit of a cheat so flatten and such work with the generic
+// reducible
+Iterator.prototype.constructClone = function (values) {
+    var clone = [];
+    Reducible.addEach.call(clone, values);
+    return clone;
 };
 
 Iterator.prototype.mapIterator = function (callback /*, thisp*/) {
@@ -139,6 +125,8 @@ Iterator.prototype.reduce = function (callback /*, initial, thisp*/) {
 
 Iterator.prototype.forEach = Reducible.forEach;
 Iterator.prototype.map = Reducible.map;
+Iterator.prototype.toArray = Reducible.toArray;
+Iterator.prototype.toObject = Reducible.toObject;
 Iterator.prototype.filter = Reducible.filter;
 Iterator.prototype.all = Reducible.all;
 Iterator.prototype.any = Reducible.any;

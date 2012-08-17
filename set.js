@@ -104,10 +104,24 @@ Set.prototype.max = Reducible.max;
 Set.prototype.count = Reducible.count;
 Set.prototype.sum = Reducible.sum;
 Set.prototype.average = Reducible.average;
+Set.prototype.concat = Reducible.concat;
 Set.prototype.flatten = Reducible.flatten;
 Set.prototype.zip = Reducible.zip;
 Set.prototype.sorted = Reducible.sorted;
 Set.prototype.clone = Reducible.clone;
+
+Set.prototype.equals = function (that) {
+    var self = this;
+    return (
+        Object(that) === that &&
+        typeof that.reduce === "function" &&
+        typeof that.length === "number" &&
+        this.length === that.length &&
+        that.reduce(function (equals, value) {
+            return equals && self.has(value);
+        }, true)
+    );
+};
 
 // TODO compare, equals (order agnostic)
 

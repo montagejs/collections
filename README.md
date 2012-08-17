@@ -72,122 +72,141 @@ Label][] to objects.
 
 ## Collection Methods
 
--   `has(key)`: (Map, SortedMap) whether a value for the given key
-    exists.
--   `has(value)`: (List, Set, SortedSet) whether a value exists.
-    collection.  This is slow for list (linear), but fast (logarithmic)
-    for Set and SortedSet.
--   `get(key)`: (Map, SortedMap) the value for a key, or falls back to
-    `getDefault(key)`.
+Where these methods coincide with the specification of an existing
+method of Array, Array is noted as an implementation.  Array* refers to
+shimmed arrays, as installed with the `array` module.
+
+-   `has(key)`: (Map, SortedMap, WeakMap) whether a value for the given
+    key exists.
+-   `has(value, opt_equals)`: (List, Set, SortedSet, Array*) whether a
+    value exists.  collection.  This is slow for list (linear), but
+    fast (logarithmic) for Set and SortedSet.
+-   `get(key)`: (Map, SortedMap, WeakMap, Array*) the value for a key.
+    If a Map or SortedMap lacks a key, returns `getDefault(key)`.
 -   `getDefault(value)`: (Map, SortedMap) returns undefined.
 -   `get(value)`: (List, Set, SortedSet) gets the equivalent value, or
     falls back to `getDefault(value).
 -   `getDefault(key)`: (List, Set, SortedSet) returns undefined.
--   `set(key, value)`: (Map, SortedMap) sets the value for a key.
+-   `set(key, value)`: (Map, SortedMap, WeakMap, Array*) sets the value
+    for a key.
 -   `add(value)`: (List, Set, SortedSet) adds a value.  Sets silently
     drop the value if an equivalent value already exists.
--   `add(value, key)`: (Map, SortedMap) sets the value for a key,
-    convenient in conjunction with `forEach` due to the callback
+-   `add(value, key)`: (Map, SortedMap, Array*) sets the value for a
+    key, convenient in conjunction with `forEach` due to the callback
     argument order.
--   `addEach(values)`: (List, Set, Map, SortedSet, SortedMap) adds all
-    values or key value pairs to this collection.  Works for arrays and
-    objects as well as any other collection.
--   `delete(key)`: (Map, SortedMap) deletes the value for a given key.
-    Returns whether the key was found.
+-   `addEach(values)`: (List, Set, Map, SortedSet, SortedMap, Array*)
+    adds all values or key value pairs to this collection.  Works for
+    arrays and objects as well as any other collection.
+-   `delete(key)`: (Map, SortedMap, WeakMap, Array*) deletes the value
+    for a given key.  Returns whether the key was found.
 -   `delete(value)`: (List, Set, SortedSet) deletes a value.  Returns
     whether the value was found.
--   `find(value)`: (List, SortedSet) finds a value.  For List and Set,
-    returns the node at which the value was found.
--   `findLast(value)`: (List) finds the last equivalent value, returning
-    the node at which the value was found.
+-   `find(value, opt_equals)`: (List, SortedSet, Array*) finds a value.
+    For List and SortedSet, returns the node at which the value was
+    found.  For SortedSet, the optional `equals` argument is ignored.
+-   `findLast(value, opt_equals)`: (List, Array*) finds the last
+    equivalent value, returning the node at which the value was found.
 -   `findLeast()`: (SortedSet) finds the smallest value, returning the
     node at which it was found, or undefined.  This is fast
     (logarithmic) and performs no rotations.
--   `findLeastGreaterThan(value)`: (SortedSet) finds the smallest
-    value greater than the given value.  This is fast (logarithic) but
-    does cause rotations.
--   `findLeastGreaterThanOrEqual(value)`: (SortedSet) finds the
-    smallest value greater than or equal to the given value.  This is
-    fast (logarithmic) but does cause rotations.
+-   `findLeastGreaterThan(value)`: (SortedSet) finds the smallest value
+    greater than the given value.  This is fast (logarithic) but does
+    cause rotations.
+-   `findLeastGreaterThanOrEqual(value)`: (SortedSet) finds the smallest
+    value greater than or equal to the given value.  This is fast
+    (logarithmic) but does cause rotations.
 -   `findGreatest()`: (SortedSet)
 -   `findGreatestLessThan(value)`: (SortedSet)
 -   `findGreatestLessThanOrEqual(value)`: (SortedSet)
--   `push(...values)`: (List, Array)
--   `pop()`: (List, Array)
--   `shift()`: (List, Array)
--   `unshift(...values)`: (List, Array)
--   `slice(start, end)`: (List, Array)
--   `splice(start, length, ...values)`: (List, Array)
--   `swap(start, length, values)`: (List) performs a splice without
-    variadic arguments.
--   `wipe()`: (List, Set, Map, SortedSet, SortedMap)
--   `concat(...iterables)`: (Iterator, TODO List)
--   `keys()`: (Map, SortedMap) returns an array of the keys
+-   `push(...values)`: (Array, List)
+-   `pop()`: (Array, List)
+-   `shift()`: (Array, List)
+-   `unshift(...values)`: (Array, List)
+-   `slice(start, end)`: (Array, List)
+-   `splice(start, length, ...values)`: (Array, List)
+-   `swap(start, length, values)`: (List, Array*) performs a splice
+    without variadic arguments.
+-   `wipe()`: (List, Set, Map, SortedSet, SortedMap, Array*) Deletes the
+    all values.
+-   `concat(...iterables)`: (Array, Iterator, List, Set, Map, SortedSet,
+    SortedMap) Produces a new collection of the same type containing all
+    the values of itself and the values of any number of other
+    collections.  Favors the last of duplicate values.  For map-like
+    objects, the given iterables are treated as map-like objects and
+    each successively updates the result.  Array is like a map from
+    index to value.  List, Set, and SortedSet are like maps from nodes
+    to values.
+-   `keys()`: (Map, SortedMap, Object) returns an array of the keys
 -   `values()`: (Map, SortedMap) returns an array of the values
 -   `items()`: (`items`, SortedMap) returns an array of `[key, value]`
     pairs for each item
 -   `reduce(callback(result, value, key, object, depth), basis, thisp)`:
-    (Iterator, List, Set, Map, SortedSet, SortedMap)
+    (Array, Iterator, List, Set, Map, SortedSet, SortedMap)
 -   `reduceRight(callback(result, value, key, object, depth), basis,
-    thisp)`: (List, Map, SortedSet, SortedMap)
--   `forEach(callback(value, key, object, depth), thisp)`:
-    (Iterator, List, Set, Map, SortedSet, SortedMap)
--   `map(callback(value, key, object, depth), thisp)`:
-    (Iterator, List, Set, Map, SortedSet, SortedMap)
--   `toArray()`:
-    (Iterator, List, Set, Map, SortedSet, SortedMap)
--   `filter(callback(value, key, object, depth), thisp)`:
-    (List, Set, Map, SortedSet, SortedMap)
--   `every(callback(value, key, object, depth), thisp)`:
-    (Iterator, List, Set, Map, SortedSet, SortedMap) whether every
-    value passes a given guard.  Stops evaluating the guard after the
-    first failure.  Iterators stop consuming after the the first
-    failure.
--   `some(callback(value, key, object, depth), thisp)`:
-    (List, Set, Map, SortedSet, SortedMap) whether there is a value that
+    thisp)`: (Array, List, Map, SortedSet, SortedMap)
+-   `forEach(callback(value, key, object, depth), thisp)`: (Array,
+    Iterator, List, Set, Map, SortedSet, SortedMap)
+-   `map(callback(value, key, object, depth), thisp)`: (Array, Iterator,
+    List, Set, Map, SortedSet, SortedMap)
+-   `toArray()`: (Iterator, List, Set, Map, SortedSet, SortedMap,
+    Array*)
+-   `toObject()`: (Iterator, Map, SortedMap, Array*) converts any
+    collection to an object, treating this collection as a map-like
+    object.  Array is like a map from index to value.
+-   `filter(callback(value, key, object, depth), thisp)`: (Array, List,
+    Set, Map, SortedSet, SortedMap)
+-   `every(callback(value, key, object, depth), thisp)`: (Array,
+    Iterator, List, Set, Map, SortedSet, SortedMap) whether every value
     passes a given guard.  Stops evaluating the guard after the first
-    success.  Iterators stop consuming after the first success.
--   `any()`: (Iterator, List, Set, Map, SortedSet, SortedMap) whether
-    any value is truthy
--   `all()`: (Iterator, List, Set, Map, SortedSet, SortedMap) whether
-    all values are truthy
--   `min()`: (Iterator, List, Set, Map, SortedSet, SortedMap) the
-    smallest value.  This is fast for sorted collections (logarithic),
-    but slow for everything else (linear).
--   `max()`: (Iterator, List, Set, Map, SortedSet, SortedMap) the
-    largest value.  This is fast for sorted collections (logarithic),
-    but slow for everything else (linear).
--   `one()`: (List, SortedSet) any single value, or throws an exception
-    if there are no values.  This is very fast (constant) for all
-    collections.  For a sorted set, the value is not deterministic.
--   `only()`: (List, SortedSet) the one and only value, or throws an
-    exception if there are no values or more than one value.
--   `count()`: (List, Set, Map, SortedSet, SortedMap)
--   `sum()`: (Iterator, List, Set, Map, SortedSet, SortedMap)
--   `average()`: (Iterator, List, Set, Map, SortedSet, SortedMap)
--   `flatten()`: (Iterator, List, Set, Map, SortedSet, SortedMap)
--   `zip(...collections)`: (List, Set, Map, SortedSet, SortedMap)
+    failure.  Iterators stop consuming after the the first failure.
+-   `some(callback(value, key, object, depth), thisp)`: (Array, List,
+    Set, Map, SortedSet, SortedMap) whether there is a value that passes
+    a given guard.  Stops evaluating the guard after the first success.
+    Iterators stop consuming after the first success.
+-   `any()`: (Iterator, List, Set, Map, SortedSet, SortedMap, Array*)
+    whether any value is truthy
+-   `all()`: (Iterator, List, Set, Map, SortedSet, SortedMap, Array*)
+    whether all values are truthy
+-   `min()`: (Iterator, List, Set, Map, SortedSet, SortedMap, Array*)
+    the smallest value.  This is fast for sorted collections
+    (logarithic), but slow for everything else (linear).
+-   `max()`: (Iterator, List, Set, Map, SortedSet, SortedMap, Array*)
+    the largest value.  This is fast for sorted collections
+    (logarithic), but slow for everything else (linear).
+-   `one()`: (List, SortedSet, Array*) any single value, or throws an
+    exception if there are no values.  This is very fast (constant) for
+    all collections.  For a sorted set, the value is not deterministic.
+-   `only()`: (List, SortedSet, Array*) the one and only value, or
+    throws an exception if there are no values or more than one value.
+-   `count()`: (List, Set, Map, SortedSet, SortedMap, Array*)
+-   `sum()`: (Iterator, List, Set, Map, SortedSet, SortedMap, Array*)
+-   `average()`: (Iterator, List, Set, Map, SortedSet, SortedMap,
+    Array*)
+-   `flatten()`: (Iterator, List, Set, Map, SortedSet, SortedMap,
+    Array*)
+-   `zip(...collections)`: (List, Set, Map, SortedSet, SortedMap,
+    Array*)
 -   `enuemrate(zero)`: (Iterator, TODO List, Set, Map, SortedSet,
-    SortedMap)
--   `sorted(compare)`: (List, Set, Map)
--   `clone(depth, memo)`: (List, Set, Map, SortedSet, SortedMap)
+    SortedMap, Array*)
+-   `sorted(compare)`: (List, Set, Map, Array*)
+-   `clone(depth, memo)`: (List, Set, Map, SortedSet, SortedMap, Array*)
     replicates the collection.  If `Object.clone` is shimmed, clones the
     values deeply, to the specified depth, using the given memo to
     resolve reference cycles (which must the `has` and `set` parts of
     the Map interface, allowing objects for keys)
--   `constructClone(values)`: (List, Set, Map, SortedSet, SortedMap)
-    replicates a collection shallowly.  This is used by each `clone`
-    implementation to create a new collection of the same type, with the
-    same options (`equals`, `compare`, `hash` options), but it leaves
-    the job of deeply cloning the values to the more general `clone`
-    method.
--   `equals(that)`: (TODO)
+-   `constructClone(values)`: (Iterator, List, Set, Map, SortedSet,
+    SortedMap, Array*) replicates a collection shallowly.  This is used
+    by each `clone` implementation to create a new collection of the
+    same type, with the same options (`equals`, `compare`, `hash`
+    options), but it leaves the job of deeply cloning the values to the
+    more general `clone` method.
+-   `equals(that)`: (List, Set, Array*, TODO SortedSet, Map, SortedMap)
 -   `compare(that)`: (TODO)
--   `iterate()`: (List, Set, SortedSet, SortedMap)
--   `iterate(start, end)`: (SortedSet) returns an iterator for all
-    values in the half-open interval [start, end), that is, greater than
-    start, and less than end.  The iterator is resilient against
-    changes to the data.
+-   `iterate()`: (List, Set, SortedSet, SortedMap, TODO Array*)
+-   `iterate(start, end)`: (SortedSet, TODO List) returns an iterator
+    for all values in the half-open interval [start, end), that is,
+    greater than start, and less than end.  The iterator is resilient
+    against changes to the data.
 -   `log(charmap, stringify)`: (Set, Map, SortedSet) writes a tree
     describing the internal state of the data structure to the console.
 -   `splay(value)`: (SortedSet) rotates the internal splay tree such

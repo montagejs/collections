@@ -33,3 +33,14 @@ console.log(new List([1, 2, 3]).equals([1, 2, 3, 4]));
 console.log(new List([1, 2, 3, 4]).equals([1, 2, 3]));
 console.log(new List([1, 2, 3]).equals([3, 2, 1]));
 
+var SortedSet = require("./sorted-set");
+console.log(
+    new List([1,2,3]).concat(
+        new List([4,5,6]),
+        new List([7,8,9])
+    )
+    .concat([10, 11, 12])
+    .concat(new SortedSet([15, 13, 14]))
+    .toArray()
+);
+

@@ -51,5 +51,7 @@ console.log(set.iterate().mapIterator(function (item) {
     return item.value;
 }).toArray());
 
+console.log(new Set([3, 2, 1]).concat([4, 5, 6]).toArray())
+
 //console.log(new Set([1, 2, 3]).equals([1, 2, 3]));
 
