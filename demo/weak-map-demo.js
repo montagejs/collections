@@ -1,6 +1,6 @@
 #!/usr/bin/env node --harmony_weakmaps
 
-var WeakMap = require("./weak-map");
+var WeakMap = require("../weak-map");
 
 var map = new WeakMap();
 

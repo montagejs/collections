@@ -1,5 +1,5 @@
 
-var List = require("./list");
+var List = require("../list");
 
 var list = new List([1,2,3]);
 list.push(4, 5, 6);
@@ -33,7 +33,7 @@ console.log(new List([1, 2, 3]).equals([1, 2, 3, 4]));
 console.log(new List([1, 2, 3, 4]).equals([1, 2, 3]));
 console.log(new List([1, 2, 3]).equals([3, 2, 1]));
 
-var SortedSet = require("./sorted-set");
+var SortedSet = require("../sorted-set");
 console.log(
     new List([1,2,3]).concat(
         new List([4,5,6]),

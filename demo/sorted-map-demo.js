@@ -1,5 +1,5 @@
 
-var SortedMap = require("./sorted-map");
+var SortedMap = require("../sorted-map");
 
 var map = new SortedMap();
 

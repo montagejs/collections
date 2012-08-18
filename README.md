@@ -2,7 +2,8 @@
 # Collections
 
 This package contains JavaScript implementations of common data
-structures with idiomatic iterfaces.
+structures with idiomatic iterfaces, including extensions for Array and
+Object and extensions for observable property and content changes.
 
 -   `List(values, equals)`: an ordered collection of values with fast
     insertion and deletion and forward and backward traversal, backed by
@@ -37,6 +38,23 @@ structures with idiomatic iterfaces.
 -   `Iterator(iterable)`: a wrapper for any iterable that implements
     `iterate` or iterator the implements `next`, providing a rich lazy
     traversal interface.
+-   `Array()`: an ordered collection of values with fast random access,
+    push, and pop, but slow splice. The `array` module provides
+    extensions so it hosts all the expressiveness of other collections.
+    The `array-shim` module shims EcmaScript 5 methods onto the array
+    prototype if they are not natively implemented.  The
+    `observable-array` module provides methods for watching shallow
+    content changes and length property changes provided that the
+    developer is willing to degrade the performance of mutation
+    functions for *the particular observed array*.  Observability does
+    not degrade the performance of mutations for non-observed arrays.
+-   `Object()`: can be used as a mapping of owned string keys to
+    arbitrary values.  The `object` module provides extensions for the
+    `Object` constructor that support the map collection interface and
+    can delegate to methods of collections, allowing them to gracefully
+    handle both object literals and collections.  The
+    `observable-object` module provides methods for observing changes to
+    owned properties using getters and setters.
 
 For all of these constructors, the argument `values` is an optional
 collection of initial values, and may be an array.  If the `values` are
@@ -274,6 +292,7 @@ implied argument.
 -   `splay(value)`: (SortedSet) rotates the internal splay tree such
     that the root node is less than or equal to the given value.
 
+
 ### Iterator
 
 -   `dropWhile(callback(value, index, iterator), thisp)`
@@ -284,6 +303,7 @@ implied argument.
 -   `filterIterator(callback(value, index, iterator))`: (Iterator) returns
     an iterator for those values from the source that pass the given
     guard.  Values are consumed on demand.
+
 
 ### Iterator utilities
 
@@ -297,6 +317,62 @@ implied argument.
 -   `repeat(value, times)`: repeats the given value either finite times
     or indefinitely
 
+
+### Observers
+
+Listen for individual property changes on an object.  The listener may
+be a function or a delegate.
+
+-   `Object.addOwnPropertyChangeListener(object, key, listener, beforeChange)`
+-   `Object.removeOwnPropertyChangeListener(object, key, listener, beforeChange)`
+-   `Object.addBeforeOwnPropertyChangeListener(object, key, listener)`
+-   `Object.removeBeforeOwnPropertyChangeListener(object, key, listener)`
+
+The arguments to the listener are `(value, key, object)`, much like a
+`forEach` callback.  The `this` within the listener is the listener
+object itself.  The dispatch method must be one of these names, favoring
+the most specific provided. 
+
+-   `handle` + key (TwoHump) + (`Change` or `WillChange` before change),
+    for example, `handleFooWillChange` for `foo`.
+-   `handleOwnPropertyChange` or `handleOwnPropertyWillChange` before
+    change
+-   `handleEvent`
+-   function
+
+Listen for ranged content changes on arrays.  The location of the change
+is where the given arrays of content are removed and added.  For
+unordered collections like sets, the location would not be defined.
+Content changes are not yet implemented for other collections.
+
+-   `array.addContentChangeListener(listener, beforeChange)`
+-   `array.removeContentChangeListener(listener, beforeChange)`
+-   `array.addBeforeContentChangeListener(listener)`
+-   `array.removeBeforeContentChangeListener(listener)`
+
+The arguments to the listener are `(plus, minus, at)`, which are arrays
+of the added and removed values, and optionally the location of the
+change for ordered collections (lists, arrays).  For a list, the
+position is denoted by a node.  The dispatch method must be one of these
+names, favoring the most specific provided.
+
+-   `handleContentChange` or `handleContentWillChange` if before change
+-   `handleEvent`
+-   function
+
+Listen for content changes from each position within an array, including
+changes to and from undefined.  Content changes must be emitted by
+method calls on an array, so use `array.set(index, value)` instead of
+`array[index] = value`.
+
+-   `array.addEachContentChangeListener(listener, beforeChange)`
+-   `array.removeEachContentChangeListener(listener, beforeChange)`
+-   `array.addBeforeEachContentChangeListener(listener)`
+-   `array.removeBeforeEachContentChangeListener(listener)`
+
+The listener is a listener as for property changes.
+
+
 ## List
 
 Lists are backed by a cyclic doubly-linked list with a head node.  The
@@ -308,6 +384,7 @@ properties and methods are part of the interface of the structure.
     first node
 -   `next`: the next node, or the `head` of the list if this is the last
     node
+
 
 ## Set and Map
 
@@ -331,6 +408,7 @@ structure of the bucket list in an NPM-style.
 ┗━┳ 3
   ┗━━ {"key":3,"value":"b"}
 ```
+
 
 ## Sorted Set and Sorted Map
 
@@ -449,7 +527,8 @@ Goals
 
 - tests
 - docs
-- shallow change dispatch and listeners
+- shallow change dispatch and listeners for all collections (needed:
+  List, Set, SortedSet)
 - alternative module systems song and dance
 - optional new on constructors
 - all functions named
@@ -460,8 +539,12 @@ More methods
 - compare
 - fast list splicing
 
-More collections
+More possible collections
 
+- lru-set (least recently used cache)
+- lru-map
+- arc-set (adaptive replacement cache)
+- arc-map
 - sorted-list (sorted, can contain duplicates, perhaps backed by splay
   tree with relaxation on the uniqueness invariant)
 - sorted-multi-map (sorted, can contain duplicate entries, perhaps
@@ -478,20 +561,6 @@ More collections
 - immutable-* (mutation functions return new objects that largely share
   the previous version's internal state, some perhaps backed by a hash
   trie)
-- lru-set (least recently used cache)
-- lru-map
-- arc-set (adaptive replacement cache)
-- arc-map
-
-Consolidate shims from ES5-Shim and elsewhere
-
-- weak-map-shim
-- object-shim
-- object-sham
-- array-shim
-- array-sham
-- date-shim
-
 - array heap implementation
 - binary heap implementation
 

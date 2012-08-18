@@ -1,5 +1,5 @@
 
-var SortedSet = require("./sorted-set");
+var SortedSet = require("../sorted-set");
 
 var tree = new SortedSet();
 tree.add(1);

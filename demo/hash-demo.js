@@ -1,6 +1,6 @@
 
-require("./hash");
-var Map = require("./map");
+require("../hash");
+var Map = require("../map");
 
 var map = new Map();
 var a = {}, b = {}, c = {};

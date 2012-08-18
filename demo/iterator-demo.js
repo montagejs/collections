@@ -1,5 +1,6 @@
 
-var Iterator = require("./iterator");
+var Iterator = require("../iterator");
+var List = require("../list");
 
 Iterator.range(10).forEach(function (n) {
     console.log(n);
@@ -124,7 +125,6 @@ iterator.mapIterator(function (n) {
     console.log('consuming', n);
 });
 
-var List = require("./list");
 list = new List([1, 2, 3, 4, 5]);
 var iterator = list.iterate();
 console.log(iterator.next());

@@ -1,5 +1,5 @@
 
-var Map = require("./map");
+var Map = require("../map");
 
 var map = new Map();
 map.set('a', 10);

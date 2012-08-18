@@ -5,12 +5,13 @@
     "homepage": "http://github.com/kriskowal/collections",
     "author": "Kris Kowal <kris@cixar.com> (http://github.com/kriskowal/collections)",
     "keywords": [
-        "map",
-        "set",
-        "splay",
-        "tree",
+        "collections",
         "data structures",
-        "collections"
+        "observable",
+        "list",
+        "set",
+        "map",
+        "splay"
     ],
     "bugs": {
         "mail": "kris@cixar.com",
@@ -27,5 +28,7 @@
         "url": "http://github.com/kriskowal/collections.git"
     },
     "dependencies": {},
-    "devDependencies": {}
+    "devDependencies": {
+        "jasmine-node": "*"
+    }
 }

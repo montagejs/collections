@@ -15,11 +15,16 @@ if (Object.freeze) {
     Object.freeze(Array.empty);
 }
 
+Array.from = function (values) {
+    var array = [];
+    array.addEach(values);
+    return array;
+};
+
 Array.prototype.constructClone = function constructClone(values) {
     var clone = new this.constructor();
-    if (values) {
-        values.forEach(this.push, this);
-    }
+    clone.addEach(values);
+    return clone;
 };
 
 Array.prototype.has = function (value, equals) {
@@ -37,10 +42,8 @@ Array.prototype.set = function (index, value) {
     return this;
 };
 
-Array.prototype.add = function (value, equals) {
-    if (!this.has(value, equals)) {
-        this.push(value);
-    }
+Array.prototype.add = function (value) {
+    this.push(value);
 };
 
 Array.prototype['delete'] = function (value, equals) {
@@ -52,6 +55,7 @@ Array.prototype['delete'] = function (value, equals) {
 
 Array.prototype.find = function (value, equals) {
     equals = equals || this.contentEquals || Object.equals || Operators.equals;
+    console.log(equals);
     for (var index = 0; index < this.length; index++) {
         if (index in this && equals(this[index], value)) {
             return index;
