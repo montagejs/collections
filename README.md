@@ -320,6 +320,14 @@ implied argument.
 
 ### Observers
 
+To use object observers, `require("collections/observable-object")`.
+This installs the necessary methods on the `Object` constructor.
+Observers depend on EcmaScript 5’s `Object.defineProperty` and
+`Object.defineProperties` or a suitable shim.  Observable collections
+benefit from the ability to swap `__proto__` in all engines except
+Internet Explorer, in which case they fall back to using
+`Object.defineProperties` to trap change functions.
+
 Listen for individual property changes on an object.  The listener may
 be a function or a delegate.
 
@@ -339,6 +347,12 @@ the most specific provided.
     change
 -   `handleEvent`
 -   function
+
+To use array content observers,
+`require("collections/observable-array")`.  This will install the
+necessary methods on the `Array` prototype.  The performance of arrays
+in general will not be affected&mdash;only observed arrays will require
+more time to execute changes.
 
 Listen for ranged content changes on arrays.  The location of the change
 is where the given arrays of content are removed and added.  For
@@ -532,6 +546,7 @@ Goals
 - alternative module systems song and dance
 - optional new on constructors
 - all functions named
+- object shim for defineProperties
 
 More methods
 
