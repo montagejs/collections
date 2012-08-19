@@ -68,7 +68,7 @@ Object.isObject = function (object) {
     the value through
 */
 Object.getValueOf = function (value) {
-    if (Object.implements(value, VALUE_OF)) {
+    if (Object.can(value, VALUE_OF)) {
         value = value.valueOf();
     }
     return value;
@@ -102,13 +102,13 @@ Object.owns = function (object, key) {
     example, numbers implement <code>valueOf</code>, so this is function
     does not imply <code>Object.isObject</code> of the same value.
 
-    @function external:Object.implements
+    @function external:Object.can
     @param {Any} value a value
     @param {String} name a method name
     @returns {Boolean} whether the given value implements the given method
 
 */
-Object.implements = function (object, name) {
+Object.can = function (object, name) {
     return (
         object != null && // false only for null *and* undefined
         typeof object[name] === FUNCTION &&
@@ -143,7 +143,7 @@ Object.has = function (object, key) {
         throw new Error("Object.has can't accept non-object: " + typeof object);
     }
     // forward to mapped collections that implement "has"
-    if (Object.implements(object, HAS)) {
+    if (Object.can(object, HAS)) {
         return object.has(key);
     // otherwise report whether the key is on the prototype chain,
     // as long as it is not one of the methods on object.prototype
@@ -162,10 +162,8 @@ Object.has = function (object, key) {
     values from the prototype chain as long as they are not from the
     <code>Object.prototype</code>.
 
-    <p>If there is no corresponding value and the given default value is not
-    <code>undefined</code>, returns the given default value.  Otherwise, if the
-    object implements <code>undefinedGet</code>, delegates to that method.
-    Otherwise returns <code>undefined</code>.
+    <p>If there is no corresponding value, returns the given default, which may
+    be <code>undefined</code>.
 
     <p>If the given object is an instance of a type that implements a method
     named "get", this function defers to the collection, so this method can be
@@ -184,11 +182,11 @@ Object.get = function (object, key, value) {
         throw new Error("Object.get can't accept non-object: " + typeof object);
     }
     // forward to mapped collections that implement "get"
-    if (Object.implements(object, GET)) {
+    if (Object.can(object, GET)) {
         return object.get(key, value);
     } else if (Object.has(object, key)) {
         return object[key];
-    } else if (value !== undefined) {
+    } else {
         return value;
     }
 };
@@ -208,7 +206,7 @@ Object.get = function (object, key, value) {
     @function external:Object.set
 */
 Object.set = function (object, key, value) {
-    if (Object.implements(object, SET)) {
+    if (Object.can(object, SET)) {
         object.set(key, value);
     } else {
         object[key] = value;
@@ -338,10 +336,10 @@ Object.equals = function (a, b) {
     if (a === b)
         // 0 === -0, but they are not equal
         return a !== 0 || 1 / a === 1 / b;
-    if (Object.implements(a, EQUALS))
+    if (Object.can(a, EQUALS))
         return a.equals(b);
     // commutative
-    if (Object.implements(b, EQUALS))
+    if (Object.can(b, EQUALS))
         return b.equals(a);
     if (typeof a === OBJECT && typeof b === OBJECT) {
         if (Object.getPrototypeOf(a) !== Object.getPrototypeOf(b)) {
@@ -413,10 +411,10 @@ Object.compare = function (a, b) {
     if (typeof a === STRING)
         return a < b ? -1 : 1;
         // the possibility of equality elimiated above
-    if (Object.implements(a, COMPARE))
+    if (Object.can(a, COMPARE))
         return a.compare(b);
     // not commutative, the relationship is reversed
-    if (Object.implements(b, COMPARE))
+    if (Object.can(b, COMPARE))
         return -b.compare(a);
     return 0;
 };
@@ -445,7 +443,7 @@ Object.clone = function (value, depth, memo) {
     } else if (depth === 0) {
         return value;
     }
-    if (memo && Object.isObject(value) && Object.implements(value, CLONE)) {
+    if (memo && Object.isObject(value) && Object.can(value, CLONE)) {
         if (!memo.has(value)) {
             memo.set(value, value.clone(depth, memo));
         }
@@ -463,7 +461,7 @@ Object.clone = function (value, depth, memo) {
     @returns this
 */
 Object.wipe = function (object) {
-    if (Object.implements(object, WIPE)) {
+    if (Object.can(object, WIPE)) {
         object.wipe();
     } else {
         var keys = Object.keys(object),

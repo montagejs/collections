@@ -13,6 +13,7 @@
 */
 
 var WeakMap = require("./weak-map");
+var List = require("./list");
 
 var object_owns = Object.prototype.hasOwnProperty;
 
@@ -61,8 +62,8 @@ Object.getOwnPropertyChangeDescriptor = function (object, key) {
     var objectPropertyChangeDescriptors = propertyChangeDescriptors.get(object);
     if (!object_owns.call(objectPropertyChangeDescriptors, key)) {
         objectPropertyChangeDescriptors[key] = {
-            willChangeListeners: [],
-            changeListeners: []
+            willChangeListeners: new List(),
+            changeListeners: new List()
         };
     }
     return objectPropertyChangeDescriptors[key];
@@ -105,11 +106,11 @@ Object.removeOwnPropertyChangeListener = function (object, key, listener, before
     } else {
         listeners = descriptor.changeListeners;
     }
-    var index = listeners.lastIndexOf(listener);
-    if (index === -1) {
+    var node = listeners.findLast(listener);
+    if (!node) {
         throw new Error("Can't remove listener: does not exist.");
     }
-    listeners.splice(index, 1);
+    listeners.splice(node, 1);
 };
 
 Object.dispatchOwnPropertyChange = function (object, key, value, beforeChange) {
@@ -129,8 +130,7 @@ Object.dispatchOwnPropertyChange = function (object, key, value, beforeChange) {
     var specificHandlerName = "handle" + propertyName + changeName;
 
     // dispatch to each listener
-    for (var i = 0; i < listeners.length; i++) {
-        var listener = listeners[i];
+    listeners.forEach(function (listener) {
         listener = (
             listener[specificHandlerName] ||
             listener[genericHandlerName] ||
@@ -140,7 +140,7 @@ Object.dispatchOwnPropertyChange = function (object, key, value, beforeChange) {
         if (listener.call) {
             listener.call(listener, value, key, object);
         }
-    }
+    });
 };
 
 Object.addBeforeOwnPropertyChangeListener = function (object, key, listener) {

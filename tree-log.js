@@ -12,7 +12,7 @@ TreeLog.ascii = {
     fromBelow: ".",
     fromAbove: "'",
     fromBoth: "+",
-    strafe: "|",
+    strafe: "|"
 };
 
 TreeLog.unicodeRound = {

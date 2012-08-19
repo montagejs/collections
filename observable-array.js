@@ -14,6 +14,7 @@
 
 require("./array");
 require("./observable-object");
+var List = require("./list");
 var WeakMap = require("./weak-map");
 
 var array_splice = Array.prototype.splice;
@@ -43,8 +44,8 @@ Array.prototype.getContentChangeDescriptor = function () {
     if (!contentChangeDescriptors.has(this)) {
         contentChangeDescriptors.set(this, {
             isActive: false,
-            changeListeners: [],
-            willChangeListeners: []
+            changeListeners: new List(),
+            willChangeListeners: new List()
         });
     }
     return contentChangeDescriptors.get(this);
@@ -79,12 +80,12 @@ Array.prototype.removeContentChangeListener = function (listener, beforeChange) 
         listeners = descriptor.changeListeners;
     }
 
-    var index = listeners.lastIndexOf(listener);
-    if (index === -1) {
+    var node = listeners.find(listener);
+    if (!node) {
         throw new Error("Can't remove listener: does not exist.");
     }
 
-    listeners.splice(index, 1);
+    listeners.splice(node, 1);
 };
 
 Array.prototype.dispatchContentChange = function (plus, minus, index, beforeChange) {
@@ -106,9 +107,9 @@ Array.prototype.dispatchContentChange = function (plus, minus, index, beforeChan
 
     // dispatch each listener
     try {
-        for (var i = 0; i < listeners.length; i++) {
-            var listener = listeners[i];
-            // support listener() and listener.handleContentChange() forms
+        listeners.forEach(function (listener) {
+            // support listener() listener.handleEvent() and
+            // listener.handleContentChange() forms
             if (beforeChange) {
                 listener = listener.handleContentWillChange || listener.handleEvent || listener;
             } else {
@@ -117,7 +118,7 @@ Array.prototype.dispatchContentChange = function (plus, minus, index, beforeChan
             if (listener.call) {
                 listener.call(listener, plus, minus, index, beforeChange);
             }
-        }
+        });
     } finally {
         descriptor.isActive = false;
     }
