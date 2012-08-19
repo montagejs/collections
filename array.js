@@ -21,7 +21,7 @@ Array.from = function (values) {
     return array;
 };
 
-Array.prototype.constructClone = function constructClone(values) {
+Array.prototype.constructClone = function (values) {
     var clone = new this.constructor();
     clone.addEach(values);
     return clone;

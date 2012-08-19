@@ -2,7 +2,7 @@
 module.exports = TreeLog;
 
 function TreeLog() {
-};
+}
 
 TreeLog.ascii = {
     intersection: "+",

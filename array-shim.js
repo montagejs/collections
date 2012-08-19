@@ -14,8 +14,8 @@ var object_toString = Object.prototype.toString;
 // http://es5.github.com/#x15.4.3.2
 // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/isArray
 if (!Array.isArray) {
-    Array.isArray = function isArray(obj) {
-        return object_toString.call(obj) == "[object Array]";
+    Array.isArray = function (object) {
+        return object_toString.call(object) == "[object Array]";
     };
 }
 

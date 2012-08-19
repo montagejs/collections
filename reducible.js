@@ -3,7 +3,7 @@ var Reducible = module.exports = {};
 
 var Operators = require("./operators");
 
-Reducible.addEach = function addEach(values) {
+Reducible.addEach = function (values) {
     if (values && Object(values) === values) {
         if (typeof values.forEach === "function") {
             values.forEach(this.add, this);
@@ -18,14 +18,14 @@ Reducible.addEach = function addEach(values) {
 // all of the following functions are implemented in terms of "reduce".
 // some need "constructClone".
 
-Reducible.forEach = function forEach(callback /*, thisp*/) {
+Reducible.forEach = function (callback /*, thisp*/) {
     var thisp = arguments[1];
     return this.reduce(function (undefined, value, key, object, depth) {
         callback.call(thisp, value, key, object, depth);
     }, undefined);
 };
 
-Reducible.map = function map(callback /*, thisp*/) {
+Reducible.map = function (callback /*, thisp*/) {
     var thisp = arguments[1];
     var result = [];
     this.reduce(function (undefined, value, key, object, depth) {
@@ -34,7 +34,7 @@ Reducible.map = function map(callback /*, thisp*/) {
     return result;
 };
 
-Reducible.toArray = function toArray() {
+Reducible.toArray = function () {
     return this.map(identity);
 };
 
@@ -42,7 +42,7 @@ Reducible.toArray = function toArray() {
 // because they have numeric keys and all Maps since they may use
 // strings as keys.  List, Set, and SortedSet have nodes for keys, so
 // toObject would not be meaningful.
-Reducible.toObject = function toObject() {
+Reducible.toObject = function () {
     var object = {};
     this.reduce(function (undefined, value, key) {
         object[key] = value;
@@ -50,7 +50,7 @@ Reducible.toObject = function toObject() {
     return object;
 };
 
-Reducible.filter = function filter(callback /*, thisp*/) {
+Reducible.filter = function (callback /*, thisp*/) {
     var thisp = arguments[1];
     var result = this.constructClone();
     this.reduce(result, function (undefined, value, key, object, depth) {
@@ -61,43 +61,43 @@ Reducible.filter = function filter(callback /*, thisp*/) {
     return result;
 };
 
-Reducible.every = function every(callback /*, thisp*/) {
+Reducible.every = function (callback /*, thisp*/) {
     var thisp = arguments[1];
     return this.reduce(function (result, value, key, object, depth) {
         return result && callback.call(thisp, value, key, object, depth);
     }, true);
 };
 
-Reducible.some = function some(callback /*, thisp*/) {
+Reducible.some = function (callback /*, thisp*/) {
     var thisp = arguments[1];
     return this.reduce(function (result, value, key, object, depth) {
         return result || callback.call(thisp, value, key, object, depth);
     }, false);
 };
 
-Reducible.all = function all() {
+Reducible.all = function () {
     return this.every(Boolean);
 };
 
-Reducible.any = function any() {
+Reducible.any = function () {
     return this.some(Boolean);
 };
 
-Reducible.min = function min(compare) {
+Reducible.min = function (compare) {
     compare = this.contentCompare || Object.compare || Operators.compare;
     return this.reduce(function (result, value) {
         return compare(value, result) < 0 ? value : result;
     }, Infinity);
 };
 
-Reducible.max = function max(compare) {
+Reducible.max = function (compare) {
     compare = this.contentCompare || Object.compare || Operators.compare;
     return this.reduce(function (result, value) {
         return compare(value, result) > 0 ? value : result;
     }, -Infinity);
 };
 
-Reducible.count = function count(zero) {
+Reducible.count = function (zero) {
     zero = zero === undefined ? 0 : zero;
     return this.reduce(increment, zero);
 };
@@ -106,7 +106,7 @@ function increment(value) {
     return value + 1;
 }
 
-Reducible.sum = function sum(zero) {
+Reducible.sum = function (zero) {
     zero = zero === undefined ? 0 : zero;
     return this.reduce(add, zero);
 };
@@ -115,7 +115,7 @@ function add(a, b) {
     return a + b;
 }
 
-Reducible.average = function average(zero) {
+Reducible.average = function (zero) {
     var sum = zero === undefined ? 0 : zero;
     var count = zero === undefined ? 0 : zero;
     this.reduce(function (undefined, value) {
@@ -133,7 +133,7 @@ Reducible.concat = function () {
     return result;
 };
 
-Reducible.flatten = function flatten() {
+Reducible.flatten = function () {
     return this.reduce(flattenReducer, this.constructClone());
 };
 

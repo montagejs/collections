@@ -17,7 +17,7 @@ List.prototype.constructClone = function (values) {
     return new this.constructor(values, this.contentEquals);
 };
 
-List.prototype.find = function find(value, equals) {
+List.prototype.find = function (value, equals) {
     equals = equals || this.contentEquals;
     var head = this.head;
     var at = head.next;
@@ -41,11 +41,11 @@ List.prototype.findLast = function (value, equals) {
     }
 };
 
-List.prototype.has = function has(value, equals) {
+List.prototype.has = function (value, equals) {
     return !!this.find(value, equals);
 };
 
-List.prototype.get = function get(value, equals) {
+List.prototype.get = function (value, equals) {
     var found = this.find(value, equals);
     if (found) {
         return found.value;
@@ -53,7 +53,7 @@ List.prototype.get = function get(value, equals) {
     return this.getDefault();
 };
 
-List.prototype.getDefault = function getDefault() {
+List.prototype.getDefault = function () {
 };
 
 // LIFO (delete removes the most recently added equivalent value)
@@ -70,7 +70,7 @@ List.prototype.wipe = function () {
     this.head.next = this.head.prev = this.head;
 };
 
-List.prototype.add = function add(value) {
+List.prototype.add = function (value) {
     this.head.addAfter(new this.Node(value));
     this.length++;
 };
@@ -256,7 +256,7 @@ List.prototype.equals = function (that, equals) {
     );
 };
 
-List.prototype.one = function one() {
+List.prototype.one = function () {
     if (this.head === this.head.next) {
         throw new Error("Can't get one value from empty list");
     }
@@ -273,7 +273,7 @@ List.prototype.only = function () {
     return this.head.next.value;
 };
 
-List.prototype.iterate = function iterate() {
+List.prototype.iterate = function () {
     return new ListIterator(this.head);
 };
 
@@ -282,7 +282,7 @@ function ListIterator(head) {
     this.at = head.next;
 };
 
-ListIterator.prototype.next = function next() {
+ListIterator.prototype.next = function () {
     if (this.at === this.head) {
         throw StopIteration;
     } else {

@@ -17,7 +17,7 @@ SortedSet.prototype.constructClone = function (values) {
     return new this.constructor(values, this.contentEquals, this.contentCompare);
 };
 
-SortedSet.prototype.has = function has(value) {
+SortedSet.prototype.has = function (value) {
     if (this.root) {
         this.splay(value);
         return this.contentEquals(value, this.root.value);
@@ -26,7 +26,7 @@ SortedSet.prototype.has = function has(value) {
     }
 };
 
-SortedSet.prototype.get = function get(value) {
+SortedSet.prototype.get = function (value) {
     if (this.root) {
         this.splay(value);
         if (this.contentEquals(value, this.root.value)) {
@@ -39,7 +39,7 @@ SortedSet.prototype.get = function get(value) {
 SortedSet.prototype.getDefault = function () {
 };
 
-SortedSet.prototype.add = function add(value) {
+SortedSet.prototype.add = function (value) {
     var node = new this.Node(value);
     if (this.root) {
         this.splay(value);
@@ -86,7 +86,7 @@ SortedSet.prototype['delete'] = function (value) {
     }
 };
 
-SortedSet.prototype.find = function find(value) {
+SortedSet.prototype.find = function (value) {
     if (this.root) {
         this.splay(value);
         if (this.contentEquals(value, this.root.value)) {
@@ -156,7 +156,7 @@ SortedSet.prototype.findLeastGreaterThan = function (value) {
 // This is the simplified top-down splaying algorithm from: "Self-adjusting
 // Binary Search Trees" by Sleator and Tarjan
 // guarantees that the root.value <= value if root exists
-SortedSet.prototype.splay = function splay(value) {
+SortedSet.prototype.splay = function (value) {
     var stub, left, right, temp, root;
 
     if (!this.root) {
@@ -220,14 +220,14 @@ SortedSet.prototype.splay = function splay(value) {
 
 };
 
-SortedSet.prototype.reduce = function reduce(callback, basis, thisp) {
+SortedSet.prototype.reduce = function (callback, basis, thisp) {
     if (this.root) {
         basis = this.root.reduce(callback, basis, thisp, this);
     }
     return basis;
 };
 
-SortedSet.prototype.reduceRight = function reduceRight(callback, basis, thisp) {
+SortedSet.prototype.reduceRight = function (callback, basis, thisp) {
     if (this.root) {
         basis = this.root.reduceRight(callback, basis, thisp, this);
     }
@@ -292,7 +292,7 @@ SortedSet.prototype.iterate = function (start, end) {
 
 SortedSet.prototype.Iterator = Iterator;
 
-SortedSet.prototype.log = function log(charmap, stringify) {
+SortedSet.prototype.log = function (charmap, stringify) {
     charmap = charmap || SortedSet.unicodeRound;
     stringify = stringify || this.stringify;
     if (this.root) {
@@ -300,7 +300,7 @@ SortedSet.prototype.log = function log(charmap, stringify) {
     }
 };
 
-SortedSet.prototype.stringify = function stringify(value, leader, below, above) {
+SortedSet.prototype.stringify = function (value, leader, below, above) {
     return leader + " " + value;
 };
 
@@ -318,7 +318,7 @@ function Node(value) {
 
 // TODO case where no basis is provided for reduction
 
-Node.prototype.reduce = function reduce(callback, basis, thisp, tree, depth) {
+Node.prototype.reduce = function (callback, basis, thisp, tree, depth) {
     depth = depth || 0;
     if (this.left) {
         basis = this.left.reduce(callback, basis, thisp, tree, depth + 1);
@@ -330,7 +330,7 @@ Node.prototype.reduce = function reduce(callback, basis, thisp, tree, depth) {
     return basis;
 };
 
-Node.prototype.reduceRight = function reduce(callback, basis, thisp, tree, depth) {
+Node.prototype.reduceRight = function (callback, basis, thisp, tree, depth) {
     depth = depth || 0;
     if (this.right) {
         basis = this.right.reduce(callback, basis, thisp, tree, depth + 1);
@@ -366,7 +366,7 @@ Node.prototype.getPrevious = function () {
     }
 };
 
-Node.prototype.log = function log(charmap, stringify, leader, above, below) {
+Node.prototype.log = function (charmap, stringify, leader, above, below) {
     leader = leader || "";
     above = above || "";
     below = below || "";
