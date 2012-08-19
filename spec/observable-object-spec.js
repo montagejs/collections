@@ -7,7 +7,7 @@
 
 require("../observable-object");
 
-describe("observable-array-spec", function () {
+describe("ObservableObject", function () {
 
     it("observes setter on object", function () {
         spy = jasmine.createSpy();

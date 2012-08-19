@@ -46,11 +46,23 @@ SortedSet.prototype.add = function (value) {
         if (!this.contentEquals(value, this.root.value)) {
             if (this.contentCompare(value, this.root.value) < 0) {
                 // rotate right
+                //   R        N
+                //  / \  ->  / \
+                // l   r    l   R
+                // :   :    :    \
+                //                r
+                //                :
                 node.right = this.root;
                 node.left = this.root.left;
                 this.root.left = null;
             } else {
                 // rotate left
+                //   R        N
+                //  / \  ->  / \
+                // l   r    R   r
+                // :   :   /    :
+                //        l
+                //        :
                 node.left = this.root;
                 node.right = this.root.right;
                 this.root.right = null;
@@ -217,7 +229,6 @@ SortedSet.prototype.splay = function (value) {
     root.left = stub.right;
     root.right = stub.left;
     this.root = root;
-
 };
 
 SortedSet.prototype.reduce = function (callback, basis, thisp) {
@@ -293,15 +304,19 @@ SortedSet.prototype.iterate = function (start, end) {
 SortedSet.prototype.Iterator = Iterator;
 
 SortedSet.prototype.log = function (charmap, stringify) {
+    this.report(console.log, console, charmap, stringify);
+};
+
+SortedSet.prototype.report = function (callback, thisp, charmap, stringify) {
     charmap = charmap || SortedSet.unicodeRound;
     stringify = stringify || this.stringify;
     if (this.root) {
-        this.root.log(charmap, stringify);
+        this.root.report(callback, thisp, charmap, stringify);
     }
 };
 
-SortedSet.prototype.stringify = function (value, leader, below, above) {
-    return leader + " " + value;
+SortedSet.prototype.stringify = function (callback, thisp, node, leader, below, above) {
+    callback.call(thisp, leader + " " + node.value);
 };
 
 SortedSet.unicodeRound = TreeLog.unicodeRound;
@@ -366,7 +381,15 @@ Node.prototype.getPrevious = function () {
     }
 };
 
-Node.prototype.log = function (charmap, stringify, leader, above, below) {
+Node.prototype.report = function (
+    callback,
+    thisp,
+    charmap,
+    stringify,
+    leader,
+    above,
+    below
+) {
     leader = leader || "";
     above = above || "";
     below = below || "";
@@ -382,22 +405,26 @@ Node.prototype.log = function (charmap, stringify, leader, above, below) {
         branch = charmap.through;
     }
 
-    this.left && this.left.log(
+    this.left && this.left.report(
+        callback,
+        thisp,
         charmap,
         stringify,
         above + charmap.fromBelow + charmap.through,
         above + "  ",
         above + charmap.strafe + " "
     );
-    console.log(
-        stringify(
-            this.value,
-            leader + branch,
-            below + (this.right ? charmap.strafe : " "),
-            above + (this.left ? charmap.strafe : " ")
-        )
-    );
-    this.right && this.right.log(
+    stringify(
+        callback,
+        thisp,
+        this,
+        leader + branch,
+        below + (this.right ? charmap.strafe : " "),
+        above + (this.left ? charmap.strafe : " ")
+    )
+    this.right && this.right.report(
+        callback,
+        thisp,
         charmap,
         stringify,
         below + charmap.fromAbove + charmap.through,

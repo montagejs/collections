@@ -67,6 +67,7 @@ Set.prototype.wipe = function () {
     for (var hash in buckets) {
         delete buckets[hash];
     }
+    this.length = 0;
 };
 
 Set.prototype.add = function (value) {

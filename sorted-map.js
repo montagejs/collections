@@ -58,13 +58,17 @@ SortedMap.prototype.flatten = Reducible.flatten;
 SortedMap.prototype.zip = Reducible.zip;
 SortedMap.prototype.clone = Reducible.clone;
 
-SortedMap.prototype.log = function (charmap, stringifyItem) {
-    stringifyItem = stringifyItem || this.stringifyItem;
-    this.itemSet.log(charmap, stringifyItem);
+SortedMap.prototype.log = function (charmap, stringify) {
+    stringify = stringify || this.stringify;
+    this.itemSet.log(charmap, stringify);
 };
 
-SortedMap.prototype.stringifyItem = function (item, leader) {
-    return leader + ' ' + item.key + ': ' + item.value;
+SortedMap.prototype.report = function (callback, thisp, charmap, stringify) {
+    stringify = stringify || this.stringify;
+    this.itemSet.report(callback, thisp, charmap, stringify);
 };
 
+SortedMap.prototype.stringify = function (callback, thisp, node, leader) {
+    callback.call(thisp, leader + ' ' + node.value.key + ': ' + node.value.value);
+};
 

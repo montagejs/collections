@@ -543,10 +543,10 @@ Goals
 - docs
 - shallow change dispatch and listeners for all collections (needed:
   List, Set, SortedSet)
-- alternative module systems song and dance
 - optional new on constructors
-- all functions named
 - object shim for defineProperties
+- track indicies in sorted set
+- remove iterator dependency of Set
 
 More methods
 

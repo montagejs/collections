@@ -1,7 +1,7 @@
 
 require("../observable-array");
 
-describe("observable-array-spec", function () {
+describe("ObservableArray", function () {
 
     var array = [1, 2, 3];
     var spy;
