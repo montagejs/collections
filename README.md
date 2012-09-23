@@ -3,7 +3,7 @@
 
 This package contains JavaScript implementations of common data
 structures with idiomatic iterfaces, including extensions for Array and
-Object and extensions for observable property and content changes.
+Object.
 
 -   `List(values, equals)`: an ordered collection of values with fast
     insertion and deletion and forward and backward traversal, backed by
@@ -42,19 +42,12 @@ Object and extensions for observable property and content changes.
     push, and pop, but slow splice. The `array` module provides
     extensions so it hosts all the expressiveness of other collections.
     The `array-shim` module shims EcmaScript 5 methods onto the array
-    prototype if they are not natively implemented.  The
-    `observable-array` module provides methods for watching shallow
-    content changes and length property changes provided that the
-    developer is willing to degrade the performance of mutation
-    functions for *the particular observed array*.  Observability does
-    not degrade the performance of mutations for non-observed arrays.
+    prototype if they are not natively implemented.
 -   `Object()`: can be used as a mapping of owned string keys to
     arbitrary values.  The `object` module provides extensions for the
     `Object` constructor that support the map collection interface and
     can delegate to methods of collections, allowing them to gracefully
-    handle both object literals and collections.  The
-    `observable-object` module provides methods for observing changes to
-    owned properties using getters and setters.
+    handle both object literals and collections.
 
 For all of these constructors, the argument `values` is an optional
 collection of initial values, and may be an array.  If the `values` are
@@ -316,75 +309,6 @@ implied argument.
 -   `count(start, step)`: iterates from start by step, indefinitely
 -   `repeat(value, times)`: repeats the given value either finite times
     or indefinitely
-
-
-### Observers
-
-To use object observers, `require("collections/observable-object")`.
-This installs the necessary methods on the `Object` constructor.
-Observers depend on EcmaScript 5’s `Object.defineProperty` and
-`Object.defineProperties` or a suitable shim.  Observable collections
-benefit from the ability to swap `__proto__` in all engines except
-Internet Explorer, in which case they fall back to using
-`Object.defineProperties` to trap change functions.
-
-Listen for individual property changes on an object.  The listener may
-be a function or a delegate.
-
--   `Object.addOwnPropertyChangeListener(object, key, listener, beforeChange)`
--   `Object.removeOwnPropertyChangeListener(object, key, listener, beforeChange)`
--   `Object.addBeforeOwnPropertyChangeListener(object, key, listener)`
--   `Object.removeBeforeOwnPropertyChangeListener(object, key, listener)`
-
-The arguments to the listener are `(value, key, object)`, much like a
-`forEach` callback.  The `this` within the listener is the listener
-object itself.  The dispatch method must be one of these names, favoring
-the most specific provided. 
-
--   `handle` + key (TwoHump) + (`Change` or `WillChange` before change),
-    for example, `handleFooWillChange` for `foo`.
--   `handleOwnPropertyChange` or `handleOwnPropertyWillChange` before
-    change
--   `handleEvent`
--   function
-
-To use array content observers,
-`require("collections/observable-array")`.  This will install the
-necessary methods on the `Array` prototype.  The performance of arrays
-in general will not be affected&mdash;only observed arrays will require
-more time to execute changes.
-
-Listen for ranged content changes on arrays.  The location of the change
-is where the given arrays of content are removed and added.  For
-unordered collections like sets, the location would not be defined.
-Content changes are not yet implemented for other collections.
-
--   `array.addContentChangeListener(listener, beforeChange)`
--   `array.removeContentChangeListener(listener, beforeChange)`
--   `array.addBeforeContentChangeListener(listener)`
--   `array.removeBeforeContentChangeListener(listener)`
-
-The arguments to the listener are `(plus, minus, at)`, which are arrays
-of the added and removed values, and optionally the location of the
-change for ordered collections (lists, arrays).  For a list, the
-position is denoted by a node.  The dispatch method must be one of these
-names, favoring the most specific provided.
-
--   `handleContentChange` or `handleContentWillChange` if before change
--   `handleEvent`
--   function
-
-Listen for content changes from each position within an array, including
-changes to and from undefined.  Content changes must be emitted by
-method calls on an array, so use `array.set(index, value)` instead of
-`array[index] = value`.
-
--   `array.addEachContentChangeListener(listener, beforeChange)`
--   `array.removeEachContentChangeListener(listener, beforeChange)`
--   `array.addBeforeEachContentChangeListener(listener)`
--   `array.removeBeforeEachContentChangeListener(listener)`
-
-The listener is a listener as for property changes.
 
 
 ## List
