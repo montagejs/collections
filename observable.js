@@ -18,6 +18,11 @@ Observable.getContentChangeDescriptor = function () {
 };
 
 Observable.addContentChangeListener = function (listener, beforeChange) {
+    // a concession for objects like Array that are not inherently observable
+    if (!this.isObservable) {
+        this.makeObservable();
+    }
+
     var descriptor = this.getContentChangeDescriptor();
 
     var listeners;

@@ -1,5 +1,5 @@
 
-## v0.0.4
+## v0.0.5
 
 -   The `observable-array` and `observable-object` modules have been
     moved to the Functional Reactive Bindings (`frb`) package as `array`
