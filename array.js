@@ -55,7 +55,6 @@ Array.prototype['delete'] = function (value, equals) {
 
 Array.prototype.find = function (value, equals) {
     equals = equals || this.contentEquals || Object.equals || Operators.equals;
-    console.log(equals);
     for (var index = 0; index < this.length; index++) {
         if (index in this && equals(this[index], value)) {
             return index;
