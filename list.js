@@ -2,6 +2,7 @@
 module.exports = List;
 
 var Reducible = require("./reducible");
+var Observable = require("./observable");
 var Operators = require("./operators");
 
 function List(values, equals) {
@@ -61,6 +62,10 @@ List.prototype['delete'] = function (value, equals) {
     var found = this.findLast(value, equals);
     if (found) {
         found['delete']();
+        this.length--;
+        if (this.isObserved) {
+            this.dispatchContentChange([], [value]);
+        }
         return true;
     }
     return false;
@@ -73,23 +78,34 @@ List.prototype.wipe = function () {
 List.prototype.add = function (value) {
     this.head.addAfter(new this.Node(value));
     this.length++;
+    if (this.isObserved) {
+        this.dispatchContentChange([value], []);
+    }
 };
 
 List.prototype.push = function () {
     var head = this.head;
     for (var i = 0; i < arguments.length; i++) {
-        var node = new this.Node(arguments[i]);
+        var value = arguments[i];
+        var node = new this.Node(value);
         head.addAfter(node);
         this.length++;
+        if (this.isObserved) {
+            this.dispatchContentChange([value], []);
+        }
     }
 };
 
 List.prototype.unshift = function () {
     var at = this.head;
     for (var i = 0; i < arguments.length; i++) {
-        var node = new this.Node(arguments[i]);
+        var value = arguments[i];
+        var node = new this.Node(value);
         at.addBefore(node);
         this.length++;
+        if (this.isObserved) {
+            this.dispatchContentChange([value], []);
+        }
         at = node;
     }
 };
@@ -101,6 +117,9 @@ List.prototype.pop = function () {
         value = head.prev.value;
         head.prev['delete']();
         this.length--;
+        if (this.isObserved) {
+            this.dispatchContentChange([], [value]);
+        }
     }
     return value;
 };
@@ -112,6 +131,9 @@ List.prototype.shift = function () {
         value = head.prev.value;
         head.prev['delete']();
         this.length--;
+        if (this.isObserved) {
+            this.dispatchContentChange([], [value]);
+        }
     }
     return value;
 };
@@ -239,6 +261,14 @@ List.prototype.compare = Reducible.compare;
 List.prototype.sorted = Reducible.sorted;
 List.prototype.reversed = Reducible.reversed;
 List.prototype.clone = Reducible.clone;
+
+List.prototype.getContentChangeDescriptor = Observable.getContentChangeDescriptor;
+List.prototype.addContentChangeListener = Observable.addContentChangeListener;
+List.prototype.removeContentChangeListener = Observable.removeContentChangeListener;
+List.prototype.dispatchContentChange = Observable.dispatchContentChange;
+List.prototype.addBeforeContentChangeListener = Observable.addBeforeContentChangeListener;
+List.prototype.removeBeforeContentChangeListener = Observable.removeBeforeContentChangeListener;
+List.prototype.dispatchBeforeContentChange = Observable.dispatchBeforeContentChange;
 
 List.prototype.equals = function (that, equals) {
     var equals = equals || this.contentEquals || Object.equals || Operators.equals;

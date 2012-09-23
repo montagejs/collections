@@ -2,6 +2,7 @@
 module.exports = SortedSet;
 
 var Reducible = require("./reducible");
+var Observable = require("./observable");
 var Operators = require("./operators");
 var TreeLog = require("./tree-log");
 
@@ -44,6 +45,9 @@ SortedSet.prototype.add = function (value) {
     if (this.root) {
         this.splay(value);
         if (!this.contentEquals(value, this.root.value)) {
+            if (this.isObserved) {
+                this.dispatchBeforeContentChange([value], []);
+            }
             if (this.contentCompare(value, this.root.value) < 0) {
                 // rotate right
                 //   R        N
@@ -69,10 +73,19 @@ SortedSet.prototype.add = function (value) {
             }
             this.root = node;
             this.length++;
+            if (this.isObserved) {
+                this.dispatchContentChange([value], []);
+            }
         }
     } else {
+        if (this.isObserved) {
+            this.dispatchBeforeContentChange([value], []);
+        }
         this.root = node;
         this.length++;
+        if (this.isObserved) {
+            this.dispatchContentChange([value], []);
+        }
     }
 };
 
@@ -94,6 +107,9 @@ SortedSet.prototype['delete'] = function (value) {
                 this.root.right = right;
             }
             this.length--;
+            if (this.isObserved) {
+                this.dispatchContentChange([], [value]);
+            }
         }
     }
 };
@@ -261,6 +277,14 @@ SortedSet.prototype.flatten = Reducible.flatten;
 SortedSet.prototype.zip = Reducible.flatten;
 SortedSet.prototype.sorted = Reducible.sorted;
 SortedSet.prototype.clone = Reducible.clone;
+
+SortedSet.prototype.getContentChangeDescriptor = Observable.getContentChangeDescriptor;
+SortedSet.prototype.addContentChangeListener = Observable.addContentChangeListener;
+SortedSet.prototype.removeContentChangeListener = Observable.removeContentChangeListener;
+SortedSet.prototype.dispatchContentChange = Observable.dispatchContentChange;
+SortedSet.prototype.addBeforeContentChangeListener = Observable.addBeforeContentChangeListener;
+SortedSet.prototype.removeBeforeContentChangeListener = Observable.removeBeforeContentChangeListener;
+SortedSet.prototype.dispatchBeforeContentChange = Observable.dispatchBeforeContentChange;
 
 SortedSet.prototype.min = function (at) {
     var least = this.findLeast(at);

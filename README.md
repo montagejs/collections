@@ -311,6 +311,46 @@ implied argument.
     or indefinitely
 
 
+### Observables
+
+`List`, `Set`, and `SortedSet` can be observed for content changes.
+
+A content change handler can have various forms.  The simplest form is a
+function that accepts `plus`, `minus`, and `index` as arguments where
+`plus` is an array of added values, `minus` is an array of deleted
+values, and `index` is the position of the change or undefined.  In that
+case, `this` will be the collection that dispatches the event.
+
+Alternately, you can dispatch events to a handler object.  If the
+handler has a `handleContentChange` function (for noticing a change
+after it has occurred) or a `handleContentWillChange` function (for
+noticing a change before it has occurred), the event will be dispatched
+to one of those.  The function has the same `(plus, minus, index)`
+signature.
+
+You can also dispatch change events to a DOM-compatible
+`handleEvent(event)` method, in which case the handler will receive an
+event with `phase`, `currentTarget`, `target`, `plus`, `minus`, and
+`index` properties.  `phase` is either `"before"` or `"after"`.  The
+targets are both the collection in flux.
+
+-   `(plus, minus, index)`
+-   `handleContentChange(plus, minus, index)`
+-   `handleContentWillChange(plus, minus, index)`
+-   `handleEvent({phase, currentTarget, target, plus, minus, index})`
+
+The methods of the collection for managing content changes are generic,
+in the `observable` module, and have the following forms:
+
+-   `addContentChangeListener(listener, beforeChange)`
+-   `removeContentChangeListener(listener, beforeChange)`
+-   `dispatchContentChange(plus, minus, index)`
+-   `addBeforeContentChangeListener(listener)`
+-   `removeBeforeContentChangeListener(listener)`
+-   `dispatchBeforeContentChange(plus, minus, index)`
+-   `getContentChangeDescriptor()`
+
+
 ## List
 
 Lists are backed by a cyclic doubly-linked list with a head node.  The

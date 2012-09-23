@@ -1,5 +1,5 @@
 
-var Reducible = module.exports = {};
+var Reducible = exports;
 
 var Operators = require("./operators");
 

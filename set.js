@@ -1,6 +1,7 @@
 
 var List = require("./list");
 var Reducible = require("./reducible");
+var Observable = require("./observable");
 var Operators = require("./operators");
 var TreeLog = require("./tree-log");
 var Iterator = require("./iterator");
@@ -52,9 +53,15 @@ Set.prototype['delete'] = function (value) {
     if (object_has.call(buckets, hash)) {
         var bucket = buckets[hash];
         if (bucket["delete"](value)) {
+            if (this.isObserved) {
+                this.dispatchBeforeContentChange([], [value]);
+            }
             this.length--;
             if (bucket.length === 0) {
                 delete buckets[hash];
+            }
+            if (this.isObserved) {
+                this.dispatchContentChange([], [value]);
             }
             return true;
         }
@@ -77,8 +84,14 @@ Set.prototype.add = function (value) {
         buckets[hash] = new this.Bucket(null, this.contentEquals);
     }
     if (!buckets[hash].has(value)) {
+        if (this.isObserved) {
+            this.dispatchBeforeContentChange([value], []);
+        }
         buckets[hash].add(value);
         this.length++;
+        if (this.isObserved) {
+            this.dispatchContentChange([value], []);
+        }
     }
 };
 
@@ -110,6 +123,14 @@ Set.prototype.flatten = Reducible.flatten;
 Set.prototype.zip = Reducible.zip;
 Set.prototype.sorted = Reducible.sorted;
 Set.prototype.clone = Reducible.clone;
+
+Set.prototype.getContentChangeDescriptor = Observable.getContentChangeDescriptor;
+Set.prototype.addContentChangeListener = Observable.addContentChangeListener;
+Set.prototype.removeContentChangeListener = Observable.removeContentChangeListener;
+Set.prototype.dispatchContentChange = Observable.dispatchContentChange;
+Set.prototype.addBeforeContentChangeListener = Observable.addBeforeContentChangeListener;
+Set.prototype.removeBeforeContentChangeListener = Observable.removeBeforeContentChangeListener;
+Set.prototype.dispatchBeforeContentChange = Observable.dispatchBeforeContentChange;
 
 Set.prototype.equals = function (that) {
     var self = this;
