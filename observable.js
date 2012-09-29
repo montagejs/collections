@@ -34,7 +34,7 @@ Observable.addContentChangeListener = function (listener, beforeChange) {
 
     // even if already registered
     listeners.push(listener);
-    this.isObserved = listeners.length;
+    this.isObserved = !!listeners.length;
 };
 
 Observable.removeContentChangeListener = function (listener, beforeChange) {
@@ -52,7 +52,7 @@ Observable.removeContentChangeListener = function (listener, beforeChange) {
         throw new Error("Can't remove listener: does not exist.");
     }
     listeners.splice(node, 1);
-    this.isObserved = listeners.length;
+    this.isObserved = !!listeners.length;
 };
 
 Observable.dispatchContentChange = function (plus, minus, index, beforeChange) {
