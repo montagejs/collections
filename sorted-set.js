@@ -7,6 +7,9 @@ var Operators = require("./operators");
 var TreeLog = require("./tree-log");
 
 function SortedSet(values, equals, compare) {
+    if (!(this instanceof SortedSet)) {
+        return new SortedSet(values, equals, compare);
+    }
     this.contentEquals = equals || Object.equals || Operators.equals;
     this.contentCompare = compare || Object.compare || Operators.compare;
     this.root = null;

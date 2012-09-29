@@ -6,6 +6,9 @@ var Observable = require("./observable");
 var Operators = require("./operators");
 
 function List(values, equals) {
+    if (!(this instanceof List)) {
+        return new List(values, equals);
+    }
     var head = this.head = new this.Node();
     head.next = head;
     head.prev = head;

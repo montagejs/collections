@@ -12,7 +12,7 @@ module.exports = Set;
 
 function Set(values, equals, hash) {
     if (!(this instanceof Set)) {
-        return new Set(values, options);
+        return new Set(values, equals, hash);
     }
     equals = equals || Set.equals || Operators.equals;
     hash = hash || Set.hash || Operators.hash;

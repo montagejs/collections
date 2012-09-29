@@ -7,6 +7,9 @@ var AbstractMap = require("./abstract-map");
 module.exports = SortedMap;
 
 function SortedMap(values, equals, compare) {
+    if (!(this instanceof SortedMap)) {
+        return new SortedMap(values, equals, compare);
+    }
     equals = equals || Object.equals || Operators.equals;
     compare = compare || Object.compare || Operators.compare;
     this.contentEquals = equals;
