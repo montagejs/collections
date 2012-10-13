@@ -311,7 +311,7 @@
   // constant time representation is easy.
   // var histogram = [];
 
-  var WeakMap = function() {
+  var WeakMapShim = function() {
     // We are currently (12/25/2012) never encountering any prematurely
     // non-extensible keys.
     var keys = []; // brute force for prematurely non-extensible keys.
@@ -384,14 +384,14 @@
       return true;
     }
 
-    return Object.create(WeakMap.prototype, {
+    return Object.create(WeakMapShim.prototype, {
       get___:    { value: constFunc(get___) },
       has___:    { value: constFunc(has___) },
       set___:    { value: constFunc(set___) },
       delete___: { value: constFunc(delete___) }
     });
   };
-  WeakMap.prototype = Object.create(Object.prototype, {
+  WeakMapShim.prototype = Object.create(Object.prototype, {
     get: {
       /**
        * Return the value most recently associated with key, or
@@ -449,7 +449,7 @@
   });
 
   if (typeof module !== "undefined") {
-      module.exports = WeakMap;
+      module.exports = WeakMapShim;
   }
 
 })();

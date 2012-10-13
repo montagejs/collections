@@ -1,6 +1,12 @@
-#!/usr/bin/env node --harmony_weakmaps
+#!/usr/bin/env node --harmony_collections
 
 var WeakMap = require("../weak-map");
+
+if (/native/.test(WeakMap.toString())) {
+    console.log("Using native WeakMap");
+} else {
+    console.log("Using shim WeakMap");
+}
 
 var map = new WeakMap();
 
