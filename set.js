@@ -1,12 +1,9 @@
 
 var List = require("./list");
+var FastSet = require("./fast-set");
 var Reducible = require("./reducible");
 var Observable = require("./observable");
 var Operators = require("./operators");
-var TreeLog = require("./tree-log");
-var Iterator = require("./iterator");
-
-var object_has = Object.prototype.hasOwnProperty;
 
 module.exports = Set;
 
@@ -18,7 +15,16 @@ function Set(values, equals, hash) {
     hash = hash || Set.hash || Operators.hash;
     this.contentEquals = equals;
     this.contentHash = hash;
-    this.buckets = {};
+    this.contentList = new List(undefined, equals); // of values in insertion order
+    this.contentSet = new FastSet( // set of nodes from list, by value
+        undefined,
+        function (a, b) {
+            return equals(a.value, b.value);
+        },
+        function (node) {
+            return hash(node.value);
+        }
+    );
     this.length = 0;
     this.addEach(values);
 }
@@ -27,81 +33,58 @@ Set.prototype.constructClone = function (values) {
     return new this.constructor(values, this.contentEquals, this.contentHash);
 };
 
-Set.prototype.Bucket = List;
-
 Set.prototype.has = function (value) {
-    var hash = this.contentHash(value);
-    var buckets = this.buckets;
-    return object_has.call(buckets, hash) && buckets[hash].has(value);
+    var node = new this.contentList.Node(value);
+    return this.contentSet.has(node);
 };
 
 Set.prototype.get = function (value) {
-    var hash = this.contentHash(value);
-    var buckets = this.buckets;
-    if (object_has.call(buckets, hash)) {
-        return buckets[hash].get(value);
+    var node = new this.contentList.Node(value);
+    node = this.contentSet.get(node);
+    if (node) {
+        return node.value;
+    } else {
+        return this.getDefault(value);
     }
-    return this.getDefault(value);
 };
 
-Set.prototype.getDefault = function () {
+Set.prototype.getDefault = FastSet.prototype.getDefault;
+
+Set.prototype.add = function (value) {
+    var node = new this.contentList.Node(value);
+    if (!this.contentSet.has(node)) {
+        this.contentList.add(value);
+        node = this.contentList.head.prev;
+        this.contentSet.add(node);
+        this.length++;
+    }
 };
 
-Set.prototype['delete'] = function (value) {
-    var hash = this.contentHash(value);
-    var buckets = this.buckets;
-    if (object_has.call(buckets, hash)) {
-        var bucket = buckets[hash];
-        if (bucket["delete"](value)) {
-            if (this.isObserved) {
-                this.dispatchBeforeContentChange([], [value]);
-            }
-            this.length--;
-            if (bucket.length === 0) {
-                delete buckets[hash];
-            }
-            if (this.isObserved) {
-                this.dispatchContentChange([], [value]);
-            }
-            return true;
-        }
+Set.prototype["delete"] = function (value) {
+    var node = new this.contentList.Node(value);
+    if (this.contentSet.has(node)) {
+        var node = this.contentSet.get(node);
+        this.contentSet["delete"](node); // removes from the set
+        node["delete"](); // removes the node from the list in place
+        this.length--;
+        return true;
     }
     return false;
 };
 
 Set.prototype.wipe = function () {
-    var buckets = this.buckets;
-    for (var hash in buckets) {
-        delete buckets[hash];
-    }
-    this.length = 0;
+    this.contentSet.wipe();
+    this.contentList.wipe();
 };
 
-Set.prototype.add = function (value) {
-    var hash = this.contentHash(value);
-    var buckets = this.buckets;
-    if (!object_has.call(buckets, hash)) {
-        buckets[hash] = new this.Bucket(null, this.contentEquals);
-    }
-    if (!buckets[hash].has(value)) {
-        if (this.isObserved) {
-            this.dispatchBeforeContentChange([value], []);
-        }
-        buckets[hash].add(value);
-        this.length++;
-        if (this.isObserved) {
-            this.dispatchContentChange([value], []);
-        }
-    }
+Set.prototype.reduce = function () {
+    var list = this.contentList;
+    return list.reduce.apply(list, arguments);
 };
 
-Set.prototype.reduce = function (callback, basis /*, thisp*/) {
-    var thisp = arguments[2];
-    var buckets = this.buckets;
-    return Object.keys(buckets).reduce(function (basis, hash) {
-        var bucket = buckets[hash];
-        return bucket.reduce(callback, basis, thisp);
-    }, basis);
+Set.prototype.reduceRight = function () {
+    var list = this.contentList;
+    return list.reduceRight.apply(list, arguments);
 };
 
 Set.prototype.addEach = Reducible.addEach;
@@ -124,6 +107,17 @@ Set.prototype.zip = Reducible.zip;
 Set.prototype.sorted = Reducible.sorted;
 Set.prototype.clone = Reducible.clone;
 
+Set.prototype.makeObservable = function () {
+    var self = this;
+    this.contentSet.addBeforeContentChangeListener(function () {
+        self.dispatchBeforeContentChange.apply(self, arguments);
+    });
+    this.contentSet.addContentChangeListener(function () {
+        self.dispatchContentChange.apply(self, arguments);
+    });
+    this.isObservable = true;
+};
+
 Set.prototype.getContentChangeDescriptor = Observable.getContentChangeDescriptor;
 Set.prototype.addContentChangeListener = Observable.addContentChangeListener;
 Set.prototype.removeContentChangeListener = Observable.removeContentChangeListener;
@@ -133,67 +127,15 @@ Set.prototype.removeBeforeContentChangeListener = Observable.removeBeforeContent
 Set.prototype.dispatchBeforeContentChange = Observable.dispatchBeforeContentChange;
 
 Set.prototype.equals = function (that) {
-    var self = this;
-    return (
-        Object(that) === that &&
-        typeof that.reduce === "function" &&
-        typeof that.length === "number" &&
-        this.length === that.length &&
-        that.reduce(function (equals, value) {
-            return equals && self.has(value);
-        }, true)
-    );
+    return this.contentSet.equals(that);
 };
-
-// TODO compare, equals (order agnostic)
 
 Set.prototype.iterate = function () {
-    var buckets = this.buckets;
-    var hashes = Object.keys(buckets);
-    return Iterator.concat(hashes.map(function (hash) {
-        return buckets[hash].iterate();
-    }));
+    return this.contentList.iterate();
 };
 
-Set.prototype.log = function (charmap, stringify) {
-    charmap = charmap || TreeLog.unicodeSharp;
-    stringify = stringify || this.stringify;
-
-    var buckets = this.buckets;
-    var hashes = Object.keys(buckets);
-    hashes.forEach(function (hash, index) {
-        var branch;
-        var leader;
-        if (index === hashes.length - 1) {
-            branch = charmap.fromAbove;
-            leader = ' ';
-        } else {
-            branch = charmap.fromBoth;
-            leader = charmap.strafe;
-        }
-        var bucket = buckets[hash];
-        console.log(branch + charmap.through + charmap.branchDown + ' ' + hash);
-        bucket.forEach(function (value, node) {
-            var branch;
-            if (node === bucket.head.prev) {
-                branch = charmap.fromAbove;
-            } else {
-                branch = charmap.fromBoth;
-            }
-            console.log(stringify(
-                value,
-                leader + ' ' + branch + charmap.through + charmap.through + ' ',
-                leader + '     '
-            ));
-        });
-    });
-};
-
-Set.prototype.stringify = function (value, leader) {
-    if (Object(value) === value) {
-        return leader + JSON.stringify(value);
-    } else {
-        return leader + value;
-    }
+Set.prototype.log = function () {
+    var set = this.contentSet;
+    return set.log.apply(set, arguments);
 };
 

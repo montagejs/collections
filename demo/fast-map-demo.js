@@ -1,5 +1,5 @@
 
-var Map = require("../map");
+var Map = require("../fast-map");
 
 var map = new Map();
 map.set('a', 10);
@@ -7,7 +7,7 @@ map.set('b', 20);
 console.log(map.keys());
 
 var map = new Map();
-var a = {}, b = {}, c = {};
+var a = {am: "a"}, b = {am: "b"}, c = {am: "c"};
 map.set(a, 10);
 map.set(b, 20);
 map.set(c, 30);

@@ -14,7 +14,7 @@ function Map(values, equals, hash) {
     hash = hash || Object.hash || Operators.hash;
     this.contentEquals = equals;
     this.contentHash = hash;
-    this.itemSet = new Set(
+    this.contentSet = new Set(
         undefined,
         function (a, b) {
             return equals(a.key, b.key);
@@ -70,7 +70,7 @@ Map.prototype.clone = Reducible.clone;
 
 Map.prototype.log = function (charmap, stringify) {
     stringify = stringify || this.stringify;
-    this.itemSet.log(charmap, stringify);
+    this.contentSet.log(charmap, stringify);
 };
 
 Map.prototype.stringify = function (item, leader) {

@@ -1,6 +1,5 @@
 
-var Set = require("../set");
-var Iterator = require("../iterator");
+var Set = require("../fast-set");
 
 console.log("\nignore non-unique values");
 var set = new Set([1, 1, 1, 2, 2, 2, 1, 2]);
@@ -39,8 +38,16 @@ Item.prototype.hash = function () {
     return '' + this.key;
 };
 
+var set = new Set();
+set.add(new Item(1, 'a'));
+set.add(new Item(3, 'b'));
+set.add(new Item(2, 'c'));
+set.add(new Item(2, 'd'));
+console.log(Object.keys(set.buckets));
+set.log();
+
 console.log("\niterate");
-console.log(Iterator(set.iterate()).mapIterator(function (item) {
+console.log(set.iterate().mapIterator(function (item) {
     return item.value;
 }).toArray());
 
