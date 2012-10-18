@@ -50,3 +50,7 @@ exports.hash = function (object) {
     }
 };
 
+// default content constructor
+exports.getUndefined = function () {
+};
+

@@ -6,14 +6,16 @@ var AbstractMap = require("./abstract-map");
 
 module.exports = FastMap;
 
-function FastMap(values, equals, hash) {
+function FastMap(values, equals, hash, content) {
     if (!(this instanceof FastMap)) {
         return new FastMap(values, equals, hash);
     }
     equals = equals || Object.equals || Operators.equals;
     hash = hash || Object.hash || Operators.hash;
+    content = content || Operators.getUndefined;
     this.contentEquals = equals;
     this.contentHash = hash;
+    this.content = content;
     this.contentSet = new Set(
         undefined,
         function (a, b) {
@@ -30,13 +32,13 @@ FastMap.prototype.constructClone = function (values) {
     return new this.constructor(
         values,
         this.contentEquals,
-        this.contentHash
+        this.contentHash,
+        this.content
     );
 };
 
 FastMap.prototype.has = AbstractMap.has;
 FastMap.prototype.get = AbstractMap.get;
-FastMap.prototype.getDefault = AbstractMap.getDefault;
 FastMap.prototype.set = AbstractMap.set;
 FastMap.prototype.add = AbstractMap.add;
 FastMap.prototype['delete'] = AbstractMap['delete'];

@@ -5,28 +5,47 @@ This package contains JavaScript implementations of common data
 structures with idiomatic iterfaces, including extensions for Array and
 Object.
 
--   `List(values, equals)`: an ordered collection of values with fast
-    insertion and deletion and forward and backward traversal, backed by
-    a cyclic doubly linked list with a head node.  Lists support most of
-    the Array interface, except that they use and return nodes instead
-    of integer indicies in analogous functions.
--   `Set(values, equals, hash)`: a collection of unique values stored like
-    a hash table.  The underlying storage is a plain JavaScript object
-    that maps hashes to lists of values that share the same hash.
-    Values may be objects.  The `equals` and `hash` functions can be
-    overridden to provide alternate definitions of "unique".  This
+-   `List(values, equals, content)`: an ordered collection of values
+    with fast insertion and deletion and forward and backward traversal,
+    backed by a cyclic doubly linked list with a head node.  Lists
+    support most of the Array interface, except that they use and return
+    nodes instead of integer indicies in analogous functions.
+-   `Set(values, equals, hash, content)`: a collection of unique values.
+    The set can be iterated in the order of insertion.  With a good hash
+    function for the stored values, insertion and removal are fast
+    regardless of the size of the collection  Values may be objects.
+    The `equals` and `hash` functions can be overridden to provide
+    alternate definitions of "unique".  This collection is intended to
+    be replaced by a native implementation that does not rely on `hash`.
+    `Set` is backed by `FastSet` and `List`.
+-   `Map(map, equals, hash, content)`: a collection of key and value
+    items with unique keys.  Keys may be objects.  The collection
+    iterates in the order of insertion.  This collection is intended to
+    be replaced by a native implementation that does not rely on `hash`.
+    `Map` is backed by `Set`.
+-   `MultiMap(map, content, equals, hash)`: a collection of keys mapped
+    to collections of values.  The default `content` collection is an
+    `Array`, but it can be a `List` or any other array-like object.
+    `MultiMap` inherits `Map` but overrides the `content` constructor.
+-   `SortedSet(values, equals, compare, content)`: a collection of
+    unique values stored in stored order, backed by a splay tree.  The
+    `equals` and `compare` functions can be overridden to provide
+    alternate definitions of "unique".
+-   `SortedMap(map, equals, compare, content)`: a collection of key
+    value pairs stored in sorted order, backed by a sorted set.
+    `SortedMap` is backed by `SortedSet` and the `AbstractMap` mixin.
+-   `FastSet(values, equals, hash, content)`: a collection of unique
+    values stored like a hash table.  The underlying storage is a plain
+    JavaScript object that maps hashes to lists of values that share the
+    same hash.  Values may be objects.  The `equals` and `hash`
+    functions can be overridden to provide alternate definitions of
+    "unique".  This collection is intended to be replaced by a native
+    implementation that does not rely on `hash`.
+-   `FastMap(map, equals, hash, content)`: a collection of key and value
+    items with unique keys, backed by a set.  Keys may be objects.  This
     collection is intended to be replaced by a native implementation
-    that does not rely on `hash`.
--   `Map(map, equals, hash)`: a collection of key and value items with
-    unique keys, backed by a set.  Keys may be objects.  This collection
-    is intended to be replaced by a native implementation that does not
-    rely on `hash`.
--   `SortedSet(values, equals, compare)`: a collection of unique values
-    stored in stored order, backed by a splay tree.  The `equals` and
-    `compare` functions can be overridden to provide alternate
-    definitions of "unique".
--   `SortedMap(map, equals, compare)`: a collection of key value pairs
-    stored in sorted order, backed by a sorted set.
+    that does not rely on `hash`.  `FastMap` is backed by `FastSet` and
+    the `AbstractMap` mixin.
 -   `WeakMap()`: a non-iterable collection of key value pairs.  Keys
     must objects and do not benefit from `hash` functions.  Some engines
     already implement `WeakMap`.  The non-iterable requirement makes it
@@ -95,6 +114,13 @@ requiring the module.  If loaded, all new `Map` instances benefit from
 fewer hash collisions without the need for per-key-type implementations
 of `hash`.
 
+The default `content` function returns `undefined`.  The content
+function is used when you `get` a nonexistant value from any collection.
+The `content` function becomes a member of the collection object.
+`content` is called with the collection as `this`, so you can also use
+it to guarantee that default values in a collection are retained, as in
+`MultiMap`.
+
 
 ## Collection Methods
 
@@ -114,11 +140,9 @@ implied argument.
     (linear), but fast (logarithmic) for Set and SortedSet.
 -   `get(key)`: (Map, SortedMap, WeakMap, Array+, Object+) the value for
     a key.  If a Map or SortedMap lacks a key, returns
-    `getDefault(key)`.
--   `getDefault(value)`: (Map, SortedMap) returns undefined.
+    `content(key)`.
 -   `get(value)`: (List, Set, SortedSet) gets the equivalent value, or
-    falls back to `getDefault(value)`.
--   `getDefault(key)`: (List, Set, SortedSet) returns undefined.
+    falls back to `content(value)`.
 -   `set(key, value)`: (Map, SortedMap, WeakMap, Array+, Object+) sets
     the value for a key.
 -   `add(value)`: (List, Set, SortedSet) adds a value.  Sets silently
@@ -517,6 +541,7 @@ More methods
 - equals
 - compare
 - fast list splicing
+- set intersection, union, difference, symmetric difference
 
 More possible collections
 

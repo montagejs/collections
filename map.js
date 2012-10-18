@@ -6,14 +6,16 @@ var AbstractMap = require("./abstract-map");
 
 module.exports = Map;
 
-function Map(values, equals, hash) {
+function Map(values, equals, hash, content) {
     if (!(this instanceof Map)) {
         return new Map(values, equals, hash);
     }
     equals = equals || Object.equals || Operators.equals;
     hash = hash || Object.hash || Operators.hash;
+    content = content || Operators.getUndefined;
     this.contentEquals = equals;
     this.contentHash = hash;
+    this.content = content;
     this.contentSet = new Set(
         undefined,
         function (a, b) {
@@ -30,13 +32,13 @@ Map.prototype.constructClone = function (values) {
     return new this.constructor(
         values,
         this.contentEquals,
-        this.contentHash
+        this.contentHash,
+        this.content
     );
 };
 
 Map.prototype.has = AbstractMap.has;
 Map.prototype.get = AbstractMap.get;
-Map.prototype.getDefault = AbstractMap.getDefault;
 Map.prototype.set = AbstractMap.set;
 Map.prototype.add = AbstractMap.add;
 Map.prototype['delete'] = AbstractMap['delete'];

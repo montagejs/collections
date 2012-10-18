@@ -8,10 +8,7 @@ AbstractMap.get = function (key) {
     if (item) {
         return item.value;
     }
-    return this.getDefault(key);
-};
-
-AbstractMap.getDefault = function (key) {
+    return this.content(key);
 };
 
 AbstractMap.set = function (key, value) {

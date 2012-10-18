@@ -5,20 +5,21 @@ var Reducible = require("./reducible");
 var Observable = require("./observable");
 var Operators = require("./operators");
 
-function List(values, equals) {
+function List(values, equals, content) {
     if (!(this instanceof List)) {
-        return new List(values, equals);
+        return new List(values, equals, content);
     }
     var head = this.head = new this.Node();
     head.next = head;
     head.prev = head;
     this.contentEquals = equals || Object.equals || Operators.equals;
+    this.content = content || Operators.getUndefined;
     this.length = 0;
     this.addEach(values);
 }
 
 List.prototype.constructClone = function (values) {
-    return new this.constructor(values, this.contentEquals);
+    return new this.constructor(values, this.contentEquals, this.content);
 };
 
 List.prototype.find = function (value, equals) {
@@ -54,10 +55,7 @@ List.prototype.get = function (value, equals) {
     if (found) {
         return found.value;
     }
-    return this.getDefault();
-};
-
-List.prototype.getDefault = function () {
+    return this.content();
 };
 
 // LIFO (delete removes the most recently added equivalent value)

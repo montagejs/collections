@@ -6,19 +6,25 @@ var Observable = require("./observable");
 var Operators = require("./operators");
 var TreeLog = require("./tree-log");
 
-function SortedSet(values, equals, compare) {
+function SortedSet(values, equals, compare, content) {
     if (!(this instanceof SortedSet)) {
         return new SortedSet(values, equals, compare);
     }
     this.contentEquals = equals || Object.equals || Operators.equals;
     this.contentCompare = compare || Object.compare || Operators.compare;
+    this.content = content || Operators.getUndefined;
     this.root = null;
     this.length = 0;
     this.addEach(values);
 }
 
 SortedSet.prototype.constructClone = function (values) {
-    return new this.constructor(values, this.contentEquals, this.contentCompare);
+    return new this.constructor(
+        values,
+        this.contentEquals,
+        this.contentCompare,
+        this.content
+    );
 };
 
 SortedSet.prototype.has = function (value) {
@@ -37,10 +43,7 @@ SortedSet.prototype.get = function (value) {
             return this.root.value;
         }
     }
-    return this.getDefault(value);
-};
-
-SortedSet.prototype.getDefault = function () {
+    return this.content(value);
 };
 
 SortedSet.prototype.add = function (value) {

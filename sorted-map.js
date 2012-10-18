@@ -6,15 +6,17 @@ var AbstractMap = require("./abstract-map");
 
 module.exports = SortedMap;
 
-function SortedMap(values, equals, compare) {
+function SortedMap(values, equals, compare, content) {
     if (!(this instanceof SortedMap)) {
-        return new SortedMap(values, equals, compare);
+        return new SortedMap(values, equals, compare, content);
     }
     equals = equals || Object.equals || Operators.equals;
     compare = compare || Object.compare || Operators.compare;
+    content = content || Operators.getUndefined;
     this.contentEquals = equals;
     this.contentCompare = compare;
-    this.itemSet = new SortedSet(
+    this.content = content;
+    this.contentSet = new SortedSet(
         null,
         function (a, b) {
             return equals(a.key, b.key);
@@ -27,12 +29,16 @@ function SortedMap(values, equals, compare) {
 }
 
 SortedMap.prototype.constructClone = function (values) {
-    return new this.constructor(values, this.contentEquals, this.contentCompare);
+    return new this.constructor(
+        values,
+        this.contentEquals,
+        this.contentCompare,
+        this.content
+    );
 };
 
 SortedMap.prototype.has = AbstractMap.has;
 SortedMap.prototype.get = AbstractMap.get;
-SortedMap.prototype.getDefault = AbstractMap.getDefault;
 SortedMap.prototype.set = AbstractMap.set;
 SortedMap.prototype.add = AbstractMap.add;
 SortedMap.prototype['delete'] = AbstractMap['delete'];
@@ -63,12 +69,12 @@ SortedMap.prototype.clone = Reducible.clone;
 
 SortedMap.prototype.log = function (charmap, stringify) {
     stringify = stringify || this.stringify;
-    this.itemSet.log(charmap, stringify);
+    this.contentSet.log(charmap, stringify);
 };
 
 SortedMap.prototype.report = function (callback, thisp, charmap, stringify) {
     stringify = stringify || this.stringify;
-    this.itemSet.report(callback, thisp, charmap, stringify);
+    this.contentSet.report(callback, thisp, charmap, stringify);
 };
 
 SortedMap.prototype.stringify = function (callback, thisp, node, leader) {

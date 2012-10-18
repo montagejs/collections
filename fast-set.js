@@ -10,21 +10,28 @@ var object_has = Object.prototype.hasOwnProperty;
 
 module.exports = FastSet;
 
-function FastSet(values, equals, hash) {
+function FastSet(values, equals, hash, content) {
     if (!(this instanceof FastSet)) {
         return new FastSet(values, equals, hash);
     }
     equals = equals || Object.equals || Operators.equals;
     hash = hash || Object.hash || Operators.hash;
+    content = content || Operators.getUndefined;
     this.contentEquals = equals;
     this.contentHash = hash;
+    this.content = content;
     this.buckets = {};
     this.length = 0;
     this.addEach(values);
 }
 
 FastSet.prototype.constructClone = function (values) {
-    return new this.constructor(values, this.contentEquals, this.contentHash);
+    return new this.constructor(
+        values,
+        this.contentEquals,
+        this.contentHash,
+        this.content
+    );
 };
 
 FastSet.prototype.Bucket = List;
@@ -41,10 +48,7 @@ FastSet.prototype.get = function (value) {
     if (object_has.call(buckets, hash)) {
         return buckets[hash].get(value);
     }
-    return this.getDefault(value);
-};
-
-FastSet.prototype.getDefault = function () {
+    return this.content(value);
 };
 
 FastSet.prototype['delete'] = function (value) {

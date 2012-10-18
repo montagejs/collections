@@ -6,15 +6,17 @@ var Operators = require("./operators");
 
 module.exports = LruSet;
 
-function LruSet(values, maxLength, equals, hash) {
+function LruSet(values, maxLength, equals, hash, content) {
     if (!(this instanceof LruSet)) {
         return new LruSet(values, maxLength, equals, hash);
     }
     equals = equals || Object.equals || Operators.equals;
     hash = hash || Object.hash || Operators.hash;
+    content = content || Operators.getUndefined;
     this.contentSet = new Set(undefined, equals, hash);
     this.contentEquals = equals;
     this.contentHash = hash;
+    this.content = content;
     this.maxLength = maxLength;
     this.addEach(values);
 }
@@ -24,7 +26,8 @@ LruSet.prototype.constructClone = function (values) {
         values,
         this.maxLength,
         this.contentEquals,
-        this.contentHash
+        this.contentHash,
+        this.content
     );
 };
 
@@ -37,11 +40,11 @@ LruSet.prototype.get = function (value) {
     if (value !== undefined) {
         this.contentSet["delete"](value);
         this.contentSet.add(value);
+    } else {
+        value = this.content();
     }
     return value;
 };
-
-LruSet.prototype.getDefault = Set.prototype.getDefault;
 
 LruSet.prototype.add = function (value) {
     if (this.contentSet.has(value)) {

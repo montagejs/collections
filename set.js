@@ -7,15 +7,17 @@ var Operators = require("./operators");
 
 module.exports = Set;
 
-function Set(values, equals, hash) {
+function Set(values, equals, hash, content) {
     if (!(this instanceof Set)) {
         return new Set(values, equals, hash);
     }
-    equals = equals || Set.equals || Operators.equals;
-    hash = hash || Set.hash || Operators.hash;
+    equals = equals || Object.equals || Operators.equals;
+    hash = hash || Object.hash || Operators.hash;
+    content = content || Operators.getUndefined;
     this.contentEquals = equals;
     this.contentHash = hash;
     this.contentList = new List(undefined, equals); // of values in insertion order
+    this.content = content;
     this.contentSet = new FastSet( // set of nodes from list, by value
         undefined,
         function (a, b) {
@@ -30,7 +32,7 @@ function Set(values, equals, hash) {
 }
 
 Set.prototype.constructClone = function (values) {
-    return new this.constructor(values, this.contentEquals, this.contentHash);
+    return new this.constructor(values, this.contentEquals, this.contentHash, this.content);
 };
 
 Set.prototype.has = function (value) {
@@ -44,11 +46,9 @@ Set.prototype.get = function (value) {
     if (node) {
         return node.value;
     } else {
-        return this.getDefault(value);
+        return this.content(value);
     }
 };
-
-Set.prototype.getDefault = FastSet.prototype.getDefault;
 
 Set.prototype.add = function (value) {
     var node = new this.contentList.Node(value);

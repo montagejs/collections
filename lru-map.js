@@ -6,21 +6,23 @@ var AbstractMap = require("./abstract-map");
 
 module.exports = LruMap;
 
-function LruMap(values, maxLength, equals, hash) {
+function LruMap(values, maxLength, equals, hash, content) {
     if (!(this instanceof LruMap)) {
         return new LruMap(values, maxLength, equals, hash);
     }
     equals = equals || Object.equals || Operators.equals;
     hash = hash || Object.hash || Operators.hash;
+    content = content || Operators.getUndefined;
     this.contentEquals = equals;
     this.contentHash = hash;
+    this.content = content;
     this.contentSet = new LruSet(
         undefined,
         maxLength,
-        function (a, b) {
+        function setContentEquals(a, b) {
             return equals(a.key, b.key);
         },
-        function (item) {
+        function setContentHash(item) {
             return hash(item.key);
         }
     );
@@ -32,13 +34,13 @@ LruMap.prototype.constructClone = function (values) {
         values,
         this.maxLength,
         this.contentEquals,
-        this.contentHash
+        this.contentHash,
+        this.content
     );
 };
 
 LruMap.prototype.has = AbstractMap.has;
 LruMap.prototype.get = AbstractMap.get;
-LruMap.prototype.getDefault = AbstractMap.getDefault;
 LruMap.prototype.set = AbstractMap.set;
 LruMap.prototype.add = AbstractMap.add;
 LruMap.prototype['delete'] = AbstractMap['delete'];
