@@ -10,6 +10,7 @@ function LruSet(values, maxLength, equals, hash, content) {
     if (!(this instanceof LruSet)) {
         return new LruSet(values, maxLength, equals, hash);
     }
+    maxLength = maxLength || Infinity;
     equals = equals || Object.equals || Operators.equals;
     hash = hash || Object.hash || Operators.hash;
     content = content || Operators.getUndefined;

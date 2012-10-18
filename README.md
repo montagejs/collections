@@ -34,6 +34,14 @@ Object.
 -   `SortedMap(map, equals, compare, content)`: a collection of key
     value pairs stored in sorted order, backed by a sorted set.
     `SortedMap` is backed by `SortedSet` and the `AbstractMap` mixin.
+-   `LruSet(values, maxLength, equals, hash, content)`: a cache with the
+    Least-Recently-Used strategy for truncating its content when it’s
+    length exceeds `maxLength`.  `LruSet` is backed by a `Set` and takes
+    advantage of the already tracked insertion order.  Both getting and
+    setting a value constitute usage, but checking whether the set has a
+    value and iterating values do not.
+-   `LruMap(map, maxLength, equals, hash, content)`: a cache of items
+    backed by an `LruSet`.
 -   `FastSet(values, equals, hash, content)`: a collection of unique
     values stored like a hash table.  The underlying storage is a plain
     JavaScript object that maps hashes to lists of values that share the
