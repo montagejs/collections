@@ -3,6 +3,29 @@ var AbstractMap = module.exports = {};
 
 // all of these methods depend on the constructor providing an `contentSet`
 
+AbstractMap.addEach = function (values) {
+    if (values && Object(values) === values) {
+        if (typeof values.forEach === "function") {
+            // copy map-alikes
+            if (typeof values.keys === "function") {
+                values.forEach(function (value, key) {
+                    this.set(key, value);
+                }, this);
+            // iterate key value pairs of other iterables
+            } else {
+                values.forEach(function (pair) {
+                    this.set(pair[0], pair[1]);
+                }, this);
+            }
+        } else {
+            // copy other objects as map-alikes
+            Object.keys(values).forEach(function (key) {
+                this.set(key, values[key]);
+            }, this);
+        }
+    }
+}
+
 AbstractMap.get = function (key) {
     var item = this.contentSet.get(new this.Item(key));
     if (item) {
@@ -19,10 +42,6 @@ AbstractMap.set = function (key, value) {
     } else { // create
         this.contentSet.add(item);
     }
-};
-
-AbstractMap.add = function (value, key) {
-    this.set(key, value);
 };
 
 AbstractMap.value = function (value, key) {

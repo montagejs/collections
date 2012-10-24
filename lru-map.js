@@ -39,10 +39,10 @@ LruMap.prototype.constructClone = function (values) {
     );
 };
 
+LruMap.prototype.addEach = AbstractMap.addEach;
 LruMap.prototype.has = AbstractMap.has;
 LruMap.prototype.get = AbstractMap.get;
 LruMap.prototype.set = AbstractMap.set;
-LruMap.prototype.add = AbstractMap.add;
 LruMap.prototype['delete'] = AbstractMap['delete'];
 LruMap.prototype.wipe = AbstractMap.wipe;
 LruMap.prototype.reduce = AbstractMap.reduce;
@@ -51,7 +51,6 @@ LruMap.prototype.values = AbstractMap.values;
 LruMap.prototype.items = AbstractMap.items;
 LruMap.prototype.Item = AbstractMap.Item;
 
-LruMap.prototype.addEach = Reducible.addEach;
 LruMap.prototype.forEach = Reducible.forEach;
 LruMap.prototype.map = Reducible.map;
 LruMap.prototype.toArray = Reducible.toArray;

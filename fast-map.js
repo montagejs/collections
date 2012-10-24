@@ -37,10 +37,10 @@ FastMap.prototype.constructClone = function (values) {
     );
 };
 
+FastMap.prototype.addEach = AbstractMap.addEach;
 FastMap.prototype.has = AbstractMap.has;
 FastMap.prototype.get = AbstractMap.get;
 FastMap.prototype.set = AbstractMap.set;
-FastMap.prototype.add = AbstractMap.add;
 FastMap.prototype['delete'] = AbstractMap['delete'];
 FastMap.prototype.wipe = AbstractMap.wipe;
 FastMap.prototype.reduce = AbstractMap.reduce;
@@ -49,7 +49,6 @@ FastMap.prototype.values = AbstractMap.values;
 FastMap.prototype.items = AbstractMap.items;
 FastMap.prototype.Item = AbstractMap.Item;
 
-FastMap.prototype.addEach = Reducible.addEach;
 FastMap.prototype.forEach = Reducible.forEach;
 FastMap.prototype.map = Reducible.map;
 FastMap.prototype.toArray = Reducible.toArray;

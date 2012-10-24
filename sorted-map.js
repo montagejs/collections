@@ -37,10 +37,10 @@ SortedMap.prototype.constructClone = function (values) {
     );
 };
 
+SortedMap.prototype.addEach = AbstractMap.addEach;
 SortedMap.prototype.has = AbstractMap.has;
 SortedMap.prototype.get = AbstractMap.get;
 SortedMap.prototype.set = AbstractMap.set;
-SortedMap.prototype.add = AbstractMap.add;
 SortedMap.prototype['delete'] = AbstractMap['delete'];
 SortedMap.prototype.wipe = AbstractMap.wipe;
 SortedMap.prototype.reduce = AbstractMap.reduce;
@@ -49,7 +49,6 @@ SortedMap.prototype.values = AbstractMap.values;
 SortedMap.prototype.items = AbstractMap.items;
 SortedMap.prototype.Item = AbstractMap.Item;
 
-SortedMap.prototype.addEach = Reducible.addEach;
 SortedMap.prototype.forEach = Reducible.forEach;
 SortedMap.prototype.map = Reducible.map;
 SortedMap.prototype.toArray = Reducible.toArray;
