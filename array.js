@@ -76,7 +76,11 @@ Array.prototype.findLast = function (value, equals) {
 };
 
 Array.prototype.swap = function (index, length, plus) {
-    return this.splice.apply(this, [index, length].concat(plus));
+    var args = Array.prototype.slice.call(arguments, 0, 2);
+    if (plus) {
+        args.push.apply(args, plus);
+    }
+    return this.splice.apply(this, args);
 };
 
 Array.prototype.toArray = Reducible.toArray;

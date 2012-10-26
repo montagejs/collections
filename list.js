@@ -77,7 +77,7 @@ List.prototype.wipe = function () {
 };
 
 List.prototype.add = function (value) {
-    this.head.addAfter(new this.Node(value));
+    this.head.addBefore(new this.Node(value));
     this.length++;
     if (this.isObserved) {
         this.dispatchContentChange([value], []);
@@ -89,7 +89,7 @@ List.prototype.push = function () {
     for (var i = 0; i < arguments.length; i++) {
         var value = arguments[i];
         var node = new this.Node(value);
-        head.addAfter(node);
+        head.addBefore(node);
         this.length++;
         if (this.isObserved) {
             this.dispatchContentChange([value], []);
@@ -102,7 +102,7 @@ List.prototype.unshift = function () {
     for (var i = 0; i < arguments.length; i++) {
         var value = arguments[i];
         var node = new this.Node(value);
-        at.addBefore(node);
+        at.addAfter(node);
         this.length++;
         if (this.isObserved) {
             this.dispatchContentChange([value], []);
@@ -129,8 +129,8 @@ List.prototype.shift = function () {
     var value;
     var head = this.head;
     if (head.prev !== head) {
-        value = head.prev.value;
-        head.prev['delete']();
+        value = head.next.value;
+        head.next['delete']();
         this.length--;
         if (this.isObserved) {
             this.dispatchContentChange([], [value]);
@@ -140,7 +140,7 @@ List.prototype.shift = function () {
 };
 
 // an internal utility for coercing index offsets to nodes
-List.prototype.scan = function (at, alt) {
+List.prototype.scan = function (at, fallback) {
     var head = this.head;
     if (typeof at === "number") {
         var count = at;
@@ -165,7 +165,7 @@ List.prototype.scan = function (at, alt) {
         }
         return at;
     } else {
-        return at || alt;
+        return at || fallback;
     }
 };
 
@@ -191,18 +191,27 @@ List.prototype.splice = function (at, length /*...plus*/) {
 
 List.prototype.swap = function (at, length, plus) {
     var swapped = [];
-    at = this.scan(at, this.head.next);
-    while (length--) {
+    var initial = at;
+    at = this.scan(at, this.head);
+    if (length === undefined) {
+        length = Infinity;
+    }
+    while (length-- && length >= 0 && at !== this.head) {
         swapped.push(at.value);
         at['delete']();
         at = at.next;
+        this.length--;
     }
-    this.length -= length;
-    for (var i = 0; i < plus.length; i++) {
-        var node = new this.Node(plus[i]);
-        at.addAfter(node);
+    if (plus) {
+        if (initial === null && at === this.head) {
+            at = this.head.next;
+        }
+        for (var i = 0; i < plus.length; i++) {
+            var node = new this.Node(plus[i]);
+            at.addBefore(node);
+        }
+        this.length += plus.length;
     }
-    this.length += plus.length;
     return swapped;
 };
 
@@ -336,7 +345,7 @@ Node.prototype['delete'] = function () {
     this.next.prev = this.prev;
 };
 
-Node.prototype.addAfter = function (node) {
+Node.prototype.addBefore = function (node) {
     var prev = this.prev;
     this.prev = node;
     node.prev = prev;
@@ -344,7 +353,7 @@ Node.prototype.addAfter = function (node) {
     node.next = this;
 };
 
-Node.prototype.addBefore = function (node) {
+Node.prototype.addAfter = function (node) {
     var next = this.next;
     this.next = node;
     node.next = next;
