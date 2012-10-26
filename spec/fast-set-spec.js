@@ -1,8 +1,30 @@
 
-var Set = require("../set");
+var Set = require("../fast-set");
 var Iterator = require("../iterator");
 
 describe("Set", function () {
+    // new Set()
+    // Set()
+    // Set(values)
+    // Set(null, equals, hash)
+    // Set(null, null, null, content)
+    // Set().has(value)
+    // Set().get(value)
+    // Set().delete(value)
+    // Set().wipe()
+    // Set().add(value)
+    // Set().reduce(callback, basis, thisp)
+    // Set().forEach()
+    // Set().map()
+    // Set().toArray()
+    // Set().filter()
+    // Set().every()
+    // Set().some()
+    // Set().all()
+    // Set().any()
+    // Set().min()
+    // Set().max()
+    // Set().count()
 
     it("length of empty set", function () {
         expect(new Set().length).toBe(0);
