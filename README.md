@@ -535,14 +535,15 @@ For a much richer iterator, you can buy the `iterator` module and use
 
 Goals
 
-- tests
-- docs
+- comprehensive specs and spec coverage tests
 - shallow change dispatch and listeners for all collections (needed:
   List, Set, SortedSet)
-- optional new on constructors
+- item change dispatch and listeners for Map, SortedMap, FastMap
 - object shim for defineProperties
 - track indicies in sorted set
 - remove iterator dependency of Set
+- remove count() function everywhere.  use length
+- rename wipe() to clear()
 
 More methods
 
@@ -553,21 +554,18 @@ More methods
 
 More possible collections
 
-- lru-set (least recently used cache)
-- lru-map
 - arc-set (adaptive replacement cache)
 - arc-map
+- sorted-array (shallow wrapper for an array that manages add and delete
+  with a binary search and splice)
 - sorted-list (sorted, can contain duplicates, perhaps backed by splay
   tree with relaxation on the uniqueness invariant)
 - sorted-multi-map (sorted, can contain duplicate entries, perhaps
   backed by sorted-list)
-- multi-map (unordered, can contain duplicates)
 - ordered-set (preserves traversal order based on insertion, unique
   values)
 - ordered-map (preserves traversal order based on insertion, unique
   keys)
-- ordered-multi-map (preserves traversal order based on insertion, may
-  contain duplicate keys)
 - string-set (set of strings, backed by a trie)
 - dict (string-map, map of strings to values, backed by a string set)
 - immutable-* (mutation functions return new objects that largely share
