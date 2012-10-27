@@ -65,7 +65,7 @@ FastSet.prototype['delete'] = function (value) {
             }
             this.length--;
             if (bucket.length === 0) {
-                delete buckets[hash];
+                buckets["delete"](hash);
             }
             if (this.isObserved) {
                 this.dispatchContentChange([], [value]);
@@ -96,7 +96,9 @@ FastSet.prototype.add = function (value) {
         if (this.isObserved) {
             this.dispatchContentChange([value], []);
         }
+        return true;
     }
+    return false;
 };
 
 FastSet.prototype.reduce = function (callback, basis /*, thisp*/) {
@@ -173,7 +175,7 @@ FastSet.prototype.log = function (charmap, stringify) {
             branch = charmap.fromBoth;
             leader = charmap.strafe;
         }
-        var bucket = buckets[hash];
+        var bucket = buckets.get(hash);
         console.log(branch + charmap.through + charmap.branchDown + ' ' + hash);
         bucket.forEach(function (value, node) {
             var branch;

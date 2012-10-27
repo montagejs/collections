@@ -58,8 +58,10 @@ LruSet.prototype.add = function (value) {
     if (this.contentSet.length > this.maxLength) {
         var eldest = this.contentSet.contentList.head.next;
         this.contentSet["delete"](eldest.value);
-        this.length++;
+        this.length--;
+        return false;
     }
+    return true;
 };
 
 LruSet.prototype["delete"] = function (value) {

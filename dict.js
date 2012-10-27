@@ -53,8 +53,12 @@ Dict.prototype.set = function (key, value) {
     var mangled = mangle(key);
     if (!(mangled in this.store)) {
         this.length++;
+        this.store[mangled] = value;
+        return true;
+    } else {
+        this.store[mangled] = value;
+        return false;
     }
-    this.store[mangled] = value;
 };
 
 Dict.prototype.has = function (key) {

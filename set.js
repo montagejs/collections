@@ -58,7 +58,9 @@ Set.prototype.add = function (value) {
         node = this.contentList.head.prev;
         this.contentSet.add(node);
         this.length++;
+        return true;
     }
+    return false;
 };
 
 Set.prototype["delete"] = function (value) {

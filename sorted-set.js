@@ -83,6 +83,7 @@ SortedSet.prototype.add = function (value) {
             if (this.isObserved) {
                 this.dispatchContentChange([value], []);
             }
+            return true;
         }
     } else {
         if (this.isObserved) {
@@ -93,7 +94,9 @@ SortedSet.prototype.add = function (value) {
         if (this.isObserved) {
             this.dispatchContentChange([value], []);
         }
+        return true;
     }
+    return false;
 };
 
 SortedSet.prototype['delete'] = function (value) {

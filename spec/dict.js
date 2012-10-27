@@ -27,6 +27,24 @@ function describeDict(Dict) {
         });
     });
 
+    it("should be able to contain hasOwnProperty", function () {
+        var dict = Dict();
+        expect(dict.set("hasOwnProperty", 10)).toBe(true);
+        expect(dict.get("hasOwnProperty")).toBe(10);
+        expect(dict.delete("hasOwnProperty")).toBe(true);
+        expect(dict.length).toBe(0);
+        expect(dict.delete("hasOwnProperty")).toBe(false);
+    });
+
+    it("should be able to contain __proto__", function () {
+        var dict = Dict();
+        expect(dict.set("__proto__", 10)).toBe(true);
+        expect(dict.get("__proto__")).toBe(10);
+        expect(dict.delete("__proto__")).toBe(true);
+        expect(dict.length).toBe(0);
+        expect(dict.delete("__proto__")).toBe(false);
+    });
+
     describe("clear", function () {
         it("should be able to delete all content", function () {
             var dict = Dict({a: 10, b: 20, c: 30});
