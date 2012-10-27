@@ -1,3 +1,4 @@
+"use strict";
 
 var Map = require("./map");
 var AbstractMap = require("./abstract-map");

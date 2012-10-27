@@ -1,3 +1,4 @@
+"use strict";
 
 function getValueOf(value) {
     if (Object(value) === value && typeof value.valueOf === "function") {

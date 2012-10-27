@@ -1,3 +1,4 @@
+"use strict";
 
 require("./array-shim");
 require("./array");

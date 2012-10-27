@@ -1,3 +1,4 @@
+"use strict";
 
 /*
     Based on ES5-Shim

@@ -1,3 +1,4 @@
+"use strict";
 
 /*
     Based in part on extras from Motorola Mobility’s Montage

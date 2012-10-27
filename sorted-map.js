@@ -1,3 +1,4 @@
+"use strict";
 
 var SortedSet = require("./sorted-set");
 var Reducible = require("./reducible");

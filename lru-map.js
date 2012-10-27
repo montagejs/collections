@@ -1,3 +1,4 @@
+"use strict";
 
 var LruSet = require("./lru-set");
 var Reducible = require("./reducible");

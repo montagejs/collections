@@ -1,3 +1,4 @@
+"use strict";
 
 var Dict = require("./dict");
 var List = require("./list");

@@ -1,3 +1,4 @@
+"use strict";
 
 var List = require("./list");
 var FastSet = require("./fast-set");

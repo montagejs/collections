@@ -1,3 +1,4 @@
+"use strict";
 
 var Set = require("./set");
 var Reducible = require("./reducible");
