@@ -1,4 +1,5 @@
 
+var Dict = require("./dict");
 var List = require("./list");
 var Reducible = require("./reducible");
 var Observable = require("./observable");
@@ -20,7 +21,7 @@ function FastSet(values, equals, hash, content) {
     this.contentEquals = equals;
     this.contentHash = hash;
     this.content = content;
-    this.buckets = {};
+    this.buckets = new this.Buckets(null, this.Bucket);
     this.length = 0;
     this.addEach(values);
 }
@@ -34,28 +35,29 @@ FastSet.prototype.constructClone = function (values) {
     );
 };
 
+FastSet.prototype.Buckets = Dict;
 FastSet.prototype.Bucket = List;
 
 FastSet.prototype.has = function (value) {
     var hash = this.contentHash(value);
-    var buckets = this.buckets;
-    return object_has.call(buckets, hash) && buckets[hash].has(value);
+    return this.buckets.get(hash).has(value);
 };
 
 FastSet.prototype.get = function (value) {
     var hash = this.contentHash(value);
     var buckets = this.buckets;
-    if (object_has.call(buckets, hash)) {
-        return buckets[hash].get(value);
+    if (buckets.has(hash)) {
+        return buckets.get(hash).get(value);
+    } else {
+        return this.content(value);
     }
-    return this.content(value);
 };
 
 FastSet.prototype['delete'] = function (value) {
     var hash = this.contentHash(value);
     var buckets = this.buckets;
-    if (object_has.call(buckets, hash)) {
-        var bucket = buckets[hash];
+    if (buckets.has(hash)) {
+        var bucket = buckets.get(hash);
         if (bucket["delete"](value)) {
             if (this.isObserved) {
                 this.dispatchBeforeContentChange([], [value]);
@@ -74,24 +76,21 @@ FastSet.prototype['delete'] = function (value) {
 };
 
 FastSet.prototype.wipe = function () {
-    var buckets = this.buckets;
-    for (var hash in buckets) {
-        delete buckets[hash];
-    }
+    this.buckets.wipe();
     this.length = 0;
 };
 
 FastSet.prototype.add = function (value) {
     var hash = this.contentHash(value);
     var buckets = this.buckets;
-    if (!object_has.call(buckets, hash)) {
-        buckets[hash] = new this.Bucket(null, this.contentEquals);
+    if (!buckets.has(hash)) {
+        buckets.set(hash, new this.Bucket(null, this.contentEquals));
     }
-    if (!buckets[hash].has(value)) {
+    if (!buckets.get(hash).has(value)) {
         if (this.isObserved) {
             this.dispatchBeforeContentChange([value], []);
         }
-        buckets[hash].add(value);
+        buckets.get(hash).add(value);
         this.length++;
         if (this.isObserved) {
             this.dispatchContentChange([value], []);
@@ -102,8 +101,7 @@ FastSet.prototype.add = function (value) {
 FastSet.prototype.reduce = function (callback, basis /*, thisp*/) {
     var thisp = arguments[2];
     var buckets = this.buckets;
-    return Object.keys(buckets).reduce(function (basis, hash) {
-        var bucket = buckets[hash];
+    return buckets.reduce(function (basis, bucket) {
         return bucket.reduce(callback, basis, thisp);
     }, basis);
 };
@@ -153,9 +151,9 @@ FastSet.prototype.equals = function (that) {
 
 FastSet.prototype.iterate = function () {
     var buckets = this.buckets;
-    var hashes = Object.keys(buckets);
+    var hashes = buckets.keys();
     return Iterator.concat(hashes.map(function (hash) {
-        return buckets[hash].iterate();
+        return buckets.get(hash).iterate();
     }));
 };
 
@@ -164,7 +162,7 @@ FastSet.prototype.log = function (charmap, stringify) {
     stringify = stringify || this.stringify;
 
     var buckets = this.buckets;
-    var hashes = Object.keys(buckets);
+    var hashes = buckets.keys();
     hashes.forEach(function (hash, index) {
         var branch;
         var leader;

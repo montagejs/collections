@@ -44,17 +44,20 @@ Object.
 -   `LruMap(map, maxLength, equals, hash, content)`: a cache of items
     backed by an `LruSet`.
 -   `FastSet(values, equals, hash, content)`: a collection of unique
-    values stored like a hash table.  The underlying storage is a plain
-    JavaScript object that maps hashes to lists of values that share the
-    same hash.  Values may be objects.  The `equals` and `hash`
-    functions can be overridden to provide alternate definitions of
-    "unique".  This collection is intended to be replaced by a native
-    implementation that does not rely on `hash`.
+    values stored like a hash table.  The underlying storage is a `Dict`
+    that maps hashes to lists of values that share the same hash.
+    Values may be objects.  The `equals` and `hash` functions can be
+    overridden to provide alternate definitions of "unique".  This
+    collection is intended to be replaced by a native implementation
+    that does not rely on `hash`.
 -   `FastMap(map, equals, hash, content)`: a collection of key and value
     items with unique keys, backed by a set.  Keys may be objects.  This
     collection is intended to be replaced by a native implementation
     that does not rely on `hash`.  `FastMap` is backed by `FastSet` and
     the `AbstractMap` mixin.
+-   `Dict(values, content)`: a collection of string to value mappings
+    backed by a plain JavaScript object.  The keys are mangled to
+    prevent collisions with JavaScript properties.
 -   `WeakMap()`: a non-iterable collection of key value pairs.  Keys
     must objects and do not benefit from `hash` functions.  Some engines
     already implement `WeakMap`.  The non-iterable requirement makes it

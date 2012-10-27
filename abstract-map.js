@@ -26,12 +26,15 @@ AbstractMap.addEach = function (values) {
     }
 }
 
-AbstractMap.get = function (key) {
+AbstractMap.get = function (key, defaultValue) {
     var item = this.contentSet.get(new this.Item(key));
     if (item) {
         return item.value;
+    } else if (arguments.length > 1) {
+        return defaultValue;
+    } else {
+        return this.content(key);
     }
-    return this.content(key);
 };
 
 AbstractMap.set = function (key, value) {

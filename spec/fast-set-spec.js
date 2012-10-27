@@ -122,7 +122,7 @@ describe("Set", function () {
         set.add(new Item(2, 'c'));
         set.add(new Item(2, 'd'));
 
-        expect(Object.keys(set.buckets).sort()).toEqual(['1', '2', '3']);
+        expect(set.buckets.keys().sort()).toEqual(['1', '2', '3']);
 
     });
 

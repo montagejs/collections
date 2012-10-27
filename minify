@@ -4,10 +4,11 @@
     closure --process_common_js_modules \
         --common_js_entry_module collections.js \
         --js \
-            collections.js \
             abstract-map.js \
             array-shim.js \
             array.js \
+            collections.js \
+            dict.js \
             fast-map.js \
             fast-set.js \
             hash.js \
@@ -25,7 +26,7 @@
             sorted-map.js \
             sorted-set.js \
             tree-log.js \
-            weak-map.js
+            weak-map.js \
 
     echo '})();'
 ) | closure > collections.min.js
