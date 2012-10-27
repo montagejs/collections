@@ -1,6 +1,5 @@
 
 var WeakMap = require("./weak-map");
-var List = require("./list");
 
 var contentChangeDescriptors = new WeakMap(); // {isActive, willChangeListeners, changeListeners}
 
@@ -10,8 +9,8 @@ Observable.getContentChangeDescriptor = function () {
     if (!contentChangeDescriptors.has(this)) {
         contentChangeDescriptors.set(this, {
             isActive: false,
-            changeListeners: new List(),
-            willChangeListeners: new List()
+            changeListeners: [],
+            willChangeListeners: []
         });
     }
     return contentChangeDescriptors.get(this);
