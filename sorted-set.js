@@ -53,7 +53,7 @@ SortedSet.prototype.add = function (value) {
         this.splay(value);
         if (!this.contentEquals(value, this.root.value)) {
             if (this.isObserved) {
-                this.dispatchBeforeContentChange([value], []);
+                this.dispatchBeforeContentChange([value], [], this.root.index);
             }
             if (this.contentCompare(value, this.root.value) < 0) {
                 // rotate right
@@ -66,6 +66,7 @@ SortedSet.prototype.add = function (value) {
                 node.right = this.root;
                 node.left = this.root.left;
                 this.root.left = null;
+                this.root.touch();
             } else {
                 // rotate left
                 //   R        N
@@ -77,22 +78,24 @@ SortedSet.prototype.add = function (value) {
                 node.left = this.root;
                 node.right = this.root.right;
                 this.root.right = null;
+                this.root.touch();
             }
+            node.touch();
             this.root = node;
             this.length++;
             if (this.isObserved) {
-                this.dispatchContentChange([value], []);
+                this.dispatchContentChange([value], [], this.root.index);
             }
             return true;
         }
     } else {
         if (this.isObserved) {
-            this.dispatchBeforeContentChange([value], []);
+            this.dispatchBeforeContentChange([value], [], 0);
         }
         this.root = node;
         this.length++;
         if (this.isObserved) {
-            this.dispatchContentChange([value], []);
+            this.dispatchContentChange([value], [], 0);
         }
         return true;
     }
@@ -103,6 +106,10 @@ SortedSet.prototype['delete'] = function (value) {
     if (this.root) {
         this.splay(value);
         if (this.contentEquals(value, this.root.value)) {
+            var index = this.root.index;
+            if (this.isObserved) {
+                this.dispatchBeforeContentChange([], [value], index);
+            }
             if (!this.root.left) {
                 this.root = this.root.right;
             } else {
@@ -117,13 +124,26 @@ SortedSet.prototype['delete'] = function (value) {
                 this.root.right = right;
             }
             this.length--;
+            if (this.root) {
+                this.root.touch();
+            }
             if (this.isObserved) {
-                this.dispatchContentChange([], [value]);
+                this.dispatchContentChange([], [value], index);
             }
             return true;
         }
     }
     return false;
+};
+
+SortedSet.prototype.indexOf = function (value) {
+    if (this.root) {
+        this.splay(value);
+        if (this.contentEquals(value, this.root.value)) {
+            return this.root.index;
+        }
+    }
+    return -1;
 };
 
 SortedSet.prototype.find = function (value) {
@@ -218,16 +238,31 @@ SortedSet.prototype.unshift = function () {
 };
 
 // This is the simplified top-down splaying algorithm from: "Self-adjusting
-// Binary Search Trees" by Sleator and Tarjan
-// guarantees that the root.value <= value if root exists
+// Binary Search Trees" by Sleator and Tarjan guarantees that the root.value <=
+// value if root exists
+// - as described in https://github.com/hij1nx/forest
 SortedSet.prototype.splay = function (value) {
-    var stub, left, right, temp, root;
+    var stub, left, right, temp, root, history;
 
     if (!this.root) {
         return;
     }
 
+    // Create a stub node.  The use of the stub node is a bit
+    // counter-intuitive: The right child of the stub node will hold the L tree
+    // of the algorithm.  The left child of the stub node will hold the R tree
+    // of the algorithm.  Using a stub node, left and right will always be
+    // nodes and we avoid special cases.
+    // - http://code.google.com/p/v8/source/browse/branches/bleeding_edge/src/splay-tree-inl.h
     stub = left = right = new this.Node();
+    // The history is an upside down tree used to propagate new tree sizes back
+    // up the left and right arms of a traversal.  The right children of the
+    // transitive left side of the tree will be former roots while linking
+    // left.  The left children of the transitive walk to the right side of the
+    // history tree will all be previous roots from linking right.  The last
+    // node of the left and right traversal will each become a child of the new
+    // root.
+    history = new this.Node();
     root = this.root;
 
     while (true) {
@@ -236,16 +271,29 @@ SortedSet.prototype.splay = function (value) {
             if (root.left) {
                 if (this.contentCompare(value, root.left.value) < 0) {
                     // rotate right
+                    //        Root         L(temp)
+                    //      /     \       / \
+                    //     L(temp) R    LL    Root
+                    //    / \                /    \
+                    //  LL   LR            LR      R
                     temp = root.left;
                     root.left = temp.right;
+                    root.touch();
                     temp.right = root;
+                    temp.touch();
                     root = temp;
                     if (!root.left) {
                         break;
                     }
                 }
-                // link right
+                // remember former root for repropagating length
+                temp = new Node();
+                temp.right = root;
+                temp.left = history.left;
+                history.left = temp;
+                // link left
                 right.left = root;
+                right.touch();
                 right = root;
                 root = root.left;
             } else {
@@ -255,16 +303,29 @@ SortedSet.prototype.splay = function (value) {
             if (root.right) {
                 if (this.contentCompare(value, root.right.value) > 0) {
                     // rotate left
+                    //        Root         L(temp)
+                    //      /     \       / \
+                    //     L(temp) R    LL    Root
+                    //    / \                /    \
+                    //  LL   LR            LR      R
                     temp = root.right;
                     root.right = temp.left;
+                    root.touch();
                     temp.left = root;
+                    temp.touch();
                     root = temp;
                     if (!root.right) {
                         break;
                     }
                 }
-                // link left
+                // remember former root for repropagating length
+                temp = new Node();
+                temp.left = root;
+                temp.right = history.right;
+                history.right = temp;
+                // link right
                 left.right = root;
+                left.touch();
                 left = root;
                 root = root.right;
             } else {
@@ -275,11 +336,25 @@ SortedSet.prototype.splay = function (value) {
         }
     }
 
-    // assemble
+    // reassemble
     left.right = root.left;
+    left.touch();
     right.left = root.right;
+    right.touch();
     root.left = stub.right;
     root.right = stub.left;
+
+    // propagate new lengths
+    while (history.left) {
+        history.left.right.touch();
+        history.left = history.left.left;
+    }
+    while (history.right) {
+        history.right.left.touch();
+        history.right = history.right.right;
+    }
+    root.touch();
+
     this.root = root;
 };
 
@@ -396,6 +471,7 @@ function Node(value) {
     this.value = value;
     this.left = null;
     this.right = null;
+    this.length = 1;
 }
 
 // TODO case where no basis is provided for reduction
@@ -423,6 +499,22 @@ Node.prototype.reduceRight = function (callback, basis, thisp, tree, depth) {
     }
     return basis;
 };
+
+Node.prototype.touch = function () {
+    this.length = 1 +
+        (this.left ? this.left.length : 0) +
+        (this.right ? this.right.length : 0);
+    this.index = this.left ? this.left.length : 0;
+};
+
+Node.prototype.checkIntegrity = function () {
+    var length = 1;
+    length += this.left ? this.left.checkIntegrity() : 0;
+    length += this.right ? this.right.checkIntegrity() : 0;
+    if (this.length !== length)
+        throw new Error("Integrity check failed: " + this.summary());
+    return length;
+}
 
 // ge the next node in this subtree
 Node.prototype.getNext = function () {

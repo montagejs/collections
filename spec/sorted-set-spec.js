@@ -1,8 +1,10 @@
 
+require("../array");
 var SortedSet = require("../sorted-set");
 var TreeLog = require("../tree-log");
 var describeDequeue = require("./dequeue");
 var describeCollection = require("./collection");
+var Fuzz = require("./fuzz");
 
 describe("SortedSet", function () {
 
@@ -74,6 +76,126 @@ describe("SortedSet", function () {
             ]);
         });
 
+    });
+
+    describe("subtree lengths", function () {
+
+        function draw(set) {
+            var lines = [];
+            set.log(TreeLog.ascii, function (node, write, writeAbove) {
+                write(" " + node.value + " length=" + node.length);
+            }, lines.push, lines);
+            return lines;
+        }
+
+        function expectNodeToHaveCorrectSubtreeLengths(node) {
+            if (!node)
+                return 0;
+            var length = 1;
+            length += expectNodeToHaveCorrectSubtreeLengths(node.left);
+            length += expectNodeToHaveCorrectSubtreeLengths(node.right);
+            expect(node.length).toBe(length);
+            return length;
+        }
+
+        it("+1", function () {
+            var set = SortedSet([1]);
+            expect(draw(set)).toEqual([
+                "- 1 length=1"
+            ]);
+            expectNodeToHaveCorrectSubtreeLengths(set.root);
+        });
+
+        it("+1, +2", function () {
+            var set = SortedSet([1, 2]);
+            expect(draw(set)).toEqual([
+                ".-- 1 length=1",
+                "+ 2 length=2"
+            ]);
+            expectNodeToHaveCorrectSubtreeLengths(set.root);
+        });
+
+        it("+1, +2, 1", function () {
+            var set = SortedSet([1, 2]);
+            set.get(1);
+            expect(draw(set)).toEqual([
+                "+ 1 length=2",
+                "'-- 2 length=1"
+            ]);
+            expectNodeToHaveCorrectSubtreeLengths(set.root);
+        });
+
+        it("+1, +3, +2", function () {
+            var set = SortedSet([1, 3, 2]);
+            expect(draw(set)).toEqual([
+                ".-- 1 length=1",
+                "+ 2 length=3",
+                "'-- 3 length=1"
+            ]);
+            expectNodeToHaveCorrectSubtreeLengths(set.root);
+        });
+
+        function makeCase(description, operations, log) {
+            it(description + " " + operations, function () {
+                var set = SortedSet();
+                Fuzz.execute(set, Fuzz.parse(operations), log);
+                expectNodeToHaveCorrectSubtreeLengths(set.root);
+            });
+        }
+
+        makeCase("reduction of case with propagation issue", "+2, +4, +3, +1, 4");
+
+        // 50 fuzz cases
+        for (var i = 0; i < 50; i++) {
+            (function () {
+                var fuzz = Fuzz.make(i * 5, i, Math.max(10, i * 5));
+                makeCase("fuzz", Fuzz.stringify(fuzz));
+            })();
+        }
+
+    });
+
+    describe("indexOf", function () {
+        // fuzz cases
+        for (var seed = 0; seed < 20; seed++) {
+            (function (seed) {
+                var numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+                var rand = Fuzz.makeRandom(seed);
+                numbers.sort(function () {
+                    return rand() < .5;
+                });
+                it("should discern the position of every value in " + numbers.join(", "), function () {
+                    var set = SortedSet(numbers);
+                    numbers.forEach(function (n, i) {
+                        expect(set.indexOf(n)).toBe(n);
+                    });
+                });
+            })(seed);
+        }
+    });
+
+    describe("addContentChangeListener", function () {
+        // fuzz cases
+        for (var seed = 0; seed < 20; seed++) {
+            (function (seed) {
+                var numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+                var rand = Fuzz.makeRandom(seed);
+                numbers.sort(function () {
+                    return rand() < .5;
+                });
+                it("should bind content changes to an array for " + numbers.join(", "), function () {
+                    var mirror = [];
+                    var set = SortedSet();
+                    set.addContentChangeListener(function (plus, minus, index) {
+                        mirror.swap(index, minus.length, plus);
+                    });
+                    set.addEach(numbers);
+                    mirror.forEach(function (n, i) {
+                        expect(n).toBe(i);
+                    });
+                });
+            })(seed);
+        }
     });
 
     describe("log drawings", function () {

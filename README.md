@@ -158,6 +158,11 @@ implied argument.
     for a given key.  Returns whether the key was found.
 -   `delete(value)`: (List, Set, SortedSet) deletes a value.  Returns
     whether the value was found.
+-   `indexOf(value)`: (Array, SortedSet): Returns the position in the
+    collection of a value, or `-1` if it is not found.  For an Array
+    this takes linear time.  For a SortedSet, this takes ammortized
+    logarithmic time since it incrementally updates the number of nodes
+    under each subtree as it rotates.
 -   `find(value, opt_equals)`: (List, SortedSet, Array+) finds a value.
     For List and SortedSet, returns the node at which the value was
     found.  For SortedSet, the optional `equals` argument is ignored.
@@ -541,6 +546,7 @@ More methods
 - compare
 - fast list splicing
 - set intersection, union, difference, symmetric difference
+- indexOf and lastIndexOf for List
 
 More possible collections
 
