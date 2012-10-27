@@ -53,7 +53,7 @@ SortedSet.prototype.add = function (value) {
         this.splay(value);
         if (!this.contentEquals(value, this.root.value)) {
             if (this.isObserved) {
-                this.dispatchBeforeContentChange([value], []);
+                this.dispatchBeforeContentChange([value], [], this.root.index);
             }
             if (this.contentCompare(value, this.root.value) < 0) {
                 // rotate right
@@ -66,6 +66,7 @@ SortedSet.prototype.add = function (value) {
                 node.right = this.root;
                 node.left = this.root.left;
                 this.root.left = null;
+                this.root.touch();
             } else {
                 // rotate left
                 //   R        N
@@ -77,22 +78,24 @@ SortedSet.prototype.add = function (value) {
                 node.left = this.root;
                 node.right = this.root.right;
                 this.root.right = null;
+                this.root.touch();
             }
+            node.touch();
             this.root = node;
             this.length++;
             if (this.isObserved) {
-                this.dispatchContentChange([value], []);
+                this.dispatchContentChange([value], [], this.root.index);
             }
             return true;
         }
     } else {
         if (this.isObserved) {
-            this.dispatchBeforeContentChange([value], []);
+            this.dispatchBeforeContentChange([value], [], 0);
         }
         this.root = node;
         this.length++;
         if (this.isObserved) {
-            this.dispatchContentChange([value], []);
+            this.dispatchContentChange([value], [], 0);
         }
         return true;
     }
@@ -103,6 +106,10 @@ SortedSet.prototype['delete'] = function (value) {
     if (this.root) {
         this.splay(value);
         if (this.contentEquals(value, this.root.value)) {
+            var index = this.root.index;
+            if (this.isObserved) {
+                this.dispatchBeforeContentChange([], [value], index);
+            }
             if (!this.root.left) {
                 this.root = this.root.right;
             } else {
@@ -117,8 +124,11 @@ SortedSet.prototype['delete'] = function (value) {
                 this.root.right = right;
             }
             this.length--;
+            if (this.root) {
+                this.root.touch();
+            }
             if (this.isObserved) {
-                this.dispatchContentChange([], [value]);
+                this.dispatchContentChange([], [value], index);
             }
             return true;
         }
@@ -227,8 +237,14 @@ SortedSet.prototype.splay = function (value) {
         return;
     }
 
+    // stub (node)
+    // left (node)
+    // right (node)
+
     stub = left = right = new this.Node();
     root = this.root;
+
+    root.checkIntegrity();
 
     while (true) {
         var comparison = this.contentCompare(value, root.value);
@@ -236,16 +252,23 @@ SortedSet.prototype.splay = function (value) {
             if (root.left) {
                 if (this.contentCompare(value, root.left.value) < 0) {
                     // rotate right
+                    //        Root         L(temp)
+                    //      /     \       / \
+                    //     L(temp) R    LL    Root
+                    //    / \                /    \
+                    //  LL   LR            LR      R
                     temp = root.left;
                     root.left = temp.right;
+                    root.touch();
                     temp.right = root;
+                    temp.touch();
                     root = temp;
                     if (!root.left) {
                         break;
                     }
                 }
-                // link right
                 right.left = root;
+                right.touch();
                 right = root;
                 root = root.left;
             } else {
@@ -255,16 +278,23 @@ SortedSet.prototype.splay = function (value) {
             if (root.right) {
                 if (this.contentCompare(value, root.right.value) > 0) {
                     // rotate left
+                    //        Root         L(temp)
+                    //      /     \       / \
+                    //     L(temp) R    LL    Root
+                    //    / \                /    \
+                    //  LL   LR            LR      R
                     temp = root.right;
                     root.right = temp.left;
+                    root.touch();
                     temp.left = root;
+                    temp.touch();
                     root = temp;
                     if (!root.right) {
                         break;
                     }
                 }
-                // link left
                 left.right = root;
+                left.touch();
                 left = root;
                 root = root.right;
             } else {
@@ -276,12 +306,35 @@ SortedSet.prototype.splay = function (value) {
     }
 
     // assemble
+    left.checkIntegrity();
+    right.checkIntegrity();
+    root.checkIntegrity();
+    stub.checkIntegrity();
+
     left.right = root.left;
+    left.touch();
     right.left = root.right;
+    right.touch();
     root.left = stub.right;
     root.right = stub.left;
+    root.touch();
+
+    root.checkIntegrity();
     this.root = root;
 };
+
+SortedSet.prototype.checkIntegrity = function () {
+    if (this.root) {
+        this.root.checkIntegrity();
+        if (this.length !== this.root.length) {
+            throw new Error("Integrity check failed, length did not match");
+        }
+    } else {
+        if (this.length !== 0) {
+            throw new Error("Integrity check failed, length did not match");
+        }
+    }
+}
 
 SortedSet.prototype.reduce = function (callback, basis, thisp) {
     if (this.root) {
@@ -396,6 +449,7 @@ function Node(value) {
     this.value = value;
     this.left = null;
     this.right = null;
+    this.length = 1;
 }
 
 // TODO case where no basis is provided for reduction
@@ -423,6 +477,22 @@ Node.prototype.reduceRight = function (callback, basis, thisp, tree, depth) {
     }
     return basis;
 };
+
+Node.prototype.touch = function () {
+    this.length = 1 +
+        (this.left ? this.left.length : 0) +
+        (this.right ? this.right.length : 0);
+    this.index = this.left ? this.left.length : 0;
+};
+
+Node.prototype.checkIntegrity = function () {
+    var length = 1;
+    length += this.left ? this.left.checkIntegrity() : 0;
+    length += this.right ? this.right.checkIntegrity() : 0;
+    if (this.length !== length)
+        throw new Error("Integrity check failed: " + this.summary());
+    return length;
+}
 
 // ge the next node in this subtree
 Node.prototype.getNext = function () {

@@ -3,6 +3,7 @@ var SortedSet = require("../sorted-set");
 var TreeLog = require("../tree-log");
 var describeDequeue = require("./dequeue");
 var describeCollection = require("./collection");
+var Fuzz = require("./fuzz");
 
 describe("SortedSet", function () {
 
@@ -73,6 +74,82 @@ describe("SortedSet", function () {
                 "'-- 3"
             ]);
         });
+
+    });
+
+    describe("subtree lengths", function () {
+
+        function draw(set) {
+            var lines = [];
+            set.log(TreeLog.ascii, function (node, write, writeAbove) {
+                write(" " + node.value + " length=" + node.length);
+            }, lines.push, lines);
+            return lines;
+        }
+
+        function expectNodeToHaveCorrectSubtreeLengths(node) {
+            if (!node)
+                return 0;
+            var length = 1;
+            length += expectNodeToHaveCorrectSubtreeLengths(node.left);
+            length += expectNodeToHaveCorrectSubtreeLengths(node.right);
+            expect(node.length).toBe(length);
+            return length;
+        }
+
+        it("+1", function () {
+            var set = SortedSet([1]);
+            expect(draw(set)).toEqual([
+                "- 1 length=1"
+            ]);
+            expectNodeToHaveCorrectSubtreeLengths(set.root);
+        });
+
+        it("+1, +2", function () {
+            var set = SortedSet([1, 2]);
+            expect(draw(set)).toEqual([
+                ".-- 1 length=1",
+                "+ 2 length=2"
+            ]);
+            expectNodeToHaveCorrectSubtreeLengths(set.root);
+        });
+
+        it("+1, +2, 1", function () {
+            var set = SortedSet([1, 2]);
+            set.get(1);
+            expect(draw(set)).toEqual([
+                "+ 1 length=2",
+                "'-- 2 length=1"
+            ]);
+            expectNodeToHaveCorrectSubtreeLengths(set.root);
+        });
+
+        it("+1, +3, +2", function () {
+            var set = SortedSet([1, 3, 2]);
+            expect(draw(set)).toEqual([
+                ".-- 1 length=1",
+                "+ 2 length=3",
+                "'-- 3 length=1"
+            ]);
+            expectNodeToHaveCorrectSubtreeLengths(set.root);
+        });
+
+        function makeCase(operations, log) {
+            it(operations, function () {
+                var set = SortedSet();
+                Fuzz.execute(set, Fuzz.parse(operations), log);
+                expectNodeToHaveCorrectSubtreeLengths(set.root);
+            });
+        }
+
+        makeCase("+2, +4, +3, +1, 4");
+
+        //for (var i = 0; i < 100; i++) {
+        //    (function () {
+        //        var fuzz = Fuzz.make(i, i, Math.max(10, i));
+        //        makeCase(Fuzz.stringify(fuzz));
+        //    })();
+        //}
 
     });
 
