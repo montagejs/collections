@@ -8,6 +8,12 @@ Reducible.addEach = function (values) {
     if (values && Object(values) === values) {
         if (typeof values.forEach === "function") {
             values.forEach(this.add, this);
+        } else if (typeof values.length === "number") {
+            // Array-like objects that do not implement forEach, ergo,
+            // Arguments
+            for (var i = 0; i < values.length; i++) {
+                this.add(values[i], i);
+            }
         } else {
             Object.keys(values).forEach(function (key) {
                 this.add(values[key], key);

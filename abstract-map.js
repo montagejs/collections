@@ -42,15 +42,16 @@ AbstractMap.get = function (key, defaultValue) {
 AbstractMap.set = function (key, value) {
     var item = new this.Item(key, value);
     var found = this.contentSet.get(item);
+    var grew = false;
     if (found) { // update
         found.value = value;
     } else { // create
         if (this.contentSet.add(item)) {
             this.length++;
-            return true;
+            grew = true;
         }
     }
-    return false;
+    return grew;
 };
 
 AbstractMap.has = function (key) {
@@ -61,7 +62,7 @@ AbstractMap['delete'] = function (key) {
     if (this.contentSet['delete'](new this.Item(key))) {
         this.length--;
         return true;
-    };
+    }
     return false;
 };
 

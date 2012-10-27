@@ -159,16 +159,24 @@ FastSet.prototype.iterate = function () {
     }));
 };
 
-FastSet.prototype.log = function (charmap, stringify) {
+FastSet.prototype.log = function (charmap, logNode, callback, thisp) {
     charmap = charmap || TreeLog.unicodeSharp;
-    stringify = stringify || this.stringify;
+    logNode = logNode || this.logNode;
+    if (!callback) {
+        callback = console.log;
+        thisp = console;
+    }
+    callback = callback.bind(thisp);
 
     var buckets = this.buckets;
     var hashes = buckets.keys();
     hashes.forEach(function (hash, index) {
         var branch;
         var leader;
-        if (index === hashes.length - 1) {
+        if (index === 0) {
+            branch = charmap.branchDown;
+            leader = charmap.strafe;
+        } else if (index === hashes.length - 1) {
             branch = charmap.fromAbove;
             leader = ' ';
         } else {
@@ -176,7 +184,7 @@ FastSet.prototype.log = function (charmap, stringify) {
             leader = charmap.strafe;
         }
         var bucket = buckets.get(hash);
-        console.log(branch + charmap.through + charmap.branchDown + ' ' + hash);
+        callback.call(thisp, branch + charmap.through + charmap.branchDown + ' ' + hash);
         bucket.forEach(function (value, node) {
             var branch;
             if (node === bucket.head.prev) {
@@ -184,20 +192,25 @@ FastSet.prototype.log = function (charmap, stringify) {
             } else {
                 branch = charmap.fromBoth;
             }
-            console.log(stringify(
+            logNode(
                 value,
-                leader + ' ' + branch + charmap.through + charmap.through + ' ',
-                leader + '     '
-            ));
+                function (line) {
+                    callback.call(thisp, leader + ' ' + branch + charmap.through + charmap.through + ' ' + line);
+                },
+                function (line) {
+                    callback.call(thisp, leader + '     ' + line);
+                }
+            );
         });
     });
 };
 
-FastSet.prototype.stringify = function (value, leader) {
+FastSet.prototype.logNode = function (node, callback, thisp) {
+    var value = node.value;
     if (Object(value) === value) {
-        return leader + JSON.stringify(value);
+        callback.call(thisp, JSON.stringify(value));
     } else {
-        return leader + value;
+        callback.call(thisp, value);
     }
 };
 

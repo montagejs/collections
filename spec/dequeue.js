@@ -1,7 +1,7 @@
 // describe arrays and lists, double-ended queues
 
 module.exports = describeDequeue;
-function describeDequeue(Collection) {
+function describeDequeue(Collection, sortedSet) {
 
     describe("add(value)", function () {
         it("should be an alias for push", function () {
@@ -80,6 +80,9 @@ function describeDequeue(Collection) {
             expect(collection.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
         });
     });
+
+    if (sortedSet)
+        return;
 
     describe("slice()", function () {
         var collection = Collection([1, 2, 3, 4]);

@@ -78,6 +78,7 @@ Set.prototype["delete"] = function (value) {
 Set.prototype.clear = function () {
     this.contentSet.clear();
     this.contentList.clear();
+    this.length = 0;
 };
 
 Set.prototype.reduce = function () {

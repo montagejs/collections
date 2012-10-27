@@ -193,6 +193,30 @@ SortedSet.prototype.findLeastGreaterThan = function (value) {
     }
 };
 
+SortedSet.prototype.pop = function () {
+    if (this.root) {
+        var found = this.findGreatest();
+        this["delete"](found.value);
+        return found.value;
+    }
+};
+
+SortedSet.prototype.shift = function () {
+    if (this.root) {
+        var found = this.findLeast();
+        this["delete"](found.value);
+        return found.value;
+    }
+};
+
+SortedSet.prototype.push = function () {
+    this.addEach(arguments);
+};
+
+SortedSet.prototype.unshift = function () {
+    this.addEach(arguments);
+};
+
 // This is the simplified top-down splaying algorithm from: "Self-adjusting
 // Binary Search Trees" by Sleator and Tarjan
 // guarantees that the root.value <= value if root exists
@@ -284,6 +308,7 @@ SortedSet.prototype.all = Reducible.all;
 SortedSet.prototype.any = Reducible.any;
 SortedSet.prototype.sum = Reducible.sum;
 SortedSet.prototype.average = Reducible.average;
+SortedSet.prototype.concat = Reducible.concat;
 SortedSet.prototype.flatten = Reducible.flatten;
 SortedSet.prototype.zip = Reducible.flatten;
 SortedSet.prototype.sorted = Reducible.sorted;
@@ -338,25 +363,32 @@ SortedSet.prototype.iterate = function (start, end) {
 
 SortedSet.prototype.Iterator = Iterator;
 
-SortedSet.prototype.log = function (charmap, stringify) {
-    this.report(console.log, console, charmap, stringify);
-};
-
-SortedSet.prototype.report = function (callback, thisp, charmap, stringify) {
-    charmap = charmap || SortedSet.unicodeRound;
-    stringify = stringify || this.stringify;
+SortedSet.prototype.summary = function () {
     if (this.root) {
-        this.root.report(callback, thisp, charmap, stringify);
+        return this.root.summary();
+    } else {
+        return "()";
     }
 };
 
-SortedSet.prototype.stringify = function (callback, thisp, node, leader, below, above) {
-    callback.call(thisp, leader + " " + node.value);
+SortedSet.prototype.log = function (charmap, logNode, callback, thisp) {
+    charmap = charmap || TreeLog.unicodeRound;
+    logNode = logNode || this.logNode;
+    if (!callback) {
+        callback = console.log;
+        thisp = console;
+    }
+    callback = callback.bind(thisp);
+    if (this.root) {
+        this.root.log(charmap, logNode, callback, callback);
+    }
 };
 
-SortedSet.unicodeRound = TreeLog.unicodeRound;
-SortedSet.unicodeSharp = TreeLog.unicodeSharp;
-SortedSet.ascii = TreeLog.ascii;
+SortedSet.prototype.logNode = function (node, write, writeBefore) {
+    write(" " + node.value);
+};
+
+SortedSet.logCharsets = TreeLog;
 
 SortedSet.prototype.Node = Node;
 
@@ -416,18 +448,21 @@ Node.prototype.getPrevious = function () {
     }
 };
 
-Node.prototype.report = function (
-    callback,
-    thisp,
-    charmap,
-    stringify,
-    leader,
-    above,
-    below
-) {
-    leader = leader || "";
-    above = above || "";
-    below = below || "";
+Node.prototype.summary = function () {
+    var value = this.value || "-";
+    value += " <" + this.length;
+    if (!this.left && !this.right) {
+        return "(" + value + ")";
+    }
+    return "(" + value + " " + (
+        this.left ? this.left.summary() : "()"
+    ) + ", " + (
+        this.right ? this.right.summary() : "()"
+    ) + ")";
+};
+
+Node.prototype.log = function (charmap, logNode, write, writeAbove) {
+    var self = this;
 
     var branch;
     if (this.left && this.right) {
@@ -440,31 +475,57 @@ Node.prototype.report = function (
         branch = charmap.through;
     }
 
-    this.left && this.left.report(
-        callback,
-        thisp,
+    var writtenAbove;
+    this.left && this.left.log(
         charmap,
-        stringify,
-        above + charmap.fromBelow + charmap.through,
-        above + "  ",
-        above + charmap.strafe + " "
+        logNode,
+        function innerWrite(line) {
+            if (!writtenAbove) {
+                writtenAbove = true;
+                // leader
+                writeAbove(charmap.fromBelow + charmap.through + line);
+            } else {
+                // below
+                writeAbove(charmap.strafe + " " + line);
+            }
+        },
+        function innerWriteAbove(line) {
+            // above
+            writeAbove("  " + line);
+        }
     );
-    stringify(
-        callback,
-        thisp,
+
+    var writtenOn;
+    logNode(
         this,
-        leader + branch,
-        below + (this.right ? charmap.strafe : " "),
-        above + (this.left ? charmap.strafe : " ")
-    )
-    this.right && this.right.report(
-        callback,
-        thisp,
+        function innerWrite(line) {
+            if (!writtenOn) {
+                writtenOn = true;
+                write(branch + line);
+            } else {
+                write((self.right ? charmap.strafe : " ") + line);
+            }
+        },
+        function innerWriteAbove(line) {
+            writeAbove((self.left ? charmap.strafe : " ") + line);
+        }
+    );
+
+    var writtenBelow;
+    this.right && this.right.log(
         charmap,
-        stringify,
-        below + charmap.fromAbove + charmap.through,
-        below + charmap.strafe + " ",
-        below + "  "
+        logNode,
+        function innerWrite(line) {
+            if (!writtenBelow) {
+                writtenBelow = true;
+                write(charmap.fromAbove + charmap.through + line);
+            } else {
+                write("  " + line);
+            }
+        },
+        function innerWriteAbove(line) {
+            write(charmap.strafe + " " + line);
+        }
     );
 };
 
