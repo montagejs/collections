@@ -3,7 +3,6 @@
 var Map = require("./map");
 var AbstractMap = require("./abstract-map");
 var Reducible = require("./reducible");
-var Operators = require("./operators");
 
 module.exports = MultiMap;
 function MultiMap(values, bucket, equals, hash) {

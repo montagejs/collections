@@ -1,5 +1,9 @@
 "use strict";
 
+var WeakMap = require("./weak-map");
+
+module.exports = Object;
+
 /*
     Based in part on extras from Motorola Mobility’s Montage
     Copyright (c) 2012, Motorola Mobility LLC. All Rights Reserved.
@@ -11,21 +15,6 @@
     Defines extensions to intrinsic <code>Object</code>.
     @see [Object class]{@link external:Object}
 */
-
-// string table, for strings that might be constructed multiple times
-// seems to reduce allocations in a version of Firefox I once heard tell
-var STRING = "string";
-var FUNCTION = "function";
-var OBJECT = "object";
-var NUMBER = "number";
-var HAS = "has";
-var GET = "get";
-var SET = "set";
-var EQUALS = "equals";
-var VALUE_OF = "valueOf";
-var CLONE = "clone";
-var COMPARE = "compare";
-var CLEAR = "clear";
 
 /**
     A utility object to avoid unnecessary allocations of an empty object
@@ -69,10 +58,24 @@ Object.isObject = function (object) {
     the value through
 */
 Object.getValueOf = function (value) {
-    if (Object.can(value, VALUE_OF)) {
+    if (Object.can(value, "valueOf")) {
         value = value.valueOf();
     }
     return value;
+};
+
+var hashMap = new WeakMap();
+Object.hash = function (object) {
+    if (Object.can(object, "hash")) {
+        return "" + object.hash();
+    } else if (Object(object) === object) {
+        if (!hashMap.has(object)) {
+            hashMap.set(object, Math.random().toString(36).slice(2));
+        }
+        return hashMap.get(object);
+    } else {
+        return "" + object;
+    }
 };
 
 /**
@@ -112,7 +115,7 @@ Object.owns = function (object, key) {
 Object.can = function (object, name) {
     return (
         object != null && // false only for null *and* undefined
-        typeof object[name] === FUNCTION &&
+        typeof object[name] === "function" &&
         !owns.call(object, name)
     );
 };
@@ -144,11 +147,11 @@ Object.has = function (object, key) {
         throw new Error("Object.has can't accept non-object: " + typeof object);
     }
     // forward to mapped collections that implement "has"
-    if (Object.can(object, HAS)) {
+    if (Object.can(object, "has")) {
         return object.has(key);
     // otherwise report whether the key is on the prototype chain,
     // as long as it is not one of the methods on object.prototype
-    } else if (typeof key === STRING) {
+    } else if (typeof key === "string") {
         return key in object && object[key] !== Object.prototype[key];
     } else {
         throw new Error("Key must be a string for Object.has on plain objects");
@@ -183,7 +186,7 @@ Object.get = function (object, key, value) {
         throw new Error("Object.get can't accept non-object: " + typeof object);
     }
     // forward to mapped collections that implement "get"
-    if (Object.can(object, GET)) {
+    if (Object.can(object, "get")) {
         return object.get(key, value);
     } else if (Object.has(object, key)) {
         return object[key];
@@ -207,7 +210,7 @@ Object.get = function (object, key, value) {
     @function external:Object.set
 */
 Object.set = function (object, key, value) {
-    if (Object.can(object, SET)) {
+    if (Object.can(object, "set")) {
         object.set(key, value);
     } else {
         object[key] = value;
@@ -260,12 +263,8 @@ Object.map = function (object, callback, thisp) {
     object.
 */
 Object.values = function (object) {
-    return Object.map(object, identity);
+    return Object.map(object, Function.identity);
 };
-
-function identity(value) {
-    return value;
-}
 
 /**
     Returns whether two values are identical.  Any value is identical to itself
@@ -337,25 +336,11 @@ Object.equals = function (a, b) {
     if (a === b)
         // 0 === -0, but they are not equal
         return a !== 0 || 1 / a === 1 / b;
-    if (Object.can(a, EQUALS))
+    if (Object.can(a, "equals"))
         return a.equals(b);
     // commutative
-    if (Object.can(b, EQUALS))
+    if (Object.can(b, "equals"))
         return b.equals(a);
-    if (typeof a === OBJECT && typeof b === OBJECT) {
-        if (Object.getPrototypeOf(a) !== Object.getPrototypeOf(b)) {
-            return false;
-        } else {
-            var aKeys = Object.keys(a);
-            var bKeys = Object.keys(b);
-            return (
-                aKeys.equals(bKeys) &&
-                aKeys.every(function (key) {
-                    return Object.equals(a[key], b[key]);
-                })
-            );
-        }
-    }
     // NaN !== NaN, but they are equal.
     // NaNs are the only non-reflexive value, i.e., if x !== x,
     // then x is a NaN.
@@ -407,15 +392,15 @@ Object.compare = function (a, b) {
     b = Object.getValueOf(b);
     if (a === b)
         return 0;
-    if (typeof a === NUMBER && typeof b === NUMBER)
+    if (typeof a === "number" && typeof b === "number")
         return a - b;
-    if (typeof a === STRING)
+    if (typeof a === "string")
         return a < b ? -1 : 1;
         // the possibility of equality elimiated above
-    if (Object.can(a, COMPARE))
+    if (Object.can(a, "compare"))
         return a.compare(b);
     // not commutative, the relationship is reversed
-    if (Object.can(b, COMPARE))
+    if (Object.can(b, "compare"))
         return -b.compare(a);
     return 0;
 };
@@ -444,7 +429,7 @@ Object.clone = function (value, depth, memo) {
     } else if (depth === 0) {
         return value;
     }
-    if (memo && Object.isObject(value) && Object.can(value, CLONE)) {
+    if (memo && Object.isObject(value) && Object.can(value, "clone")) {
         if (!memo.has(value)) {
             memo.set(value, value.clone(depth, memo));
         }
@@ -462,7 +447,7 @@ Object.clone = function (value, depth, memo) {
     @returns this
 */
 Object.clear = function (object) {
-    if (Object.can(object, CLEAR)) {
+    if (Object.can(object, "clear")) {
         object.clear();
     } else {
         var keys = Object.keys(object),
@@ -474,4 +459,15 @@ Object.clear = function (object) {
     }
     return object;
 };
+
+/**
+*/
+Function.noop = function () {
+};
+
+/**
+*/
+Function.identity = function (value) {
+    return value;
+}
 

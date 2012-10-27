@@ -1,7 +1,7 @@
 "use strict";
 
+require("./object");
 var Reducible = require("./reducible");
-var Operators = require("./operators");
 var AbstractMap = require("./abstract-map");
 
 // Burgled from https://github.com/domenic/dict
@@ -11,7 +11,7 @@ function Dict(values, content) {
     if (!(this instanceof Dict)) {
         return new Dict(values, content);
     }
-    content = content || Operators.getUndefined;
+    content = content || Function.noop;
     this.content = content;
     this.store = {};
     this.length = 0;

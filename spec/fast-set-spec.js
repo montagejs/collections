@@ -2,6 +2,7 @@
 
 var Set = require("../fast-set");
 var Iterator = require("../iterator");
+var describeCollection = require("./collection");
 
 describe("Set", function () {
     // new Set()
@@ -25,6 +26,15 @@ describe("Set", function () {
     // Set().any()
     // Set().min()
     // Set().max()
+
+    function newSet(values) {
+        return new Set(values);
+    }
+
+    [Set, newSet].forEach(function (Set) {
+        describeCollection(Set, [1, 2, 3, 4], true);
+        describeCollection(Set, [{}, {}, {}, {}], true);
+    });
 
     it("length of empty set", function () {
         expect(new Set().length).toBe(0);

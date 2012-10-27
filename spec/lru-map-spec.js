@@ -1,10 +1,12 @@
 
 var LruMap = require("../lru-map");
 var describeDict = require("./dict");
+var describeMap = require("./map");
 
 describe("LruMap", function () {
 
     describeDict(LruMap);
+    describeMap(LruMap);
 
     it("should remote stale items", function () {
         var map = LruMap({a: 10, b: 20, c: 30}, 3);

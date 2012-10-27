@@ -1,4 +1,4 @@
-// tests that are equally applicable to Dict, Map, FastMap, LruMap
+// tests that are equally applicable to Dict, Map, SortedMap, unbounded LruMap, FastMap
 
 module.exports = describeDict;
 function describeDict(Dict) {

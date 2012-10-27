@@ -86,19 +86,9 @@
  * <p>See {@code WeakMap} for documentation of the garbage collection
  * properties of this WeakMap emulation.
  */
-(function WeakMapModule() {
-  "use strict";
+"use strict";
 
-  if (typeof ses !== 'undefined' && ses.ok && !ses.ok()) {
-    // already too broken, so give up
-    return;
-  }
-
-  if (typeof WeakMap === 'function') {
-    // assumed fine, so we're done.
-    module.exports = WeakMap;
-    return;
-  }
+module.exports = typeof WeakMap !== "undefined" ? WeakMap : ((function () {
 
   var hop = Object.prototype.hasOwnProperty;
   var gopn = Object.getOwnPropertyNames;
@@ -239,7 +229,7 @@
    * force leaky map stored in the weak map, losing all the advantages
    * of weakness for these.
    */
-  function getHiddenRecord(key) {
+  var getHiddenRecord = function (key) {
     if (key !== Object(key)) {
       throw new TypeError('Not an object: ' + key);
     }
@@ -264,7 +254,7 @@
       configurable: false
     });
     return hiddenRecord;
-  }
+  };
 
 
   /**
@@ -276,7 +266,7 @@
    * that should throw a TypeError anyway if their argument is not an
    * object.
    */
-  (function(){
+  (function () {
     var oldFreeze = Object.freeze;
     defProp(Object, 'freeze', {
       value: function identifyingFreeze(obj) {
@@ -300,7 +290,6 @@
     });
   })();
 
-
   function constFunc(func) {
     func.prototype = null;
     return Object.freeze(func);
@@ -311,7 +300,7 @@
   // constant time representation is easy.
   // var histogram = [];
 
-  var WeakMapShim = function() {
+  var WeakMap = function() {
     // We are currently (12/25/2012) never encountering any prematurely
     // non-extensible keys.
     var keys = []; // brute force for prematurely non-extensible keys.
@@ -349,8 +338,8 @@
         if (i >= 0) {
           hr.vals[i] = value;
         } else {
-//          i = hr.gets.length;
-//          histogram[i] = (histogram[i] || 0) + 1;
+          // i = hr.gets.length;
+          // histogram[i] = (histogram[i] || 0) + 1;
           hr.gets.push(get___);
           hr.vals.push(value);
         }
@@ -384,14 +373,14 @@
       return true;
     }
 
-    return Object.create(WeakMapShim.prototype, {
+    return Object.create(WeakMap.prototype, {
       get___:    { value: constFunc(get___) },
       has___:    { value: constFunc(has___) },
       set___:    { value: constFunc(set___) },
       delete___: { value: constFunc(delete___) }
     });
   };
-  WeakMapShim.prototype = Object.create(Object.prototype, {
+  WeakMap.prototype = Object.create(Object.prototype, {
     get: {
       /**
        * Return the value most recently associated with key, or
@@ -448,8 +437,5 @@
     }
   });
 
-  if (typeof module !== "undefined") {
-      module.exports = WeakMapShim;
-  }
-
-})();
+  return WeakMap;
+})());

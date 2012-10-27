@@ -86,52 +86,41 @@ in a map collection, the the values are taken, but the keys are ignored.
 
 The `map` argument is an optional collection to copy shallowly into the
 new mapping.  The `map` may be an object literal.  If `map` implements
-`forEach`, the values for each key are copied.  So, `map` may be an
-array, where each index is accepted as the key.
+`keys`, it is treated as a mapping itself and copied.  Otherwise, if
+`map` implements `forEach`, it may be any collection of `[key, value]`
+pairs.
 
 `equals(x, y)`, `compare(x, y)`, and `hash(value)` are all optional
 arguments overriding the meaning of equality, comparability, and
 consistent hashing for the purposes of the collection.  `equals` must
 return a boolean.  `compare` must return an integer with the same
-relationship to zero as x to y.  `hash` should consistently return the same
-string for any given object.
+relationship to zero as x to y.  `hash` should consistently return the
+same string for any given object.
 
 The default `equals` operator is implemented in terms of `===`, but
 treats `NaN` as equal to itself and `-0` as distinct from `+0`.  It also
 delegates to an `equals` method of either the left or right argument if
-one exists.  The default can be overridden by shimming `Object.equals`.
+one exists.  The default equality operator is shimmed as
+`Object.equals`.
 
 The default `compare` operator is implemented in terms of `<` and `>`.
 It delegates to the `compare` method of either the left or right
 argument if one exists.  It inverts the result if it uses the falls to
-the right argument.  The default can be overridden by shimming
+the right argument.  The default comparator is shimmed as
 `Object.compare`.
 
-The default `hash` operator is implemented in terms of `toString`, but
-defers to the value's own `hash` member function if it provides one.  If
-the hash changes, corresponding values will not be retrievable within
-sets or maps that use it.  The default `hash` operator can be overridden
-by shimming `Object.hash`.
-
-Consistent hashing is tricky in JavaScript since the language
-deliberately avoids providing unique values for each object.  However,
-in conjunction with `WeakMap`, it is relatively easy to add a [Unique
-Label][] to objects.
+THe default `hash` operator uses `toString` for values and provides a
+[Unique Label][] for arbitrary objects.  The default hash is shimmed as
+`Object.hash`.
 
 [Unique Label]: (http://wiki.ecmascript.org/doku.php?id=harmony:weak_maps#unique_labeler)
 
-The `hash` module provides such an implementation.  Since it entrains
-all the weight of the the `weap-map` module, you must opt in by
-requiring the module.  If loaded, all new `Map` instances benefit from
-fewer hash collisions without the need for per-key-type implementations
-of `hash`.
-
-The default `content` function returns `undefined`.  The content
-function is used when you `get` a nonexistant value from any collection.
-The `content` function becomes a member of the collection object.
-`content` is called with the collection as `this`, so you can also use
-it to guarantee that default values in a collection are retained, as in
-`MultiMap`.
+The default `content` function is `Function.noop`, which returns
+`undefined`.  The content function is used when you `get` a nonexistant
+value from any collection.  The `content` function becomes a member of
+the collection object, so `content` is called with the collection as
+`this`, so you can also use it to guarantee that default values in a
+collection are retained, as in `MultiMap`.
 
 
 ## Collection Methods

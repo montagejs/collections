@@ -1,6 +1,6 @@
 
 (
-    echo '(function () {'
+    echo '(function (global) {'
     closure --process_common_js_modules \
         --common_js_entry_module collections.js \
         --js \
@@ -11,7 +11,6 @@
             dict.js \
             fast-map.js \
             fast-set.js \
-            hash.js \
             iterator.js \
             list.js \
             lru-map.js \
@@ -20,7 +19,6 @@
             multi-map.js \
             object.js \
             observable.js \
-            operators.js \
             reducible.js \
             set.js \
             sorted-map.js \
@@ -28,8 +26,10 @@
             tree-log.js \
             weak-map.js \
 
-    echo '})();'
-) | closure > collections.min.js
+    echo '})(this);'
+) > collections.cat.js
+
+closure < collection.cat.js > collections.min.js
 
 wc -c collections.min.js
 cat collections.min.js | gzip | wc -c

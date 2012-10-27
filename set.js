@@ -1,10 +1,10 @@
 "use strict";
 
+require("./object");
 var List = require("./list");
 var FastSet = require("./fast-set");
 var Reducible = require("./reducible");
 var Observable = require("./observable");
-var Operators = require("./operators");
 
 module.exports = Set;
 
@@ -12,9 +12,9 @@ function Set(values, equals, hash, content) {
     if (!(this instanceof Set)) {
         return new Set(values, equals, hash);
     }
-    equals = equals || Object.equals || Operators.equals;
-    hash = hash || Object.hash || Operators.hash;
-    content = content || Operators.getUndefined;
+    equals = equals || Object.equals;
+    hash = hash || Object.hash;
+    content = content || Function.noop;
     this.contentEquals = equals;
     this.contentHash = hash;
     this.contentList = new List(undefined, equals); // of values in insertion order

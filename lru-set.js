@@ -1,9 +1,9 @@
 "use strict";
 
+require("./object");
 var Set = require("./set");
 var Reducible = require("./reducible");
 var Observable = require("./observable");
-var Operators = require("./operators");
 
 module.exports = LruSet;
 
@@ -12,14 +12,15 @@ function LruSet(values, maxLength, equals, hash, content) {
         return new LruSet(values, maxLength, equals, hash);
     }
     maxLength = maxLength || Infinity;
-    equals = equals || Object.equals || Operators.equals;
-    hash = hash || Object.hash || Operators.hash;
-    content = content || Operators.getUndefined;
+    equals = equals || Object.equals;
+    hash = hash || Object.hash;
+    content = content || Function.noop;
     this.contentSet = new Set(undefined, equals, hash);
     this.contentEquals = equals;
     this.contentHash = hash;
     this.content = content;
     this.maxLength = maxLength;
+    this.length = 0;
     this.addEach(values);
 }
 

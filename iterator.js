@@ -4,8 +4,6 @@ module.exports = Iterator;
 
 var Reducible = require("./reducible");
 
-var global = Function("return this")();
-
 // upgrades an iterable to a Iterator
 function Iterator(iterable) {
 

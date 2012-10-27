@@ -2,9 +2,9 @@
 
 module.exports = List;
 
+require("./object");
 var Reducible = require("./reducible");
 var Observable = require("./observable");
-var Operators = require("./operators");
 
 function List(values, equals, content) {
     if (!(this instanceof List)) {
@@ -13,8 +13,8 @@ function List(values, equals, content) {
     var head = this.head = new this.Node();
     head.next = head;
     head.prev = head;
-    this.contentEquals = equals || Object.equals || Operators.equals;
-    this.content = content || Operators.getUndefined;
+    this.contentEquals = equals || Object.equals;
+    this.content = content || Function.noop;
     this.length = 0;
     this.addEach(values);
 }
@@ -63,6 +63,9 @@ List.prototype.get = function (value, equals) {
 List.prototype['delete'] = function (value, equals) {
     var found = this.findLast(value, equals);
     if (found) {
+        if (this.isObserved) {
+            this.dispatchBeforeContentChange([], [value]);
+        }
         found['delete']();
         this.length--;
         if (this.isObserved) {
@@ -78,17 +81,24 @@ List.prototype.clear = function () {
 };
 
 List.prototype.add = function (value) {
+    if (this.isObserved) {
+        this.dispatchBeforeContentChange([value], []);
+    }
     this.head.addBefore(new this.Node(value));
     this.length++;
     if (this.isObserved) {
         this.dispatchContentChange([value], []);
     }
+    return true;
 };
 
 List.prototype.push = function () {
     var head = this.head;
     for (var i = 0; i < arguments.length; i++) {
         var value = arguments[i];
+        if (this.isObserved) {
+            this.dispatchBeforeContentChange([value], []);
+        }
         var node = new this.Node(value);
         head.addBefore(node);
         this.length++;
@@ -117,6 +127,9 @@ List.prototype.pop = function () {
     var head = this.head;
     if (head.prev !== head) {
         value = head.prev.value;
+        if (this.isObserved) {
+            this.dispatchBeforeContentChange([], [value]);
+        }
         head.prev['delete']();
         this.length--;
         if (this.isObserved) {
@@ -131,6 +144,9 @@ List.prototype.shift = function () {
     var head = this.head;
     if (head.prev !== head) {
         value = head.next.value;
+        if (this.isObserved) {
+            this.dispatchBeforeContentChange([], [value]);
+        }
         head.next['delete']();
         this.length--;
         if (this.isObserved) {
@@ -281,7 +297,7 @@ List.prototype.removeBeforeContentChangeListener = Observable.removeBeforeConten
 List.prototype.dispatchBeforeContentChange = Observable.dispatchBeforeContentChange;
 
 List.prototype.equals = function (that, equals) {
-    var equals = equals || this.contentEquals || Object.equals || Operators.equals;
+    var equals = equals || this.contentEquals || Object.equals;
 
     if (this === that) {
         return true;

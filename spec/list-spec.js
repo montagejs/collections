@@ -1,6 +1,7 @@
 
 var List = require("../list");
 var describeDequeue = require("./dequeue");
+var describeCollection = require("./collection");
 
 describe("List", function () {
     // new List()
@@ -62,6 +63,16 @@ describe("List", function () {
     describeDequeue(List);
     describeDequeue(function (values) {
         return new List(values);
+    });
+
+    // construction, has, add, get, delete
+    function newList(values) {
+        return new List(values);
+    }
+
+    [List, newList].forEach(function (List) {
+        describeCollection(List, [1, 2, 3, 4], true);
+        describeCollection(List, [{}, {}, {}, {}], true);
     });
 
     // additional constraints on splice with regard to how it behaves when the

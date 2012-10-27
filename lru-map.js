@@ -1,8 +1,8 @@
 "use strict";
 
+require("./object");
 var LruSet = require("./lru-set");
 var Reducible = require("./reducible");
-var Operators = require("./operators");
 var AbstractMap = require("./abstract-map");
 
 module.exports = LruMap;
@@ -11,9 +11,9 @@ function LruMap(values, maxLength, equals, hash, content) {
     if (!(this instanceof LruMap)) {
         return new LruMap(values, maxLength, equals, hash);
     }
-    equals = equals || Object.equals || Operators.equals;
-    hash = hash || Object.hash || Operators.hash;
-    content = content || Operators.getUndefined;
+    equals = equals || Object.equals;
+    hash = hash || Object.hash;
+    content = content || Function.noop;
     this.contentEquals = equals;
     this.contentHash = hash;
     this.content = content;

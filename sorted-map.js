@@ -1,8 +1,8 @@
 "use strict";
 
+require("./object");
 var SortedSet = require("./sorted-set");
 var Reducible = require("./reducible");
-var Operators = require("./operators");
 var AbstractMap = require("./abstract-map");
 
 module.exports = SortedMap;
@@ -11,9 +11,9 @@ function SortedMap(values, equals, compare, content) {
     if (!(this instanceof SortedMap)) {
         return new SortedMap(values, equals, compare, content);
     }
-    equals = equals || Object.equals || Operators.equals;
-    compare = compare || Object.compare || Operators.compare;
-    content = content || Operators.getUndefined;
+    equals = equals || Object.equals;
+    compare = compare || Object.compare;
+    content = content || Function.noop;
     this.contentEquals = equals;
     this.contentCompare = compare;
     this.content = content;

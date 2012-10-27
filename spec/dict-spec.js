@@ -10,6 +10,16 @@ describe("Dict", function () {
         expect(function () {
             dict.get(0);
         }).toThrow();
+        expect(function () {
+            dict.set(0, 10);
+        }).toThrow();
+        expect(function () {
+            dict.has(0);
+        }).toThrow();
+        expect(function () {
+            dict.delete(0);
+        }).toThrow();
     });
+
 });
 

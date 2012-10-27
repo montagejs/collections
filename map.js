@@ -1,8 +1,8 @@
 "use strict";
 
+require("./object");
 var Set = require("./set");
 var Reducible = require("./reducible");
-var Operators = require("./operators");
 var AbstractMap = require("./abstract-map");
 
 module.exports = Map;
@@ -11,9 +11,9 @@ function Map(values, equals, hash, content) {
     if (!(this instanceof Map)) {
         return new Map(values, equals, hash);
     }
-    equals = equals || Object.equals || Operators.equals;
-    hash = hash || Object.hash || Operators.hash;
-    content = content || Operators.getUndefined;
+    equals = equals || Object.equals;
+    hash = hash || Object.hash;
+    content = content || Function.noop;
     this.contentEquals = equals;
     this.contentHash = hash;
     this.content = content;

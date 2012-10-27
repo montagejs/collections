@@ -1,8 +1,8 @@
 "use strict";
 
+require("./object");
 var Set = require("./fast-set");
 var Reducible = require("./reducible");
-var Operators = require("./operators");
 var AbstractMap = require("./abstract-map");
 
 module.exports = FastMap;
@@ -11,9 +11,9 @@ function FastMap(values, equals, hash, content) {
     if (!(this instanceof FastMap)) {
         return new FastMap(values, equals, hash);
     }
-    equals = equals || Object.equals || Operators.equals;
-    hash = hash || Object.hash || Operators.hash;
-    content = content || Operators.getUndefined;
+    equals = equals || Object.equals;
+    hash = hash || Object.hash;
+    content = content || Function.noop;
     this.contentEquals = equals;
     this.contentHash = hash;
     this.content = content;

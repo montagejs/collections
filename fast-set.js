@@ -1,10 +1,10 @@
 "use strict";
 
+require("./object");
 var Dict = require("./dict");
 var List = require("./list");
 var Reducible = require("./reducible");
 var Observable = require("./observable");
-var Operators = require("./operators");
 var TreeLog = require("./tree-log");
 var Iterator = require("./iterator");
 
@@ -16,9 +16,9 @@ function FastSet(values, equals, hash, content) {
     if (!(this instanceof FastSet)) {
         return new FastSet(values, equals, hash);
     }
-    equals = equals || Object.equals || Operators.equals;
-    hash = hash || Object.hash || Operators.hash;
-    content = content || Operators.getUndefined;
+    equals = equals || Object.equals;
+    hash = hash || Object.hash;
+    content = content || Function.noop;
     this.contentEquals = equals;
     this.contentHash = hash;
     this.content = content;

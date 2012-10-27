@@ -8,8 +8,10 @@
 */
 
 require("./array-shim");
+require("./object");
 var Reducible = require("./reducible");
-var Operators = require("./operators");
+
+module.exports = Array;
 
 Array.empty = [];
 if (Object.freeze) {
@@ -40,22 +42,25 @@ Array.prototype.get = function (index) {
 
 Array.prototype.set = function (index, value) {
     this.splice(index, 1, value);
-    return this;
+    return true;
 };
 
 Array.prototype.add = function (value) {
     this.push(value);
+    return true;
 };
 
 Array.prototype['delete'] = function (value, equals) {
     var index = this.find(value, equals);
     if (index !== -1) {
         this.splice(index, 1);
+        return true;
     }
+    return false;
 };
 
 Array.prototype.find = function (value, equals) {
-    equals = equals || this.contentEquals || Object.equals || Operators.equals;
+    equals = equals || this.contentEquals || Object.equals;
     for (var index = 0; index < this.length; index++) {
         if (index in this && equals(this[index], value)) {
             return index;
@@ -65,7 +70,7 @@ Array.prototype.find = function (value, equals) {
 };
 
 Array.prototype.findLast = function (value, equals) {
-    equals = equals || this.contentEquals || Object.equals || Operators.equals;
+    equals = equals || this.contentEquals || Object.equals;
     var index = this.length;
     do {
         index--;
