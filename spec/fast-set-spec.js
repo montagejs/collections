@@ -12,7 +12,7 @@ describe("Set", function () {
     // Set().has(value)
     // Set().get(value)
     // Set().delete(value)
-    // Set().wipe()
+    // Set().clear()
     // Set().add(value)
     // Set().reduce(callback, basis, thisp)
     // Set().forEach()
@@ -31,12 +31,12 @@ describe("Set", function () {
         expect(new Set().length).toBe(0);
     });
 
-    it("wiped set should be empty", function () {
+    it("cleared set should be empty", function () {
         var set = new Set([1, 2]);
         expect(set.length).toBe(2);
         set.delete(1);
         expect(set.length).toBe(1);
-        set.wipe();
+        set.clear();
         expect(set.length).toBe(0);
     });
 

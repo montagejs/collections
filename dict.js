@@ -65,7 +65,7 @@ Dict.prototype["delete"] = function (key) {
     delete store[mangle(key)];
 };
 
-Dict.prototype.wipe = function () {
+Dict.prototype.clear = function () {
     for (var mangled in this.store) {
         delete this.store[mangled];
     }

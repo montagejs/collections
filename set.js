@@ -73,9 +73,9 @@ Set.prototype["delete"] = function (value) {
     return false;
 };
 
-Set.prototype.wipe = function () {
-    this.contentSet.wipe();
-    this.contentList.wipe();
+Set.prototype.clear = function () {
+    this.contentSet.clear();
+    this.contentList.clear();
 };
 
 Set.prototype.reduce = function () {

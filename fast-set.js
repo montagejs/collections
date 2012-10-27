@@ -76,8 +76,8 @@ FastSet.prototype['delete'] = function (value) {
     return false;
 };
 
-FastSet.prototype.wipe = function () {
-    this.buckets.wipe();
+FastSet.prototype.clear = function () {
+    this.buckets.clear();
     this.length = 0;
 };
 

@@ -324,7 +324,7 @@ SortedSet.prototype.only = function () {
     return this.root.value;
 };
 
-SortedSet.prototype.wipe = function () {
+SortedSet.prototype.clear = function () {
     this.root = null;
 };
 

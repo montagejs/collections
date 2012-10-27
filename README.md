@@ -199,7 +199,7 @@ implied argument.
     array, but for a list, the start may be an index or a node.
 -   `swap(start, length, values)`: (List, Array+) performs a splice
     without variadic arguments.
--   `wipe()`: (List, Set, Map, SortedSet, SortedMap, Array+, Object+)
+-   `clear()`: (List, Set, Map, SortedSet, SortedMap, Array+, Object+)
     Deletes the all values.
 -   `sort(opt_compare)`: (Array) sorts a collection in place.  The
     comparator by only be a function.  The default comparator coerces
@@ -547,7 +547,6 @@ Goals
 - track indicies in sorted set
 - remove iterator dependency of Set
 - remove count() function everywhere.  use length
-- rename wipe() to clear()
 
 More methods
 

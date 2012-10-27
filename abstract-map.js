@@ -60,8 +60,8 @@ AbstractMap['delete'] = function (key) {
     this.contentSet['delete'](new this.Item(key));
 };
 
-AbstractMap.wipe = function () {
-    this.contentSet.wipe();
+AbstractMap.clear = function () {
+    this.contentSet.clear();
 };
 
 AbstractMap.reduce = function (callback, basis, thisp) {

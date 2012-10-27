@@ -73,7 +73,7 @@ List.prototype['delete'] = function (value, equals) {
     return false;
 };
 
-List.prototype.wipe = function () {
+List.prototype.clear = function () {
     this.head.next = this.head.prev = this.head;
 };
 

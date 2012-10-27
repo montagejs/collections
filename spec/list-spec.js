@@ -22,7 +22,7 @@ describe("List", function () {
     // List(values).delete(value)
     // List(values, equals).delete(value)
     // List(values, equals).delete(value, equals)
-    // List(values).wipe()
+    // List(values).cleare()
     // List(values).reverse()
     // List(values).reduce(callback, basis, thisp)
     // List(values).reduceRight(callback, basis, thisp)

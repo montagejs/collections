@@ -122,7 +122,7 @@ Array.prototype.only = function () {
     return this[0];
 };
 
-Array.prototype.wipe = function () {
+Array.prototype.clear = function () {
     this.length = 0;
     return this;
 };

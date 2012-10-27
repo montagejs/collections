@@ -25,7 +25,7 @@ var EQUALS = "equals";
 var VALUE_OF = "valueOf";
 var CLONE = "clone";
 var COMPARE = "compare";
-var WIPE = "wipe";
+var CLEAR = "clear";
 
 /**
     A utility object to avoid unnecessary allocations of an empty object
@@ -458,12 +458,12 @@ Object.clone = function (value, depth, memo) {
     Removes all properties owned by this object making the object suitable for
     reuse.
 
-    @function external:Object.wipe
+    @function external:Object.clear
     @returns this
 */
-Object.wipe = function (object) {
-    if (Object.can(object, WIPE)) {
-        object.wipe();
+Object.clear = function (object) {
+    if (Object.can(object, CLEAR)) {
+        object.clear();
     } else {
         var keys = Object.keys(object),
             i = keys.length;

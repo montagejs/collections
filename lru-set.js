@@ -63,8 +63,8 @@ LruSet.prototype["delete"] = function (value) {
     this.contentSet["delete"](value);
 };
 
-LruSet.prototype.wipe = function () {
-    this.contentSet.wipe();
+LruSet.prototype.clear = function () {
+    this.contentSet.clear();
 };
 
 LruSet.prototype.reduce = function () {
