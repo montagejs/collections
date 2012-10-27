@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/kriskowal/collections.png)](http://travis-ci.org/kriskowal/collections)
 
 # Collections
 
