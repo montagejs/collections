@@ -117,8 +117,10 @@ SortedSet.prototype['delete'] = function (value) {
             if (this.isObserved) {
                 this.dispatchContentChange([], [value]);
             }
+            return true;
         }
     }
+    return false;
 };
 
 SortedSet.prototype.find = function (value) {

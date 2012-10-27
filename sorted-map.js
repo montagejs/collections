@@ -26,6 +26,7 @@ function SortedMap(values, equals, compare, content) {
             return compare(a.key, b.key);
         }
     );
+    this.length = 0;
     this.addEach(values);
 }
 

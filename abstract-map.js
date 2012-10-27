@@ -45,6 +45,7 @@ AbstractMap.set = function (key, value) {
         found.value = value;
     } else { // create
         this.contentSet.add(item);
+        this.length++;
     }
 };
 
@@ -57,11 +58,16 @@ AbstractMap.has = function (key) {
 };
 
 AbstractMap['delete'] = function (key) {
-    this.contentSet['delete'](new this.Item(key));
+    if (this.contentSet['delete'](new this.Item(key))) {
+        this.length--;
+        return true;
+    };
+    return false;
 };
 
 AbstractMap.clear = function () {
     this.contentSet.clear();
+    this.length = 0;
 };
 
 AbstractMap.reduce = function (callback, basis, thisp) {

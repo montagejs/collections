@@ -51,20 +51,28 @@ LruSet.prototype.get = function (value) {
 LruSet.prototype.add = function (value) {
     if (this.contentSet.has(value)) {
         this.contentSet["delete"](value);
+        this.length--;
     }
     this.contentSet.add(value);
+    this.length++;
     if (this.contentSet.length > this.maxLength) {
         var eldest = this.contentSet.contentList.head.next;
         this.contentSet["delete"](eldest.value);
+        this.length++;
     }
 };
 
 LruSet.prototype["delete"] = function (value) {
-    this.contentSet["delete"](value);
+    if (this.contentSet["delete"](value)) {
+        this.length--;
+        return true;
+    }
+    return false;
 };
 
 LruSet.prototype.clear = function () {
     this.contentSet.clear();
+    this.length = 0;
 };
 
 LruSet.prototype.reduce = function () {

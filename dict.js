@@ -1,14 +1,21 @@
 "use strict";
 
 var Reducible = require("./reducible");
+var Operators = require("./operators");
 var AbstractMap = require("./abstract-map");
 
 // Burgled from https://github.com/domenic/dict
 
 module.exports = Dict;
 function Dict(values, content) {
+    if (!(this instanceof Dict)) {
+        return new Dict(values, content);
+    }
+    content = content || Operators.getUndefined;
+    this.content = content;
     this.store = {};
     this.length = 0;
+    this.addEach(values);
 }
 
 function mangle(key) {
@@ -59,10 +66,12 @@ Dict.prototype.has = function (key) {
 Dict.prototype["delete"] = function (key) {
     this.assertString(key);
     var mangled = mangle(key);
-    if (mangled in store) {
+    if (mangled in this.store) {
+        delete this.store[mangle(key)];
         this.length--;
+        return true;
     }
-    delete store[mangle(key)];
+    return false;
 };
 
 Dict.prototype.clear = function () {
@@ -79,27 +88,10 @@ Dict.prototype.reduce = function (callback, basis, thisp) {
     return basis;
 };
 
-Dict.prototype.keys = function () {
-    return Object.keys(this.store).map(unmangle);
-};
-
-Dict.prototype.values = function () {
-    var values = [];
-    for (var mangled in this.store) {
-        values.push(this.store[mangled]);
-    }
-    return values;
-};
-
-Dict.prototype.items = function () {
-    var items = [];
-    for (var mangled in this.store) {
-        items.push([unmangle(mangled), this.store[mangled]]);
-    }
-    return items;
-};
-
 Dict.prototype.addEach = AbstractMap.addEach;
+Dict.prototype.keys = AbstractMap.keys;
+Dict.prototype.values = AbstractMap.values;
+Dict.prototype.items = AbstractMap.items;
 
 Dict.prototype.forEach = Reducible.forEach;
 Dict.prototype.map = Reducible.map;

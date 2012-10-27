@@ -26,6 +26,7 @@ function Map(values, equals, hash, content) {
             return hash(item.key);
         }
     );
+    this.length = 0;
     this.addEach(values);
 }
 
