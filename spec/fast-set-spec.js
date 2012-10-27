@@ -25,7 +25,6 @@ describe("Set", function () {
     // Set().any()
     // Set().min()
     // Set().max()
-    // Set().count()
 
     it("length of empty set", function () {
         expect(new Set().length).toBe(0);
@@ -99,7 +98,6 @@ describe("Set", function () {
         expect(set.length).toBe(2);
         expect(set.min()).toBe(1);
         expect(set.max()).toBe(2);
-        expect(set.count()).toBe(2);
         expect(set.sum()).toBe(3);
         expect(set.average()).toBe(1.5);
         expect(set.map(function (n) {

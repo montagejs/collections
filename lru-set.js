@@ -88,7 +88,6 @@ LruSet.prototype.all = Reducible.all;
 LruSet.prototype.any = Reducible.any;
 LruSet.prototype.min = Reducible.min;
 LruSet.prototype.max = Reducible.max;
-LruSet.prototype.count = Reducible.count;
 LruSet.prototype.sum = Reducible.sum;
 LruSet.prototype.average = Reducible.average;
 LruSet.prototype.concat = Reducible.concat;

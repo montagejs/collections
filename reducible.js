@@ -98,15 +98,6 @@ Reducible.max = function (compare) {
     }, -Infinity);
 };
 
-Reducible.count = function (zero) {
-    zero = zero === undefined ? 0 : zero;
-    return this.reduce(increment, zero);
-};
-
-function increment(value) {
-    return value + 1;
-}
-
 Reducible.sum = function (zero) {
     zero = zero === undefined ? 0 : zero;
     return this.reduce(add, zero);

@@ -12,7 +12,6 @@ list.forEach(function (value) {
 console.log("length", list.length);
 console.log("min", list.min());
 console.log("max", list.max());
-console.log("count", list.count());
 console.log("sum", list.sum());
 console.log("average", list.average());
 

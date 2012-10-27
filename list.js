@@ -261,7 +261,6 @@ List.prototype.all = Reducible.all;
 List.prototype.any = Reducible.any;
 List.prototype.min = Reducible.min;
 List.prototype.max = Reducible.max;
-List.prototype.count = Reducible.count;
 List.prototype.sum = Reducible.sum;
 List.prototype.average = Reducible.average;
 List.prototype.concat = Reducible.concat;

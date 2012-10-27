@@ -99,7 +99,6 @@ Set.prototype.all = Reducible.all;
 Set.prototype.any = Reducible.any;
 Set.prototype.min = Reducible.min;
 Set.prototype.max = Reducible.max;
-Set.prototype.count = Reducible.count;
 Set.prototype.sum = Reducible.sum;
 Set.prototype.average = Reducible.average;
 Set.prototype.concat = Reducible.concat;

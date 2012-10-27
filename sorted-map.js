@@ -60,7 +60,6 @@ SortedMap.prototype.all = Reducible.all;
 SortedMap.prototype.any = Reducible.any;
 SortedMap.prototype.min = Reducible.min;
 SortedMap.prototype.max = Reducible.max;
-SortedMap.prototype.count = Reducible.count;
 SortedMap.prototype.sum = Reducible.sum;
 SortedMap.prototype.average = Reducible.average;
 SortedMap.prototype.flatten = Reducible.flatten;

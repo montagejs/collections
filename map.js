@@ -61,7 +61,6 @@ Map.prototype.all = Reducible.all;
 Map.prototype.any = Reducible.any;
 Map.prototype.min = Reducible.min;
 Map.prototype.max = Reducible.max;
-Map.prototype.count = Reducible.count;
 Map.prototype.sum = Reducible.sum;
 Map.prototype.average = Reducible.average;
 Map.prototype.concat = Reducible.concat;

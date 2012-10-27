@@ -17,7 +17,6 @@ console.log("\nreducible");
 console.log("length", set.length);
 console.log("min", set.min());
 console.log("max", set.max());
-console.log("count", set.count());
 console.log("sum", set.sum());
 console.log("average", set.average());
 

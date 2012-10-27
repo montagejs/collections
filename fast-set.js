@@ -118,7 +118,6 @@ FastSet.prototype.all = Reducible.all;
 FastSet.prototype.any = Reducible.any;
 FastSet.prototype.min = Reducible.min;
 FastSet.prototype.max = Reducible.max;
-FastSet.prototype.count = Reducible.count;
 FastSet.prototype.sum = Reducible.sum;
 FastSet.prototype.average = Reducible.average;
 FastSet.prototype.concat = Reducible.concat;

@@ -112,7 +112,6 @@ Dict.prototype.all = Reducible.all;
 Dict.prototype.any = Reducible.any;
 Dict.prototype.min = Reducible.min;
 Dict.prototype.max = Reducible.max;
-Dict.prototype.count = Reducible.count;
 Dict.prototype.sum = Reducible.sum;
 Dict.prototype.average = Reducible.average;
 Dict.prototype.concat = Reducible.concat;

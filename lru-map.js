@@ -63,7 +63,6 @@ LruMap.prototype.all = Reducible.all;
 LruMap.prototype.any = Reducible.any;
 LruMap.prototype.min = Reducible.min;
 LruMap.prototype.max = Reducible.max;
-LruMap.prototype.count = Reducible.count;
 LruMap.prototype.sum = Reducible.sum;
 LruMap.prototype.average = Reducible.average;
 LruMap.prototype.concat = Reducible.concat;

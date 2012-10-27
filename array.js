@@ -101,10 +101,6 @@ Array.prototype.sorted = Reducible.sorted;
 Array.prototype.reversed = Reducible.reversed;
 Array.prototype.clone = Reducible.clone;
 
-Array.prototype.count = function () {
-    return this.length;
-};
-
 Array.prototype.one = function () {
     if (this.length === 0) {
         throw new Error("Can't get one element from empty array");

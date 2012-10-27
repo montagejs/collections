@@ -279,7 +279,6 @@ implied argument.
     all collections.  For a sorted set, the value is not deterministic.
 -   `only()`: (List, SortedSet, Array+) the one and only value, or
     throws an exception if there are no values or more than one value.
--   `count()`: (List, Set, Map, SortedSet, SortedMap, Array+)
 -   `sum()`: (Iterator, List, Set, Map, SortedSet, SortedMap, Array+)
 -   `average()`: (Iterator, List, Set, Map, SortedSet, SortedMap,
     Array+)
@@ -546,7 +545,6 @@ Goals
 - object shim for defineProperties
 - track indicies in sorted set
 - remove iterator dependency of Set
-- remove count() function everywhere.  use length
 
 More methods
 

@@ -61,7 +61,6 @@ FastMap.prototype.all = Reducible.all;
 FastMap.prototype.any = Reducible.any;
 FastMap.prototype.min = Reducible.min;
 FastMap.prototype.max = Reducible.max;
-FastMap.prototype.count = Reducible.count;
 FastMap.prototype.sum = Reducible.sum;
 FastMap.prototype.average = Reducible.average;
 FastMap.prototype.concat = Reducible.concat;

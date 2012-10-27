@@ -277,7 +277,6 @@ SortedSet.prototype.every = Reducible.every;
 SortedSet.prototype.some = Reducible.some;
 SortedSet.prototype.all = Reducible.all;
 SortedSet.prototype.any = Reducible.any;
-SortedSet.prototype.count = Reducible.count;
 SortedSet.prototype.sum = Reducible.sum;
 SortedSet.prototype.average = Reducible.average;
 SortedSet.prototype.flatten = Reducible.flatten;
