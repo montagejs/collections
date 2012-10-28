@@ -29,7 +29,7 @@
     echo '})(this);'
 ) > collections.cat.js
 
-closure < collection.cat.js > collections.min.js
+closure < collections.cat.js > collections.min.js
 
 wc -c collections.min.js
 cat collections.min.js | gzip | wc -c
