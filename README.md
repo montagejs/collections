@@ -180,19 +180,20 @@ implied argument.
 -   `findGreatest()`: (SortedSet)
 -   `findGreatestLessThan(value)`: (SortedSet)
 -   `findGreatestLessThanOrEqual(value)`: (SortedSet)
--   `push(...values)`: (Array, List)
--   `pop()`: (Array, List)
--   `shift()`: (Array, List)
--   `unshift(...values)`: (Array, List)
--   `slice(start, end)`: (Array, List) returns an array of the values
-    contained in the half-open interval [start, end), that is, including
-    the start and excluding the end.  For lists and arrays, both terms
-    may be numeric positive or negative indicies.  For a list, either
-    term may be a node.
--   `splice(start, length, ...values)`: (Array, List) Works as with an
-    array, but for a list, the start may be an index or a node.
--   `swap(start, length, values)`: (List, Array+) performs a splice
-    without variadic arguments.
+-   `push(...values)`: (Array, List, SortedSet)
+-   `pop()`: (Array, List, SortedSet)
+-   `shift()`: (Array, List, SortedSet)
+-   `unshift(...values)`: (Array, List, SortedSet)
+-   `slice(start, end)`: (Array, List, SortedSet) returns an array of
+    the values contained in the half-open interval [start, end), that
+    is, including the start and excluding the end.  For lists and
+    arrays, both terms may be numeric positive or negative indicies.
+    For a list, either term may be a node.
+-   `splice(start, length, ...values)`: (Array, List, SortedSet) Works
+    as with an array, but for a list, the start may be an index or a
+    node.
+-   `swap(start, length, values)`: (List, SortedSet, Array+) performs a
+    splice without variadic arguments.
 -   `clear()`: (List, Set, Map, SortedSet, SortedMap, Array+, Object+)
     Deletes the all values.
 -   `sort(opt_compare)`: (Array) sorts a collection in place.  The

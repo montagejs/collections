@@ -1,7 +1,10 @@
-// describe arrays and lists, double-ended queues
+// Describe Array, List, and SortedSet, all of which have the interface of a
+// double-ended queue.  Array and List are proper queues since push and unshift
+// put the values at the ends, but for sake of reusing these tests for
+// SortedSet, all of these tests maintain the sorted order of the collection.
 
 module.exports = describeDequeue;
-function describeDequeue(Collection, sortedSet) {
+function describeDequeue(Collection) {
 
     describe("add(value)", function () {
         it("should be an alias for push", function () {
@@ -81,9 +84,6 @@ function describeDequeue(Collection, sortedSet) {
         });
     });
 
-    if (sortedSet)
-        return;
-
     describe("slice()", function () {
         var collection = Collection([1, 2, 3, 4]);
 
@@ -153,27 +153,27 @@ function describeDequeue(Collection, sortedSet) {
         });
 
         it("should inject values at a numeric offset", function () {
-            var collection = Collection([1, 2, 3, 4]);
-            expect(collection.splice(2, 0, 'a', 'b')).toEqual([]);
-            expect(collection.toArray()).toEqual([1, 2, 'a', 'b', 3, 4]);
+            var collection = Collection([1, 2, 5, 6]);
+            expect(collection.splice(2, 0, 3, 4)).toEqual([]);
+            expect(collection.toArray()).toEqual([1, 2, 3, 4, 5, 6]);
         });
 
         it("should replace values at a numeric offset", function () {
-            var collection = Collection([1, 2, 3, 4]);
-            expect(collection.splice(1, 2, 'a', 'b')).toEqual([2, 3]);
-            expect(collection.toArray()).toEqual([1, 'a', 'b', 4]);
+            var collection = Collection([1, 2, 3, 6]);
+            expect(collection.splice(1, 2, 4, 5)).toEqual([2, 3]);
+            expect(collection.toArray()).toEqual([1, 4, 5, 6]);
         });
 
         it("should inject values with implied position and length", function () {
             var collection = Collection([1, 2, 3, 4]);
-            expect(collection.splice(null, null, 'a', 'b')).toEqual([]);
-            expect(collection.toArray()).toEqual(['a', 'b', 1, 2, 3, 4]);
+            expect(collection.splice(null, null, -1, 0)).toEqual([]);
+            expect(collection.toArray()).toEqual([-1, 0, 1, 2, 3, 4]);
         });
 
         it("should append values", function () {
             var collection = Collection([1, 2, 3, 4]);
-            expect(collection.splice(4, 0, 'a', 'b')).toEqual([]);
-            expect(collection.toArray()).toEqual([1, 2, 3, 4, 'a', 'b']);
+            expect(collection.splice(4, 0, 5, 6)).toEqual([]);
+            expect(collection.toArray()).toEqual([1, 2, 3, 4, 5, 6]);
         });
 
     });
@@ -211,27 +211,27 @@ function describeDequeue(Collection, sortedSet) {
         });
 
         it("should inject values at a numeric offset", function () {
-            var collection = Collection([1, 2, 3, 4]);
-            expect(collection.swap(2, 0, ['a', 'b'])).toEqual([]);
-            expect(collection.toArray()).toEqual([1, 2, 'a', 'b', 3, 4]);
+            var collection = Collection([1, 2, 5, 6]);
+            expect(collection.swap(2, 0, [3, 4])).toEqual([]);
+            expect(collection.toArray()).toEqual([1, 2, 3, 4, 5, 6]);
         });
 
         it("should replace values at a numeric offset", function () {
-            var collection = Collection([1, 2, 3, 4]);
-            expect(collection.swap(1, 2, ['a', 'b'])).toEqual([2, 3]);
-            expect(collection.toArray()).toEqual([1, 'a', 'b', 4]);
+            var collection = Collection([1, 2, 3, 6]);
+            expect(collection.swap(1, 2, [4, 5])).toEqual([2, 3]);
+            expect(collection.toArray()).toEqual([1, 4, 5, 6]);
         });
 
         it("should inject values with implied position and length", function () {
             var collection = Collection([1, 2, 3, 4]);
-            expect(collection.swap(null, null, ['a', 'b'])).toEqual([]);
-            expect(collection.toArray()).toEqual(['a', 'b', 1, 2, 3, 4]);
+            expect(collection.swap(null, null, [-1, 0])).toEqual([]);
+            expect(collection.toArray()).toEqual([-1, 0, 1, 2, 3, 4]);
         });
 
         it("should append values", function () {
             var collection = Collection([1, 2, 3, 4]);
-            expect(collection.swap(4, 0, ['a', 'b'])).toEqual([]);
-            expect(collection.toArray()).toEqual([1, 2, 3, 4, 'a', 'b']);
+            expect(collection.swap(4, 0, [5, 6])).toEqual([]);
+            expect(collection.toArray()).toEqual([1, 2, 3, 4, 5, 6]);
         });
     });
 

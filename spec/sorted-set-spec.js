@@ -8,19 +8,15 @@ var Fuzz = require("./fuzz");
 
 describe("SortedSet", function () {
 
-    // Happens to qualify as a dequeue, since the tests keep the content in
-    // sorted order.  SortedSet has meaningful pop and shift operations, but
-    // push and unshift just add the arguments into their proper sorted
-    // positions rather than the ends.
-    describeDequeue(SortedSet, true);
-
-    // construction, has, add, get, delete
     function newSortedSet(values) {
         return new SortedSet(values);
     }
 
     [SortedSet, newSortedSet].forEach(function (SortedSet) {
 
+        // TODO SortedSet compare and equals argument overrides
+
+        // construction, has, add, get, delete
         describeCollection(SortedSet, [1, 2, 3, 4], true);
 
         // comparable objects
@@ -36,6 +32,12 @@ describe("SortedSet", function () {
         var d = new Value(4);
         var values = [a, b, c, d];
         describeCollection(SortedSet, values, true);
+
+        // Happens to qualify as a dequeue, since the tests keep the content in
+        // sorted order.  SortedSet has meaningful pop and shift operations, but
+        // push and unshift just add the arguments into their proper sorted
+        // positions rather than the ends.
+        describeDequeue(SortedSet);
 
     });
 
@@ -153,6 +155,22 @@ describe("SortedSet", function () {
             })();
         }
 
+    });
+
+    describe("splayIndex", function () {
+        it("should find the index of every element", function () {
+            var numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+            var rand = Fuzz.makeRandom(0);
+            numbers.sort(function () {
+                return rand() < .5;
+            });
+            var set = SortedSet(numbers);
+            numbers.forEach(function (index) {
+                set.splayIndex(index);
+                expect(set.root.index).toBe(index);
+                expect(set.root.value).toBe(index);
+            });
+        });
     });
 
     describe("indexOf", function () {

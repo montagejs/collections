@@ -237,6 +237,70 @@ SortedSet.prototype.unshift = function () {
     this.addEach(arguments);
 };
 
+SortedSet.prototype.slice = function (start, end) {
+    var temp;
+    start = start || 0;
+    end = end || this.length;
+    if (start < 0) {
+        start += this.length;
+    }
+    if (end < 0) {
+        end += this.length;
+    }
+    var sliced = [];
+    if (this.root) {
+        this.splayIndex(start);
+        while (this.root.index < end) {
+            sliced.push(this.root.value);
+            if (!this.root.right) {
+                break;
+            }
+            this.splay(this.root.getNext().value);
+        }
+    }
+    return sliced;
+};
+
+SortedSet.prototype.splice = function (at, length /*...plus*/) {
+    return this.swap(at, length, Array.prototype.slice.call(arguments, 2));
+};
+
+SortedSet.prototype.swap = function (start, length, plus) {
+    if (start === undefined && length === undefined) {
+        return [];
+    }
+    start = start || 0;
+    if (start < 0) {
+        start += this.length;
+    }
+    if (length === undefined) {
+        length = Infinity;
+    }
+    var swapped = [];
+
+    if (this.root) {
+
+        // start
+        this.splayIndex(start);
+
+        // minus length
+        for (var i = 0; i < length; i++) {
+            swapped.push(this.root.value);
+            var next = this.root.getNext();
+            this["delete"](this.root.value);
+            if (!next) {
+                break;
+            }
+            this.splay(next.value);
+        }
+    }
+
+    // plus
+    this.addEach(plus);
+
+    return swapped;
+};
+
 // This is the simplified top-down splaying algorithm from: "Self-adjusting
 // Binary Search Trees" by Sleator and Tarjan guarantees that the root.value <=
 // value if root exists
@@ -356,6 +420,31 @@ SortedSet.prototype.splay = function (value) {
     root.touch();
 
     this.root = root;
+};
+
+// an internal utility for splaying a node based on its index
+SortedSet.prototype.splayIndex = function (index) {
+    if (this.root) {
+        var at = this.root;
+        var atIndex = this.root.index;
+
+        while (atIndex !== index) {
+            if (atIndex > index && at.left) {
+                at = at.left;
+                atIndex -= 1 + (at.right ? at.right.length : 0);
+            } else if (atIndex < index && at.right) {
+                at = at.right;
+                atIndex += 1 + (at.left ? at.left.length : 0);
+            } else {
+                break;
+            }
+        }
+
+        this.splay(at.value);
+
+        return this.root.index === index;
+    }
+    return false;
 };
 
 SortedSet.prototype.reduce = function (callback, basis, thisp) {
@@ -516,7 +605,7 @@ Node.prototype.checkIntegrity = function () {
     return length;
 }
 
-// ge the next node in this subtree
+// get the next node in this subtree
 Node.prototype.getNext = function () {
     var node = this;
     if (node.right) {
@@ -528,7 +617,7 @@ Node.prototype.getNext = function () {
     }
 };
 
-// ge the previous node in this subtree
+// get the previous node in this subtree
 Node.prototype.getPrevious = function () {
     var node = this;
     if (node.left) {
