@@ -75,6 +75,50 @@ describe("List", function () {
         describeCollection(List, [{}, {}, {}, {}], true);
     });
 
+    describe("find()", function () {
+
+        it("should find every value in a list", function () {
+            var list = List([1, 2, 3, 4]);
+            expect(list.find(1)).toBe(list.head.next);
+            expect(list.find(2)).toBe(list.head.next.next);
+            expect(list.find(3)).toBe(list.head.next.next.next);
+            expect(list.find(4)).toBe(list.head.next.next.next.next);
+            expect(list.find(4)).toBe(list.head.prev);
+            expect(list.find(3)).toBe(list.head.prev.prev);
+            expect(list.find(2)).toBe(list.head.prev.prev.prev);
+            expect(list.find(1)).toBe(list.head.prev.prev.prev.prev);
+        });
+
+        it("should the first of equivalent values", function () {
+            var list = List([0, 1, 1, 0]);
+            expect(list.find(0)).toBe(list.head.next);
+            expect(list.find(1)).toBe(list.head.next.next);
+        });
+
+    });
+
+    describe("findLast()", function () {
+
+        it("should find every value in a list", function () {
+            var list = List([1, 2, 3, 4]);
+            expect(list.findLast(1)).toBe(list.head.next);
+            expect(list.findLast(2)).toBe(list.head.next.next);
+            expect(list.findLast(3)).toBe(list.head.next.next.next);
+            expect(list.findLast(4)).toBe(list.head.next.next.next.next);
+            expect(list.findLast(4)).toBe(list.head.prev);
+            expect(list.findLast(3)).toBe(list.head.prev.prev);
+            expect(list.findLast(2)).toBe(list.head.prev.prev.prev);
+            expect(list.findLast(1)).toBe(list.head.prev.prev.prev.prev);
+        });
+
+        it("should prefer later equivalent values", function () {
+            var list = List([0, 1, 1, 0]);
+            expect(list.findLast(0)).toBe(list.head.prev);
+            expect(list.findLast(1)).toBe(list.head.prev.prev);
+        });
+
+    });
+
     // additional constraints on splice with regard to how it behaves when the
     // offset is provided as a node instead of a number
     describe("splice() with nodes", function () {
