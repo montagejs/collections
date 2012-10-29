@@ -47,11 +47,11 @@ Observable.removeContentChangeListener = function (listener, beforeChange) {
         listeners = descriptor.changeListeners;
     }
 
-    var node = listeners.find(listener);
-    if (!node) {
+    var index = listeners.lastIndexOf(listener);
+    if (index === -1) {
         throw new Error("Can't remove listener: does not exist.");
     }
-    listeners.splice(node, 1);
+    listeners.splice(index, 1);
     this.isObserved = !!listeners.length;
 };
 
