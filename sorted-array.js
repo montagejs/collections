@@ -255,7 +255,7 @@ SortedArray.prototype.clear = function () {
         this.dispatchBeforeContentChange([], minus, 0);
     }
     this.length = 0;
-    return this.array.clear();
+    this.array.clear();
     if (this.isObserved) {
         this.dispatchContentChange([], minus, 0);
     }
