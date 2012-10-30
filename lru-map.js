@@ -20,10 +20,10 @@ function LruMap(values, maxLength, equals, hash, content) {
     this.contentSet = new LruSet(
         undefined,
         maxLength,
-        function setContentEquals(a, b) {
+        function keysEqual(a, b) {
             return equals(a.key, b.key);
         },
-        function setContentHash(item) {
+        function keyHash(item) {
             return hash(item.key);
         }
     );

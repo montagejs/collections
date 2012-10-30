@@ -90,7 +90,7 @@ Array.prototype.swap = function (index, length, plus) {
 };
 
 Array.prototype.toArray = Reducible.toArray;
-Array.prototype.toObject = Reducible.toArray;
+Array.prototype.toObject = Reducible.toObject;
 Array.prototype.addEach = Reducible.addEach;
 Array.prototype.equals = Reducible.equals;
 Array.prototype.compare = Reducible.compare;

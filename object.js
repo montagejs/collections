@@ -217,6 +217,27 @@ Object.set = function (object, key, value) {
     }
 };
 
+Object.addEach = function (target, source) {
+    if (typeof source.forEach === "function") {
+        // copy map-alikes
+        if (typeof source.keys === "function") {
+            source.forEach(function (value, key) {
+                target[key] = value;
+            });
+        // iterate key value pairs of other iterables
+        } else {
+            source.forEach(function (pair) {
+                target[pair[0]] = pair[1];
+            });
+        }
+    } else {
+        // copy other objects as map-alikes
+        Object.keys(source).forEach(function (key) {
+            target[key] = source[key];
+        });
+    }
+};
+
 /**
     Iterates over the owned properties of an object.
 

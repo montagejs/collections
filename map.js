@@ -19,10 +19,10 @@ function Map(values, equals, hash, content) {
     this.content = content;
     this.contentSet = new Set(
         undefined,
-        function (a, b) {
+        function keysEqual(a, b) {
             return equals(a.key, b.key);
         },
-        function (item) {
+        function keyHash(item) {
             return hash(item.key);
         }
     );

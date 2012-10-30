@@ -21,6 +21,9 @@
             observable.js \
             reducible.js \
             set.js \
+            sorted-array-map.js \
+            sorted-array-set.js \
+            sorted-array.js \
             sorted-map.js \
             sorted-set.js \
             tree-log.js \

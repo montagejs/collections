@@ -270,6 +270,7 @@ List.prototype.addEach = Reducible.addEach;
 List.prototype.forEach = Reducible.forEach;
 List.prototype.map = Reducible.map;
 List.prototype.toArray = Reducible.toArray;
+List.prototype.toObject = Reducible.toObject;
 List.prototype.filter = Reducible.filter;
 List.prototype.every = Reducible.every;
 List.prototype.some = Reducible.some;

@@ -19,10 +19,10 @@ function SortedMap(values, equals, compare, content) {
     this.content = content;
     this.contentSet = new SortedSet(
         null,
-        function (a, b) {
+        function keysEqual(a, b) {
             return equals(a.key, b.key);
         },
-        function (a, b) {
+        function compareKeys(a, b) {
             return compare(a.key, b.key);
         }
     );
@@ -54,6 +54,7 @@ SortedMap.prototype.Item = AbstractMap.Item;
 SortedMap.prototype.forEach = Reducible.forEach;
 SortedMap.prototype.map = Reducible.map;
 SortedMap.prototype.toArray = Reducible.toArray;
+SortedMap.prototype.toObject = Reducible.toObject;
 SortedMap.prototype.filter = Reducible.filter;
 SortedMap.prototype.every = Reducible.every;
 SortedMap.prototype.some = Reducible.some;

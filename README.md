@@ -6,89 +6,149 @@ This package contains JavaScript implementations of common data
 structures with idiomatic iterfaces, including extensions for Array and
 Object.
 
--   `List(values, equals, content)`: an ordered collection of values
-    with fast insertion and deletion and forward and backward traversal,
-    backed by a cyclic doubly linked list with a head node.  Lists
-    support most of the Array interface, except that they use and return
-    nodes instead of integer indicies in analogous functions.
--   `Set(values, equals, hash, content)`: a collection of unique values.
-    The set can be iterated in the order of insertion.  With a good hash
-    function for the stored values, insertion and removal are fast
-    regardless of the size of the collection  Values may be objects.
-    The `equals` and `hash` functions can be overridden to provide
-    alternate definitions of "unique".  This collection is intended to
-    be replaced by a native implementation that does not rely on `hash`.
-    `Set` is backed by `FastSet` and `List`.
--   `Map(map, equals, hash, content)`: a collection of key and value
-    items with unique keys.  Keys may be objects.  The collection
-    iterates in the order of insertion.  This collection is intended to
-    be replaced by a native implementation that does not rely on `hash`.
-    `Map` is backed by `Set`.
--   `MultiMap(map, content, equals, hash)`: a collection of keys mapped
-    to collections of values.  The default `content` collection is an
-    `Array`, but it can be a `List` or any other array-like object.
-    `MultiMap` inherits `Map` but overrides the `content` constructor.
--   `SortedSet(values, equals, compare, content)`: a collection of
-    unique values stored in stored order, backed by a splay tree.  The
-    `equals` and `compare` functions can be overridden to provide
-    alternate definitions of "unique".
--   `SortedMap(map, equals, compare, content)`: a collection of key
-    value pairs stored in sorted order, backed by a sorted set.
-    `SortedMap` is backed by `SortedSet` and the `AbstractMap` mixin.
--   `LruSet(values, maxLength, equals, hash, content)`: a cache with the
-    Least-Recently-Used strategy for truncating its content when it’s
-    length exceeds `maxLength`.  `LruSet` is backed by a `Set` and takes
-    advantage of the already tracked insertion order.  Both getting and
-    setting a value constitute usage, but checking whether the set has a
-    value and iterating values do not.
--   `LruMap(map, maxLength, equals, hash, content)`: a cache of items
-    backed by an `LruSet`.
--   `FastSet(values, equals, hash, content)`: a collection of unique
-    values stored like a hash table.  The underlying storage is a `Dict`
-    that maps hashes to lists of values that share the same hash.
-    Values may be objects.  The `equals` and `hash` functions can be
-    overridden to provide alternate definitions of "unique".  This
+-   **List(values, equals, content)**
+
+    An ordered collection of values with fast insertion and deletion and
+    forward and backward traversal, backed by a cyclic doubly linked
+    list with a head node.  Lists support most of the Array interface,
+    except that they use and return nodes instead of integer indicies in
+    analogous functions.
+
+-   **Set(values, equals, hash, content)**
+
+    A collection of unique values.  The set can be iterated in the order
+    of insertion.  With a good hash function for the stored values,
+    insertion and removal are fast regardless of the size of the
+    collection  Values may be objects.  The `equals` and `hash`
+    functions can be overridden to provide alternate definitions of
+    "unique".  This collection is intended to be replaced by a native
+    implementation that does not rely on `hash`.  `Set` is backed by
+    `FastSet` and `List`.
+
+-   **Map(map, equals, hash, content)**
+
+    A collection of key and value items with unique keys.  Keys may be
+    objects.  The collection iterates in the order of insertion.  This
     collection is intended to be replaced by a native implementation
-    that does not rely on `hash`.
--   `FastMap(map, equals, hash, content)`: a collection of key and value
-    items with unique keys, backed by a set.  Keys may be objects.  This
-    collection is intended to be replaced by a native implementation
-    that does not rely on `hash`.  `FastMap` is backed by `FastSet` and
-    the `AbstractMap` mixin.
--   `Dict(values, content)`: a collection of string to value mappings
-    backed by a plain JavaScript object.  The keys are mangled to
-    prevent collisions with JavaScript properties.
--   `WeakMap()`: a non-iterable collection of key value pairs.  Keys
-    must objects and do not benefit from `hash` functions.  Some engines
-    already implement `WeakMap`.  The non-iterable requirement makes it
-    possible for weak maps to collect garbage when the key is no longer
+    that does not rely on `hash`.  `Map` is backed by `Set`.
+
+-   **MultiMap(map, content, equals, hash)**
+
+    A collection of keys mapped to collections of values.  The default
+    `content` collection is an `Array`, but it can be a `List` or any
+    other array-like object.  `MultiMap` inherits `Map` but overrides
+    the `content` constructor.
+
+-   **WeakMap()**
+
+    A non-iterable collection of key value pairs.  Keys must objects and
+    do not benefit from `hash` functions.  Some engines already
+    implement `WeakMap`.  The non-iterable requirement makes it possible
+    for weak maps to collect garbage when the key is no longer
     available, without betraying when the key is collected.  The shimmed
     implementation undetectably annotates the given key and thus does
     not necessarily leak memory, but cannot collect certain reference
     graphs.  This WeakMap shim was implemented by Mark Miller of Google.
--   `Iterator(iterable)`: a wrapper for any iterable that implements
-    `iterate` or iterator the implements `next`, providing a rich lazy
-    traversal interface.
--   `Array()`: an ordered collection of values with fast random access,
-    push, and pop, but slow splice. The `array` module provides
-    extensions so it hosts all the expressiveness of other collections.
-    The `array-shim` module shims EcmaScript 5 methods onto the array
-    prototype if they are not natively implemented.
--   `Object()`: can be used as a mapping of owned string keys to
-    arbitrary values.  The `object` module provides extensions for the
-    `Object` constructor that support the map collection interface and
-    can delegate to methods of collections, allowing them to gracefully
-    handle both object literals and collections.
+
+-   **SortedSet(values, equals, compare, content)**
+
+    A collection of unique values stored in stored order, backed by a
+    splay tree.  The `equals` and `compare` functions can be overridden
+    to provide alternate definitions of "unique".
+
+-   **SortedMap(map, equals, compare, content)**
+
+    A collection of key value pairs stored in sorted order, backed by a
+    sorted set.  `SortedMap` is backed by `SortedSet` and the
+    `AbstractMap` mixin.
+
+-   **LruSet(values, maxLength, equals, hash, content)**
+
+    A cache with the Least-Recently-Used strategy for truncating its
+    content when it’s length exceeds `maxLength`.  `LruSet` is backed by
+    a `Set` and takes advantage of the already tracked insertion order.
+    Both getting and setting a value constitute usage, but checking
+    whether the set has a value and iterating values do not.
+
+-   **LruMap(map, maxLength, equals, hash, content)**
+
+    A cache of items backed by an `LruSet`.
+
+-   **SortedArray(values, equals, compare, content)**
+
+    A collection of values stored in a stable sorted order, backed by an
+    array.
+
+-   **SortedArraySet(values, equals, compare, content)**
+
+    A collection of unique values stored in sorted order, backed by a
+    plain array.  If the given values are an actual array, the sorted
+    array set takes ownership of that array and retains its content.  A
+    sorted array set performs better than a sorted set when it has
+    roughly less than 100 values.
+
+-   **SortedArrayMap(values, equals, compare, content)**
+
+    A collection of key value pairs stored in sorted order, backed by a
+    sorted array set.
+
+-   **FastSet(values, equals, hash, content)**
+
+    A collection of unique values stored like a hash table.  The
+    underlying storage is a `Dict` that maps hashes to lists of values
+    that share the same hash.  Values may be objects.  The `equals` and
+    `hash` functions can be overridden to provide alternate definitions
+    of "unique".  This collection is intended to be replaced by a native
+    implementation that does not rely on `hash`.
+
+-   **FastMap(map, equals, hash, content)**
+
+    A collection of key and value items with unique keys, backed by a
+    set.  Keys may be objects.  This collection is intended to be
+    replaced by a native implementation that does not rely on `hash`.
+    `FastMap` is backed by `FastSet` and the `AbstractMap` mixin.
+
+-   **Dict(values, content)**
+
+    A collection of string to value mappings backed by a plain
+    JavaScript object.  The keys are mangled to prevent collisions with
+    JavaScript properties.
+
+-   **Iterator(iterable)**
+
+    A wrapper for any iterable that implements `iterate` or iterator the
+    implements `next`, providing a rich lazy traversal interface.
+
+-   **Array**
+
+    An ordered collection of values with fast random access, push, and
+    pop, but slow splice. The `array` module provides extensions so it
+    hosts all the expressiveness of other collections.  The `array-shim`
+    module shims EcmaScript 5 methods onto the array prototype if they
+    are not natively implemented.
+
+-   **Object**
+
+    Can be used as a mapping of owned string keys to arbitrary values.
+    The `object` module provides extensions for the `Object` constructor
+    that support the map collection interface and can delegate to
+    methods of collections, allowing them to gracefully handle both
+    object literals and collections.
+
+
+## Constructor Arguments
 
 For all of these constructors, the argument `values` is an optional
 collection of initial values, and may be an array.  If the `values` are
 in a map collection, the the values are taken, but the keys are ignored.
 
-The `map` argument is an optional collection to copy shallowly into the
-new mapping.  The `map` may be an object literal.  If `map` implements
-`keys`, it is treated as a mapping itself and copied.  Otherwise, if
-`map` implements `forEach`, it may be any collection of `[key, value]`
-pairs.
+-   **map**
+
+    The `map` argument is an optional collection to copy shallowly into
+    the new mapping.  The `map` may be an object literal.  If `map`
+    implements `keys`, it is treated as a mapping itself and copied.
+    Otherwise, if `map` implements `forEach`, it may be any collection
+    of `[key, value]` pairs.
 
 `equals(x, y)`, `compare(x, y)`, and `hash(value)` are all optional
 arguments overriding the meaning of equality, comparability, and
@@ -97,30 +157,38 @@ return a boolean.  `compare` must return an integer with the same
 relationship to zero as x to y.  `hash` should consistently return the
 same string for any given object.
 
-The default `equals` operator is implemented in terms of `===`, but
-treats `NaN` as equal to itself and `-0` as distinct from `+0`.  It also
-delegates to an `equals` method of either the left or right argument if
-one exists.  The default equality operator is shimmed as
-`Object.equals`.
+-   **equals(x, y)**
 
-The default `compare` operator is implemented in terms of `<` and `>`.
-It delegates to the `compare` method of either the left or right
-argument if one exists.  It inverts the result if it uses the falls to
-the right argument.  The default comparator is shimmed as
-`Object.compare`.
+    The default `equals` operator is implemented in terms of `===`, but
+    treats `NaN` as equal to itself and `-0` as distinct from `+0`.  It
+    also delegates to an `equals` method of either the left or right
+    argument if one exists.  The default equality operator is shimmed as
+    `Object.equals`.
 
-THe default `hash` operator uses `toString` for values and provides a
-[Unique Label][] for arbitrary objects.  The default hash is shimmed as
-`Object.hash`.
+-   **compare(x, y)**
+
+    The default `compare` operator is implemented in terms of `<` and
+    `>`.  It delegates to the `compare` method of either the left or
+    right argument if one exists.  It inverts the result if it uses the
+    falls to the right argument.  The default comparator is shimmed as
+    `Object.compare`.
+
+-   **hash(value)**
+
+    The default `hash` operator uses `toString` for values and provides
+    a [Unique Label][] for arbitrary objects.  The default hash is
+    shimmed as `Object.hash`.
 
 [Unique Label]: (http://wiki.ecmascript.org/doku.php?id=harmony:weak_maps#unique_labeler)
 
-The default `content` function is `Function.noop`, which returns
-`undefined`.  The content function is used when you `get` a nonexistant
-value from any collection.  The `content` function becomes a member of
-the collection object, so `content` is called with the collection as
-`this`, so you can also use it to guarantee that default values in a
-collection are retained, as in `MultiMap`.
+-   **content(key or value)**
+
+    The default `content` function is `Function.noop`, which returns
+    `undefined`.  The content function is used when you `get` a
+    nonexistant value from any collection.  The `content` function
+    becomes a member of the collection object, so `content` is called
+    with the collection as `this`, so you can also use it to guarantee
+    that default values in a collection are retained, as in `MultiMap`.
 
 
 ## Collection Methods
@@ -134,211 +202,588 @@ shimmed on the object constructor by the `object` module.  These
 functions accept the object as the first argument instead of the `this`
 implied argument.
 
--   `has(key)`: (Map, SortedMap, WeakMap) whether a value for the given
-    key exists.
--   `has(value, opt_equals)`: (List, Set, SortedSet, Array+, Object+)
-    whether a value exists.  collection.  This is slow for list
-    (linear), but fast (logarithmic) for Set and SortedSet.
--   `get(key)`: (Map, SortedMap, WeakMap, Array+, Object+) the value for
-    a key.  If a Map or SortedMap lacks a key, returns
+-   **has(key)**
+
+    Whether a value for the given key exists.
+
+    (Object+, Map, MultiMap, SortedMap, LruMap, SortedArrayMap, FastMap,
+    Dict)
+
+    **has(value, opt_equals)**
+
+    Whether a value exists in this collection.  This is slow for list
+    (linear), but fast (logarithmic) for SortedSet and SortedArraySet,
+    and very fast (constant) for Set.
+
+    (Array+, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
+    FastSet)
+
+-   **get(key or index)**
+
+    The value for a key.  If a Map or SortedMap lacks a key, returns
     `content(key)`.
--   `get(value)`: (List, Set, SortedSet) gets the equivalent value, or
-    falls back to `content(value)`.
--   `set(key, value)`: (Map, SortedMap, WeakMap, Array+, Object+) sets
-    the value for a key.
--   `add(value)`: (List, Set, SortedSet) adds a value.  Sets silently
-    drop the value if an equivalent value already exists.
--   `add(value, key)`: (Map, SortedMap, Array+) sets the value for a
-    key, convenient in conjunction with `forEach` due to the callback
-    argument order.
--   `addEach(values)`: (List, Set, Map, SortedSet, SortedMap, Array+)
-    adds all values or key value pairs to this collection.  Works for
-    arrays and objects as well as any other collection.
--   `delete(key)`: (Map, SortedMap, WeakMap, Array+) deletes the value
-    for a given key.  Returns whether the key was found.
--   `delete(value)`: (List, Set, SortedSet) deletes a value.  Returns
-    whether the value was found.
--   `indexOf(value)`: (Array, SortedSet): Returns the position in the
-    collection of a value, or `-1` if it is not found.  For an Array
-    this takes linear time.  For a SortedSet, this takes ammortized
-    logarithmic time since it incrementally updates the number of nodes
-    under each subtree as it rotates.
--   `find(value, opt_equals)`: (List, SortedSet, Array+) finds a value.
-    For List and SortedSet, returns the node at which the value was
-    found.  For SortedSet, the optional `equals` argument is ignored.
--   `findLast(value, opt_equals)`: (List, Array+) finds the last
-    equivalent value, returning the node at which the value was found.
--   `findLeast()`: (SortedSet) finds the smallest value, returning the
-    node at which it was found, or undefined.  This is fast
-    (logarithmic) and performs no rotations.
--   `findLeastGreaterThan(value)`: (SortedSet) finds the smallest value
-    greater than the given value.  This is fast (logarithic) but does
-    cause rotations.
--   `findLeastGreaterThanOrEqual(value)`: (SortedSet) finds the smallest
-    value greater than or equal to the given value.  This is fast
-    (logarithmic) but does cause rotations.
--   `findGreatest()`: (SortedSet)
--   `findGreatestLessThan(value)`: (SortedSet)
--   `findGreatestLessThanOrEqual(value)`: (SortedSet)
--   `push(...values)`: (Array, List, SortedSet)
--   `pop()`: (Array, List, SortedSet)
--   `shift()`: (Array, List, SortedSet)
--   `unshift(...values)`: (Array, List, SortedSet)
--   `slice(start, end)`: (Array, List, SortedSet) returns an array of
-    the values contained in the half-open interval [start, end), that
-    is, including the start and excluding the end.  For lists and
-    arrays, both terms may be numeric positive or negative indicies.
-    For a list, either term may be a node.
--   `splice(start, length, ...values)`: (Array, List, SortedSet) Works
-    as with an array, but for a list, the start may be an index or a
+
+    (Array+, Map, SortedMap, SortedArrayMap, WeakMap, Object+)
+
+    **get(value)**
+
+    Gets the equivalent value, or falls back to `content(value)`.
+
+    (List, Set, SortedSet, LruSet, SortedArray, SortedArraySet, FastSet)
+
+-   **set(key or index, value)**
+
+    Sets the value for a key.
+
+    (Map, MultiMap, WeakMap, SortedMap, LruMap, SortedArrayMap, FastMap,
+    Dict)
+
+-   **add(value)**
+
+    Adds a value.  Ignores the operation and returns false if an
+    equivalent value already exists.
+
+    (Array+, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
+    FastSet)
+
+-   **addEach(values)**
+
+    Copies values from another collection to this one.
+
+    (Array+, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
+    FastSet)
+
+    **addEach(mapping)**
+
+    Copies items from another collection to this map.  If the mapping
+    implements `keys` (indicating that it is a mapping) and `forEach`,
+    all of the key value pairs are copied.  If the mapping only
+    implements `forEach`, it is assumed to contain `[key, value]` arrays
+    which are copied instead.
+
+    (Object+, Map, MultiMap, SortedMap, LruMap, SortedArrayMap, FastMap,
+    Dict)
+
+-   **delete(key)**
+
+    Deletes the value for a given key.  Returns whether the key was
+    found.
+
+    (Map, MultiMap, WeakMap, SortedMap, LruMap, SortedArrayMap, FastMap,
+    Dict)
+
+    **delete(value)**
+
+    Deletes a value.  Returns whether the value was found.
+
+    (Array+, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
+    FastSet)
+
+-   **indexOf(value)**
+
+    Returns the position in the collection of a value, or `-1` if it is
+    not found.  Returns the position of the first of equivalent values.
+    For an Array this takes linear time.  For a SortedArray and
+    SortedArraySet, it takes logarithmic time to perform a binary
+    search.  For a SortedSet, this takes ammortized logarithmic time
+    since it incrementally updates the number of nodes under each
+    subtree as it rotates.
+
+    (Array, SortedSet, SortedArray, SortedArraySet)
+
+-   **lastIndexOf(value)**
+
+    Returns the position in the collection of a value, or `-1` if it is
+    not found.  Returns the position of the last of equivalent values.
+
+    (Array, SortedArray, SortedArraySet)
+
+-   **find(value, opt_equals)**
+
+    Finds a value.  For List and SortedSet, returns the node at which
+    the value was found.  For SortedSet, the optional `equals` argument
+    is ignored.
+
+    (Array+, List, SortedSet)
+
+-   **findLast(value, opt_equals)**
+
+    Finds the last equivalent value, returning the node at which the
+    value was found.
+
+    (Array+, List, SortedArray, SortedArraySet)
+
+-   **findLeast()**
+
+    Finds the smallest value, returning the node at which it was found,
+    or undefined.  This is fast (logarithmic) and performs no rotations.
+
+    (SortedSet)
+
+-   **findLeastGreaterThan(value)**
+
+    Finds the smallest value greater than the given value.  This is fast
+    (logarithic) but does cause rotations.
+
+    (SortedSet)
+
+-   **findLeastGreaterThanOrEqual(value)**
+
+    Finds the smallest value greater than or equal to the given value.
+    This is fast (logarithmic) but does cause rotations.
+
+    (SortedSet)
+
+-   **findGreatest()**
+
+    (SortedSet)
+
+-   **findGreatestLessThan(value)**
+
+    (SortedSet)
+
+-   **findGreatestLessThanOrEqual(value)**
+
+    (SortedSet)
+
+-   **push(...values)**
+
+    Adds values to the end of a collection.
+
+    (Array, List)
+
+    **push(...values)** for non-dequeues
+
+    Adds values to their proper places in a collection.
+    This method exists only to have the same interface as other
+    collections.
+
+    (Set, SortedSet, LruSet, SortedArray, SortedArraySet, FastSet)
+
+-   **unshift(...values)**
+
+    Adds values to the beginning of a collection.
+
+    (Array, List)
+
+    **unshift(...values)** for non-dequeues
+
+    Adds values to their proper places in a collection.
+    This method exists only to have the same interface as other
+    collections.
+
+    (Set, SortedSet, LruSet, SortedArray, SortedArraySet, FastSet)
+
+-   **pop()**
+
+    Removes and returns the value at the end of a collection.
+
+    (Array, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet)
+
+-   **shift()**
+
+    Removes and returns the value at the beginning of a collection.
+
+    (Array, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet)
+
+-   **slice(start, end)**
+
+    Returns an array of the values contained in the
+    half-open interval [start, end), that is, including the start and
+    excluding the end.  For lists and arrays, both terms may be numeric
+    positive or negative indicies.  For a list, either term may be a
     node.
--   `swap(start, length, values)`: (List, SortedSet, Array+) performs a
-    splice without variadic arguments.
--   `clear()`: (List, Set, Map, SortedSet, SortedMap, Array+, Object+)
+
+    (Array, List, SortedSet, SortedArray, SortedArraySet)
+
+-   **splice(start, length, ...values)**
+
+    Works as with an array, but for a list, the start may be an index or
+    a node.
+
+    (Array, List, SortedArray, SortedSet, SortedArraySet)
+
+-   **swap(start, length, values)**
+
+    Performs a splice without variadic arguments.
+
+    (Array+, List, SortedArray, SortedSet, SortedArraySet)
+
+-   **clear()**
+
     Deletes the all values.
--   `sort(opt_compare)`: (Array) sorts a collection in place.  The
-    comparator by only be a function.  The default comparator coerces
-    unlike types rather than fail to compare.
--   `sorted(opt_compare, opt_by, opt_order)`: (List, Set, Map,
-    SortedSet, SortedMap, Array+) returns a sorted version of the
-    collection as an array.  Of map-like objects, only the values are
-    produced.  Accepts an optional comparator, relation, and order.  The
-    comparator may be a function that compares two arguments returning a
-    number relative to zero indicating the direction of the comparison,
-    where zero means either equal or incomparable.  The comparator may
-    alternately be an object with `{compare, by}` properties.  The
-    default comparator is `Object.compare` if shimmed by the `object`
-    module, or the simple `compare` function provided by the `operators`
-    module which delegates polymorphically to `compare` methods of
-    either operand, or falls back to `>` and `<` but only for like
-    types.  The `by` relation returns a mapped value for a value in the
-    collection on by which to compare values.  `sorted` uses the `by` to
-    compute the mapping exactly once, instead of once or twice as can
-    happen in the course of sorting.  The optional order property can be
-    specified as `-1` for descending order, defaults to `1` for
-    ascending, and `0` results in a stable sort, changing nothing.
--   `reverse()`: (Array, List) reverses a collection in place.
--   `reversed()`: (Array, List) returns a collection of the same type
-    with this collection's contents in reverse order.
--   `concat(...iterables)`: (Array, Iterator, List, Set, Map, SortedSet,
-    SortedMap) Produces a new collection of the same type containing all
-    the values of itself and the values of any number of other
-    collections.  Favors the last of duplicate values.  For map-like
-    objects, the given iterables are treated as map-like objects and
-    each successively updates the result.  Array is like a map from
-    index to value.  List, Set, and SortedSet are like maps from nodes
-    to values.
--   `keys()`: (Map, SortedMap, Object) returns an array of the keys
--   `values()`: (Map, SortedMap, Object+) returns an array of the values
--   `items()`: (Map, SortedMap, Object) returns an array of `[key, value]`
-    pairs for each item
--   `reduce(callback(result, value, key, object, depth), basis, thisp)`:
-    (Array, Iterator, List, Set, Map, SortedSet, SortedMap)
--   `reduceRight(callback(result, value, key, object, depth), basis,
-    thisp)`: (Array, List, Map, SortedSet, SortedMap)
--   `forEach(callback(value, key, object, depth), thisp)`: (Array,
-    Iterator, List, Set, Map, SortedSet, SortedMap, Object+) calls the
-    callback for each value in the collection.  The iteration of lists
-    is resilient to changes to the list.  Particularly, nodes added
-    after the current node will be visited and nodes added before the
-    current node will be ignored, and no node will be visited twice.
--   `map(callback(value, key, object, depth), thisp)`: (Array, Iterator,
-    List, Set, Map, SortedSet, SortedMap, Object+)
--   `toArray()`: (Iterator, List, Set, Map, SortedSet, SortedMap,
-    Array+)
--   `toObject()`: (Iterator, Map, SortedMap, Array+) converts any
-    collection to an object, treating this collection as a map-like
-    object.  Array is like a map from index to value.
--   `filter(callback(value, key, object, depth), thisp)`: (Array, List,
-    Set, Map, SortedSet, SortedMap)
--   `every(callback(value, key, object, depth), thisp)`: (Array,
-    Iterator, List, Set, Map, SortedSet, SortedMap) whether every value
-    passes a given guard.  Stops evaluating the guard after the first
-    failure.  Iterators stop consuming after the the first failure.
--   `some(callback(value, key, object, depth), thisp)`: (Array, List,
-    Set, Map, SortedSet, SortedMap) whether there is a value that passes
-    a given guard.  Stops evaluating the guard after the first success.
-    Iterators stop consuming after the first success.
--   `any()`: (Iterator, List, Set, Map, SortedSet, SortedMap, Array+)
-    whether any value is truthy
--   `all()`: (Iterator, List, Set, Map, SortedSet, SortedMap, Array+)
-    whether all values are truthy
--   `min()`: (Iterator, List, Set, Map, SortedSet, SortedMap, Array+)
-    the smallest value.  This is fast for sorted collections
-    (logarithic), but slow for everything else (linear).
--   `max()`: (Iterator, List, Set, Map, SortedSet, SortedMap, Array+)
-    the largest value.  This is fast for sorted collections
-    (logarithic), but slow for everything else (linear).
--   `one()`: (List, SortedSet, Array+) any single value, or throws an
-    exception if there are no values.  This is very fast (constant) for
-    all collections.  For a sorted set, the value is not deterministic.
--   `only()`: (List, SortedSet, Array+) the one and only value, or
-    throws an exception if there are no values or more than one value.
--   `sum()`: (Iterator, List, Set, Map, SortedSet, SortedMap, Array+)
--   `average()`: (Iterator, List, Set, Map, SortedSet, SortedMap,
-    Array+)
--   `flatten()`: (Iterator, List, Set, Map, SortedSet, SortedMap,
-    Array+)
--   `zip(...collections)`: (List, Set, Map, SortedSet, SortedMap,
-    Array+)
--   `enuemrate(zero)`: (Iterator, TODO List, Set, Map, SortedSet,
-    SortedMap, Array+)
--   `sorted(compare)`: (List, Set, Map, Array+)
--   `clone(depth, memo)`: (List, Set, Map, SortedSet, SortedMap, Array+,
-    Object+)
-    replicates the collection.  If `Object.clone` is shimmed, clones the
+
+    (Array+, Object+, List, Set, Map, MultiMap, WeakMap, SortedSet,
+    SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+    SortedArrayMap, FastSet, FastMap, Dict)
+
+-   **sort(compare)**
+
+    Sorts a collection in place.  The comparator by only be a function.
+    The default comparator coerces unlike types rather than fail to
+    compare.
+
+    (Array)
+
+-   **sorted(compare, by, order)**
+
+    Returns a collection as an array in sorted order.  Accepts an
+    optional `compare(x, y)` function, `by(property(x))` function, and
+    `order` indicator, `-1` for descending, `1` for ascending, `0` for
+    stable.
+
+    Instead of a `compare` function, the comparator can be an object
+    with `compare` and `by` functions.  The default `compare` value is
+    `Object.compare`.
+
+    The `by` function must be a function that accepts a value from the
+    collection and returns a representative value on which to sort.
+
+    (Array+, List, Set, Map, SortedSet, LruSet, SortedArray,
+    SortedArraySet, FastSet)
+
+-   **reverse()**
+
+    Reverses a collection in place.
+
+    (Array, List)
+
+-   **reversed()**
+
+    Returns a collection of the same type with this collection's
+    contents in reverse order.
+
+    (Array, List)
+
+-   **concat(...iterables)**
+
+    Produces a new collection of the same type containing all the values
+    of itself and the values of any number of other collections.  Favors
+    the last of duplicate values.  For map-like objects, the given
+    iterables are treated as map-like objects and each successively
+    updates the result.  Array is like a map from index to value.  List,
+    Set, and SortedSet are like maps from nodes to values.
+
+    (Array, ~~Object+~~, Iterator, List, Set, Map, MultiMap,
+    SortedSet, SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+    SortedArrayMap, FastSet, FastMap, Dict)
+
+-   **keys()**
+
+    Returns an array of the keys.
+
+    (Object, Map, MultiMap, SortedMap, LruMap, SortedArrayMap, FastMap,
+    Dict)
+
+-   **values()**
+
+    Returns an array of the values
+
+    (Object+, Map, MultiMap, SortedMap, LruMap, SortedArrayMap, FastMap,
+    Dict)
+
+-   **items()**
+
+    Returns an array of `[key, value]` pairs for each item
+
+    (Object+, Map, MultiMap, SortedMap, LruMap, SortedArrayMap, FastMap,
+    Dict)
+
+-   **reduce(callback(result, value, key, object, depth), basis,
+    thisp)**:
+
+    (Array, Iterator, List, Set, Map, MultiMap, SortedSet, SortedMap,
+    LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
+    FastSet, FastMap, Dict)
+
+-   **reduceRight(callback(result, value, key, object, depth), basis,
+    thisp)**:
+
+    (Array, List, SortedSet, ~~SortedMap~~, SortedArray, SortedArraySet,
+    ~~SortedArrayMap~~)
+
+-   **forEach(callback(value, key, object, depth), thisp)**
+
+    Calls the callback for each value in the collection.  The iteration
+    of lists is resilient to changes to the list.  Particularly, nodes
+    added after the current node will be visited and nodes added before
+    the current node will be ignored, and no node will be visited twice.
+
+    (Array, Object+, Iterator, List, Set, Map, MultiMap, WeakMap,
+    SortedSet, SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+    SortedArrayMap, FastSet, FastMap, Dict)
+
+-   **map(callback(value, key, object, depth), thisp)**
+
+    (Array, Object+, Iterator, List, Set, Map, MultiMap, WeakMap,
+    SortedSet, SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+    SortedArrayMap, FastSet, FastMap, Dict)
+
+-   **toArray()**
+
+    (Array+, Iterator, List, Set, Map, SortedSet, SortedMap,
+    SortedArraySet, SortedArrayMap, Object+)
+
+    (Array+, Iterator, List, Set, Map, MultiMap, SortedSet, SortedMap,
+    LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
+    FastSet, FastMap, Dict)
+
+-   **toObject()**
+
+    Converts any collection to an object, treating this collection as a
+    map-like object.  Array is like a map from index to value.
+
+    (Array+ Iterator, List, Map, MultiMap, SortedMap, LruMap,
+    SortedArrayMap, FastMap, Dict)
+
+-   **filter(callback(value, key, object, depth), thisp)**
+
+    (Array, Iterator, List, Set, Map, MultiMap, SortedSet, SortedMap,
+    LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
+    FastSet, FastMap, Dict)
+
+-   **every(callback(value, key, object, depth), thisp)**
+
+    Whether every value passes a given guard.  Stops evaluating the
+    guard after the first failure.  Iterators stop consuming after the
+    the first failure.
+
+    (Array, Iterator, List, Set, Map, MultiMap, SortedSet, SortedMap,
+    LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
+    FastSet, FastMap, Dict)
+
+-   **some(callback(value, key, object, depth), thisp)**
+
+    Whether there is a value that passes a given guard.  Stops
+    evaluating the guard after the first success.  Iterators stop
+    consuming after the first success.
+
+    (Array, Iterator, List, Set, Map, MultiMap, SortedSet, SortedMap,
+    LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
+    FastSet, FastMap, Dict)
+
+-   **any()**
+
+    Whether any value is truthy.
+
+    (Array+, Iterator, List, Set, Map, MultiMap, SortedSet, SortedMap,
+    LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
+    FastSet, FastMap, Dict)
+
+-   **all()**
+
+    Whether all values are truthy.
+
+    (Array+, Iterator, List, Set, Map, MultiMap, SortedSet, SortedMap,
+    LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
+    FastSet, FastMap, Dict)
+
+-   **min()**
+
+    The smallest value.  This is fast for sorted collections (logarithic
+    for SortedSet, constant for SortedArray, SortedArraySet, and
+    SortedArrayMap), but slow for everything else (linear).
+
+    (Array+, Iterator, List, Set, Map, MultiMap, SortedSet, SortedMap,
+    LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
+    FastSet, FastMap, Dict)
+
+-   **max()**
+
+    The largest value.  This is fast for sorted collections (logarithic
+    for SortedSet, constant for SortedArray, SortedArraySet, and
+    SortedArrayMap), but slow for everything else (linear).
+
+    (Array+, Iterator, List, Set, Map, MultiMap, SortedSet, SortedMap,
+    LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
+    FastSet, FastMap, Dict)
+
+-   **one()**
+
+    Any single value, or throws an exception if there are no values.
+    This is very fast (constant) for all collections.  For a sorted set,
+    the value is not deterministic and depends on what value was most
+    recently accessed.
+
+    (Array+, List, Set, Map, MultiMap, SortedSet, SortedMap, LruSet,
+    LruMap, SortedArray, SortedArray, SortedArraySet, SortedArrayMap,
+    FastSet, FastMap, Dict)
+
+-   **only()**
+
+    The one and only value, or throws an exception if there are no
+    values or more than one value.
+
+    (Array+, List, Set, Map, MultiMap, SortedSet, SortedMap, LruSet,
+    LruMap, SortedArray, SortedArray, SortedArraySet, SortedArrayMap,
+    FastSet, FastMap, Dict)
+
+-   **sum()**
+
+    (Array+, Iterator, List, Set, Map, MultiMap, WeakMap, SortedSet,
+    SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+    SortedArrayMap, FastSet, FastMap, Dict)
+
+-   **average()**
+
+    (Array+, Iterator, List, Set, Map, MultiMap, WeakMap, SortedSet,
+    SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+    SortedArrayMap, FastSet, FastMap, Dict)
+
+-   **flatten()**
+
+    (Array+, Iterator, List, Set, Map, MultiMap, WeakMap, SortedSet,
+    SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+    SortedArrayMap, FastSet, FastMap, Dict)
+
+-   **zip(...collections)**
+
+    (Array+, Iterator, List, Set, Map, MultiMap, WeakMap, SortedSet,
+    SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+    SortedArrayMap, FastSet, FastMap, Dict)
+
+-   **enumrate(zero)**
+
+    (Iterator, ~~other collections~~)
+
+-   **clone(depth, memo)**
+
+    Replicates the collection.  If `Object.clone` is shimmed, clones the
     values deeply, to the specified depth, using the given memo to
     resolve reference cycles (which must the `has` and `set` parts of
     the Map interface, allowing objects for keys)
--   `constructClone(values)`: (Iterator, List, Set, Map, SortedSet,
-    SortedMap, Array+) replicates a collection shallowly.  This is used
-    by each `clone` implementation to create a new collection of the
-    same type, with the same options (`equals`, `compare`, `hash`
-    options), but it leaves the job of deeply cloning the values to the
-    more general `clone` method.
--   `equals(that)`: (List, Set, Array+, TODO SortedSet, Map, SortedMap)
--   `compare(that)`: (Object+, TODO)
--   `iterate()`: (List, Set, SortedSet, SortedMap, Array+)
+
+    (Array+, List, Set, Map, SortedSet, SortedMap, Object+)
+    (Array+, Object+, List, Set, Map, MultiMap, WeakMap, SortedSet,
+    SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+    SortedArrayMap, FastSet, FastMap, Dict)
+
+-   **constructClone(values)**
+
+    Replicates a collection shallowly.  This is used by each `clone`
+    implementation to create a new collection of the same type, with the
+    same options (`equals`, `compare`, `hash` options), but it leaves
+    the job of deeply cloning the values to the more general `clone`
+    method.
+
+    (Array+, List, Set, Map, SortedSet, SortedMap, Object+)
+    (Array+, Object+, List, Set, Map, MultiMap, WeakMap, SortedSet,
+    SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+    SortedArrayMap, FastSet, FastMap, Dict)
+
+-   **equals(that)**
+
+    (Array+, Object+, List, Set, Map, MultiMap, ~~SortedSet~~,
+    ~~SortedMap~~, LruSet, ~~LruMap~~, ~~SortedArray~~,
+    ~~SortedArraySet~~, ~~SortedArrayMap~~, FastSet, ~~FastMap~~,
+    ~~Dict~~)
+
+-   **compare(that)**
+
+    (Object+, ~~others~~)
+
+-   **iterate()**
+
     Produces an iterator with a `next` method.  You may elect to get
     richer iterators by wrapping this iterator with an `Iterator` from
     the `iterator` module.  Iteration order of lists is resilient to
     changes to the list.
--   `iterate(start, end)`: (Array+) returns an iterator for all values
-    at indicies in the half-open interval [start, end), that is, greater
-    than start, and less than end.
--   `iterate(start, end)`: (SortedSet) returns an iterator for all
-    values in the half-open interval [start, end), that is, greater than
-    start, and less than end.  The iterator is resilient against changes
-    to the data.
--   `log(charmap, stringify)`: (Set, Map, SortedSet) writes a tree
-    describing the internal state of the data structure to the console.
--   `splay(value)`: (SortedSet) rotates the internal splay tree such
-    that the root node is less than or equal to the given value.
+
+    (Array+, Iterator, List, Set, SortedSet, LruSet, SortedArray,
+    SortedArraySet, FastSet)
+
+    **iterate(start, end)**
+
+    Returns an iterator for all values at indicies in the half-open
+    interval [start, end), that is, greater than start, and less than
+    end.
+
+    (Array+)
+
+    **iterate(start, end)**
+
+    Returns an iterator for all values in the half-open interval [start,
+    end), that is, greater than start, and less than end.  The iterator
+    is resilient against changes to the data.
+
+    (SortedSet)
+
+-   **log(charmap, callback(node, write, writeAbove), log, logger)**
+
+    Writes a tree describing the internal state of the data structure to
+    the console.
+
+    `charmap` is an object that notes which characters to use to draw
+    lines.  By default, this is the `TreeLog.unicodeRound` property from the
+    `tree-log` module.  `TreeLog.unicodeSharp` and `TreeLog.ascii` are
+    alternatives.  The properties are:
+
+    -   intersection: ╋
+    -   through: ━
+    -   branchUp: ┻
+    -   branchDown: ┳
+    -   fromBelow: ╭
+    -   fromAbove: ╰
+    -   fromBoth: ┣
+    -   strafe: ┃
+
+    `callback` is a customizable function for rendering each node of the tree.
+    By default, it just writes the value of the node.  It accepts the node and
+    a writer functions.  The `write` function produces the line on which the
+    node joins the tree, and each subsequent line.  The `writeAbove` function
+    can write lines before the branch.
+
+    `log` and `loger` default to `console.log` and `console`.  To write
+    the representation to an array instead, they can be `array.push` and
+    `array`.
+
+    (SortedSet)
 
 
 ### Iterator
 
--   `dropWhile(callback(value, index, iterator), thisp)`
--   `takeWhile(callback(value, index, iterator), thisp)`
--   `mapIterator(callback(value, index, iterator))`: (Iterator) returns
-    an iterator for a mapping on the source values.  Values are consumed
-    on demand.
--   `filterIterator(callback(value, index, iterator))`: (Iterator) returns
-    an iterator for those values from the source that pass the given
-    guard.  Values are consumed on demand.
+-   **dropWhile(callback(value, index, iterator), thisp)**
+
+-   **takeWhile(callback(value, index, iterator), thisp)**
+
+-   **mapIterator(callback(value, index, iterator))**
+
+    Returns an iterator for a mapping on the source values.  Values are
+    consumed on demand.
+
+-   **filterIterator(callback(value, index, iterator))**
+
+    Returns an iterator for those values from the source that pass the
+    given guard.  Values are consumed on demand.
 
 
 ### Iterator utilities
 
--   `cycle(iterable, times)`
--   `concat(iterables)`
--   `transpose(iterables)`
--   `zip(...iterables)`: variadic transpose
--   `chain(...iterables)`: variadic concat
--   `range(start, stop, step)`: iterates from start to stop by step
--   `count(start, step)`: iterates from start by step, indefinitely
--   `repeat(value, times)`: repeats the given value either finite times
-    or indefinitely
+-   **cycle(iterable, times)**
+
+-   **concat(iterables)**
+
+-   **transpose(iterables)**
+
+-   **zip(...iterables)**
+
+    Variadic transpose.
+
+-   **chain(...iterables)**
+
+    Variadic concat.
+
+-   **range(start, stop, step)**
+
+    Iterates from start to stop by step.
+
+-   **count(start, step)**
+
+    Iterates from start by step, indefinitely.
+
+-   **repeat(value, times)**
+
+    Repeats the given value either finite times or indefinitely.
 
 
 ### Observables
@@ -481,7 +926,7 @@ unnecessary allocations.
 `Object.isObject(value)` tests whether it is safe to attempt to access
 properties of a given value.
 
-`Object.is(a, b)` compares objects for exact identity and is a good
+`Object.is(x, y)` compares objects for exact identity and is a good
 alternative to `Object.equals` in many collections.
 
 `Object.getValueOf(value)` safely and idempotently returns the value of
