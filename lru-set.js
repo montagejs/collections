@@ -2,8 +2,8 @@
 
 require("./object");
 var Set = require("./set");
-var Reducible = require("./reducible");
-var AbstractSet = require("./abstract-set");
+var GenericCollection = require("./generic-collection");
+var GenericSet = require("./generic-set");
 var Observable = require("./observable");
 
 module.exports = LruSet;
@@ -25,8 +25,8 @@ function LruSet(values, maxLength, equals, hash, content) {
     this.addEach(values);
 }
 
-Object.addEach(LruSet.prototype, Reducible);
-Object.addEach(LruSet.prototype, AbstractSet);
+Object.addEach(LruSet.prototype, GenericCollection);
+Object.addEach(LruSet.prototype, GenericSet);
 Object.addEach(LruSet.prototype, Observable);
 
 LruSet.prototype.constructClone = function (values) {

@@ -3,8 +3,8 @@
 require("./object");
 var Dict = require("./dict");
 var List = require("./list");
-var Reducible = require("./reducible");
-var AbstractSet = require("./abstract-set");
+var GenericCollection = require("./generic-collection");
+var GenericSet = require("./generic-set");
 var Observable = require("./observable");
 var TreeLog = require("./tree-log");
 var Iterator = require("./iterator");
@@ -28,8 +28,8 @@ function FastSet(values, equals, hash, content) {
     this.addEach(values);
 }
 
-Object.addEach(FastSet.prototype, Reducible);
-Object.addEach(FastSet.prototype, AbstractSet);
+Object.addEach(FastSet.prototype, GenericCollection);
+Object.addEach(FastSet.prototype, GenericSet);
 Object.addEach(FastSet.prototype, Observable);
 
 FastSet.prototype.Buckets = Dict;

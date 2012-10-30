@@ -2,8 +2,8 @@
 
 require("./object");
 var SortedArraySet = require("./sorted-array-set");
-var Reducible = require("./reducible");
-var AbstractMap = require("./abstract-map");
+var GenericCollection = require("./generic-collection");
+var GenericMap = require("./generic-map");
 
 module.exports = SortedArrayMap;
 
@@ -30,8 +30,8 @@ function SortedArrayMap(values, equals, compare, content) {
     this.addEach(values);
 }
 
-Object.addEach(SortedArrayMap.prototype, Reducible);
-Object.addEach(SortedArrayMap.prototype, AbstractMap);
+Object.addEach(SortedArrayMap.prototype, GenericCollection);
+Object.addEach(SortedArrayMap.prototype, GenericMap);
 
 SortedArrayMap.prototype.constructClone = function (values) {
     return new this.constructor(

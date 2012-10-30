@@ -2,8 +2,8 @@
 
 require("./object");
 var Set = require("./set");
-var Reducible = require("./reducible");
-var AbstractMap = require("./abstract-map");
+var GenericCollection = require("./generic-collection");
+var GenericMap = require("./generic-map");
 
 module.exports = Map;
 
@@ -30,8 +30,8 @@ function Map(values, equals, hash, content) {
     this.addEach(values);
 }
 
-Object.addEach(Map.prototype, Reducible);
-Object.addEach(Map.prototype, AbstractMap); // overrides Reducible
+Object.addEach(Map.prototype, GenericCollection);
+Object.addEach(Map.prototype, GenericMap); // overrides GenericCollection
 
 Map.prototype.constructClone = function (values) {
     return new this.constructor(

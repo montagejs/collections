@@ -2,7 +2,7 @@
 
 module.exports = Iterator;
 
-var Reducible = require("./reducible");
+var GenericCollection = require("./generic-collection");
 
 // upgrades an iterable to a Iterator
 function Iterator(iterable) {
@@ -35,7 +35,7 @@ function Iterator(iterable) {
 
 }
 
-Object.addEach(Iterator.prototype, Reducible);
+Object.addEach(Iterator.prototype, GenericCollection);
 
 // this is a bit of a cheat so flatten and such work with the generic
 // reducible

@@ -56,7 +56,7 @@ Object.
 -   **SortedMap(map, equals, compare, content)**
 
     A collection of key value pairs stored in sorted order.  `SortedMap`
-    is backed by `SortedSet` and the `AbstractMap` mixin.
+    is backed by `SortedSet` and the `GenericMap` mixin.
 
 -   **LruSet(values, maxLength, equals, hash, content)**
 
@@ -94,15 +94,13 @@ Object.
     underlying storage is a `Dict` that maps hashes to lists of values
     that share the same hash.  Values may be objects.  The `equals` and
     `hash` functions can be overridden to provide alternate definitions
-    of "unique".  This collection is intended to be replaced by a native
-    implementation that does not rely on `hash`.
+    of "unique".
 
 -   **FastMap(map, equals, hash, content)**
 
     A collection of key and value items with unique keys, backed by a
-    set.  Keys may be objects.  This collection is intended to be
-    replaced by a native implementation that does not rely on `hash`.
-    `FastMap` is backed by `FastSet` and the `AbstractMap` mixin.
+    set.  Keys may be objects.  `FastMap` is backed by `FastSet` and the
+    `GenericMap` mixin.
 
 -   **Dict(values, content)**
 
@@ -531,9 +529,6 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
 -   **toArray()**
 
-    (Array+, Iterator, List, Set, Map, SortedSet, SortedMap,
-    SortedArraySet, SortedArrayMap, Object+)
-
     (Array+, Iterator, List, Set, Map, MultiMap, SortedSet, SortedMap,
     LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
     FastSet, FastMap, Dict)
@@ -912,15 +907,8 @@ tree.
 ╰━┻ 3
 ```
 
-## Map and SortedMap
 
-Maps share most of their implementation through `abstract-map`,
-delegating to an `itemSet` property and overriding their operators to
-follow the `key` property of each item in the set.  The set does most of
-the work.
-
-
-## Object Shim
+## Object and Function Shims
 
 The collection methods on the `Object` constructor all polymorphically
 defer to the corresponding method of any object that implements the
@@ -928,9 +916,7 @@ method of the same name.  So, `Object.has` can be used to check whether
 a key exists on an object, or in any collection that implements `has`.
 This permits the `Object` interface to be agnostic of the input type.
 
-The `object` module additionally provides an `Object.empty` frozen
-object that can be reused as a default empty object to reduce
-unnecessary allocations.
+`Object.empty` is an empty object literal.
 
 `Object.isObject(value)` tests whether it is safe to attempt to access
 properties of a given value.
@@ -944,26 +930,13 @@ implements that method.
 
 `Object.owns` is a shorthand for `Object.prototype.hasOwnProperty.call`.
 
+`Object.can(value, name)` checks whether an object implements a method
+on its prototype chain.  An owned function property does not qualify as
+a method, to aid in distinguishing "static" functions.
 
-## Coupling
+`Function.noop` is returns undefined.
 
-These collections strive to maximize overlapping implementations where
-possible, but also be as loosely coupled as possible so developers only
-pay for the features they need in the cost of download or execution
-time.
-
-For example, the default operators are simple, but much more powerful
-operators can be shimmed, enhancing all of the collections.
-
-Also, collections supply a `clone` method, but it can only do shallow
-clones unless you shim `Object.clone` with the `object` module.
-`Object.clone` works fine by itself, but can only resolve reference
-cycles if you provide a map (WeakMap or Map) as its `memo` argument.
-
-Another example, every collection provides an `iterate` implementation,
-but each is only obligated to return an iterator that implements `next`.
-For a much richer iterator, you can buy the `iterator` module and use
-`Iterate(collection)` to get a much richer interface.
+`Function.identity` returns its first argument.
 
 
 ## References
@@ -1002,18 +975,11 @@ More possible collections
 
 - arc-set (adaptive replacement cache)
 - arc-map
-- sorted-array (shallow wrapper for an array that manages add and delete
-  with a binary search and splice)
 - sorted-list (sorted, can contain duplicates, perhaps backed by splay
   tree with relaxation on the uniqueness invariant)
 - sorted-multi-map (sorted, can contain duplicate entries, perhaps
   backed by sorted-list)
-- ordered-set (preserves traversal order based on insertion, unique
-  values)
-- ordered-map (preserves traversal order based on insertion, unique
-  keys)
 - string-set (set of strings, backed by a trie)
-- dict (string-map, map of strings to values, backed by a string set)
 - immutable-* (mutation functions return new objects that largely share
   the previous version's internal state, some perhaps backed by a hash
   trie)

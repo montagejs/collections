@@ -1,8 +1,8 @@
 "use strict";
 
 require("./object");
-var Reducible = require("./reducible");
-var AbstractMap = require("./abstract-map");
+var GenericCollection = require("./generic-collection");
+var GenericMap = require("./generic-map");
 
 // Burgled from https://github.com/domenic/dict
 
@@ -26,8 +26,8 @@ function unmangle(mangled) {
     return mangled.slice(1);
 }
 
-Object.addEach(Dict.prototype, Reducible);
-Object.addEach(Dict.prototype, AbstractMap);
+Object.addEach(Dict.prototype, GenericCollection);
+Object.addEach(Dict.prototype, GenericMap);
 
 Dict.prototype.constructClone = function (values) {
     return new this.constructor(values, this.mangle, this.content);

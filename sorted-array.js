@@ -4,7 +4,7 @@ module.exports = SortedArray;
 
 require("./array");
 require("./object");
-var Reducible = require("./reducible");
+var GenericCollection = require("./generic-collection");
 var Observable = require("./observable");
 
 function SortedArray(values, equals, compare, content) {
@@ -25,7 +25,7 @@ function SortedArray(values, equals, compare, content) {
     this.addEach(values);
 }
 
-Object.addEach(SortedArray.prototype, Reducible);
+Object.addEach(SortedArray.prototype, GenericCollection);
 Object.addEach(SortedArray.prototype, Observable);
 
 function search(array, value, compare) {

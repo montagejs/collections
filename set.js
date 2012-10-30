@@ -3,8 +3,8 @@
 require("./object");
 var List = require("./list");
 var FastSet = require("./fast-set");
-var AbstractSet = require("./abstract-set");
-var Reducible = require("./reducible");
+var GenericCollection = require("./generic-collection");
+var GenericSet = require("./generic-set");
 var Observable = require("./observable");
 
 module.exports = Set;
@@ -33,8 +33,8 @@ function Set(values, equals, hash, content) {
     this.addEach(values);
 }
 
-Object.addEach(Set.prototype, Reducible);
-Object.addEach(Set.prototype, AbstractSet);
+Object.addEach(Set.prototype, GenericCollection);
+Object.addEach(Set.prototype, GenericSet);
 Object.addEach(Set.prototype, Observable);
 
 Set.prototype.constructClone = function (values) {

@@ -1,10 +1,10 @@
 "use strict";
 
-var AbstractMap = module.exports = {};
+var GenericMap = exports;
 
 // all of these methods depend on the constructor providing an `contentSet`
 
-AbstractMap.addEach = function (values) {
+GenericMap.addEach = function (values) {
     if (values && Object(values) === values) {
         if (typeof values.forEach === "function") {
             // copy map-alikes
@@ -27,7 +27,7 @@ AbstractMap.addEach = function (values) {
     }
 }
 
-AbstractMap.get = function (key, defaultValue) {
+GenericMap.get = function (key, defaultValue) {
     var item = this.contentSet.get(new this.Item(key));
     if (item) {
         return item.value;
@@ -38,7 +38,7 @@ AbstractMap.get = function (key, defaultValue) {
     }
 };
 
-AbstractMap.set = function (key, value) {
+GenericMap.set = function (key, value) {
     var item = new this.Item(key, value);
     var found = this.contentSet.get(item);
     var grew = false;
@@ -53,11 +53,11 @@ AbstractMap.set = function (key, value) {
     return grew;
 };
 
-AbstractMap.has = function (key) {
+GenericMap.has = function (key) {
     return this.contentSet.has(new this.Item(key));
 };
 
-AbstractMap['delete'] = function (key) {
+GenericMap['delete'] = function (key) {
     if (this.contentSet['delete'](new this.Item(key))) {
         this.length--;
         return true;
@@ -65,24 +65,24 @@ AbstractMap['delete'] = function (key) {
     return false;
 };
 
-AbstractMap.clear = function () {
+GenericMap.clear = function () {
     this.contentSet.clear();
     this.length = 0;
 };
 
-AbstractMap.reduce = function (callback, basis, thisp) {
+GenericMap.reduce = function (callback, basis, thisp) {
     return this.contentSet.reduce(function (basis, item) {
         return callback.call(thisp, basis, item.value, item.key, this);
     }, basis, this);
 };
 
-AbstractMap.reduceRight = function (callback, basis, thisp) {
+GenericMap.reduceRight = function (callback, basis, thisp) {
     return this.contentSet.reduceRight(function (basis, item) {
         return callback.call(thisp, basis, item.value, item.key, this);
     }, basis, this);
 };
 
-AbstractMap.keys = function () {
+GenericMap.keys = function () {
     return this.map(getKey);
 };
 
@@ -90,7 +90,7 @@ function getKey(value, key) {
     return key;
 }
 
-AbstractMap.values = function () {
+GenericMap.values = function () {
     return this.map(getValue);
 };
 
@@ -98,7 +98,7 @@ function getValue(value) {
     return value;
 }
 
-AbstractMap.items = function () {
+GenericMap.items = function () {
     return this.map(getItem);
 };
 
@@ -106,7 +106,7 @@ function getItem(value, key) {
     return [key, value];
 }
 
-AbstractMap.Item = Item;
+GenericMap.Item = Item;
 
 function Item(key, value) {
     this.key = key;

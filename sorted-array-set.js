@@ -4,7 +4,7 @@ module.exports = SortedArraySet;
 
 require("./object");
 var SortedArray = require("./sorted-array");
-var AbstractSet = require("./abstract-set");
+var GenericSet = require("./generic-set");
 
 function SortedArraySet(values, equals, compare, content) {
     if (!(this instanceof SortedArraySet)) {
@@ -17,7 +17,7 @@ SortedArraySet.prototype = Object.create(SortedArray.prototype);
 
 SortedArraySet.prototype.constructor = SortedArraySet;
 
-Object.addEach(SortedArraySet.prototype, AbstractSet);
+Object.addEach(SortedArraySet.prototype, GenericSet);
 
 SortedArraySet.prototype.add = function (value) {
     if (!this.has(value)) {

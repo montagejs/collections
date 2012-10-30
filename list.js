@@ -3,7 +3,7 @@
 module.exports = List;
 
 require("./object");
-var Reducible = require("./reducible");
+var GenericCollection = require("./generic-collection");
 var Observable = require("./observable");
 
 function List(values, equals, content) {
@@ -19,7 +19,7 @@ function List(values, equals, content) {
     this.addEach(values);
 }
 
-Object.addEach(List.prototype, Reducible);
+Object.addEach(List.prototype, GenericCollection);
 Object.addEach(List.prototype, Observable);
 
 List.prototype.constructClone = function (values) {

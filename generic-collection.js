@@ -2,9 +2,9 @@
 
 require("./object");
 
-var Reducible = exports;
+var GenericCollection = exports;
 
-Reducible.addEach = function (values) {
+GenericCollection.addEach = function (values) {
     if (values && Object(values) === values) {
         if (typeof values.forEach === "function") {
             values.forEach(this.add, this);
@@ -22,7 +22,7 @@ Reducible.addEach = function (values) {
     }
 };
 
-Reducible.deleteEach = function (values) {
+GenericCollection.deleteEach = function (values) {
     values.forEach(function (value) {
         this["delete"](value);
     }, this);
@@ -31,14 +31,14 @@ Reducible.deleteEach = function (values) {
 // all of the following functions are implemented in terms of "reduce".
 // some need "constructClone".
 
-Reducible.forEach = function (callback /*, thisp*/) {
+GenericCollection.forEach = function (callback /*, thisp*/) {
     var thisp = arguments[1];
     return this.reduce(function (undefined, value, key, object, depth) {
         callback.call(thisp, value, key, object, depth);
     }, undefined);
 };
 
-Reducible.map = function (callback /*, thisp*/) {
+GenericCollection.map = function (callback /*, thisp*/) {
     var thisp = arguments[1];
     var result = [];
     this.reduce(function (undefined, value, key, object, depth) {
@@ -47,7 +47,7 @@ Reducible.map = function (callback /*, thisp*/) {
     return result;
 };
 
-Reducible.toArray = function () {
+GenericCollection.toArray = function () {
     return this.map(identity);
 };
 
@@ -55,7 +55,7 @@ Reducible.toArray = function () {
 // because they have numeric keys and all Maps since they may use
 // strings as keys.  List, Set, and SortedSet have nodes for keys, so
 // toObject would not be meaningful.
-Reducible.toObject = function () {
+GenericCollection.toObject = function () {
     var object = {};
     this.reduce(function (undefined, value, key) {
         object[key] = value;
@@ -63,7 +63,7 @@ Reducible.toObject = function () {
     return object;
 };
 
-Reducible.filter = function (callback /*, thisp*/) {
+GenericCollection.filter = function (callback /*, thisp*/) {
     var thisp = arguments[1];
     var result = this.constructClone();
     this.reduce(function (undefined, value, key, object, depth) {
@@ -74,43 +74,43 @@ Reducible.filter = function (callback /*, thisp*/) {
     return result;
 };
 
-Reducible.every = function (callback /*, thisp*/) {
+GenericCollection.every = function (callback /*, thisp*/) {
     var thisp = arguments[1];
     return this.reduce(function (result, value, key, object, depth) {
         return result && callback.call(thisp, value, key, object, depth);
     }, true);
 };
 
-Reducible.some = function (callback /*, thisp*/) {
+GenericCollection.some = function (callback /*, thisp*/) {
     var thisp = arguments[1];
     return this.reduce(function (result, value, key, object, depth) {
         return result || callback.call(thisp, value, key, object, depth);
     }, false);
 };
 
-Reducible.all = function () {
+GenericCollection.all = function () {
     return this.every(Boolean);
 };
 
-Reducible.any = function () {
+GenericCollection.any = function () {
     return this.some(Boolean);
 };
 
-Reducible.min = function (compare) {
+GenericCollection.min = function (compare) {
     compare = this.contentCompare || Object.compare;
     return this.reduce(function (result, value) {
         return compare(value, result) < 0 ? value : result;
     }, Infinity);
 };
 
-Reducible.max = function (compare) {
+GenericCollection.max = function (compare) {
     compare = this.contentCompare || Object.compare;
     return this.reduce(function (result, value) {
         return compare(value, result) > 0 ? value : result;
     }, -Infinity);
 };
 
-Reducible.sum = function (zero) {
+GenericCollection.sum = function (zero) {
     zero = zero === undefined ? 0 : zero;
     return this.reduce(add, zero);
 };
@@ -119,7 +119,7 @@ function add(a, b) {
     return a + b;
 }
 
-Reducible.average = function (zero) {
+GenericCollection.average = function (zero) {
     var sum = zero === undefined ? 0 : zero;
     var count = zero === undefined ? 0 : zero;
     this.reduce(function (undefined, value) {
@@ -129,7 +129,7 @@ Reducible.average = function (zero) {
     return sum / count;
 };
 
-Reducible.concat = function () {
+GenericCollection.concat = function () {
     var result = this.constructClone(this);
     for (var i = 0; i < arguments.length; i++) {
         result.addEach(arguments[i]);
@@ -137,7 +137,7 @@ Reducible.concat = function () {
     return result;
 };
 
-Reducible.flatten = function () {
+GenericCollection.flatten = function () {
     return this.reduce(flattenReducer, this.constructClone());
 };
 
@@ -151,7 +151,7 @@ function thisPush(value) {
 }
 
 // TODO consider the type of the result.  is an array proper?
-Reducible.zip = function () {
+GenericCollection.zip = function () {
     var table = Array.prototype.slice.call(arguments);
     table.unshift(this);
     return transpose(table);
@@ -182,7 +182,7 @@ function transpose(table) {
 
 // TODO compare
 
-Reducible.sorted = function (compare, by, order) {
+GenericCollection.sorted = function (compare, by, order) {
     compare = compare || this.contentCompare || Object.compare;
     // account for comparators generated by Function.by
     if (compare.by) {
@@ -207,11 +207,11 @@ Reducible.sorted = function (compare, by, order) {
     });
 };
 
-Reducible.reversed = function () {
+GenericCollection.reversed = function () {
     return this.constructClone(this).reverse();
 };
 
-Reducible.clone = function (depth, memo) {
+GenericCollection.clone = function (depth, memo) {
     if (depth === undefined) {
         depth = Infinity;
     } else if (depth === 0) {

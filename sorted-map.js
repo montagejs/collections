@@ -2,8 +2,8 @@
 
 require("./object");
 var SortedSet = require("./sorted-set");
-var Reducible = require("./reducible");
-var AbstractMap = require("./abstract-map");
+var GenericCollection = require("./generic-collection");
+var GenericMap = require("./generic-map");
 
 module.exports = SortedMap;
 
@@ -30,8 +30,9 @@ function SortedMap(values, equals, compare, content) {
     this.addEach(values);
 }
 
-Object.addEach(SortedMap.prototype, Reducible);
-Object.addEach(SortedMap.prototype, AbstractMap); // overrides reducible, particularly addEach
+Object.addEach(SortedMap.prototype, GenericCollection);
+Object.addEach(SortedMap.prototype, GenericMap);
+// GenericMap overrides GenericCollection, particularly addEach
 
 SortedMap.prototype.constructClone = function (values) {
     return new this.constructor(

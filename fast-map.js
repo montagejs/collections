@@ -2,8 +2,8 @@
 
 require("./object");
 var Set = require("./fast-set");
-var Reducible = require("./reducible");
-var AbstractMap = require("./abstract-map");
+var GenericCollection = require("./generic-collection");
+var GenericMap = require("./generic-map");
 
 module.exports = FastMap;
 
@@ -30,8 +30,8 @@ function FastMap(values, equals, hash, content) {
     this.addEach(values);
 }
 
-Object.addEach(FastMap.prototype, Reducible);
-Object.addEach(FastMap.prototype, AbstractMap);
+Object.addEach(FastMap.prototype, GenericCollection);
+Object.addEach(FastMap.prototype, GenericMap);
 
 FastMap.prototype.constructClone = function (values) {
     return new this.constructor(

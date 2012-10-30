@@ -6,7 +6,7 @@
     http://github.com/kriskowal/es5-shim
 */
 
-var Reducible = require("./reducible");
+var GenericCollection = require("./generic-collection");
 
 // Having a toString local variable name breaks in Opera so use object_toString.
 var object_toString = Object.prototype.toString;
@@ -36,35 +36,35 @@ if (!Array.isArray) {
 // http://es5.github.com/#x15.4.4.18
 // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/array/forEach
 if (!Array.prototype.forEach) {
-    Array.prototype.forEach = Reducible.forEach;
+    Array.prototype.forEach = GenericCollection.forEach;
 }
 
 // ES5 15.4.4.19
 // http://es5.github.com/#x15.4.4.19
 // https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/map
 if (!Array.prototype.map) {
-    Array.prototype.map = Reducible.map;
+    Array.prototype.map = GenericCollection.map;
 }
 
 // ES5 15.4.4.20
 // http://es5.github.com/#x15.4.4.20
 // https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/filter
 if (!Array.prototype.filter) {
-    Array.prototype.filter = Reducible.filter;
+    Array.prototype.filter = GenericCollection.filter;
 }
 
 // ES5 15.4.4.16
 // http://es5.github.com/#x15.4.4.16
 // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/every
 if (!Array.prototype.every) {
-    Array.prototype.every = Reducible.every;
+    Array.prototype.every = GenericCollection.every;
 }
 
 // ES5 15.4.4.17
 // http://es5.github.com/#x15.4.4.17
 // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/some
 if (!Array.prototype.some) {
-    Array.prototype.some = Reducible.some;
+    Array.prototype.some = GenericCollection.some;
 }
 
 // ES5 15.4.4.21

@@ -9,7 +9,7 @@
 
 require("./array-shim");
 require("./object");
-var Reducible = require("./reducible");
+var GenericCollection = require("./generic-collection");
 
 module.exports = Array;
 
@@ -23,6 +23,8 @@ Array.from = function (values) {
     array.addEach(values);
     return array;
 };
+
+Object.addEach(Array.prototype, GenericCollection);
 
 Array.prototype.constructClone = function (values) {
     var clone = new this.constructor();
@@ -88,24 +90,6 @@ Array.prototype.swap = function (index, length, plus) {
     }
     return this.splice.apply(this, args);
 };
-
-Array.prototype.toArray = Reducible.toArray;
-Array.prototype.toObject = Reducible.toObject;
-Array.prototype.addEach = Reducible.addEach;
-Array.prototype.deleteEach = Reducible.deleteEach;
-Array.prototype.equals = Reducible.equals;
-Array.prototype.compare = Reducible.compare;
-Array.prototype.any = Reducible.any;
-Array.prototype.all = Reducible.all;
-Array.prototype.min = Reducible.min;
-Array.prototype.max = Reducible.max;
-Array.prototype.sum = Reducible.sum;
-Array.prototype.average = Reducible.average;
-Array.prototype.unique = Reducible.unique;
-Array.prototype.flatten = Reducible.flatten;
-Array.prototype.sorted = Reducible.sorted;
-Array.prototype.reversed = Reducible.reversed;
-Array.prototype.clone = Reducible.clone;
 
 Array.prototype.one = function () {
     if (this.length === 0) {

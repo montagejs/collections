@@ -4,14 +4,15 @@
     closure --process_common_js_modules \
         --common_js_entry_module collections.js \
         --js \
-            abstract-map.js \
-            abstract-set.js \
             array-shim.js \
             array.js \
             collections.js \
             dict.js \
             fast-map.js \
             fast-set.js \
+            generic-collection.js \
+            generic-map.js \
+            generic-set.js \
             iterator.js \
             list.js \
             lru-map.js \
@@ -20,7 +21,6 @@
             multi-map.js \
             object.js \
             observable.js \
-            reducible.js \
             set.js \
             sorted-array-map.js \
             sorted-array-set.js \

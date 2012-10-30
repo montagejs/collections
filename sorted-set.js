@@ -3,8 +3,8 @@
 module.exports = SortedSet;
 
 require("./object");
-var Reducible = require("./reducible");
-var AbstractSet = require("./abstract-set");
+var GenericCollection = require("./generic-collection");
+var GenericSet = require("./generic-set");
 var Observable = require("./observable");
 var TreeLog = require("./tree-log");
 
@@ -20,8 +20,8 @@ function SortedSet(values, equals, compare, content) {
     this.addEach(values);
 }
 
-Object.addEach(SortedSet.prototype, Reducible);
-Object.addEach(SortedSet.prototype, AbstractSet);
+Object.addEach(SortedSet.prototype, GenericCollection);
+Object.addEach(SortedSet.prototype, GenericSet);
 Object.addEach(SortedSet.prototype, Observable);
 
 SortedSet.prototype.constructClone = function (values) {
