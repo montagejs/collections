@@ -9,7 +9,7 @@ var TreeLog = require("./tree-log");
 
 function SortedSet(values, equals, compare, content) {
     if (!(this instanceof SortedSet)) {
-        return new SortedSet(values, equals, compare);
+        return new SortedSet(values, equals, compare, content);
     }
     this.contentEquals = equals || Object.equals;
     this.contentCompare = compare || Object.compare;
@@ -518,7 +518,16 @@ SortedSet.prototype.only = function () {
 };
 
 SortedSet.prototype.clear = function () {
+    var minus;
+    if (this.isObserved) {
+        minus = this.toArray();
+        this.dispatchBeforeContentChange([], minus, 0);
+    }
     this.root = null;
+    this.length = 0;
+    if (this.isObserved) {
+        this.dispatchContentChange([], minus, 0);
+    }
 };
 
 SortedSet.prototype.iterate = function (start, end) {
