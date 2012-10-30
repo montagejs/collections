@@ -30,6 +30,9 @@ function Map(values, equals, hash, content) {
     this.addEach(values);
 }
 
+Object.addEach(Map.prototype, Reducible);
+Object.addEach(Map.prototype, AbstractMap); // overrides Reducible
+
 Map.prototype.constructClone = function (values) {
     return new this.constructor(
         values,
@@ -38,37 +41,6 @@ Map.prototype.constructClone = function (values) {
         this.content
     );
 };
-
-Map.prototype.addEach = AbstractMap.addEach;
-Map.prototype.has = AbstractMap.has;
-Map.prototype.get = AbstractMap.get;
-Map.prototype.set = AbstractMap.set;
-Map.prototype['delete'] = AbstractMap['delete'];
-Map.prototype.clear = AbstractMap.clear;
-Map.prototype.reduce = AbstractMap.reduce;
-Map.prototype.keys = AbstractMap.keys;
-Map.prototype.values = AbstractMap.values;
-Map.prototype.items = AbstractMap.items;
-Map.prototype.Item = AbstractMap.Item;
-
-Map.prototype.forEach = Reducible.forEach;
-Map.prototype.map = Reducible.map;
-Map.prototype.toArray = Reducible.toArray;
-Map.prototype.toObject = Reducible.toObject;
-Map.prototype.filter = Reducible.filter;
-Map.prototype.every = Reducible.every;
-Map.prototype.some = Reducible.some;
-Map.prototype.all = Reducible.all;
-Map.prototype.any = Reducible.any;
-Map.prototype.min = Reducible.min;
-Map.prototype.max = Reducible.max;
-Map.prototype.sum = Reducible.sum;
-Map.prototype.average = Reducible.average;
-Map.prototype.concat = Reducible.concat;
-Map.prototype.flatten = Reducible.flatten;
-Map.prototype.sorted = Reducible.sorted;
-Map.prototype.zip = Reducible.zip;
-Map.prototype.clone = Reducible.clone;
 
 Map.prototype.log = function (charmap, stringify) {
     stringify = stringify || this.stringify;

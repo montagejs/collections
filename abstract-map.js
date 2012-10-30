@@ -5,7 +5,6 @@ var AbstractMap = module.exports = {};
 // all of these methods depend on the constructor providing an `contentSet`
 
 AbstractMap.addEach = function (values) {
-    var count = 0;
     if (values && Object(values) === values) {
         if (typeof values.forEach === "function") {
             // copy map-alikes

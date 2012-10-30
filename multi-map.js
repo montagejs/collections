@@ -19,6 +19,8 @@ function MultiMap(values, bucket, equals, hash) {
 
 MultiMap.prototype = Object.create(Map.prototype);
 
+MultiMap.prototype.constructor = MultiMap;
+
 MultiMap.prototype.constructClone = function (values) {
     return new this.constructor(
         values,

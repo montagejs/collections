@@ -24,7 +24,10 @@ function mangle(key) {
 
 function unmangle(mangled) {
     return mangled.slice(1);
-};
+}
+
+Object.addEach(Dict.prototype, Reducible);
+Object.addEach(Dict.prototype, AbstractMap);
 
 Dict.prototype.constructClone = function (values) {
     return new this.constructor(values, this.mangle, this.content);
@@ -91,28 +94,4 @@ Dict.prototype.reduce = function (callback, basis, thisp) {
     }
     return basis;
 };
-
-Dict.prototype.addEach = AbstractMap.addEach;
-Dict.prototype.keys = AbstractMap.keys;
-Dict.prototype.values = AbstractMap.values;
-Dict.prototype.items = AbstractMap.items;
-
-Dict.prototype.forEach = Reducible.forEach;
-Dict.prototype.map = Reducible.map;
-Dict.prototype.toArray = Reducible.toArray;
-Dict.prototype.toObject = Reducible.toObject;
-Dict.prototype.filter = Reducible.filter;
-Dict.prototype.every = Reducible.every;
-Dict.prototype.some = Reducible.some;
-Dict.prototype.all = Reducible.all;
-Dict.prototype.any = Reducible.any;
-Dict.prototype.min = Reducible.min;
-Dict.prototype.max = Reducible.max;
-Dict.prototype.sum = Reducible.sum;
-Dict.prototype.average = Reducible.average;
-Dict.prototype.concat = Reducible.concat;
-Dict.prototype.flatten = Reducible.flatten;
-Dict.prototype.sorted = Reducible.sorted;
-Dict.prototype.zip = Reducible.zip;
-Dict.prototype.clone = Reducible.clone;
 

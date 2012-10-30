@@ -4,6 +4,7 @@ module.exports = SortedSet;
 
 require("./object");
 var Reducible = require("./reducible");
+var AbstractSet = require("./abstract-set");
 var Observable = require("./observable");
 var TreeLog = require("./tree-log");
 
@@ -18,6 +19,10 @@ function SortedSet(values, equals, compare, content) {
     this.length = 0;
     this.addEach(values);
 }
+
+Object.addEach(SortedSet.prototype, Reducible);
+Object.addEach(SortedSet.prototype, AbstractSet);
+Object.addEach(SortedSet.prototype, Observable);
 
 SortedSet.prototype.constructClone = function (values) {
     return new this.constructor(
@@ -461,31 +466,6 @@ SortedSet.prototype.reduceRight = function (callback, basis, thisp) {
     return basis;
 };
 
-SortedSet.prototype.addEach = Reducible.addEach;
-SortedSet.prototype.forEach = Reducible.forEach;
-SortedSet.prototype.map = Reducible.map;
-SortedSet.prototype.toArray = Reducible.toArray;
-SortedSet.prototype.filter = Reducible.filter;
-SortedSet.prototype.every = Reducible.every;
-SortedSet.prototype.some = Reducible.some;
-SortedSet.prototype.all = Reducible.all;
-SortedSet.prototype.any = Reducible.any;
-SortedSet.prototype.sum = Reducible.sum;
-SortedSet.prototype.average = Reducible.average;
-SortedSet.prototype.concat = Reducible.concat;
-SortedSet.prototype.flatten = Reducible.flatten;
-SortedSet.prototype.zip = Reducible.flatten;
-SortedSet.prototype.sorted = Reducible.sorted;
-SortedSet.prototype.clone = Reducible.clone;
-
-SortedSet.prototype.getContentChangeDescriptor = Observable.getContentChangeDescriptor;
-SortedSet.prototype.addContentChangeListener = Observable.addContentChangeListener;
-SortedSet.prototype.removeContentChangeListener = Observable.removeContentChangeListener;
-SortedSet.prototype.dispatchContentChange = Observable.dispatchContentChange;
-SortedSet.prototype.addBeforeContentChangeListener = Observable.addBeforeContentChangeListener;
-SortedSet.prototype.removeBeforeContentChangeListener = Observable.removeBeforeContentChangeListener;
-SortedSet.prototype.dispatchBeforeContentChange = Observable.dispatchBeforeContentChange;
-
 SortedSet.prototype.min = function (at) {
     var least = this.findLeast(at);
     if (least) {
@@ -579,7 +559,7 @@ Node.prototype.reduce = function (callback, basis, thisp, tree, depth) {
     if (this.left) {
         basis = this.left.reduce(callback, basis, thisp, tree, depth + 1);
     }
-    basis = callback.call(thisp, basis, this.value, this, tree, depth);
+    basis = callback.call(thisp, basis, this.value, this.value, tree, this, depth);
     if (this.right) {
         basis = this.right.reduce(callback, basis, thisp, tree, depth + 1);
     }
@@ -591,7 +571,7 @@ Node.prototype.reduceRight = function (callback, basis, thisp, tree, depth) {
     if (this.right) {
         basis = this.right.reduce(callback, basis, thisp, tree, depth + 1);
     }
-    basis = callback.call(thisp, basis, this.value, this, tree, depth);
+    basis = callback.call(thisp, basis, this.value, this.value, tree, this, depth);
     if (this.left) {
         basis = this.left.reduce(callback, basis, thisp, tree, depth + 1);
     }

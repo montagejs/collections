@@ -3,6 +3,7 @@
 require("./object");
 var Set = require("./set");
 var Reducible = require("./reducible");
+var AbstractSet = require("./abstract-set");
 var Observable = require("./observable");
 
 module.exports = LruSet;
@@ -23,6 +24,10 @@ function LruSet(values, maxLength, equals, hash, content) {
     this.length = 0;
     this.addEach(values);
 }
+
+Object.addEach(LruSet.prototype, Reducible);
+Object.addEach(LruSet.prototype, AbstractSet);
+Object.addEach(LruSet.prototype, Observable);
 
 LruSet.prototype.constructClone = function (values) {
     return new this.constructor(
@@ -78,34 +83,21 @@ LruSet.prototype.clear = function () {
     this.length = 0;
 };
 
-LruSet.prototype.reduce = function () {
+LruSet.prototype.reduce = function (callback, basis /*, thisp*/) {
+    var thisp = arguments[2];
     var set = this.contentSet;
-    return set.reduce.apply(set, arguments);
+    return set.reduce(function (basis, value) {
+        return callback.call(thisp, basis, value, value, this);
+    }, basis, this);
 };
 
 LruSet.prototype.reduceRight = function () {
+    var thisp = arguments[2];
     var set = this.contentSet;
-    return set.reduceRight.apply(set, arguments);
+    return set.reduceRight(function (basis, value) {
+        return callback.call(thisp, basis, value, value, this);
+    }, basis, this);
 };
-
-LruSet.prototype.addEach = Reducible.addEach;
-LruSet.prototype.forEach = Reducible.forEach;
-LruSet.prototype.map = Reducible.map;
-LruSet.prototype.toArray = Reducible.toArray;
-LruSet.prototype.filter = Reducible.filter;
-LruSet.prototype.every = Reducible.every;
-LruSet.prototype.some = Reducible.some;
-LruSet.prototype.all = Reducible.all;
-LruSet.prototype.any = Reducible.any;
-LruSet.prototype.min = Reducible.min;
-LruSet.prototype.max = Reducible.max;
-LruSet.prototype.sum = Reducible.sum;
-LruSet.prototype.average = Reducible.average;
-LruSet.prototype.concat = Reducible.concat;
-LruSet.prototype.flatten = Reducible.flatten;
-LruSet.prototype.zip = Reducible.zip;
-LruSet.prototype.sorted = Reducible.sorted;
-LruSet.prototype.clone = Reducible.clone;
 
 LruSet.prototype.makeObservable = function () {
     var self = this;
@@ -116,18 +108,6 @@ LruSet.prototype.makeObservable = function () {
         self.dispatchContentChange.apply(self, arguments);
     });
     this.isObservable = true;
-};
-
-LruSet.prototype.getContentChangeDescriptor = Observable.getContentChangeDescriptor;
-LruSet.prototype.addContentChangeListener = Observable.addContentChangeListener;
-LruSet.prototype.removeContentChangeListener = Observable.removeContentChangeListener;
-LruSet.prototype.dispatchContentChange = Observable.dispatchContentChange;
-LruSet.prototype.addBeforeContentChangeListener = Observable.addBeforeContentChangeListener;
-LruSet.prototype.removeBeforeContentChangeListener = Observable.removeBeforeContentChangeListener;
-LruSet.prototype.dispatchBeforeContentChange = Observable.dispatchBeforeContentChange;
-
-LruSet.prototype.equals = function (that) {
-    return this.contentSet.equals(that);
 };
 
 LruSet.prototype.iterate = function () {

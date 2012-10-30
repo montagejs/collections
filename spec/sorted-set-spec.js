@@ -4,6 +4,7 @@ var SortedSet = require("../sorted-set");
 var TreeLog = require("../tree-log");
 var describeDequeue = require("./dequeue");
 var describeCollection = require("./collection");
+var describeSet = require("./set");
 var Fuzz = require("./fuzz");
 
 describe("SortedSet", function () {
@@ -38,6 +39,8 @@ describe("SortedSet", function () {
         // push and unshift just add the arguments into their proper sorted
         // positions rather than the ends.
         describeDequeue(SortedSet);
+
+        describeSet(SortedSet);
 
     });
 

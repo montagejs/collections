@@ -30,6 +30,9 @@ function SortedMap(values, equals, compare, content) {
     this.addEach(values);
 }
 
+Object.addEach(SortedMap.prototype, Reducible);
+Object.addEach(SortedMap.prototype, AbstractMap); // overrides reducible, particularly addEach
+
 SortedMap.prototype.constructClone = function (values) {
     return new this.constructor(
         values,
@@ -38,35 +41,6 @@ SortedMap.prototype.constructClone = function (values) {
         this.content
     );
 };
-
-SortedMap.prototype.addEach = AbstractMap.addEach;
-SortedMap.prototype.has = AbstractMap.has;
-SortedMap.prototype.get = AbstractMap.get;
-SortedMap.prototype.set = AbstractMap.set;
-SortedMap.prototype['delete'] = AbstractMap['delete'];
-SortedMap.prototype.clear = AbstractMap.clear;
-SortedMap.prototype.reduce = AbstractMap.reduce;
-SortedMap.prototype.keys = AbstractMap.keys;
-SortedMap.prototype.values = AbstractMap.values;
-SortedMap.prototype.items = AbstractMap.items;
-SortedMap.prototype.Item = AbstractMap.Item;
-
-SortedMap.prototype.forEach = Reducible.forEach;
-SortedMap.prototype.map = Reducible.map;
-SortedMap.prototype.toArray = Reducible.toArray;
-SortedMap.prototype.toObject = Reducible.toObject;
-SortedMap.prototype.filter = Reducible.filter;
-SortedMap.prototype.every = Reducible.every;
-SortedMap.prototype.some = Reducible.some;
-SortedMap.prototype.all = Reducible.all;
-SortedMap.prototype.any = Reducible.any;
-SortedMap.prototype.min = Reducible.min;
-SortedMap.prototype.max = Reducible.max;
-SortedMap.prototype.sum = Reducible.sum;
-SortedMap.prototype.average = Reducible.average;
-SortedMap.prototype.flatten = Reducible.flatten;
-SortedMap.prototype.zip = Reducible.zip;
-SortedMap.prototype.clone = Reducible.clone;
 
 SortedMap.prototype.log = function (charmap, stringify) {
     stringify = stringify || this.stringify;

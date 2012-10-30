@@ -25,6 +25,9 @@ function SortedArray(values, equals, compare, content) {
     this.addEach(values);
 }
 
+Object.addEach(SortedArray.prototype, Reducible);
+Object.addEach(SortedArray.prototype, Observable);
+
 function search(array, value, compare) {
     var first = 0;
     var last = array.length - 1;
@@ -195,38 +198,19 @@ SortedArray.prototype.swap = function (index, length, plus) {
     return minus;
 };
 
-SortedArray.prototype.reduce = function () {
-    return this.array.reduce.apply(this.array, arguments);
+SortedArray.prototype.reduce = function (callback, basis /*, thisp*/) {
+    var thisp = arguments[2];
+    return this.array.reduce(function (basis, value, key) {
+        return callback.call(thisp, basis, value, key, this);
+    }, basis, this);
 };
 
 SortedArray.prototype.reduceRight = function () {
-    return this.array.reduce.apply(this.array, arguments);
+    var thisp = arguments[2];
+    return this.array.reduceRight(function (basis, value, key) {
+        return callback.call(thisp, basis, value, key, this);
+    }, basis, this);
 };
-
-SortedArray.prototype.addEach = Reducible.addEach;
-SortedArray.prototype.forEach = Reducible.forEach;
-SortedArray.prototype.map = Reducible.map;
-SortedArray.prototype.toArray = Reducible.toArray;
-SortedArray.prototype.filter = Reducible.filter;
-SortedArray.prototype.every = Reducible.every;
-SortedArray.prototype.some = Reducible.some;
-SortedArray.prototype.all = Reducible.all;
-SortedArray.prototype.any = Reducible.any;
-SortedArray.prototype.sum = Reducible.sum;
-SortedArray.prototype.average = Reducible.average;
-SortedArray.prototype.concat = Reducible.concat;
-SortedArray.prototype.flatten = Reducible.flatten;
-SortedArray.prototype.zip = Reducible.flatten;
-SortedArray.prototype.sorted = Reducible.sorted;
-SortedArray.prototype.clone = Reducible.clone;
-
-SortedArray.prototype.getContentChangeDescriptor = Observable.getContentChangeDescriptor;
-SortedArray.prototype.addContentChangeListener = Observable.addContentChangeListener;
-SortedArray.prototype.removeContentChangeListener = Observable.removeContentChangeListener;
-SortedArray.prototype.dispatchContentChange = Observable.dispatchContentChange;
-SortedArray.prototype.addBeforeContentChangeListener = Observable.addBeforeContentChangeListener;
-SortedArray.prototype.removeBeforeContentChangeListener = Observable.removeBeforeContentChangeListener;
-SortedArray.prototype.dispatchBeforeContentChange = Observable.dispatchBeforeContentChange;
 
 SortedArray.prototype.min = function () {
     if (this.length) {

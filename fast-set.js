@@ -4,6 +4,7 @@ require("./object");
 var Dict = require("./dict");
 var List = require("./list");
 var Reducible = require("./reducible");
+var AbstractSet = require("./abstract-set");
 var Observable = require("./observable");
 var TreeLog = require("./tree-log");
 var Iterator = require("./iterator");
@@ -27,6 +28,13 @@ function FastSet(values, equals, hash, content) {
     this.addEach(values);
 }
 
+Object.addEach(FastSet.prototype, Reducible);
+Object.addEach(FastSet.prototype, AbstractSet);
+Object.addEach(FastSet.prototype, Observable);
+
+FastSet.prototype.Buckets = Dict;
+FastSet.prototype.Bucket = List;
+
 FastSet.prototype.constructClone = function (values) {
     return new this.constructor(
         values,
@@ -35,9 +43,6 @@ FastSet.prototype.constructClone = function (values) {
         this.content
     );
 };
-
-FastSet.prototype.Buckets = Dict;
-FastSet.prototype.Bucket = List;
 
 FastSet.prototype.has = function (value) {
     var hash = this.contentHash(value);
@@ -105,48 +110,10 @@ FastSet.prototype.reduce = function (callback, basis /*, thisp*/) {
     var thisp = arguments[2];
     var buckets = this.buckets;
     return buckets.reduce(function (basis, bucket) {
-        return bucket.reduce(callback, basis, thisp);
-    }, basis);
-};
-
-FastSet.prototype.addEach = Reducible.addEach;
-FastSet.prototype.forEach = Reducible.forEach;
-FastSet.prototype.map = Reducible.map;
-FastSet.prototype.toArray = Reducible.toArray;
-FastSet.prototype.filter = Reducible.filter;
-FastSet.prototype.every = Reducible.every;
-FastSet.prototype.some = Reducible.some;
-FastSet.prototype.all = Reducible.all;
-FastSet.prototype.any = Reducible.any;
-FastSet.prototype.min = Reducible.min;
-FastSet.prototype.max = Reducible.max;
-FastSet.prototype.sum = Reducible.sum;
-FastSet.prototype.average = Reducible.average;
-FastSet.prototype.concat = Reducible.concat;
-FastSet.prototype.flatten = Reducible.flatten;
-FastSet.prototype.zip = Reducible.zip;
-FastSet.prototype.sorted = Reducible.sorted;
-FastSet.prototype.clone = Reducible.clone;
-
-FastSet.prototype.getContentChangeDescriptor = Observable.getContentChangeDescriptor;
-FastSet.prototype.addContentChangeListener = Observable.addContentChangeListener;
-FastSet.prototype.removeContentChangeListener = Observable.removeContentChangeListener;
-FastSet.prototype.dispatchContentChange = Observable.dispatchContentChange;
-FastSet.prototype.addBeforeContentChangeListener = Observable.addBeforeContentChangeListener;
-FastSet.prototype.removeBeforeContentChangeListener = Observable.removeBeforeContentChangeListener;
-FastSet.prototype.dispatchBeforeContentChange = Observable.dispatchBeforeContentChange;
-
-FastSet.prototype.equals = function (that) {
-    var self = this;
-    return (
-        Object(that) === that &&
-        typeof that.reduce === "function" &&
-        typeof that.length === "number" &&
-        this.length === that.length &&
-        that.reduce(function (equals, value) {
-            return equals && self.has(value);
-        }, true)
-    );
+        return bucket.reduce(function (basis, value) {
+            return callback.call(thisp, basis, value, value, this);
+        }, basis, this);
+    }, basis, this);
 };
 
 // TODO compare, equals (order agnostic)

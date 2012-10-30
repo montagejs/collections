@@ -19,18 +19,15 @@ Object.
     A collection of unique values.  The set can be iterated in the order
     of insertion.  With a good hash function for the stored values,
     insertion and removal are fast regardless of the size of the
-    collection  Values may be objects.  The `equals` and `hash`
+    collection.  Values may be objects.  The `equals` and `hash`
     functions can be overridden to provide alternate definitions of
-    "unique".  This collection is intended to be replaced by a native
-    implementation that does not rely on `hash`.  `Set` is backed by
-    `FastSet` and `List`.
+    "unique".  `Set` is backed by `FastSet` and `List`.
 
 -   **Map(map, equals, hash, content)**
 
     A collection of key and value items with unique keys.  Keys may be
-    objects.  The collection iterates in the order of insertion.  This
-    collection is intended to be replaced by a native implementation
-    that does not rely on `hash`.  `Map` is backed by `Set`.
+    objects.  The collection iterates in the order of insertion.  `Map`
+    is backed by `Set`.
 
 -   **MultiMap(map, content, equals, hash)**
 
@@ -58,9 +55,8 @@ Object.
 
 -   **SortedMap(map, equals, compare, content)**
 
-    A collection of key value pairs stored in sorted order, backed by a
-    sorted set.  `SortedMap` is backed by `SortedSet` and the
-    `AbstractMap` mixin.
+    A collection of key value pairs stored in sorted order.  `SortedMap`
+    is backed by `SortedSet` and the `AbstractMap` mixin.
 
 -   **LruSet(values, maxLength, equals, hash, content)**
 
@@ -135,7 +131,6 @@ Object.
     methods of collections, allowing them to gracefully handle both
     object literals and collections.
 
-
 ## Constructor Arguments
 
 For all of these constructors, the argument `values` is an optional
@@ -200,7 +195,14 @@ refers to methods implemented on the `Object` constructor function, as
 opposed to the `Object.prototype`.  `Object+` in turn refers to methods
 shimmed on the object constructor by the `object` module.  These
 functions accept the object as the first argument instead of the `this`
-implied argument.
+implied argument.  ~~Strikethrough~~ indicates an implementation that
+should exist but has not yet been made (Send a pull request!).
+
+These are all of the collections:
+
+(Array, Array+, Object+, Iterator, List, Set, Map, MultiMap, WeakMap,
+SortedSet, SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+SortedArrayMap, FastSet, FastMap, Dict)
 
 -   **has(key)**
 
@@ -279,6 +281,14 @@ implied argument.
     (Array+, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
     FastSet)
 
+-   **deleteEach(values or keys)**
+
+    Deletes every value or every value for each key.
+
+    (Array+, List, Set, Map, MultiMap, WeakMap, SortedSet, SortedMap,
+    LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
+    FastSet, FastMap, Dict)
+
 -   **indexOf(value)**
 
     Returns the position in the collection of a value, or `-1` if it is
@@ -289,14 +299,14 @@ implied argument.
     since it incrementally updates the number of nodes under each
     subtree as it rotates.
 
-    (Array, SortedSet, SortedArray, SortedArraySet)
+    (Array, ~~List~~, SortedSet, SortedArray, SortedArraySet)
 
 -   **lastIndexOf(value)**
 
     Returns the position in the collection of a value, or `-1` if it is
     not found.  Returns the position of the last of equivalent values.
 
-    (Array, SortedArray, SortedArraySet)
+    (Array, ~~List~~, SortedArray, SortedArraySet)
 
 -   **find(value, opt_equals)**
 
@@ -666,7 +676,6 @@ implied argument.
     the job of deeply cloning the values to the more general `clone`
     method.
 
-    (Array+, List, Set, Map, SortedSet, SortedMap, Object+)
     (Array+, Object+, List, Set, Map, MultiMap, WeakMap, SortedSet,
     SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
     SortedArrayMap, FastSet, FastMap, Dict)
@@ -979,12 +988,8 @@ For a much richer iterator, you can buy the `iterator` module and use
 Goals
 
 - comprehensive specs and spec coverage tests
-- shallow change dispatch and listeners for all collections (needed:
-  List, Set, SortedSet)
 - item change dispatch and listeners for Map, SortedMap, FastMap
-- object shim for defineProperties
-- track indicies in sorted set
-- remove iterator dependency of Set
+- remove iterator dependency of FastSet
 
 More methods
 
@@ -992,7 +997,6 @@ More methods
 - compare
 - fast list splicing
 - set intersection, union, difference, symmetric difference
-- indexOf and lastIndexOf for List
 
 More possible collections
 

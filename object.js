@@ -218,7 +218,7 @@ Object.set = function (object, key, value) {
 };
 
 Object.addEach = function (target, source) {
-    if (typeof source.forEach === "function") {
+    if (Object.can(source, "forEach")) {
         // copy map-alikes
         if (typeof source.keys === "function") {
             source.forEach(function (value, key) {

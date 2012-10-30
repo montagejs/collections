@@ -5,6 +5,7 @@
         --common_js_entry_module collections.js \
         --js \
             abstract-map.js \
+            abstract-set.js \
             array-shim.js \
             array.js \
             collections.js \

@@ -22,6 +22,12 @@ Reducible.addEach = function (values) {
     }
 };
 
+Reducible.deleteEach = function (values) {
+    values.forEach(function (value) {
+        this["delete"](value);
+    }, this);
+};
+
 // all of the following functions are implemented in terms of "reduce".
 // some need "constructClone".
 
@@ -60,9 +66,9 @@ Reducible.toObject = function () {
 Reducible.filter = function (callback /*, thisp*/) {
     var thisp = arguments[1];
     var result = this.constructClone();
-    this.reduce(result, function (undefined, value, key, object, depth) {
+    this.reduce(function (undefined, value, key, object, depth) {
         if (callback.call(thisp, value, key, object, depth)) {
-            result.push(value);
+            result.add(value);
         }
     }, undefined);
     return result;

@@ -35,6 +35,8 @@ function Iterator(iterable) {
 
 }
 
+Object.addEach(Iterator.prototype, Reducible);
+
 // this is a bit of a cheat so flatten and such work with the generic
 // reducible
 Iterator.prototype.constructClone = function (values) {
@@ -121,19 +123,6 @@ Iterator.prototype.reduce = function (callback /*, initial, thisp*/) {
     }
 
 };
-
-Iterator.prototype.forEach = Reducible.forEach;
-Iterator.prototype.map = Reducible.map;
-Iterator.prototype.toArray = Reducible.toArray;
-Iterator.prototype.toObject = Reducible.toObject;
-Iterator.prototype.filter = Reducible.filter;
-Iterator.prototype.all = Reducible.all;
-Iterator.prototype.any = Reducible.any;
-Iterator.prototype.min = Reducible.min;
-Iterator.prototype.max = Reducible.max;
-Iterator.prototype.sum = Reducible.sum;
-Iterator.prototype.average = Reducible.average;
-Iterator.prototype.flatten = Reducible.flatten;
 
 Iterator.prototype.every = function (callback /*, thisp*/) {
     var self = Iterator(this),

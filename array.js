@@ -92,6 +92,7 @@ Array.prototype.swap = function (index, length, plus) {
 Array.prototype.toArray = Reducible.toArray;
 Array.prototype.toObject = Reducible.toObject;
 Array.prototype.addEach = Reducible.addEach;
+Array.prototype.deleteEach = Reducible.deleteEach;
 Array.prototype.equals = Reducible.equals;
 Array.prototype.compare = Reducible.compare;
 Array.prototype.any = Reducible.any;
@@ -131,6 +132,8 @@ Array.prototype.clear = function () {
 Array.prototype.iterate = function (start, end) {
     return new ArrayIterator(this, start, end);
 };
+
+Array.prototype.Iterator = ArrayIterator;
 
 function ArrayIterator(array, start, end) {
     this.array = array;

@@ -19,6 +19,9 @@ function List(values, equals, content) {
     this.addEach(values);
 }
 
+Object.addEach(List.prototype, Reducible);
+Object.addEach(List.prototype, Observable);
+
 List.prototype.constructClone = function (values) {
     return new this.constructor(values, this.contentEquals, this.content);
 };
@@ -265,37 +268,6 @@ List.prototype.reduceRight = function (callback, basis /*, thisp*/) {
     }
     return basis;
 };
-
-List.prototype.addEach = Reducible.addEach;
-List.prototype.forEach = Reducible.forEach;
-List.prototype.map = Reducible.map;
-List.prototype.toArray = Reducible.toArray;
-List.prototype.toObject = Reducible.toObject;
-List.prototype.filter = Reducible.filter;
-List.prototype.every = Reducible.every;
-List.prototype.some = Reducible.some;
-List.prototype.all = Reducible.all;
-List.prototype.any = Reducible.any;
-List.prototype.min = Reducible.min;
-List.prototype.max = Reducible.max;
-List.prototype.sum = Reducible.sum;
-List.prototype.average = Reducible.average;
-List.prototype.concat = Reducible.concat;
-List.prototype.flatten = Reducible.flatten;
-List.prototype.zip = Reducible.zip;
-List.prototype.equals = Reducible.equals;
-List.prototype.compare = Reducible.compare;
-List.prototype.sorted = Reducible.sorted;
-List.prototype.reversed = Reducible.reversed;
-List.prototype.clone = Reducible.clone;
-
-List.prototype.getContentChangeDescriptor = Observable.getContentChangeDescriptor;
-List.prototype.addContentChangeListener = Observable.addContentChangeListener;
-List.prototype.removeContentChangeListener = Observable.removeContentChangeListener;
-List.prototype.dispatchContentChange = Observable.dispatchContentChange;
-List.prototype.addBeforeContentChangeListener = Observable.addBeforeContentChangeListener;
-List.prototype.removeBeforeContentChangeListener = Observable.removeBeforeContentChangeListener;
-List.prototype.dispatchBeforeContentChange = Observable.dispatchBeforeContentChange;
 
 List.prototype.equals = function (that, equals) {
     var equals = equals || this.contentEquals || Object.equals;
