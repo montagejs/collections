@@ -82,6 +82,22 @@ GenericMap.reduceRight = function (callback, basis, thisp) {
     }, basis, this);
 };
 
+GenericMap.equals = function (that, equals) {
+    equals = equals || Object.equals;
+    if (this === that) {
+        return true;
+    } else if (Object.can(that, "every")) {
+        return that.length === this.length && that.every(function (value, key) {
+            return equals(this.get(key), value);
+        }, this);
+    } else {
+        var keys = Object.keys(that);
+        return keys.length === this.length && Object.keys(that).every(function (key) {
+            return equals(this.get(key), that[key]);
+        }, this);
+    }
+};
+
 GenericMap.keys = function () {
     return this.map(getKey);
 };

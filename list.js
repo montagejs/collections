@@ -270,7 +270,7 @@ List.prototype.reduceRight = function (callback, basis /*, thisp*/) {
 };
 
 List.prototype.equals = function (that, equals) {
-    var equals = equals || this.contentEquals || Object.equals;
+    equals = equals || this.contentEquals || Object.equals;
 
     if (this === that) {
         return true;
@@ -284,6 +284,8 @@ List.prototype.equals = function (that, equals) {
         })
     );
 };
+
+// TODO compare
 
 List.prototype.one = function () {
     if (this.head === this.head.next) {

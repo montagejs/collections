@@ -677,14 +677,13 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
 -   **equals(that)**
 
-    (Array+, Object+, List, Set, Map, MultiMap, ~~SortedSet~~,
-    ~~SortedMap~~, LruSet, ~~LruMap~~, ~~SortedArray~~,
-    ~~SortedArraySet~~, ~~SortedArrayMap~~, FastSet, ~~FastMap~~,
-    ~~Dict~~)
+    (Array+, Object+, List, Set, Map, MultiMap, SortedSet, SortedMap,
+    LruSet, LruMap, ~~SortedArray~~, SortedArraySet, SortedArrayMap,
+    FastSet, FastMap, Dict)
 
 -   **compare(that)**
 
-    (Object+, ~~others~~)
+    (~~Array+~~, Object+, ~~List~~, ~~SortedArray~~, ~~SortedArraySet~~)
 
 -   **iterate()**
 

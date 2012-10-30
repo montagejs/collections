@@ -50,5 +50,13 @@ function describeMap(Map, nonEnumerable) {
             shouldHaveTheUsualContent(map);
         });
     });
+
+    describe("equals", function () {
+        expect(Map({a: 10, b: 20}).equals({b: 20, a: 10})).toBe(true);
+        expect(Object.equals({a: 10, b: 20}, Map({b: 20, a: 10}))).toBe(true);
+        expect(Object.equals(Map({b: 20, a: 10}), {a: 10, b: 20})).toBe(true);
+        expect(Object.equals(Map({b: 20, a: 10}), Map({a: 10, b: 20}))).toBe(true);
+    });
+
 }
 

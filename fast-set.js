@@ -116,8 +116,6 @@ FastSet.prototype.reduce = function (callback, basis /*, thisp*/) {
     }, basis, this);
 };
 
-// TODO compare, equals (order agnostic)
-
 FastSet.prototype.iterate = function () {
     var buckets = this.buckets;
     var hashes = buckets.keys();

@@ -150,7 +150,6 @@ function thisPush(value) {
     this.push(value);
 }
 
-// TODO consider the type of the result.  is an array proper?
 GenericCollection.zip = function () {
     var table = Array.prototype.slice.call(arguments);
     table.unshift(this);
@@ -179,8 +178,6 @@ function transpose(table) {
     }
     return transpose;
 }
-
-// TODO compare
 
 GenericCollection.sorted = function (compare, by, order) {
     compare = compare || this.contentCompare || Object.compare;
