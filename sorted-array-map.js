@@ -17,7 +17,7 @@ function SortedArrayMap(values, equals, compare, content) {
     this.contentEquals = equals;
     this.contentCompare = compare;
     this.content = content;
-    this.contentSet = new SortedArraySet(
+    this.store = new SortedArraySet(
         null,
         function keysEqual(a, b) {
             return equals(a.key, b.key);

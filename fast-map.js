@@ -17,7 +17,7 @@ function FastMap(values, equals, hash, content) {
     this.contentEquals = equals;
     this.contentHash = hash;
     this.content = content;
-    this.contentSet = new Set(
+    this.store = new Set(
         undefined,
         function keysEqual(a, b) {
             return equals(a.key, b.key);
@@ -44,7 +44,7 @@ FastMap.prototype.constructClone = function (values) {
 
 FastMap.prototype.log = function (charmap, stringify) {
     stringify = stringify || this.stringify;
-    this.contentSet.log(charmap, stringify);
+    this.store.log(charmap, stringify);
 };
 
 FastMap.prototype.stringify = function (item, leader) {

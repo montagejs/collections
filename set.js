@@ -18,9 +18,13 @@ function Set(values, equals, hash, content) {
     content = content || Function.noop;
     this.contentEquals = equals;
     this.contentHash = hash;
-    this.contentList = new List(undefined, equals); // of values in insertion order
     this.content = content;
-    this.contentSet = new FastSet( // set of nodes from list, by value
+    // a list of values in insertion order, used for all operations that depend
+    // on iterating in insertion order
+    this.order = new this.Order(undefined, equals);
+    // a set of nodes from the order list, indexed by the corresponding value,
+    // used for all operations that need to quickly seek  value in the list
+    this.store = new this.Store(
         undefined,
         function (a, b) {
             return equals(a.value, b.value);
@@ -37,18 +41,21 @@ Object.addEach(Set.prototype, GenericCollection);
 Object.addEach(Set.prototype, GenericSet);
 Object.addEach(Set.prototype, Observable);
 
+Set.prototype.Order = List;
+Set.prototype.Store = FastSet;
+
 Set.prototype.constructClone = function (values) {
     return new this.constructor(values, this.contentEquals, this.contentHash, this.content);
 };
 
 Set.prototype.has = function (value) {
-    var node = new this.contentList.Node(value);
-    return this.contentSet.has(node);
+    var node = new this.order.Node(value);
+    return this.store.has(node);
 };
 
 Set.prototype.get = function (value) {
-    var node = new this.contentList.Node(value);
-    node = this.contentSet.get(node);
+    var node = new this.order.Node(value);
+    node = this.store.get(node);
     if (node) {
         return node.value;
     } else {
@@ -57,11 +64,11 @@ Set.prototype.get = function (value) {
 };
 
 Set.prototype.add = function (value) {
-    var node = new this.contentList.Node(value);
-    if (!this.contentSet.has(node)) {
-        this.contentList.add(value);
-        node = this.contentList.head.prev;
-        this.contentSet.add(node);
+    var node = new this.order.Node(value);
+    if (!this.store.has(node)) {
+        this.order.add(value);
+        node = this.order.head.prev;
+        this.store.add(node);
         this.length++;
         return true;
     }
@@ -69,10 +76,10 @@ Set.prototype.add = function (value) {
 };
 
 Set.prototype["delete"] = function (value) {
-    var node = new this.contentList.Node(value);
-    if (this.contentSet.has(node)) {
-        var node = this.contentSet.get(node);
-        this.contentSet["delete"](node); // removes from the set
+    var node = new this.order.Node(value);
+    if (this.store.has(node)) {
+        var node = this.store.get(node);
+        this.store["delete"](node); // removes from the set
         node["delete"](); // removes the node from the list in place
         this.length--;
         return true;
@@ -81,14 +88,14 @@ Set.prototype["delete"] = function (value) {
 };
 
 Set.prototype.clear = function () {
-    this.contentSet.clear();
-    this.contentList.clear();
+    this.store.clear();
+    this.order.clear();
     this.length = 0;
 };
 
 Set.prototype.reduce = function (callback, basis /*, thisp*/) {
     var thisp = arguments[2];
-    var list = this.contentList;
+    var list = this.order;
     return list.reduce(function (basis, value) {
         return callback.call(thisp, basis, value, value, this);
     }, basis, this);
@@ -96,7 +103,7 @@ Set.prototype.reduce = function (callback, basis /*, thisp*/) {
 
 Set.prototype.reduceRight = function (callback, basis /*, thisp*/) {
     var thisp = arguments[2];
-    var list = this.contentList;
+    var list = this.order;
     return list.reduceRight(function (basis, value) {
         return callback.call(thisp, basis, value, value, this);
     }, basis, this);
@@ -104,21 +111,21 @@ Set.prototype.reduceRight = function (callback, basis /*, thisp*/) {
 
 Set.prototype.makeObservable = function () {
     var self = this;
-    this.contentSet.addBeforeContentChangeListener(function () {
+    this.store.addBeforeContentChangeListener(function () {
         self.dispatchBeforeContentChange.apply(self, arguments);
     });
-    this.contentSet.addContentChangeListener(function () {
+    this.store.addContentChangeListener(function () {
         self.dispatchContentChange.apply(self, arguments);
     });
     this.isObservable = true;
 };
 
 Set.prototype.iterate = function () {
-    return this.contentList.iterate();
+    return this.order.iterate();
 };
 
 Set.prototype.log = function () {
-    var set = this.contentSet;
+    var set = this.store;
     return set.log.apply(set, arguments);
 };
 

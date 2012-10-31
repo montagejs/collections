@@ -16,7 +16,7 @@ function LruSet(values, maxLength, equals, hash, content) {
     equals = equals || Object.equals;
     hash = hash || Object.hash;
     content = content || Function.noop;
-    this.contentSet = new Set(undefined, equals, hash);
+    this.store = new Set(undefined, equals, hash);
     this.contentEquals = equals;
     this.contentHash = hash;
     this.content = content;
@@ -40,14 +40,14 @@ LruSet.prototype.constructClone = function (values) {
 };
 
 LruSet.prototype.has = function (value) {
-    return this.contentSet.has(value);
+    return this.store.has(value);
 };
 
 LruSet.prototype.get = function (value) {
-    value = this.contentSet.get(value);
+    value = this.store.get(value);
     if (value !== undefined) {
-        this.contentSet["delete"](value);
-        this.contentSet.add(value);
+        this.store["delete"](value);
+        this.store.add(value);
     } else {
         value = this.content();
     }
@@ -55,15 +55,15 @@ LruSet.prototype.get = function (value) {
 };
 
 LruSet.prototype.add = function (value) {
-    if (this.contentSet.has(value)) {
-        this.contentSet["delete"](value);
+    if (this.store.has(value)) {
+        this.store["delete"](value);
         this.length--;
     }
-    this.contentSet.add(value);
+    this.store.add(value);
     this.length++;
-    if (this.contentSet.length > this.maxLength) {
-        var eldest = this.contentSet.contentList.head.next;
-        this.contentSet["delete"](eldest.value);
+    if (this.store.length > this.maxLength) {
+        var eldest = this.store.order.head.next;
+        this.store["delete"](eldest.value);
         this.length--;
         return false;
     }
@@ -71,7 +71,7 @@ LruSet.prototype.add = function (value) {
 };
 
 LruSet.prototype["delete"] = function (value) {
-    if (this.contentSet["delete"](value)) {
+    if (this.store["delete"](value)) {
         this.length--;
         return true;
     }
@@ -79,13 +79,13 @@ LruSet.prototype["delete"] = function (value) {
 };
 
 LruSet.prototype.clear = function () {
-    this.contentSet.clear();
+    this.store.clear();
     this.length = 0;
 };
 
 LruSet.prototype.reduce = function (callback, basis /*, thisp*/) {
     var thisp = arguments[2];
-    var set = this.contentSet;
+    var set = this.store;
     return set.reduce(function (basis, value) {
         return callback.call(thisp, basis, value, value, this);
     }, basis, this);
@@ -93,7 +93,7 @@ LruSet.prototype.reduce = function (callback, basis /*, thisp*/) {
 
 LruSet.prototype.reduceRight = function () {
     var thisp = arguments[2];
-    var set = this.contentSet;
+    var set = this.store;
     return set.reduceRight(function (basis, value) {
         return callback.call(thisp, basis, value, value, this);
     }, basis, this);
@@ -101,16 +101,16 @@ LruSet.prototype.reduceRight = function () {
 
 LruSet.prototype.makeObservable = function () {
     var self = this;
-    this.contentSet.addBeforeContentChangeListener(function () {
+    this.store.addBeforeContentChangeListener(function () {
         self.dispatchBeforeContentChange.apply(self, arguments);
     });
-    this.contentSet.addContentChangeListener(function () {
+    this.store.addContentChangeListener(function () {
         self.dispatchContentChange.apply(self, arguments);
     });
     this.isObservable = true;
 };
 
 LruSet.prototype.iterate = function () {
-    return this.contentSet.iterate();
+    return this.store.iterate();
 };
 

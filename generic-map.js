@@ -2,7 +2,7 @@
 
 var GenericMap = exports;
 
-// all of these methods depend on the constructor providing an `contentSet`
+// all of these methods depend on the constructor providing a `store` set
 
 GenericMap.addEach = function (values) {
     if (values && Object(values) === values) {
@@ -28,7 +28,7 @@ GenericMap.addEach = function (values) {
 }
 
 GenericMap.get = function (key, defaultValue) {
-    var item = this.contentSet.get(new this.Item(key));
+    var item = this.store.get(new this.Item(key));
     if (item) {
         return item.value;
     } else if (arguments.length > 1) {
@@ -40,12 +40,12 @@ GenericMap.get = function (key, defaultValue) {
 
 GenericMap.set = function (key, value) {
     var item = new this.Item(key, value);
-    var found = this.contentSet.get(item);
+    var found = this.store.get(item);
     var grew = false;
     if (found) { // update
         found.value = value;
     } else { // create
-        if (this.contentSet.add(item)) {
+        if (this.store.add(item)) {
             this.length++;
             grew = true;
         }
@@ -54,11 +54,11 @@ GenericMap.set = function (key, value) {
 };
 
 GenericMap.has = function (key) {
-    return this.contentSet.has(new this.Item(key));
+    return this.store.has(new this.Item(key));
 };
 
 GenericMap['delete'] = function (key) {
-    if (this.contentSet['delete'](new this.Item(key))) {
+    if (this.store['delete'](new this.Item(key))) {
         this.length--;
         return true;
     }
@@ -66,18 +66,18 @@ GenericMap['delete'] = function (key) {
 };
 
 GenericMap.clear = function () {
-    this.contentSet.clear();
+    this.store.clear();
     this.length = 0;
 };
 
 GenericMap.reduce = function (callback, basis, thisp) {
-    return this.contentSet.reduce(function (basis, item) {
+    return this.store.reduce(function (basis, item) {
         return callback.call(thisp, basis, item.value, item.key, this);
     }, basis, this);
 };
 
 GenericMap.reduceRight = function (callback, basis, thisp) {
-    return this.contentSet.reduceRight(function (basis, item) {
+    return this.store.reduceRight(function (basis, item) {
         return callback.call(thisp, basis, item.value, item.key, this);
     }, basis, this);
 };

@@ -17,7 +17,7 @@ function LruMap(values, maxLength, equals, hash, content) {
     this.contentEquals = equals;
     this.contentHash = hash;
     this.content = content;
-    this.contentSet = new LruSet(
+    this.store = new LruSet(
         undefined,
         maxLength,
         function keysEqual(a, b) {
@@ -46,7 +46,7 @@ LruMap.prototype.constructClone = function (values) {
 
 LruMap.prototype.log = function (charmap, stringify) {
     stringify = stringify || this.stringify;
-    this.contentSet.log(charmap, stringify);
+    this.store.log(charmap, stringify);
 };
 
 LruMap.prototype.stringify = function (item, leader) {

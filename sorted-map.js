@@ -17,7 +17,7 @@ function SortedMap(values, equals, compare, content) {
     this.contentEquals = equals;
     this.contentCompare = compare;
     this.content = content;
-    this.contentSet = new SortedSet(
+    this.store = new SortedSet(
         null,
         function keysEqual(a, b) {
             return equals(a.key, b.key);
@@ -45,12 +45,12 @@ SortedMap.prototype.constructClone = function (values) {
 
 SortedMap.prototype.log = function (charmap, stringify) {
     stringify = stringify || this.stringify;
-    this.contentSet.log(charmap, stringify);
+    this.store.log(charmap, stringify);
 };
 
 SortedMap.prototype.report = function (callback, thisp, charmap, stringify) {
     stringify = stringify || this.stringify;
-    this.contentSet.report(callback, thisp, charmap, stringify);
+    this.store.report(callback, thisp, charmap, stringify);
 };
 
 SortedMap.prototype.stringify = function (callback, thisp, node, leader) {
