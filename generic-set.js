@@ -25,13 +25,13 @@ GenericSet.symmetricDifference = function (that) {
     return union.difference(intersection);
 };
 
-GenericSet.equals = function (that) {
+GenericSet.equals = function (that, equals) {
     var self = this;
     return (
         Object.can(that, "reduce") &&
         this.length === that.length &&
-        that.reduce(function (equals, value) {
-            return equals && self.has(value);
+        that.reduce(function (equal, value) {
+            return equal && self.has(value, equals);
         }, true)
     );
 };

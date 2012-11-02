@@ -2,7 +2,7 @@
 
 module.exports = SortedArraySet;
 
-require("./object");
+var Shim = require("./shim");
 var SortedArray = require("./sorted-array");
 var GenericSet = require("./generic-set");
 

@@ -1,6 +1,6 @@
 "use strict";
 
-require("./object");
+var Shim = require("./shim");
 var Set = require("./set");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
@@ -76,6 +76,13 @@ LruSet.prototype["delete"] = function (value) {
         return true;
     }
     return false;
+};
+
+LruSet.prototype.one = function () {
+    if (this.length === 0) {
+        throw new Error("Can't get one value from empty collection.");
+    }
+    return this.store.one();
 };
 
 LruSet.prototype.clear = function () {

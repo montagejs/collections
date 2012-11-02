@@ -1,6 +1,6 @@
 "use strict";
 
-require("./object");
+var Shim = require("./shim");
 var List = require("./list");
 var FastSet = require("./fast-set");
 var GenericCollection = require("./generic-collection");
@@ -85,6 +85,13 @@ Set.prototype["delete"] = function (value) {
         return true;
     }
     return false;
+};
+
+Set.prototype.one = function () {
+    if (this.length === 0) {
+        throw new Error("Can't get one value from empty set.");
+    }
+    return this.store.one().value;
 };
 
 Set.prototype.clear = function () {

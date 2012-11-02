@@ -1,8 +1,7 @@
 
 // used exclusively to generate collections.min.js for browsers
 
-require("./array-shim");
-require("./array");
+var Shim = require("./shim");
 
 global.List = require("./list");
 global.Set = require("./set");

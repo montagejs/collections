@@ -246,6 +246,11 @@ SortedArrayMap, FastSet, FastMap, Dict)
     (Array+, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
     FastSet)
 
+    **add(value, key)**
+
+    Aliases `set(key, value)`, to assist generic methods used for maps,
+    sets, and other collections.
+
 -   **addEach(values)**
 
     Copies values from another collection to this one.
@@ -653,12 +658,21 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
 -   **clone(depth, memo)**
 
-    Replicates the collection.  If `Object.clone` is shimmed, clones the
-    values deeply, to the specified depth, using the given memo to
-    resolve reference cycles (which must the `has` and `set` parts of
-    the Map interface, allowing objects for keys)
+    Replicates the collection.  Clones the values deeply, to the
+    specified depth, using the memo to resolve reference cycles.  (which
+    must the `has` and `set` parts of the Map interface, allowing
+    objects for keys)  The default depth is infinite and the default
+    memo is a WeakMap.
 
-    (Array+, List, Set, Map, SortedSet, SortedMap, Object+)
+    `Object.clone` can replicate object literals inheriting directly
+    from `Object.prototype` or `null`, or any object that implements
+    `clone` on its prototype.  Any other object causes `clone` to throw
+    an exception.
+
+    The `clone` method on any other objects is not intended to be used
+    directly since they do not necessarily supply a default depth and
+    memo.
+
     (Array+, Object+, List, Set, Map, MultiMap, WeakMap, SortedSet,
     SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
     SortedArrayMap, FastSet, FastMap, Dict)
@@ -675,7 +689,7 @@ SortedArrayMap, FastSet, FastMap, Dict)
     SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
     SortedArrayMap, FastSet, FastMap, Dict)
 
--   **equals(that)**
+-   **equals(that, equals)**
 
     (Array+, Object+, List, Set, Map, MultiMap, SortedSet, SortedMap,
     LruSet, LruMap, ~~SortedArray~~, SortedArraySet, SortedArrayMap,
@@ -683,7 +697,7 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
 -   **compare(that)**
 
-    (~~Array+~~, Object+, ~~List~~, ~~SortedArray~~, ~~SortedArraySet~~)
+    (Array+, Object+, List, ~~SortedArray~~, ~~SortedArraySet~~)
 
 -   **iterate()**
 
@@ -960,21 +974,14 @@ a method, to aid in distinguishing "static" functions.
 Goals
 
 - comprehensive specs and spec coverage tests
-- item change dispatch and listeners for Map, SortedMap, FastMap
-- remove iterator dependency of FastSet
-
-More methods
-
-- equals
-- compare
+- map change dispatch and listeners
 - fast list splicing
-- set intersection, union, difference, symmetric difference
 
 More possible collections
 
 - arc-set (adaptive replacement cache)
 - arc-map
-- sorted-list (sorted, can contain duplicates, perhaps backed by splay
+- sorted-order (sorted, can contain duplicates, perhaps backed by splay
   tree with relaxation on the uniqueness invariant)
 - sorted-multi-map (sorted, can contain duplicate entries, perhaps
   backed by sorted-list)

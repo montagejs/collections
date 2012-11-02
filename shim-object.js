@@ -350,7 +350,8 @@ Object.is = function (x, y) {
     @returns {Boolean} whether the values are deeply equivalent
     @function external:Object.equals
 */
-Object.equals = function (a, b) {
+Object.equals = function (a, b, equals) {
+    equals = equals || Object.equals;
     // unbox objects, but do not confuse object literals
     a = Object.getValueOf(a);
     b = Object.getValueOf(b);
@@ -358,10 +359,32 @@ Object.equals = function (a, b) {
         // 0 === -0, but they are not equal
         return a !== 0 || 1 / a === 1 / b;
     if (Object.can(a, "equals"))
-        return a.equals(b);
+        return a.equals(b, equals);
     // commutative
     if (Object.can(b, "equals"))
-        return b.equals(a);
+        return b.equals(a, equals);
+    if (typeof a === "object" && typeof b === "object") {
+        var aPrototype = Object.getPrototypeOf(a);
+        var bPrototype = Object.getPrototypeOf(b);
+        if (
+            aPrototype === bPrototype && (
+                aPrototype === Object.prototype ||
+                aPrototype === null
+            )
+        ) {
+            for (var key in a) {
+                if (!equals(a[key], b[key])) {
+                    return false;
+                }
+            }
+            for (var key in b) {
+                if (!equals(a[key], b[key])) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
     // NaN !== NaN, but they are equal.
     // NaNs are the only non-reflexive value, i.e., if x !== x,
     // then x is a NaN.
@@ -445,19 +468,32 @@ Object.compare = function (a, b) {
 */
 Object.clone = function (value, depth, memo) {
     value = Object.getValueOf(value);
+    memo = memo || new WeakMap();
     if (depth === undefined) {
         depth = Infinity;
     } else if (depth === 0) {
         return value;
     }
-    if (memo && Object.isObject(value) && Object.can(value, "clone")) {
+    if (Object.isObject(value)) {
         if (!memo.has(value)) {
-            memo.set(value, value.clone(depth, memo));
+            if (Object.can(value, "clone")) {
+                memo.set(value, value.clone(depth, memo));
+            } else {
+                var prototype = Object.getPrototypeOf(value);
+                if (prototype === null || prototype === Object.prototype) {
+                    var clone = Object.create(prototype);
+                    memo.set(value, clone);
+                    for (var key in value) {
+                        clone[key] = Object.clone(value[key], depth - 1, memo);
+                    }
+                } else {
+                    throw new Error("Can't clone " + value);
+                }
+            }
         }
         return memo.get(value);
-    } else {
-        return value;
     }
+    return value;
 };
 
 /**
@@ -480,15 +516,4 @@ Object.clear = function (object) {
     }
     return object;
 };
-
-/**
-*/
-Function.noop = function () {
-};
-
-/**
-*/
-Function.identity = function (value) {
-    return value;
-}
 

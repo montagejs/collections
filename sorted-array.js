@@ -2,8 +2,7 @@
 
 module.exports = SortedArray;
 
-require("./array");
-require("./object");
+var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
 var Observable = require("./observable");
 
@@ -226,10 +225,6 @@ SortedArray.prototype.max = function () {
 
 SortedArray.prototype.one = function () {
     return this.array.one();
-};
-
-SortedArray.prototype.only = function () {
-    return this.array.only();
 };
 
 SortedArray.prototype.clear = function () {

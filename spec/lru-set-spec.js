@@ -12,7 +12,7 @@ describe("LruSet", function () {
 
     [LruSet, newLruSet].forEach(function (LruSet) {
         describeCollection(LruSet, [1, 2, 3, 4], true);
-        describeCollection(LruSet, [{}, {}, {}, {}], true);
+        describeCollection(LruSet, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
         describeSet(LruSet);
     });
 

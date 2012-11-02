@@ -72,7 +72,7 @@ describe("List", function () {
 
     [List, newList].forEach(function (List) {
         describeCollection(List, [1, 2, 3, 4], true);
-        describeCollection(List, [{}, {}, {}, {}], true);
+        describeCollection(List, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
     });
 
     describe("find()", function () {

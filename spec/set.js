@@ -43,7 +43,7 @@ function describeSet(Set) {
     });
 
     it("can add and delete objects from the same bucket", function () {
-        var a = {}, b = {};
+        var a = {id: 0}, b = {id: 1};
         var set = new Set();
         set.add(a);
         expect(set.has(a)).toBe(true);

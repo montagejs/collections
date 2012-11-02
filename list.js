@@ -2,8 +2,9 @@
 
 module.exports = List;
 
-require("./object");
+var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
+var GenericOrder = require("./generic-order");
 var Observable = require("./observable");
 
 function List(values, equals, content) {
@@ -20,6 +21,7 @@ function List(values, equals, content) {
 }
 
 Object.addEach(List.prototype, GenericCollection);
+Object.addEach(List.prototype, GenericOrder);
 Object.addEach(List.prototype, Observable);
 
 List.prototype.constructClone = function (values) {
@@ -80,7 +82,16 @@ List.prototype['delete'] = function (value, equals) {
 };
 
 List.prototype.clear = function () {
+    var minus;
+    if (this.isObserved) {
+        minus = this.toArray();
+        this.dispatchBeforeContentChange([], minus);
+    }
     this.head.next = this.head.prev = this.head;
+    this.length = 0;
+    if (this.isObserved) {
+        this.dispatchContentChange([], minus);
+    }
 };
 
 List.prototype.add = function (value) {
@@ -269,37 +280,9 @@ List.prototype.reduceRight = function (callback, basis /*, thisp*/) {
     return basis;
 };
 
-List.prototype.equals = function (that, equals) {
-    equals = equals || this.contentEquals || Object.equals;
-
-    if (this === that) {
-        return true;
-    }
-
-    var self = this;
-    return (
-        this.length === that.length &&
-        this.zip(that).every(function (pair) {
-            return equals(pair[0], pair[1]);
-        })
-    );
-};
-
-// TODO compare
-
 List.prototype.one = function () {
     if (this.head === this.head.next) {
         throw new Error("Can't get one value from empty list");
-    }
-    return this.head.next.value;
-};
-
-List.prototype.only = function () {
-    if (this.head === this.head.next) {
-        throw new Error("Can't get only value in empty list");
-    }
-    if (this.head.prev !== this.head.next) {
-        throw new Error("Can't get only value in list with multiple values");
     }
     return this.head.next.value;
 };

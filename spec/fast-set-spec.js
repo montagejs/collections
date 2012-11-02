@@ -1,6 +1,7 @@
 "use strict";
 
 var Set = require("../fast-set");
+var Iterator = require("../iterator");
 var describeCollection = require("./collection");
 var describeSet = require("./set");
 
@@ -33,7 +34,7 @@ describe("Set", function () {
 
     [Set, newSet].forEach(function (Set) {
         describeCollection(Set, [1, 2, 3, 4], true);
-        describeCollection(Set, [{}, {}, {}, {}], true);
+        describeCollection(Set, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
         describeSet(Set);
     });
 
@@ -65,6 +66,13 @@ describe("Set", function () {
             values.splice(index, 1);
         });
         expect(values.length).toBe(0);
+    });
+
+    it("can iterate with an iterator", function () {
+        var set = new Set([1, 2, 3, 4, 5, 6]);
+        var iterator = new Iterator(set);
+        var array = iterator.toArray();
+        expect(array).toEqual(set.toArray());
     });
 
 });

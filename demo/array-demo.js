@@ -1,5 +1,5 @@
 
-require("../array");
+require("../shim-array");
 var Iterator = require("../iterator");
 
 var array = [1,2,3];

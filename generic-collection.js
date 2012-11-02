@@ -1,7 +1,5 @@
 "use strict";
 
-require("./object");
-
 var GenericCollection = exports;
 
 GenericCollection.addEach = function (values) {
@@ -209,17 +207,9 @@ GenericCollection.reversed = function () {
 };
 
 GenericCollection.clone = function (depth, memo) {
-    if (depth === undefined) {
-        depth = Infinity;
-    } else if (depth === 0) {
-        return this;
-    }
     var clone = this.constructClone();
     this.forEach(function (value, key) {
-        if (Object.clone) {
-            value = Object.clone(value, depth - 1, memo);
-        }
-        clone.set(key, value);
+        clone.add(Object.clone(value, depth - 1, memo), key);
     }, this);
     return clone;
 };
@@ -227,4 +217,14 @@ GenericCollection.clone = function (depth, memo) {
 function identity(value) {
     return value;
 }
+
+GenericCollection.only = function () {
+    if (this.length === 0) {
+        throw new Error("Can't get only value in empty collection.");
+    }
+    if (this.length > 1) {
+        throw new Error("Can't get only value in collection with multiple values.");
+    }
+    return this.one();
+};
 

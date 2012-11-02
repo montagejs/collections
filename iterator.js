@@ -2,6 +2,7 @@
 
 module.exports = Iterator;
 
+var Object = require("./shim-object");
 var GenericCollection = require("./generic-collection");
 
 // upgrades an iterable to a Iterator

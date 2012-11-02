@@ -79,5 +79,43 @@ function describeCollection(Collection, values, setLike) {
 
     });
 
+    describe("one", function () {
+        it("should return a value in the collection", function () {
+            var collection = Collection([a, b, c, d]);
+            expect(collection.has(collection.one())).toBe(true);
+        });
+    });
+
+    describe("only", function () {
+
+        it("should return a value in the collection", function () {
+            var collection = Collection([a]);
+            expect(collection.only()).toBe(a);
+        });
+
+        it("should throw if there are no values in the collection", function () {
+            expect(function () {
+                Collection().only();
+            }).toThrow();
+        });
+
+        it("should throw if there are many values in the collection", function () {
+            expect(function () {
+                Collection([a, b]).only();
+            }).toThrow();
+        });
+
+    });
+
+    describe("clear", function () {
+        it("should delete all values", function () {
+            var collection = Collection([a, b, c, d]);
+            expect(collection.length).toBe(4);
+            collection.clear();
+            expect(collection.toArray()).toEqual([]);
+            expect(collection.length).toBe(0);
+        });
+    });
+
 }
 

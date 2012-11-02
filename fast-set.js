@@ -1,13 +1,12 @@
 "use strict";
 
-require("./object");
+var Shim = require("./shim");
 var Dict = require("./dict");
 var List = require("./list");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
 var Observable = require("./observable");
 var TreeLog = require("./tree-log");
-var Iterator = require("./iterator");
 
 var object_has = Object.prototype.hasOwnProperty;
 
@@ -116,12 +115,15 @@ FastSet.prototype.reduce = function (callback, basis /*, thisp*/) {
     }, basis, this);
 };
 
+FastSet.prototype.one = function () {
+    if (this.length === 0) {
+        throw new Error("Can't get one value from empty set.");
+    }
+    return this.buckets.one().one();
+};
+
 FastSet.prototype.iterate = function () {
-    var buckets = this.buckets;
-    var hashes = buckets.keys();
-    return Iterator.concat(hashes.map(function (hash) {
-        return buckets.get(hash).iterate();
-    }));
+    return this.buckets.values().flatten().iterate();
 };
 
 FastSet.prototype.log = function (charmap, logNode, callback, thisp) {

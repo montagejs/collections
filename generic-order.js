@@ -1,0 +1,52 @@
+
+var Object = require("./shim-object");
+
+var GenericOrder = exports;
+
+GenericOrder.equals = function (that, equals) {
+    equals = equals || this.contentEquals || Object.equals;
+
+    if (this === that) {
+        return true;
+    }
+    if (!that) {
+        return false;
+    }
+
+    var self = this;
+    return (
+        this.length === that.length &&
+        this.zip(that).every(function (pair) {
+            return equals(pair[0], pair[1]);
+        })
+    );
+};
+
+GenericOrder.compare = function (that, compare) {
+    compare = compare || this.contentCompare || Object.compare;
+
+    if (this === that) {
+        return 0;
+    }
+    if (!that) {
+        return 1;
+    }
+
+    var length = Math.min(this.length, that.length);
+    var comparison = this.zip(that).reduce(function (comparison, pair, index) {
+        if (comparison === 0) {
+            if (index >= length) {
+                return comparison;
+            } else {
+                return compare(pair[0], pair[1]);
+            }
+        } else {
+            return comparison;
+        }
+    }, 0);
+    if (comparison === 0) {
+        return this.length - that.length;
+    }
+    return comparison;
+};
+

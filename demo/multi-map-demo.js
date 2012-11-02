@@ -1,6 +1,6 @@
 
 var MultiMap = require("../multi-map");
-require("../array"); // for Array#swap
+require("../shim-array"); // for Array#swap
 var List = require("../list");
 
 debugger;

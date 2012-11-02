@@ -1,6 +1,6 @@
 "use strict";
 
-require("./object");
+var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
 
@@ -93,5 +93,13 @@ Dict.prototype.reduce = function (callback, basis, thisp) {
         basis = callback.call(thisp, basis, this.store[mangled], unmangle(mangled), this);
     }
     return basis;
+};
+
+Dict.prototype.one = function () {
+    var key;
+    for (var key in this.store) {
+        return this.store[key];
+    }
+    throw new Error("Can't get one value from empty dictionary.");
 };
 

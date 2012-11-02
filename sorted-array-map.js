@@ -1,6 +1,6 @@
 "use strict";
 
-require("./object");
+var Shim = require("./shim");
 var SortedArraySet = require("./sorted-array-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");

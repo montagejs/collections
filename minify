@@ -4,14 +4,13 @@
     closure --process_common_js_modules \
         --common_js_entry_module collections.js \
         --js \
-            array-shim.js \
-            array.js \
             collections.js \
             dict.js \
             fast-map.js \
             fast-set.js \
             generic-collection.js \
             generic-map.js \
+            generic-order.js \
             generic-set.js \
             iterator.js \
             list.js \
@@ -19,9 +18,13 @@
             lru-set.js \
             map.js \
             multi-map.js \
-            object.js \
             observable.js \
             set.js \
+            shim-array-es5.js \
+            shim-array.js \
+            shim-function.js \
+            shim-object.js \
+            shim.js \
             sorted-array-map.js \
             sorted-array-set.js \
             sorted-array.js \

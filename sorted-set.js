@@ -2,7 +2,7 @@
 
 module.exports = SortedSet;
 
-require("./object");
+var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
 var Observable = require("./observable");
@@ -483,16 +483,6 @@ SortedSet.prototype.max = function (at) {
 SortedSet.prototype.one = function () {
     if (!this.root) {
         throw new Error("Can't get one value from empty set");
-    }
-    return this.root.value;
-};
-
-SortedSet.prototype.only = function () {
-    if (!this.root) {
-        throw new Error("Can't get only value in empty set");
-    }
-    if (this.root.left || this.root.right) {
-        throw new Error("Can't get only value in set with multiple values");
     }
     return this.root.value;
 };
