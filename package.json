@@ -29,9 +29,12 @@
     },
     "dependencies": {},
     "devDependencies": {
-        "jasmine-node": "*"
+        "jasmine-node": "*",
+        "cover": "*",
+        "opener": "*"
     },
     "scripts": {
-        "test": "jasmine-node spec"
+        "test": "jasmine-node spec",
+        "cover": "cover run node_modules/jasmine-node/bin/jasmine-node spec && cover report html && opener cover_html/index.html"
     }
 }
