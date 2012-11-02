@@ -5,7 +5,7 @@ module.exports = List;
 var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
 var GenericOrder = require("./generic-order");
-var Observable = require("./observable");
+var ContentChanges = require("./dispatch/content-changes");
 
 function List(values, equals, content) {
     if (!(this instanceof List)) {
@@ -22,7 +22,7 @@ function List(values, equals, content) {
 
 Object.addEach(List.prototype, GenericCollection);
 Object.addEach(List.prototype, GenericOrder);
-Object.addEach(List.prototype, Observable);
+Object.addEach(List.prototype, ContentChanges);
 
 List.prototype.constructClone = function (values) {
     return new this.constructor(values, this.contentEquals, this.content);
@@ -68,12 +68,12 @@ List.prototype.get = function (value, equals) {
 List.prototype['delete'] = function (value, equals) {
     var found = this.findLast(value, equals);
     if (found) {
-        if (this.isObserved) {
+        if (this.dispatchesContentChanges) {
             this.dispatchBeforeContentChange([], [value]);
         }
         found['delete']();
         this.length--;
-        if (this.isObserved) {
+        if (this.dispatchesContentChanges) {
             this.dispatchContentChange([], [value]);
         }
         return true;
@@ -83,24 +83,24 @@ List.prototype['delete'] = function (value, equals) {
 
 List.prototype.clear = function () {
     var minus;
-    if (this.isObserved) {
+    if (this.dispatchesContentChanges) {
         minus = this.toArray();
         this.dispatchBeforeContentChange([], minus);
     }
     this.head.next = this.head.prev = this.head;
     this.length = 0;
-    if (this.isObserved) {
+    if (this.dispatchesContentChanges) {
         this.dispatchContentChange([], minus);
     }
 };
 
 List.prototype.add = function (value) {
-    if (this.isObserved) {
+    if (this.dispatchesContentChanges) {
         this.dispatchBeforeContentChange([value], []);
     }
     this.head.addBefore(new this.Node(value));
     this.length++;
-    if (this.isObserved) {
+    if (this.dispatchesContentChanges) {
         this.dispatchContentChange([value], []);
     }
     return true;
@@ -110,13 +110,13 @@ List.prototype.push = function () {
     var head = this.head;
     for (var i = 0; i < arguments.length; i++) {
         var value = arguments[i];
-        if (this.isObserved) {
+        if (this.dispatchesContentChanges) {
             this.dispatchBeforeContentChange([value], []);
         }
         var node = new this.Node(value);
         head.addBefore(node);
         this.length++;
-        if (this.isObserved) {
+        if (this.dispatchesContentChanges) {
             this.dispatchContentChange([value], []);
         }
     }
@@ -129,7 +129,7 @@ List.prototype.unshift = function () {
         var node = new this.Node(value);
         at.addAfter(node);
         this.length++;
-        if (this.isObserved) {
+        if (this.dispatchesContentChanges) {
             this.dispatchContentChange([value], []);
         }
         at = node;
@@ -141,12 +141,12 @@ List.prototype.pop = function () {
     var head = this.head;
     if (head.prev !== head) {
         value = head.prev.value;
-        if (this.isObserved) {
+        if (this.dispatchesContentChanges) {
             this.dispatchBeforeContentChange([], [value]);
         }
         head.prev['delete']();
         this.length--;
-        if (this.isObserved) {
+        if (this.dispatchesContentChanges) {
             this.dispatchContentChange([], [value]);
         }
     }
@@ -158,12 +158,12 @@ List.prototype.shift = function () {
     var head = this.head;
     if (head.prev !== head) {
         value = head.next.value;
-        if (this.isObserved) {
+        if (this.dispatchesContentChanges) {
             this.dispatchBeforeContentChange([], [value]);
         }
         head.next['delete']();
         this.length--;
-        if (this.isObserved) {
+        if (this.dispatchesContentChanges) {
             this.dispatchContentChange([], [value]);
         }
     }

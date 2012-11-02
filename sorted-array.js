@@ -4,7 +4,7 @@ module.exports = SortedArray;
 
 var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
-var Observable = require("./observable");
+var ContentChanges = require("./dispatch/content-changes");
 
 function SortedArray(values, equals, compare, content) {
     if (!(this instanceof SortedArray)) {
@@ -25,7 +25,7 @@ function SortedArray(values, equals, compare, content) {
 }
 
 Object.addEach(SortedArray.prototype, GenericCollection);
-Object.addEach(SortedArray.prototype, Observable);
+Object.addEach(SortedArray.prototype, ContentChanges);
 
 function search(array, value, compare) {
     var first = 0;
@@ -114,12 +114,12 @@ SortedArray.prototype.get = function (value) {
 
 SortedArray.prototype.add = function (value) {
     var index = searchForInsertionIndex(this.array, value, this.contentCompare);
-    if (this.isObserved) {
+    if (this.dispatchesContentChanges) {
         this.dispatchBeforeContentChange([value], [], index);
     }
     this.array.splice(index, 0, value);
     this.length++;
-    if (this.isObserved) {
+    if (this.dispatchesContentChanges) {
         this.dispatchContentChange([value], [], index);
     }
     return true;
@@ -128,12 +128,12 @@ SortedArray.prototype.add = function (value) {
 SortedArray.prototype["delete"] = function (value) {
     var index = searchFirst(this.array, value, this.contentCompare, this.contentEquals);
     if (index !== -1) {
-        if (this.isObserved) {
+        if (this.dispatchesContentChanges) {
             this.dispatchBeforeContentChange([], [value], index);
         }
         this.array.splice(index, 1);
         this.length--;
-        if (this.isObserved) {
+        if (this.dispatchesContentChanges) {
             this.dispatchContentChange([], [value], index);
         }
         return true;
@@ -186,12 +186,12 @@ SortedArray.prototype.swap = function (index, length, plus) {
         length = Infinity;
     }
     var minus = this.slice(index, index + length);
-    if (this.isObserved) {
+    if (this.dispatchesContentChanges) {
         this.dispatchBeforeContentChange(plus, minus, index);
     }
     this.array.splice(index, length);
     this.addEach(plus);
-    if (this.isObserved) {
+    if (this.dispatchesContentChanges) {
         this.dispatchContentChange(plus, minus, index);
     }
     return minus;
@@ -229,13 +229,13 @@ SortedArray.prototype.one = function () {
 
 SortedArray.prototype.clear = function () {
     var minus;
-    if (this.isObserved) {
+    if (this.dispatchesContentChanges) {
         minus = this.array.slice();
         this.dispatchBeforeContentChange([], minus, 0);
     }
     this.length = 0;
     this.array.clear();
-    if (this.isObserved) {
+    if (this.dispatchesContentChanges) {
         this.dispatchContentChange([], minus, 0);
     }
 };

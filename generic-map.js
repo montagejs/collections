@@ -2,6 +2,11 @@
 
 var GenericMap = exports;
 
+var Object = require("./shim-object");
+var MapChanges = require("./dispatch/map-changes");
+
+Object.addEach(GenericMap, MapChanges);
+
 // all of these methods depend on the constructor providing a `store` set
 
 GenericMap.addEach = function (values) {
@@ -43,11 +48,23 @@ GenericMap.set = function (key, value) {
     var found = this.store.get(item);
     var grew = false;
     if (found) { // update
+        if (this.dispatchesMapChanges) {
+            this.dispatchBeforeMapChange(key, found.value);
+        }
         found.value = value;
+        if (this.dispatchesMapChanges) {
+            this.dispatchMapChange(key, value);
+        }
     } else { // create
+        if (this.dispatchesMapChanges) {
+            this.dispatchBeforeMapChange(key, undefined);
+        }
         if (this.store.add(item)) {
             this.length++;
             grew = true;
+        }
+        if (this.dispatchesMapChanges) {
+            this.dispatchMapChange(key, value);
         }
     }
     return grew;
@@ -62,8 +79,17 @@ GenericMap.has = function (key) {
 };
 
 GenericMap['delete'] = function (key) {
-    if (this.store['delete'](new this.Item(key))) {
+    var item = new this.Item(key);
+    if (this.store.has(item)) {
+        var from = this.store.get(item).value;
+        if (this.dispatchesMapChanges) {
+            this.dispatchBeforeMapChange(key, from);
+        }
+        this.store["delete"](item);
         this.length--;
+        if (this.dispatchesMapChanges) {
+            this.dispatchMapChange(key, undefined);
+        }
         return true;
     }
     return false;

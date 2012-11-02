@@ -1,12 +1,12 @@
 "use strict";
 
-var WeakMap = require("./weak-map");
+var WeakMap = require("../weak-map");
 
 var contentChangeDescriptors = new WeakMap(); // {isActive, willChangeListeners, changeListeners}
 
-var Observable = exports;
+var DispatchContentChange = exports;
 
-Observable.getContentChangeDescriptor = function () {
+DispatchContentChange.getContentChangeDescriptor = function () {
     if (!contentChangeDescriptors.has(this)) {
         contentChangeDescriptors.set(this, {
             isActive: false,
@@ -17,7 +17,7 @@ Observable.getContentChangeDescriptor = function () {
     return contentChangeDescriptors.get(this);
 };
 
-Observable.addContentChangeListener = function (listener, beforeChange) {
+DispatchContentChange.addContentChangeListener = function (listener, beforeChange) {
     // a concession for objects like Array that are not inherently observable
     if (!this.isObservable && this.makeObservable) {
         this.makeObservable();
@@ -37,7 +37,7 @@ Observable.addContentChangeListener = function (listener, beforeChange) {
     this.isObserved = !!listeners.length;
 };
 
-Observable.removeContentChangeListener = function (listener, beforeChange) {
+DispatchContentChange.removeContentChangeListener = function (listener, beforeChange) {
     var descriptor = this.getContentChangeDescriptor();
 
     var listeners;
@@ -55,7 +55,7 @@ Observable.removeContentChangeListener = function (listener, beforeChange) {
     this.isObserved = !!listeners.length;
 };
 
-Observable.dispatchContentChange = function (plus, minus, index, beforeChange) {
+DispatchContentChange.dispatchContentChange = function (plus, minus, index, beforeChange) {
     var descriptor = this.getContentChangeDescriptor();
 
     if (descriptor.isActive) {
@@ -103,15 +103,15 @@ Observable.dispatchContentChange = function (plus, minus, index, beforeChange) {
     }
 };
 
-Observable.addBeforeContentChangeListener = function (listener) {
+DispatchContentChange.addBeforeContentChangeListener = function (listener) {
     return this.addContentChangeListener(listener, true);
 };
 
-Observable.removeBeforeContentChangeListener = function (listener) {
+DispatchContentChange.removeBeforeContentChangeListener = function (listener) {
     return this.removeContentChangeListener(listener, true);
 };
 
-Observable.dispatchBeforeContentChange = function (plus, minus, index) {
+DispatchContentChange.dispatchBeforeContentChange = function (plus, minus, index) {
     return this.dispatchContentChange(plus, minus, index, true);
 };
 

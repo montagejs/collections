@@ -5,7 +5,7 @@ var List = require("./list");
 var FastSet = require("./fast-set");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
-var Observable = require("./observable");
+var ContentChanges = require("./dispatch/content-changes");
 
 module.exports = Set;
 
@@ -39,7 +39,7 @@ function Set(values, equals, hash, content) {
 
 Object.addEach(Set.prototype, GenericCollection);
 Object.addEach(Set.prototype, GenericSet);
-Object.addEach(Set.prototype, Observable);
+Object.addEach(Set.prototype, ContentChanges);
 
 Set.prototype.Order = List;
 Set.prototype.Store = FastSet;

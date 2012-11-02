@@ -4,7 +4,7 @@ var Shim = require("./shim");
 var Set = require("./set");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
-var Observable = require("./observable");
+var ContentChanges = require("./dispatch/content-changes");
 
 module.exports = LruSet;
 
@@ -27,7 +27,7 @@ function LruSet(values, maxLength, equals, hash, content) {
 
 Object.addEach(LruSet.prototype, GenericCollection);
 Object.addEach(LruSet.prototype, GenericSet);
-Object.addEach(LruSet.prototype, Observable);
+Object.addEach(LruSet.prototype, ContentChanges);
 
 LruSet.prototype.constructClone = function (values) {
     return new this.constructor(

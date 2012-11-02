@@ -5,7 +5,7 @@ var Dict = require("./dict");
 var List = require("./list");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
-var Observable = require("./observable");
+var ContentChanges = require("./dispatch/content-changes");
 var TreeLog = require("./tree-log");
 
 var object_has = Object.prototype.hasOwnProperty;
@@ -29,7 +29,7 @@ function FastSet(values, equals, hash, content) {
 
 Object.addEach(FastSet.prototype, GenericCollection);
 Object.addEach(FastSet.prototype, GenericSet);
-Object.addEach(FastSet.prototype, Observable);
+Object.addEach(FastSet.prototype, ContentChanges);
 
 FastSet.prototype.Buckets = Dict;
 FastSet.prototype.Bucket = List;
@@ -64,14 +64,14 @@ FastSet.prototype['delete'] = function (value) {
     if (buckets.has(hash)) {
         var bucket = buckets.get(hash);
         if (bucket["delete"](value)) {
-            if (this.isObserved) {
+            if (this.dispatchesContentChanges) {
                 this.dispatchBeforeContentChange([], [value]);
             }
             this.length--;
             if (bucket.length === 0) {
                 buckets["delete"](hash);
             }
-            if (this.isObserved) {
+            if (this.dispatchesContentChanges) {
                 this.dispatchContentChange([], [value]);
             }
             return true;
@@ -92,12 +92,12 @@ FastSet.prototype.add = function (value) {
         buckets.set(hash, new this.Bucket(null, this.contentEquals));
     }
     if (!buckets.get(hash).has(value)) {
-        if (this.isObserved) {
+        if (this.dispatchesContentChanges) {
             this.dispatchBeforeContentChange([value], []);
         }
         buckets.get(hash).add(value);
         this.length++;
-        if (this.isObserved) {
+        if (this.dispatchesContentChanges) {
             this.dispatchContentChange([value], []);
         }
         return true;

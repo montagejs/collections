@@ -1,7 +1,9 @@
 
 require("../shim");
+require("../dispatch/array-changes");
 var describeDequeue = require("./dequeue");
 var describeCollection = require("./collection");
+var describeMapChanges = require("./dispatch/map-changes");
 var GenericCollection = require("../generic-collection");
 
 describe("Array", function () {
@@ -9,6 +11,15 @@ describe("Array", function () {
     describeDequeue(Array.from);
     describeCollection(Array.from, [1, 2, 3, 4]);
     describeCollection(Array.from, [{id: 0}, {id: 1}, {id: 2}, {id: 3}]);
+    describeMapChanges(function (items) {
+        var array = [];
+        if (items) {
+            items.forEach(function (pair) {
+                array.set(pair[0], pair[1]);
+            });
+        }
+        return array;
+    });
 
     /*
         The following tests are from Montage.

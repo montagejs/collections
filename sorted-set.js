@@ -5,7 +5,7 @@ module.exports = SortedSet;
 var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
-var Observable = require("./observable");
+var ContentChanges = require("./dispatch/content-changes");
 var TreeLog = require("./tree-log");
 
 function SortedSet(values, equals, compare, content) {
@@ -22,7 +22,7 @@ function SortedSet(values, equals, compare, content) {
 
 Object.addEach(SortedSet.prototype, GenericCollection);
 Object.addEach(SortedSet.prototype, GenericSet);
-Object.addEach(SortedSet.prototype, Observable);
+Object.addEach(SortedSet.prototype, ContentChanges);
 
 SortedSet.prototype.constructClone = function (values) {
     return new this.constructor(
@@ -57,7 +57,7 @@ SortedSet.prototype.add = function (value) {
     if (this.root) {
         this.splay(value);
         if (!this.contentEquals(value, this.root.value)) {
-            if (this.isObserved) {
+            if (this.dispatchesContentChanges) {
                 this.dispatchBeforeContentChange([value], [], this.root.index);
             }
             if (this.contentCompare(value, this.root.value) < 0) {
@@ -88,18 +88,18 @@ SortedSet.prototype.add = function (value) {
             node.touch();
             this.root = node;
             this.length++;
-            if (this.isObserved) {
+            if (this.dispatchesContentChanges) {
                 this.dispatchContentChange([value], [], this.root.index);
             }
             return true;
         }
     } else {
-        if (this.isObserved) {
+        if (this.dispatchesContentChanges) {
             this.dispatchBeforeContentChange([value], [], 0);
         }
         this.root = node;
         this.length++;
-        if (this.isObserved) {
+        if (this.dispatchesContentChanges) {
             this.dispatchContentChange([value], [], 0);
         }
         return true;
@@ -112,7 +112,7 @@ SortedSet.prototype['delete'] = function (value) {
         this.splay(value);
         if (this.contentEquals(value, this.root.value)) {
             var index = this.root.index;
-            if (this.isObserved) {
+            if (this.dispatchesContentChanges) {
                 this.dispatchBeforeContentChange([], [value], index);
             }
             if (!this.root.left) {
@@ -132,7 +132,7 @@ SortedSet.prototype['delete'] = function (value) {
             if (this.root) {
                 this.root.touch();
             }
-            if (this.isObserved) {
+            if (this.dispatchesContentChanges) {
                 this.dispatchContentChange([], [value], index);
             }
             return true;
@@ -489,13 +489,13 @@ SortedSet.prototype.one = function () {
 
 SortedSet.prototype.clear = function () {
     var minus;
-    if (this.isObserved) {
+    if (this.dispatchesContentChanges) {
         minus = this.toArray();
         this.dispatchBeforeContentChange([], minus, 0);
     }
     this.root = null;
     this.length = 0;
-    if (this.isObserved) {
+    if (this.dispatchesContentChanges) {
         this.dispatchContentChange([], minus, 0);
     }
 };
