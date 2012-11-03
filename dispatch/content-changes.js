@@ -34,7 +34,7 @@ DispatchContentChange.addContentChangeListener = function (listener, beforeChang
 
     // even if already registered
     listeners.push(listener);
-    this.isObserved = !!listeners.length;
+    this.dispatchesContentChanges = !!listeners.length;
 };
 
 DispatchContentChange.removeContentChangeListener = function (listener, beforeChange) {
@@ -52,7 +52,7 @@ DispatchContentChange.removeContentChangeListener = function (listener, beforeCh
         throw new Error("Can't remove listener: does not exist.");
     }
     listeners.splice(index, 1);
-    this.isObserved = !!listeners.length;
+    this.dispatchesContentChanges = !!listeners.length;
 };
 
 DispatchContentChange.dispatchContentChange = function (plus, minus, index, beforeChange) {

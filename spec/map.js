@@ -4,13 +4,14 @@
 var describeMapChanges = require("./dispatch/map-changes");
 
 module.exports = describeMap;
-function describeMap(Map, nonEnumerable) {
+function describeMap(Map, values) {
 
     describeMapChanges(Map);
 
-    var a = {};
-    var b = {};
-    var c = {};
+    values = values || [];
+    var a = values[0] || {};
+    var b = values[1] || {};
+    var c = values[2] || {};
 
     function shouldHaveTheUsualContent(map) {
         expect(map.has(a)).toBe(true);
@@ -56,11 +57,32 @@ function describeMap(Map, nonEnumerable) {
         });
     });
 
+    describe("clear", function () {
+        it("should be able to delete all content", function () {
+            var map = Map({a: 10, b: 20, c: 30});
+            map.clear();
+            expect(map.length).toBe(0);
+            expect(map.keys()).toEqual([]);
+            expect(map.values()).toEqual([]);
+            expect(map.items()).toEqual([]);
+        });
+    });
+
     describe("equals", function () {
+        var map = Map({a: 10, b: 20});
+        expect(Object.equals(map, map)).toBe(true);
+        expect(map.equals(map)).toBe(true);
         expect(Map({a: 10, b: 20}).equals({b: 20, a: 10})).toBe(true);
         expect(Object.equals({a: 10, b: 20}, Map({b: 20, a: 10}))).toBe(true);
         expect(Object.equals(Map({b: 20, a: 10}), {a: 10, b: 20})).toBe(true);
         expect(Object.equals(Map({b: 20, a: 10}), Map({a: 10, b: 20}))).toBe(true);
+    });
+
+    describe("clone", function () {
+        var map = Map({a: 10, b: 20});
+        var clone = Object.clone(map);
+        expect(map).toNotBe(clone);
+        expect(map.equals(clone)).toBe(true);
     });
 
 }

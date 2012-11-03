@@ -75,7 +75,33 @@ describe("List", function () {
         describeCollection(List, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
     });
 
-    describe("find()", function () {
+    describe("equals", function () {
+        var list = List();
+
+        it("should be reflexive", function () {
+            expect(list.equals(list)).toBe(true);
+        });
+
+        it("should be better than nothing", function () {
+            expect(list.equals()).toBe(false);
+        });
+
+    });
+
+    describe("compare", function () {
+        var list = List();
+
+        it("should be reflexive", function () {
+            expect(list.compare(list)).toBe(0);
+        });
+
+        it("should be better than nothing", function () {
+            expect(list.compare()).toBe(1);
+        });
+
+    });
+
+    describe("find", function () {
 
         it("should find every value in a list", function () {
             var list = List([1, 2, 3, 4]);
@@ -97,7 +123,7 @@ describe("List", function () {
 
     });
 
-    describe("findLast()", function () {
+    describe("findLast", function () {
 
         it("should find every value in a list", function () {
             var list = List([1, 2, 3, 4]);
@@ -121,7 +147,7 @@ describe("List", function () {
 
     // additional constraints on splice with regard to how it behaves when the
     // offset is provided as a node instead of a number
-    describe("splice() with nodes", function () {
+    describe("splice with nodes", function () {
 
         it("should splice to end with only an offset argument", function () {
             var collection = List([1, 2, 3, 4]);

@@ -165,7 +165,7 @@ describe("SortedSet", function () {
             var numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
             var rand = Fuzz.makeRandom(0);
             numbers.sort(function () {
-                return rand() < .5;
+                return rand() - .5;
             });
             var set = SortedSet(numbers);
             numbers.forEach(function (index) {
@@ -183,7 +183,7 @@ describe("SortedSet", function () {
                 var numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
                 var rand = Fuzz.makeRandom(seed);
                 numbers.sort(function () {
-                    return rand() < .5;
+                    return rand() - .5;
                 });
                 it("should discern the position of every value in " + numbers.join(", "), function () {
                     var set = SortedSet(numbers);
@@ -202,7 +202,7 @@ describe("SortedSet", function () {
                 var numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
                 var rand = Fuzz.makeRandom(seed);
                 numbers.sort(function () {
-                    return rand() < .5;
+                    return rand() - .5;
                 });
                 it("should bind content changes to an array for " + numbers.join(", "), function () {
                     var mirror = [];
@@ -211,6 +211,7 @@ describe("SortedSet", function () {
                         mirror.swap(index, minus.length, plus);
                     });
                     set.addEach(numbers);
+                    expect(mirror.length).toBe(set.length);
                     mirror.forEach(function (n, i) {
                         expect(n).toBe(i);
                     });

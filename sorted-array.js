@@ -150,6 +150,14 @@ SortedArray.prototype.lastIndexOf = function (value) {
     return searchLast(this.array, value, this.contentCompare, this.contentEquals);
 };
 
+SortedArray.prototype.find = function (value) {
+    return searchFirst(this.array, value, this.contentCompare, this.contentEquals);
+};
+
+SortedArray.prototype.findLast = function (value) {
+    return searchLast(this.array, value, this.contentCompare, this.contentEquals);
+};
+
 SortedArray.prototype.push = function () {
     this.addEach(arguments);
 };
@@ -238,6 +246,14 @@ SortedArray.prototype.clear = function () {
     if (this.dispatchesContentChanges) {
         this.dispatchContentChange([], minus, 0);
     }
+};
+
+SortedArray.prototype.equals = function (that, equals) {
+    return this.array.equals(that, equals);
+};
+
+SortedArray.prototype.compare = function (that, compare) {
+    return this.array.compare(that, compare);
 };
 
 SortedArray.prototype.iterate = function (start, end) {

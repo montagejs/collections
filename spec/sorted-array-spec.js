@@ -1,7 +1,8 @@
 
 var SortedArray = require("../sorted-array");
-var describeDequeue = require("./dequeue");
 var describeCollection = require("./collection");
+var describeDequeue = require("./dequeue");
+var describeOrder = require("./order");
 
 describe("SortedArray", function () {
 
@@ -12,6 +13,7 @@ describe("SortedArray", function () {
     [SortedArray, newSortedArray].forEach(function (SortedArray) {
         describeDequeue(SortedArray);
         describeCollection(SortedArray, [1, 2, 3, 4]);
+        describeOrder(SortedArray);
     });
 
     describe("non-uniqueness", function () {

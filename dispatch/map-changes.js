@@ -77,9 +77,10 @@ DispatchMapChange.dispatchMapChange = function (key, value, beforeChange) {
 
     // dispatch to each listener
     listeners.forEach(function (listener) {
+        var thisp = listener;
         listener = listener[handlerName] || listener;
         if (listener.call) {
-            listener.call(listener, key, value, this);
+            listener.call(thisp, value, key, this);
         }
     }, this);
 };

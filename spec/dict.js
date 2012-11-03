@@ -45,17 +45,6 @@ function describeDict(Dict) {
         expect(dict.delete("__proto__")).toBe(false);
     });
 
-    describe("clear", function () {
-        it("should be able to delete all content", function () {
-            var dict = Dict({a: 10, b: 20, c: 30});
-            dict.clear();
-            expect(dict.length).toBe(0);
-            expect(dict.keys()).toEqual([]);
-            expect(dict.values()).toEqual([]);
-            expect(dict.items()).toEqual([]);
-        });
-    });
-
 }
 
 function shouldHaveTheUsualContent(dict) {

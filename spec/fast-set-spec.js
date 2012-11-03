@@ -2,6 +2,8 @@
 
 var Set = require("../fast-set");
 var Iterator = require("../iterator");
+var TreeLog = require("../tree-log");
+
 var describeCollection = require("./collection");
 var describeSet = require("./set");
 
@@ -75,5 +77,101 @@ describe("Set", function () {
         expect(array).toEqual(set.toArray());
     });
 
+    it("should log", function () {
+        var set = new Set([1, 2, 3]);
+        var lines = [];
+        set.log(TreeLog.ascii, null, lines.push, lines);
+        expect(lines).toEqual([
+            "+-+ 1",
+            "| '-- 1",
+            "+-+ 2",
+            "| '-- 2",
+            "'-+ 3",
+            "  '-- 3"
+        ]);
+    });
+
+    it("should log objects by hash", function () {
+        function Type(value) {
+            this.value = value;
+        }
+        Type.prototype.hash = function () {
+            return this.value;
+        };
+        var set = new Set([
+            new Type(1),
+            new Type(1),
+            new Type(2),
+            new Type(2)
+        ]);
+        var lines = [];
+        set.log(TreeLog.ascii, function (node, write) {
+            write(" " + JSON.stringify(node.value));
+        }, lines.push, lines);
+        expect(lines).toEqual([
+            "+-+ 1",
+            "| +-- {\"value\":1}",
+            "| '-- {\"value\":1}",
+            "'-+ 2",
+            "  +-- {\"value\":2}",
+            "  '-- {\"value\":2}"
+        ]);
+    });
+
+    it("should log objects by only one hash", function () {
+        function Type(value) {
+            this.value = value;
+        }
+        Type.prototype.hash = function () {
+            return this.value;
+        };
+        var set = new Set([
+            new Type(1),
+            new Type(1)
+        ]);
+        var lines = [];
+        set.log(TreeLog.ascii, null, lines.push, lines);
+        expect(lines).toEqual([
+            "'-+ 1",
+            "  +-- {",
+            "  |       \"value\": 1",
+            "  |   }",
+            "  '-- {",
+            "          \"value\": 1",
+            "      }"
+        ]);
+    });
+
+    describe("should log objects with a custom writer with multiple lines", function () {
+        function Type(value) {
+            this.value = value;
+        }
+        Type.prototype.hash = function () {
+            return this.value;
+        };
+        var set = new Set([
+            new Type(1),
+            new Type(1)
+        ]);
+        var lines = [];
+        set.log(TreeLog.ascii, function (node, below, above) {
+            above(" . ");
+            below("-+ " + node.value.value);
+            below(" ' ");
+        }, lines.push, lines);
+        [
+            "'-+ 1",
+            "  |   . ",
+            "  +---+ 1",
+            "  |   ' ",
+            "  |   . ",
+            "  '---+ 1",
+            "      ' "
+        ].forEach(function (line, index) {
+            it("line " + index, function () {
+                expect(lines[index]).toEqual(line);
+            });
+        });
+    });
 });
 

@@ -143,7 +143,7 @@ Array.prototype.compare = function (that, compare) {
     for (i = 0; i < length; i++) {
         if (i in this) {
             if (!(i in that)) {
-                return 1;
+                return -1;
             } else {
                 lhs = this[i];
                 rhs = that[i];
@@ -153,7 +153,7 @@ Array.prototype.compare = function (that, compare) {
                 }
             }
         } else if (i in that) {
-            return -1;
+            return 1;
         }
     }
 

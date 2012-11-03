@@ -136,17 +136,14 @@ GenericCollection.concat = function () {
 };
 
 GenericCollection.flatten = function () {
-    return this.reduce(flattenReducer, this.constructClone());
+    var self = this;
+    return this.reduce(function (result, array) {
+        array.forEach(function (value) {
+            this.push(value);
+        }, result, self);
+        return result;
+    }, []);
 };
-
-function flattenReducer(result, array) {
-    array.forEach(thisPush, result);
-    return result;
-}
-
-function thisPush(value) {
-    this.push(value);
-}
 
 GenericCollection.zip = function () {
     var table = Array.prototype.slice.call(arguments);
@@ -160,19 +157,19 @@ function transpose(table) {
     // compute shortest row
     for (var i = 0; i < table.length; i++) {
         var row = table[i];
+        table[i] = row.toArray();
         if (row.length < length) {
             length = row.length;
         }
     }
     for (var i = 0; i < table.length; i++) {
-        var j = 0;
-        table[i].reduce(function (undefined, value) {
-            if (j < length) {
+        var row = table[i];
+        for (var j = 0; j < row.length; j++) {
+            if (j < length && j in row) {
                 transpose[j] = transpose[j] || [];
-                transpose[j][i] = value;
+                transpose[j][i] = row[j];
             }
-            j++;
-        }, undefined);
+        }
     }
     return transpose;
 }
@@ -207,6 +204,11 @@ GenericCollection.reversed = function () {
 };
 
 GenericCollection.clone = function (depth, memo) {
+    if (depth === undefined) {
+        depth = Infinity;
+    } else if (depth === 0) {
+        return this;
+    }
     var clone = this.constructClone();
     this.forEach(function (value, key) {
         clone.add(Object.clone(value, depth - 1, memo), key);

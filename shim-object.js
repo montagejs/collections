@@ -434,11 +434,15 @@ Object.compare = function (a, b) {
     // mercifully handles the Date case
     a = Object.getValueOf(a);
     b = Object.getValueOf(b);
+    var aType = typeof a;
+    var bType = typeof b;
     if (a === b)
         return 0;
-    if (typeof a === "number" && typeof b === "number")
+    if (aType !== bType)
+        return 0;
+    if (aType === "number")
         return a - b;
-    if (typeof a === "string")
+    if (aType === "string")
         return a < b ? -1 : 1;
         // the possibility of equality elimiated above
     if (Object.can(a, "compare"))

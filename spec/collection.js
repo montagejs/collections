@@ -84,6 +84,13 @@ function describeCollection(Collection, values, setLike) {
             var collection = Collection([a, b, c, d]);
             expect(collection.has(collection.one())).toBe(true);
         });
+
+        it("should throw an error for an empty collection", function () {
+            var collection = Collection();
+            expect(function () {
+                collection.one();
+            }).toThrow();
+        });
     });
 
     describe("only", function () {

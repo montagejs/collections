@@ -141,6 +141,7 @@ exports.dispatchPropertyChange = function (object, key, value, beforeChange) {
 
     // dispatch to each listener
     listeners.forEach(function (listener) {
+        var thisp = listener;
         listener = (
             listener[specificHandlerName] ||
             listener[genericHandlerName] ||
@@ -148,7 +149,7 @@ exports.dispatchPropertyChange = function (object, key, value, beforeChange) {
             listener
         );
         if (listener.call) {
-            listener.call(listener, value, key, object);
+            listener.call(thisp, value, key, object);
         }
     });
 };

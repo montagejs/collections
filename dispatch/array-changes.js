@@ -24,8 +24,6 @@ var array_slice = Array.prototype.slice;
 var array_reverse = Array.prototype.reverse;
 var array_sort = Array.prototype.sort;
 
-var anyPropertyChangeListeners = new WeakMap(); // {willChange, change}
-
 // use different strategies for making arrays observable between Internet
 // Explorer and other browsers.
 var protoIsSupported = {}.__proto__ === Object.prototype;
@@ -43,68 +41,6 @@ Array.prototype.makeObservable = array_makeObservable;
 
 Object.addEach(Array.prototype, ContentChanges);
 Object.addEach(Array.prototype, MapChanges);
-
-Array.prototype.addEachContentChangeListener = function (listener, before) {
-    var self = this;
-
-    // initialize
-    for (var i = 0; i < this.length; i++) {
-        PropertyChanges.addPropertyChangeListener(this, i, listener, before);
-    }
-
-    // before content changes, add listeners for the new properties
-    var beforeContentChangeListener = function (plus, minus, index) {
-        var diff = plus.length - minus.length;
-        if (diff > 0) {
-            for (var i = self.length; i < self.length + diff; i++) {
-                PropertyChanges.addPropertyChangeListener(self, i, listener, before);
-            }
-        }
-    };
-    self.addBeforeContentChangeListener(beforeContentChangeListener);
-
-    // after content changes, remove listeners for those properties
-    var contentChangeListener = function (plus, minus, index) {
-        var diff = plus.length - minus.length;
-        if (diff < 0) {
-            for (var i = self.length; i < self.length - diff; i++) {
-                PropertyChanges.removePropertyChangeListener(self, i, listener, before);
-            }
-        }
-    };
-    self.addContentChangeListener(contentChangeListener);
-
-    // associate the given listener function with the produced
-    // listener functions for change and willChange events so
-    // they can be removed later
-    anyPropertyChangeListeners.set(listener, {
-        willChange: beforeContentChangeListener,
-        change: contentChangeListener
-    });
-
-};
-
-Array.prototype.removeEachContentChangeListener = function (listener, before) {
-
-    // remove the listeners for each property change
-    for (var i = 0; i < this.length; i++) {
-        PropertyChanges.removePropertyChangeListener(this, i, listener, before);
-    }
-
-    // remove the manufactured listeners for content changes
-    var listeners = anyPropertyChangeListeners.get(listener);
-    this.removeBeforeContentChangeListener(listeners.willChange);
-    this.removeContentChangeListener(listeners.change);
-
-};
-
-Array.prototype.addBeforeEachContentChangeListener = function (listener) {
-    return this.addEachContentChangeListener(listener, true);
-};
-
-Array.prototype.removeBeforeEachContentChangeListener = function (listener) {
-    return this.removeEachContentChangeListener(listener, true);
-};
 
 var observableArrayProperties = {
 

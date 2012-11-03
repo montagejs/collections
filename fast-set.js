@@ -5,7 +5,6 @@ var Dict = require("./dict");
 var List = require("./list");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
-var ContentChanges = require("./dispatch/content-changes");
 var TreeLog = require("./tree-log");
 
 var object_has = Object.prototype.hasOwnProperty;
@@ -29,7 +28,6 @@ function FastSet(values, equals, hash, content) {
 
 Object.addEach(FastSet.prototype, GenericCollection);
 Object.addEach(FastSet.prototype, GenericSet);
-Object.addEach(FastSet.prototype, ContentChanges);
 
 FastSet.prototype.Buckets = Dict;
 FastSet.prototype.Bucket = List;
@@ -64,15 +62,9 @@ FastSet.prototype['delete'] = function (value) {
     if (buckets.has(hash)) {
         var bucket = buckets.get(hash);
         if (bucket["delete"](value)) {
-            if (this.dispatchesContentChanges) {
-                this.dispatchBeforeContentChange([], [value]);
-            }
             this.length--;
             if (bucket.length === 0) {
                 buckets["delete"](hash);
-            }
-            if (this.dispatchesContentChanges) {
-                this.dispatchContentChange([], [value]);
             }
             return true;
         }
@@ -92,14 +84,8 @@ FastSet.prototype.add = function (value) {
         buckets.set(hash, new this.Bucket(null, this.contentEquals));
     }
     if (!buckets.get(hash).has(value)) {
-        if (this.dispatchesContentChanges) {
-            this.dispatchBeforeContentChange([value], []);
-        }
         buckets.get(hash).add(value);
         this.length++;
-        if (this.dispatchesContentChanges) {
-            this.dispatchContentChange([value], []);
-        }
         return true;
     }
     return false;
@@ -140,12 +126,12 @@ FastSet.prototype.log = function (charmap, logNode, callback, thisp) {
     hashes.forEach(function (hash, index) {
         var branch;
         var leader;
-        if (index === 0) {
-            branch = charmap.branchDown;
-            leader = charmap.strafe;
-        } else if (index === hashes.length - 1) {
+        if (index === hashes.length - 1) {
             branch = charmap.fromAbove;
             leader = ' ';
+        } else if (index === 0) {
+            branch = charmap.branchDown;
+            leader = charmap.strafe;
         } else {
             branch = charmap.fromBoth;
             leader = charmap.strafe;
@@ -153,31 +139,41 @@ FastSet.prototype.log = function (charmap, logNode, callback, thisp) {
         var bucket = buckets.get(hash);
         callback.call(thisp, branch + charmap.through + charmap.branchDown + ' ' + hash);
         bucket.forEach(function (value, node) {
-            var branch;
+            var branch, below;
             if (node === bucket.head.prev) {
                 branch = charmap.fromAbove;
+                below = ' ';
             } else {
                 branch = charmap.fromBoth;
+                below = charmap.strafe;
             }
+            var written;
             logNode(
-                value,
+                node,
                 function (line) {
-                    callback.call(thisp, leader + ' ' + branch + charmap.through + charmap.through + ' ' + line);
+                    if (!written) {
+                        callback.call(thisp, leader + ' ' + branch + charmap.through + charmap.through + line);
+                        written = true;
+                    } else {
+                        callback.call(thisp, leader + ' ' + below + '  ' + line);
+                    }
                 },
                 function (line) {
-                    callback.call(thisp, leader + '     ' + line);
+                    callback.call(thisp, leader + ' ' + charmap.strafe + '  ' + line);
                 }
             );
         });
     });
 };
 
-FastSet.prototype.logNode = function (node, callback, thisp) {
+FastSet.prototype.logNode = function (node, write) {
     var value = node.value;
     if (Object(value) === value) {
-        callback.call(thisp, JSON.stringify(value));
+        JSON.stringify(value, null, 4).split("\n").forEach(function (line) {
+            write(" " + line);
+        });
     } else {
-        callback.call(thisp, value);
+        write(" " + value);
     }
 };
 
