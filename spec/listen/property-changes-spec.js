@@ -5,7 +5,7 @@
     https://github.com/motorola-mobility/montage/blob/master/LICENSE.md
 */
 
-var PropertyChanges = require("../../dispatch/property-changes");
+var PropertyChanges = require("../../listen/property-changes");
 
 describe("ObservableObject", function () {
 

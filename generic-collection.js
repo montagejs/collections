@@ -1,8 +1,11 @@
 "use strict";
 
-var GenericCollection = exports;
+module.exports = GenericCollection;
+function GenericCollection() {
+    throw new Error("Can't construct. GenericCollection is a mixin.");
+}
 
-GenericCollection.addEach = function (values) {
+GenericCollection.prototype.addEach = function (values) {
     if (values && Object(values) === values) {
         if (typeof values.forEach === "function") {
             values.forEach(this.add, this);
@@ -20,7 +23,7 @@ GenericCollection.addEach = function (values) {
     }
 };
 
-GenericCollection.deleteEach = function (values) {
+GenericCollection.prototype.deleteEach = function (values) {
     values.forEach(function (value) {
         this["delete"](value);
     }, this);
@@ -29,14 +32,14 @@ GenericCollection.deleteEach = function (values) {
 // all of the following functions are implemented in terms of "reduce".
 // some need "constructClone".
 
-GenericCollection.forEach = function (callback /*, thisp*/) {
+GenericCollection.prototype.forEach = function (callback /*, thisp*/) {
     var thisp = arguments[1];
     return this.reduce(function (undefined, value, key, object, depth) {
         callback.call(thisp, value, key, object, depth);
     }, undefined);
 };
 
-GenericCollection.map = function (callback /*, thisp*/) {
+GenericCollection.prototype.map = function (callback /*, thisp*/) {
     var thisp = arguments[1];
     var result = [];
     this.reduce(function (undefined, value, key, object, depth) {
@@ -45,15 +48,15 @@ GenericCollection.map = function (callback /*, thisp*/) {
     return result;
 };
 
-GenericCollection.toArray = function () {
-    return this.map(identity);
+GenericCollection.prototype.toArray = function () {
+    return this.map(Function.identity);
 };
 
 // this depends on stringable keys, which apply to Array and Iterator
 // because they have numeric keys and all Maps since they may use
 // strings as keys.  List, Set, and SortedSet have nodes for keys, so
 // toObject would not be meaningful.
-GenericCollection.toObject = function () {
+GenericCollection.prototype.toObject = function () {
     var object = {};
     this.reduce(function (undefined, value, key) {
         object[key] = value;
@@ -61,7 +64,7 @@ GenericCollection.toObject = function () {
     return object;
 };
 
-GenericCollection.filter = function (callback /*, thisp*/) {
+GenericCollection.prototype.filter = function (callback /*, thisp*/) {
     var thisp = arguments[1];
     var result = this.constructClone();
     this.reduce(function (undefined, value, key, object, depth) {
@@ -72,52 +75,50 @@ GenericCollection.filter = function (callback /*, thisp*/) {
     return result;
 };
 
-GenericCollection.every = function (callback /*, thisp*/) {
+GenericCollection.prototype.every = function (callback /*, thisp*/) {
     var thisp = arguments[1];
     return this.reduce(function (result, value, key, object, depth) {
         return result && callback.call(thisp, value, key, object, depth);
     }, true);
 };
 
-GenericCollection.some = function (callback /*, thisp*/) {
+GenericCollection.prototype.some = function (callback /*, thisp*/) {
     var thisp = arguments[1];
     return this.reduce(function (result, value, key, object, depth) {
         return result || callback.call(thisp, value, key, object, depth);
     }, false);
 };
 
-GenericCollection.all = function () {
+GenericCollection.prototype.all = function () {
     return this.every(Boolean);
 };
 
-GenericCollection.any = function () {
+GenericCollection.prototype.any = function () {
     return this.some(Boolean);
 };
 
-GenericCollection.min = function (compare) {
+GenericCollection.prototype.min = function (compare) {
     compare = this.contentCompare || Object.compare;
     return this.reduce(function (result, value) {
         return compare(value, result) < 0 ? value : result;
     }, Infinity);
 };
 
-GenericCollection.max = function (compare) {
+GenericCollection.prototype.max = function (compare) {
     compare = this.contentCompare || Object.compare;
     return this.reduce(function (result, value) {
         return compare(value, result) > 0 ? value : result;
     }, -Infinity);
 };
 
-GenericCollection.sum = function (zero) {
+GenericCollection.prototype.sum = function (zero) {
     zero = zero === undefined ? 0 : zero;
-    return this.reduce(add, zero);
+    return this.reduce(function (a, b) {
+        return a + b;
+    }, zero);
 };
 
-function add(a, b) {
-    return a + b;
-}
-
-GenericCollection.average = function (zero) {
+GenericCollection.prototype.average = function (zero) {
     var sum = zero === undefined ? 0 : zero;
     var count = zero === undefined ? 0 : zero;
     this.reduce(function (undefined, value) {
@@ -127,7 +128,7 @@ GenericCollection.average = function (zero) {
     return sum / count;
 };
 
-GenericCollection.concat = function () {
+GenericCollection.prototype.concat = function () {
     var result = this.constructClone(this);
     for (var i = 0; i < arguments.length; i++) {
         result.addEach(arguments[i]);
@@ -135,7 +136,7 @@ GenericCollection.concat = function () {
     return result;
 };
 
-GenericCollection.flatten = function () {
+GenericCollection.prototype.flatten = function () {
     var self = this;
     return this.reduce(function (result, array) {
         array.forEach(function (value) {
@@ -145,7 +146,7 @@ GenericCollection.flatten = function () {
     }, []);
 };
 
-GenericCollection.zip = function () {
+GenericCollection.prototype.zip = function () {
     var table = Array.prototype.slice.call(arguments);
     table.unshift(this);
     return transpose(table);
@@ -174,14 +175,14 @@ function transpose(table) {
     return transpose;
 }
 
-GenericCollection.sorted = function (compare, by, order) {
+GenericCollection.prototype.sorted = function (compare, by, order) {
     compare = compare || this.contentCompare || Object.compare;
     // account for comparators generated by Function.by
     if (compare.by) {
         by = compare.by;
         compare = compare.compare || this.contentCompare || Object.compare;
     } else {
-        by = by || identity;
+        by = by || Function.identity;
     }
     if (order === undefined)
         order = 1;
@@ -199,11 +200,11 @@ GenericCollection.sorted = function (compare, by, order) {
     });
 };
 
-GenericCollection.reversed = function () {
+GenericCollection.prototype.reversed = function () {
     return this.constructClone(this).reverse();
 };
 
-GenericCollection.clone = function (depth, memo) {
+GenericCollection.prototype.clone = function (depth, memo) {
     if (depth === undefined) {
         depth = Infinity;
     } else if (depth === 0) {
@@ -216,11 +217,7 @@ GenericCollection.clone = function (depth, memo) {
     return clone;
 };
 
-function identity(value) {
-    return value;
-}
-
-GenericCollection.only = function () {
+GenericCollection.prototype.only = function () {
     if (this.length === 0) {
         throw new Error("Can't get only value in empty collection.");
     }

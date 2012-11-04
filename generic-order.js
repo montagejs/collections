@@ -1,9 +1,12 @@
 
 var Object = require("./shim-object");
 
-var GenericOrder = exports;
+module.exports = GenericOrder;
+function GenericOrder() {
+    throw new Error("Can't construct. GenericOrder is a mixin.");
+}
 
-GenericOrder.equals = function (that, equals) {
+GenericOrder.prototype.equals = function (that, equals) {
     equals = equals || this.contentEquals || Object.equals;
 
     if (this === that) {
@@ -22,7 +25,7 @@ GenericOrder.equals = function (that, equals) {
     );
 };
 
-GenericOrder.compare = function (that, compare) {
+GenericOrder.prototype.compare = function (that, compare) {
     compare = compare || this.contentCompare || Object.compare;
 
     if (this === that) {

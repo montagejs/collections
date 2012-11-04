@@ -25,21 +25,21 @@ Array.from = function (values) {
     return array;
 };
 
-Array.prototype.addEach = GenericCollection.addEach;
-Array.prototype.deleteEach = GenericCollection.deleteEach;
-Array.prototype.toArray = GenericCollection.toArray;
-Array.prototype.toObject = GenericCollection.toObject;
-Array.prototype.all = GenericCollection.all;
-Array.prototype.any = GenericCollection.any;
-Array.prototype.min = GenericCollection.min;
-Array.prototype.max = GenericCollection.max;
-Array.prototype.sum = GenericCollection.sum;
-Array.prototype.average = GenericCollection.average;
-Array.prototype.only = GenericCollection.only;
-Array.prototype.flatten = GenericCollection.flatten;
-Array.prototype.zip = GenericCollection.zip;
-Array.prototype.sorted = GenericCollection.sorted;
-Array.prototype.reversed = GenericCollection.reversed;
+Array.prototype.addEach = GenericCollection.prototype.addEach;
+Array.prototype.deleteEach = GenericCollection.prototype.deleteEach;
+Array.prototype.toArray = GenericCollection.prototype.toArray;
+Array.prototype.toObject = GenericCollection.prototype.toObject;
+Array.prototype.all = GenericCollection.prototype.all;
+Array.prototype.any = GenericCollection.prototype.any;
+Array.prototype.min = GenericCollection.prototype.min;
+Array.prototype.max = GenericCollection.prototype.max;
+Array.prototype.sum = GenericCollection.prototype.sum;
+Array.prototype.average = GenericCollection.prototype.average;
+Array.prototype.only = GenericCollection.prototype.only;
+Array.prototype.flatten = GenericCollection.prototype.flatten;
+Array.prototype.zip = GenericCollection.prototype.zip;
+Array.prototype.sorted = GenericCollection.prototype.sorted;
+Array.prototype.reversed = GenericCollection.prototype.reversed;
 
 Array.prototype.constructClone = function (values) {
     var clone = new this.constructor();
@@ -135,7 +135,7 @@ Array.prototype.compare = function (that, compare) {
     }
 
     if (!that || !Array.isArray(that)) {
-        return GenericOrder.compare.call(this, that, compare);
+        return GenericOrder.prototype.compare.call(this, that, compare);
     }
 
     length = Math.min(this.length, that.length);
@@ -171,7 +171,7 @@ Array.prototype.equals = function (that) {
         return true;
     }
     if (!that || !Array.isArray(that)) {
-        return GenericOrder.equals.call(this, that);
+        return GenericOrder.prototype.equals.call(this, that);
     }
 
     if (length !== that.length) {

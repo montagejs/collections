@@ -1,17 +1,17 @@
 
-require("../observable-array");
+require("../listen/array-changes");
 
 var array = [];
 
-Object.addOwnPropertyChangeListener(array, "length", function (length) {
+array.addPropertyChangeListener("length", function (length) {
     console.log("changed", length);
 });
 
-Object.addOwnPropertyChangeListener(array, 0, function (value) {
+array.addPropertyChangeListener(0, function (value) {
     console.log("array[0] changed to", value);
 });
 
-array.addEachContentChangeListener(function (value, key) {
+array.addMapChangeListener(function (value, key) {
     console.log(key, value);
 });
 

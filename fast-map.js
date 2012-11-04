@@ -4,6 +4,7 @@ var Shim = require("./shim");
 var Set = require("./fast-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
+var PropertyChanges = require("./listen/property-changes");
 
 module.exports = FastMap;
 
@@ -30,8 +31,9 @@ function FastMap(values, equals, hash, content) {
     this.addEach(values);
 }
 
-Object.addEach(FastMap.prototype, GenericCollection);
-Object.addEach(FastMap.prototype, GenericMap);
+Object.addEach(FastMap.prototype, GenericCollection.prototype);
+Object.addEach(FastMap.prototype, GenericMap.prototype);
+Object.addEach(FastMap.prototype, PropertyChanges.prototype);
 
 FastMap.prototype.constructClone = function (values) {
     return new this.constructor(

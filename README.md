@@ -14,6 +14,10 @@ Object.
     except that they use and return nodes instead of integer indicies in
     analogous functions.
 
+    Lists have a `head` `Node`. The node type is available as `Node` on
+    the list prototype and can be overridden by inheritors.  Each node
+    has `prev` and `next` properties.
+
 -   **Set(values, equals, hash, content)**
 
     A collection of unique values.  The set can be iterated in the order
@@ -803,57 +807,142 @@ SortedArrayMap, FastSet, FastMap, Dict)
     Repeats the given value either finite times or indefinitely.
 
 
-### Observables
+### Change Listeners
 
-`List`, `Set`, and `SortedSet` can be observed for content changes.
+All collections support change listeners.  There are three types of
+changes.
 
-A content change handler can have various forms.  The simplest form is a
-function that accepts `plus`, `minus`, and `index` as arguments where
-`plus` is an array of added values, `minus` is an array of deleted
-values, and `index` is the position of the change or undefined.  In that
-case, `this` will be the collection that dispatches the event.
+-   **property changes**
 
-Alternately, you can dispatch events to a handler object.  If the
-handler has a `handleContentChange` function (for noticing a change
-after it has occurred) or a `handleContentWillChange` function (for
-noticing a change before it has occurred), the event will be dispatched
-to one of those.  The function has the same `(plus, minus, index)`
-signature.
+    `PropertyChanges` from the `listen/property-changes` module can
+    configure listeners for property changes to specific keys of any
+    object.
 
-You can also dispatch change events to a DOM-compatible
-`handleEvent(event)` method, in which case the handler will receive an
-event with `phase`, `currentTarget`, `target`, `plus`, `minus`, and
-`index` properties.  `phase` is either `"before"` or `"after"`.  The
-targets are both the collection in flux.
+    With the `listen/array-changes` module required, `PropertyChanges`
+    can also listen to changes to the length and indexed properties of
+    an array.  The only caveat is that watched arrays can only modify
+    their contents with method calls like `array.push`.  All methods of
+    a watched array support change dispatch.  In addition, arrays have a
+    `set` method to make setting the value at a particular index
+    observable.
 
--   `(plus, minus, index)`
--   `handleContentChange(plus, minus, index)`
--   `handleContentWillChange(plus, minus, index)`
--   `handleEvent({phase, currentTarget, target, plus, minus, index})`
+    -   **PropertyChanges.addPropertyChangeListener(object, key,
+        listener, before)**
+    -   **PropertyChanges.removePropertyChangeListener(object, key,
+        listener, before)**
+    -   **PropertyChanges.dispatchPropertyChange(object, key, value,
+        before)**
+    -   **PropertyChanges.addBeforePropertyChangeListener(object, key,
+        listener)**
+    -   **PropertyChanges.removeBeforePropertyChangeListener(object,
+        key, listener)**
+    -   **PropertyChanges.dispatchBeforePropertyChange(object, key,
+        value)**
+    -   **PropertyChanges.getPropertyChangeDescriptor(object, key)**
 
-The methods of the collection for managing content changes are generic,
-in the `observable` module, and have the following forms:
+    All of these functions delegate to methods of the same name if one
+    exists on the object.
 
--   `addContentChangeListener(listener, beforeChange)`
--   `removeContentChangeListener(listener, beforeChange)`
--   `dispatchContentChange(plus, minus, index)`
--   `addBeforeContentChangeListener(listener)`
--   `removeBeforeContentChangeListener(listener)`
--   `dispatchBeforeContentChange(plus, minus, index)`
--   `getContentChangeDescriptor()`
+    -   **object.addPropertyChangeListener(key, listener, before)**
+    -   **object.removePropertyChangeListener(key, listener, before)**
+    -   **object.dispatchPropertyChange(key, value)**
+    -   **object.addBeforePropertyChangeListener(key, listener)**
+    -   **object.removeBeforePropertyChangeListener(key, listener)**
+    -   **object.dispatchBeforePropertyChange(key, value)**
+    -   **object.getPropertyChangeDescriptor(key)**
 
+    Additionally, `PropertyChanges.prototype` can be **mixed into**
+    other types of objects to support the property change dispatch
+    interface.  All collections support this interface.
 
-## List
+    The **listener** for a property change receives the arguments
+    `value`, `key`, and `object`, just as a `forEach` or `map` callback.
+    The listener may alternately be a delegate object that implements
+    one of these methods:
 
-Lists are backed by a cyclic doubly-linked list with a head node.  The
-nodes are returned by "find" methods and accepted by "slice" and
-"splice" as representatives of positions within the list.  Their
-properties and methods are part of the interface of the structure.
+-   **map changes**
 
--   `prev`: the previous node, or the `head` of the list if this is the
-    first node
--   `next`: the next node, or the `head` of the list if this is the last
-    node
+    A map change listener receives notifications for the creation,
+    removal, or updates for any item in a map data structure.
+
+    With the `listen/array-changes` module required, `Array` can also
+    dispatch map changes for the values at each index.
+
+    -   **collection.addMapChangeListener(listener)**
+    -   **collection.removeMapChangeListener(listener)**
+    -   **collection.dispatchMapChange(key, value)**
+    -   **collection.addBeforeMapChangeListener(listener)**
+    -   **collection.removeBeforeMapChangeListener(listener)**
+    -   **collection.dispatchBeforeMapChange(key, value)**
+    -   **collection.getMapChangeDescriptor()**
+
+    The **listener** for a map change receives the `value`, `key`, and
+    collection `object` as arguments, the same pattern as a `forEach` or
+    `map` callback.  In the after change phase, a value of `undefined`
+    may indicate that the value was deleted or set to `undefined`.  In
+    the before change phase, a value of `undefined` may indicate the the
+    value was added or was previously `undefined`.
+
+    The `listen/map-changes` module exports a map changes **mixin**.
+    The methods of `MaxChanges.prototype` can be copied to any
+    collection that needs this interface.  Its mutation methods will
+    then need to dispatch map changes.
+
+-   **range changes**
+
+    A range change listener receives notifications when a range of
+    values at a particular position is added, removed, or replaced
+    within an ordered collection.
+
+    -   **collection.addRangeChangeListener(listener)**
+    -   **collection.removeRangeChangeListener(listener)**
+    -   **collection.dispatchRangeChange(plus, minus, index)**
+    -   **collection.addBeforeRangeChangeListener(listener)**
+    -   **collection.removeBeforeRangeChangeListener(listener)**
+    -   **collection.dispatchBeforeRangeChange(plus, minus, index)**
+    -   **collection.getRangeChangeDescriptor()**
+
+    The **listener** for a range change is a function that accepts
+    `plus`, `minus`, and `index` arguments.  `plus` and `minus` are the
+    values that were added or removed at the `index`.  Whatever
+    operation caused these changes is equivalent to:
+
+    ```javascript
+    var minus = collection.splice(index, minus.length, ...plus)
+    ```
+
+    The listener can alternately be an object that has either a
+    `handleRangeChange` or `handleRangeWillChange` method, depending on
+    whether the notification is dispatched after or before the change
+    takes effect.  The arguments are the same either way, but `this`
+    will be the handler object.
+
+    If the listener is neither of the above, it can be a delegate that
+    implements a W3C-alike `handleEvent(event)` method.  The event has
+    these properties:
+
+    -   `phase` of `"before"` or `"after"`
+    -   `currentTarget` is the object
+    -   `target` is the object
+    -   `plus`
+    -   `minus`
+    -   `index`
+
+    The following support range change dispatch:
+
+    -   `Array`
+    -   `SortedSet`
+    -   `SortedArray`
+    -   `SortedArraySet`
+
+    The `listen/range-changes` module exports a range changes **mixin**.
+    The methods of `RangeChanges.prototype` can be copied to any
+    collection that needs this interface.  Its mutation methods will
+    need to dispatch the range changes.
+
+All **descriptors** are objects with the properties `changeListeners`
+and `willChangeListeners`.  Both are arrays of listener functions or
+objects, in the order in which they were added.
 
 
 ## Set and Map
@@ -924,7 +1013,7 @@ tree.
 ## Object and Function Shims
 
 The collection methods on the `Object` constructor all polymorphically
-defer to the corresponding method of any object that implements the
+delegate to the corresponding method of any object that implements the
 method of the same name.  So, `Object.has` can be used to check whether
 a key exists on an object, or in any collection that implements `has`.
 This permits the `Object` interface to be agnostic of the input type.
@@ -973,6 +1062,10 @@ a method, to aid in distinguishing "static" functions.
 
 Goals
 
+- handle event for other change dispatch systems, in addition to range,
+  and the rest of the W3C event interface
+- automate the generation of the method support tables in readme and
+  normalize declaration order
 - comprehensive specs and spec coverage tests
 - map change dispatch and listeners
 - fast list splicing
@@ -983,12 +1076,13 @@ More possible collections
 - arc-map
 - sorted-order (sorted, can contain duplicates, perhaps backed by splay
   tree with relaxation on the uniqueness invariant)
-- sorted-multi-map (sorted, can contain duplicate entries, perhaps
-  backed by sorted-list)
-- string-set (set of strings, backed by a trie)
+- sorted-multi-map (sorted, can contain duplicate entries, backed by
+  sorted-map)
+- trie-set
+- trie-map
 - immutable-* (mutation functions return new objects that largely share
   the previous version's internal state, some perhaps backed by a hash
   trie)
-- array heap implementation
-- binary heap implementation
+- array-heap implementation
+- binary-heap implementation
 

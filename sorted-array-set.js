@@ -5,6 +5,7 @@ module.exports = SortedArraySet;
 var Shim = require("./shim");
 var SortedArray = require("./sorted-array");
 var GenericSet = require("./generic-set");
+var PropertyChanges = require("./listen/property-changes");
 
 function SortedArraySet(values, equals, compare, content) {
     if (!(this instanceof SortedArraySet)) {
@@ -17,7 +18,8 @@ SortedArraySet.prototype = Object.create(SortedArray.prototype);
 
 SortedArraySet.prototype.constructor = SortedArraySet;
 
-Object.addEach(SortedArraySet.prototype, GenericSet);
+Object.addEach(SortedArraySet.prototype, GenericSet.prototype);
+Object.addEach(SortedArraySet.prototype, PropertyChanges.prototype);
 
 SortedArraySet.prototype.add = function (value) {
     if (!this.has(value)) {

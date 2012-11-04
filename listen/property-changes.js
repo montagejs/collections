@@ -13,7 +13,6 @@
 */
 
 var WeakMap = require("../weak-map");
-var List = require("../list");
 
 var object_owns = Object.prototype.hasOwnProperty;
 
@@ -55,55 +54,62 @@ var propertyChangeDescriptors = new WeakMap();
 */
 var overriddenObjectDescriptors = new WeakMap();
 
-exports.getPropertyChangeDescriptor = function (object, key) {
-    if (!propertyChangeDescriptors.has(object)) {
-        propertyChangeDescriptors.set(object, {});
+module.exports = PropertyChanges;
+
+function PropertyChanges() {
+    throw new Error("This is an abstract interface. Mix it. Don't construct it");
+}
+
+PropertyChanges.prototype.getPropertyChangeDescriptor = function (key) {
+    if (!propertyChangeDescriptors.has(this)) {
+        propertyChangeDescriptors.set(this, {});
     }
-    var objectPropertyChangeDescriptors = propertyChangeDescriptors.get(object);
+    var objectPropertyChangeDescriptors = propertyChangeDescriptors.get(this);
     if (!object_owns.call(objectPropertyChangeDescriptors, key)) {
         objectPropertyChangeDescriptors[key] = {
-            willChangeListeners: new List(),
-            changeListeners: new List()
+            willChangeListeners: [],
+            changeListeners: []
         };
     }
     return objectPropertyChangeDescriptors[key];
 };
 
-exports.hasPropertyChangeDescriptor = function (object, key) {
-    if (!propertyChangeDescriptors.has(object)) {
+PropertyChanges.prototype.hasPropertyChangeDescriptor = function (key) {
+    if (!propertyChangeDescriptors.has(this)) {
         return false;
     }
     if (!key) {
         return true;
     }
-    var objectPropertyChangeDescriptors = propertyChangeDescriptors.get(object);
+    var objectPropertyChangeDescriptors = propertyChangeDescriptors.get(this);
     if (!object_owns.call(objectPropertyChangeDescriptors, key)) {
         return false;
     }
     return true;
 };
 
-exports.addPropertyChangeListener = function (object, key, listener, beforeChange) {
-    if (object.addPropertyChangeListener) {
-        return object.addPropertyChangeListener(key, listener, beforeChange);
-    }
-    if (object.makeObservable && !object.isObservable) {
-        object.makeObservable(); // particularly for observable arrays, for
+PropertyChanges.prototype.addPropertyChangeListener = function (key, listener, beforeChange) {
+    if (this.makeObservable && !this.isObservable) {
+        this.makeObservable(); // particularly for observable arrays, for
         // their length property
     }
-    var descriptor = exports.getPropertyChangeDescriptor(object, key);
+    var descriptor = PropertyChanges.getPropertyChangeDescriptor(this, key);
     var listeners;
     if (beforeChange) {
         listeners = descriptor.willChangeListeners;
     } else {
         listeners = descriptor.changeListeners;
     }
-    exports.makePropertyObservable(object, key);
+    PropertyChanges.makePropertyObservable(this, key);
     listeners.push(listener);
 };
 
-exports.removePropertyChangeListener = function (object, key, listener, beforeChange) {
-    var descriptor = exports.getPropertyChangeDescriptor(object, key);
+PropertyChanges.prototype.addBeforePropertyChangeListener = function (key, listener) {
+    return PropertyChanges.addPropertyChangeListener(this, key, listener, true);
+};
+
+PropertyChanges.prototype.removePropertyChangeListener = function (key, listener, beforeChange) {
+    var descriptor = PropertyChanges.getPropertyChangeDescriptor(this, key);
 
     var listeners;
     if (beforeChange) {
@@ -112,19 +118,23 @@ exports.removePropertyChangeListener = function (object, key, listener, beforeCh
         listeners = descriptor.changeListeners;
     }
 
-    var node = listeners.findLast(listener);
-    if (!node) {
+    var index = listeners.lastIndexOf(listener);
+    if (index === -1) {
         throw new Error("Can't remove listener: does not exist.");
     }
-    node["delete"]();
+    listeners.splice(index, 1);
 
     if (listeners.length === 0) {
-        exports.makePropertyUnobservable(object, key);
+        PropertyChanges.makePropertyUnobservable(this, key);
     }
 };
 
-exports.dispatchPropertyChange = function (object, key, value, beforeChange) {
-    var descriptor = exports.getPropertyChangeDescriptor(object, key);
+PropertyChanges.prototype.removeBeforePropertyChangeListener = function (key, listener) {
+    return PropertyChanges.removePropertyChangeListener(this, key, listener, true);
+};
+
+PropertyChanges.prototype.dispatchPropertyChange = function (key, value, beforeChange) {
+    var descriptor = PropertyChanges.getPropertyChangeDescriptor(this, key);
 
     var listeners;
     if (beforeChange) {
@@ -149,42 +159,30 @@ exports.dispatchPropertyChange = function (object, key, value, beforeChange) {
             listener
         );
         if (listener.call) {
-            listener.call(thisp, value, key, object);
+            listener.call(thisp, value, key, this);
         }
-    });
+    }, this);
 };
 
-exports.addBeforePropertyChangeListener = function (object, key, listener) {
-    return exports.addPropertyChangeListener(object, key, listener, true);
+PropertyChanges.prototype.dispatchBeforePropertyChange = function (key, listener) {
+    return PropertyChanges.dispatchPropertyChange(this, key, listener, true);
 };
 
-exports.removeBeforePropertyChangeListener = function (object, key, listener) {
-    return exports.removePropertyChangeListener(object, key, listener, true);
-};
-
-exports.dispatchBeforePropertyChange = function (object, key, value) {
-    return exports.dispatchPropertyChange(object, key, value, true);
-};
-
-exports.makePropertyObservable = function (object, key) {
+PropertyChanges.prototype.makePropertyObservable = function (key) {
     // arrays are special.  we do not support direct setting of properties
     // on an array.  instead, call .set(index, value).  this is observable.
     // 'length' property is observable for all mutating methods because
     // our overrides explicitly dispatch that change.
-    if (object instanceof Array) {
+    if (Array.isArray(this)) {
         return;
     }
 
-    if (object.makePropertyObservable) {
-        return object.makePropertyObservable(key);
-    }
-
     // memoize overridden property descriptor table
-    if (!overriddenObjectDescriptors.has(object)) {
+    if (!overriddenObjectDescriptors.has(this)) {
         overriddenPropertyDescriptors = {};
-        overriddenObjectDescriptors.set(object, overriddenPropertyDescriptors);
+        overriddenObjectDescriptors.set(this, overriddenPropertyDescriptors);
     }
-    var overriddenPropertyDescriptors = overriddenObjectDescriptors.get(object);
+    var overriddenPropertyDescriptors = overriddenObjectDescriptors.get(this);
 
     if (object_owns.call(overriddenPropertyDescriptors, key)) {
         // if we have already recorded an overridden property descriptor,
@@ -195,7 +193,7 @@ exports.makePropertyObservable = function (object, key) {
     // walk up the prototype chain to find a property descriptor for
     // the property name
     var overriddenDescriptor;
-    var attached = object;
+    var attached = this;
     var formerDescriptor = Object.getOwnPropertyDescriptor(attached, key);
     do {
         overriddenDescriptor = Object.getOwnPropertyDescriptor(attached, key);
@@ -247,9 +245,9 @@ exports.makePropertyObservable = function (object, key) {
                 if (value === overriddenDescriptor.value) {
                     return value;
                 }
-                exports.dispatchBeforePropertyChange(this, key, overriddenDescriptor.value);
+                PropertyChanges.dispatchBeforePropertyChange(this, key, overriddenDescriptor.value);
                 overriddenDescriptor.value = value;
-                exports.dispatchPropertyChange(this, key, value);
+                PropertyChanges.dispatchPropertyChange(this, key, value);
                 return value;
             },
             enumerable: overriddenDescriptor.enumerable,
@@ -272,7 +270,7 @@ exports.makePropertyObservable = function (object, key) {
                 if (value === formerValue) {
                     return value;
                 }
-                exports.dispatchBeforePropertyChange(this, key, formerValue);
+                PropertyChanges.dispatchBeforePropertyChange(this, key, formerValue);
                 // call through to actual setter
                 if (overriddenDescriptor.set) {
                     overriddenDescriptor.set.apply(this, arguments)
@@ -284,7 +282,7 @@ exports.makePropertyObservable = function (object, key) {
                 }
                 // dispatch the new value: the given value if there is
                 // no getter, or the actual value if there is one
-                exports.dispatchPropertyChange(this, key, value);
+                PropertyChanges.dispatchPropertyChange(this, key, value);
                 return value;
             },
             enumerable: overriddenDescriptor.enumerable,
@@ -292,26 +290,22 @@ exports.makePropertyObservable = function (object, key) {
         };
     }
 
-    Object.defineProperty(object, key, newDescriptor);
+    Object.defineProperty(this, key, newDescriptor);
 };
 
-exports.makePropertyUnobservable = function (object, key) {
+PropertyChanges.prototype.makePropertyUnobservable = function (key) {
     // arrays are special.  we do not support direct setting of properties
     // on an array.  instead, call .set(index, value).  this is observable.
     // 'length' property is observable for all mutating methods because
     // our overrides explicitly dispatch that change.
-    if (object instanceof Array) {
+    if (Array.isArray(this)) {
         return;
     }
 
-    if (object.makePropertyUnobservable) {
-        return object.makePropertyUnobservable(key);
-    }
-
-    if (!overriddenObjectDescriptors.has(object)) {
+    if (!overriddenObjectDescriptors.has(this)) {
         throw new Error("Can't uninstall observer on property");
     }
-    var overriddenPropertyDescriptors = overriddenObjectDescriptors.get(object);
+    var overriddenPropertyDescriptors = overriddenObjectDescriptors.get(this);
 
     if (!overriddenPropertyDescriptors[key]) {
         throw new Error("Can't uninstall observer on property");
@@ -319,6 +313,76 @@ exports.makePropertyUnobservable = function (object, key) {
 
     var overriddenDescriptor = overriddenPropertyDescriptors[key];
 
-    Object.defineProperty(object, key, overriddenDescriptor);
+    Object.defineProperty(this, key, overriddenDescriptor);
+};
+
+// constructor functions
+
+PropertyChanges.getPropertyChangeDescriptor = function (object, key) {
+    if (object.getPropertyChangeDescriptor) {
+        return object.getPropertyChangeDescriptor(key);
+    } else {
+        return PropertyChanges.prototype.getPropertyChangeDescriptor.call(object, key);
+    }
+};
+
+PropertyChanges.hasPropertyChangeDescriptor = function (object, key) {
+    if (object.hasPropertyChangeDescriptor) {
+        return object.hasPropertyChangeDescriptor(key);
+    } else {
+        return PropertyChanges.prototype.hasPropertyChangeDescriptor.call(object, key);
+    }
+};
+
+PropertyChanges.addPropertyChangeListener = function (object, key, listener, beforeChange) {
+    if (object.addPropertyChangeListener) {
+        return object.addPropertyChangeListener(key, listener, beforeChange);
+    } else {
+        return PropertyChanges.prototype.addPropertyChangeListener.call(object, key, listener, beforeChange);
+    }
+};
+
+PropertyChanges.removePropertyChangeListener = function (object, key, listener, beforeChange) {
+    if (object.removePropertyChangeListener) {
+        return object.removePropertyChangeListener(key, listener, beforeChange);
+    } else {
+        return PropertyChanges.prototype.removePropertyChangeListener.call(object, key, listener, beforeChange);
+    }
+};
+
+PropertyChanges.dispatchPropertyChange = function (object, key, value, beforeChange) {
+    if (object.dispatchPropertyChange) {
+        return object.dispatchPropertyChange(key, value, beforeChange);
+    } else {
+        return PropertyChanges.prototype.dispatchPropertyChange.call(object, key, value, beforeChange);
+    }
+};
+
+PropertyChanges.addBeforePropertyChangeListener = function (object, key, listener) {
+    return PropertyChanges.addPropertyChangeListener(object, key, listener, true);
+};
+
+PropertyChanges.removeBeforePropertyChangeListener = function (object, key, listener) {
+    return PropertyChanges.removePropertyChangeListener(object, key, listener, true);
+};
+
+PropertyChanges.dispatchBeforePropertyChange = function (object, key, value) {
+    return PropertyChanges.dispatchPropertyChange(object, key, value, true);
+};
+
+PropertyChanges.makePropertyObservable = function (object, key) {
+    if (object.makePropertyObservable) {
+        return object.makePropertyObservable(key);
+    } else {
+        return PropertyChanges.prototype.makePropertyObservable.call(object, key);
+    }
+};
+
+PropertyChanges.makePropertyUnobservable = function (object, key) {
+    if (object.makePropertyUnobservable) {
+        return object.makePropertyUnobservable(key);
+    } else {
+        return PropertyChanges.prototype.makePropertyUnobservable.call(object, key);
+    }
 };
 

@@ -1,6 +1,5 @@
 
-require("../../dispatch/array-changes");
-var PropertyChanges = require("../../dispatch/property-changes");
+require("../../listen/array-changes");
 
 describe("Array change dispatch", function () {
 
@@ -12,22 +11,19 @@ describe("Array change dispatch", function () {
 
     it("set up listeners", function () {
 
-        // TODO array.addBeforeMapChangeListener
-        // TODO array.addMapChangeListener
-
-        PropertyChanges.addBeforePropertyChangeListener(array, "length", function (length) {
+        array.addBeforePropertyChangeListener("length", function (length) {
             spy("length change from", length);
         });
 
-        PropertyChanges.addPropertyChangeListener(array, "length", function (length) {
+        array.addPropertyChangeListener("length", function (length) {
             spy("length change to", length);
         });
 
-        array.addBeforeContentChangeListener(function (plus, minus, index) {
+        array.addBeforeRangeChangeListener(function (plus, minus, index) {
             spy("before content change at", index, "to add", plus.slice(), "to remove", minus.slice());
         });
 
-        array.addContentChangeListener(function (plus, minus, index) {
+        array.addRangeChangeListener(function (plus, minus, index) {
             spy("content change at", index, "added", plus.slice(), "removed", minus.slice());
         });
 
@@ -41,10 +37,10 @@ describe("Array change dispatch", function () {
 
     });
 
-    it("wipe initial values", function () {
+    it("clear initial values", function () {
         spy = jasmine.createSpy();
         expect(array.slice()).toEqual([1, 2, 3]);
-        array.wipe();
+        array.clear();
         expect(array.slice()).toEqual([]);
         expect(spy.argsForCall).toEqual([
             ["length change from", 3],
@@ -165,7 +161,7 @@ describe("Array change dispatch", function () {
     // ---- fresh start
 
     it("shifts one from the beginning", function () {
-        array.wipe(); // start over fresh
+        array.clear(); // start over fresh
         array.push(10, 20, 30);
         spy = jasmine.createSpy();
         expect(array.slice()).toEqual([10, 20, 30]);
@@ -216,7 +212,7 @@ describe("Array change dispatch", function () {
     // ---- fresh start
 
     it("unshifts one to the beginning", function () {
-        array.wipe(); // start over fresh
+        array.clear(); // start over fresh
         expect(array.slice()).toEqual([]);
         spy = jasmine.createSpy();
         array.unshift(30);
@@ -304,10 +300,10 @@ describe("Array change dispatch", function () {
         ]);
     });
 
-    it("wipes all values finally", function () {
+    it("clears all values finally", function () {
         spy = jasmine.createSpy();
         expect(array.slice()).toEqual([10, 30]);
-        array.wipe();
+        array.clear();
         expect(array.slice()).toEqual([]);
         expect(spy.argsForCall).toEqual([
             ["length change from", 2],
@@ -326,20 +322,20 @@ describe("Array change dispatch", function () {
 
         // mute all listeners
 
-        var descriptor = PropertyChanges.getPropertyChangeDescriptor(array, 'length');
+        var descriptor = array.getPropertyChangeDescriptor('length');
         descriptor.willChangeListeners.forEach(function (listener) {
-            PropertyChanges.removeBeforePropertyChangeListener(array, 'length', listener);
+            array.removeBeforePropertyChangeListener('length', listener);
         });
         descriptor.changeListeners.forEach(function (listener) {
-            PropertyChanges.removePropertyChangeListener(array, 'length', listener);
+            array.removePropertyChangeListener('length', listener);
         });
 
-        var descriptor = array.getContentChangeDescriptor();
+        var descriptor = array.getRangeChangeDescriptor();
         descriptor.willChangeListeners.forEach(function (listener) {
-            array.removeBeforeContentChangeListener(listener);
+            array.removeBeforeRangeChangeListener(listener);
         });
         descriptor.changeListeners.forEach(function (listener) {
-            array.removeContentChangeListener(listener);
+            array.removeRangeChangeListener(listener);
         });
 
         var descriptor = array.getMapChangeDescriptor();
@@ -362,15 +358,15 @@ describe("Array change dispatch", function () {
     it("handles cyclic content change listeners", function () {
         var foo = [];
         var bar = [];
-        foo.addContentChangeListener(function (plus, minus, index) {
+        foo.addRangeChangeListener(function (plus, minus, index) {
             // if this is a change in response to a change in bar,
             // do not send back
-            if (bar.getContentChangeDescriptor().isActive)
+            if (bar.getRangeChangeDescriptor().isActive)
                 return;
             bar.splice.apply(bar, [index, minus.length].concat(plus));
         });
-        bar.addContentChangeListener(function (plus, minus, index) {
-            if (foo.getContentChangeDescriptor().isActive)
+        bar.addRangeChangeListener(function (plus, minus, index) {
+            if (foo.getRangeChangeDescriptor().isActive)
                 return;
             foo.splice.apply(foo, [index, minus.length].concat(plus));
         });
@@ -383,7 +379,7 @@ describe("Array change dispatch", function () {
     it("observes length changes on arrays that are not otherwised observed", function () {
         var array = [1, 2, 3];
         var spy = jasmine.createSpy();
-        PropertyChanges.addPropertyChangeListener(array, "length", spy);
+        array.addPropertyChangeListener("length", spy);
         array.push(4);
         expect(spy).toHaveBeenCalled();
     });

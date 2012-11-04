@@ -3,7 +3,10 @@
 var WeakMap = require("../weak-map");
 var List = require("../list");
 
-var DispatchMapChange = exports;
+module.exports = MapChanges;
+function MapChanges() {
+    throw new Error("Can't construct. MapChanges is a mixin.");
+}
 
 var object_owns = Object.prototype.hasOwnProperty;
 
@@ -19,7 +22,7 @@ var object_owns = Object.prototype.hasOwnProperty;
     }
 */
 
-DispatchMapChange.getMapChangeDescriptor = function () {
+MapChanges.prototype.getMapChangeDescriptor = function () {
     if (!this.mapChangeDescriptor) {
         this.mapChangeDescriptor = {
             willChangeListeners: new List(),
@@ -29,7 +32,7 @@ DispatchMapChange.getMapChangeDescriptor = function () {
     return this.mapChangeDescriptor;
 };
 
-DispatchMapChange.addMapChangeListener = function (listener, beforeChange) {
+MapChanges.prototype.addMapChangeListener = function (listener, beforeChange) {
     if (this.makeObservable && !this.dispatchMapChanges) {
         // for Array
         this.makeObservable();
@@ -45,7 +48,7 @@ DispatchMapChange.addMapChangeListener = function (listener, beforeChange) {
     this.dispatchesMapChanges = true;
 };
 
-DispatchMapChange.removeMapChangeListener = function (listener, beforeChange) {
+MapChanges.prototype.removeMapChangeListener = function (listener, beforeChange) {
     var descriptor = this.getMapChangeDescriptor();
 
     var listeners;
@@ -62,7 +65,7 @@ DispatchMapChange.removeMapChangeListener = function (listener, beforeChange) {
     node["delete"]();
 };
 
-DispatchMapChange.dispatchMapChange = function (key, value, beforeChange) {
+MapChanges.prototype.dispatchMapChange = function (key, value, beforeChange) {
     var descriptor = this.getMapChangeDescriptor();
 
     var listeners;
@@ -85,15 +88,15 @@ DispatchMapChange.dispatchMapChange = function (key, value, beforeChange) {
     }, this);
 };
 
-DispatchMapChange.addBeforeMapChangeListener = function (listener) {
+MapChanges.prototype.addBeforeMapChangeListener = function (listener) {
     return this.addMapChangeListener(listener, true);
 };
 
-DispatchMapChange.removeBeforeMapChangeListener = function (listener) {
+MapChanges.prototype.removeBeforeMapChangeListener = function (listener) {
     return this.removeMapChangeListener(listener, true);
 };
 
-DispatchMapChange.dispatchBeforeMapChange = function (key, value) {
+MapChanges.prototype.dispatchBeforeMapChange = function (key, value) {
     return this.dispatchMapChange(key, value, true);
 };
 

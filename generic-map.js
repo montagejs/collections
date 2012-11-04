@@ -1,15 +1,20 @@
 "use strict";
 
-var GenericMap = exports;
-
 var Object = require("./shim-object");
-var MapChanges = require("./dispatch/map-changes");
+var MapChanges = require("./listen/map-changes");
+var PropertyChanges = require("./listen/property-changes");
 
-Object.addEach(GenericMap, MapChanges);
+module.exports = GenericMap;
+function GenericMap() {
+    throw new Error("Can't construct. GenericMap is a mixin.");
+}
+
+Object.addEach(GenericMap.prototype, MapChanges.prototype);
+Object.addEach(GenericMap.prototype, PropertyChanges.prototype);
 
 // all of these methods depend on the constructor providing a `store` set
 
-GenericMap.addEach = function (values) {
+GenericMap.prototype.addEach = function (values) {
     if (values && Object(values) === values) {
         if (typeof values.forEach === "function") {
             // copy map-alikes
@@ -32,7 +37,7 @@ GenericMap.addEach = function (values) {
     }
 }
 
-GenericMap.get = function (key, defaultValue) {
+GenericMap.prototype.get = function (key, defaultValue) {
     var item = this.store.get(new this.Item(key));
     if (item) {
         return item.value;
@@ -43,7 +48,7 @@ GenericMap.get = function (key, defaultValue) {
     }
 };
 
-GenericMap.set = function (key, value) {
+GenericMap.prototype.set = function (key, value) {
     var item = new this.Item(key, value);
     var found = this.store.get(item);
     var grew = false;
@@ -70,15 +75,15 @@ GenericMap.set = function (key, value) {
     return grew;
 };
 
-GenericMap.add = function (value, key) {
+GenericMap.prototype.add = function (value, key) {
     return this.set(key, value);
 };
 
-GenericMap.has = function (key) {
+GenericMap.prototype.has = function (key) {
     return this.store.has(new this.Item(key));
 };
 
-GenericMap['delete'] = function (key) {
+GenericMap.prototype['delete'] = function (key) {
     var item = new this.Item(key);
     if (this.store.has(item)) {
         var from = this.store.get(item).value;
@@ -95,48 +100,40 @@ GenericMap['delete'] = function (key) {
     return false;
 };
 
-GenericMap.clear = function () {
+GenericMap.prototype.clear = function () {
     this.store.clear();
     this.length = 0;
 };
 
-GenericMap.reduce = function (callback, basis, thisp) {
+GenericMap.prototype.reduce = function (callback, basis, thisp) {
     return this.store.reduce(function (basis, item) {
         return callback.call(thisp, basis, item.value, item.key, this);
     }, basis, this);
 };
 
-GenericMap.reduceRight = function (callback, basis, thisp) {
+GenericMap.prototype.reduceRight = function (callback, basis, thisp) {
     return this.store.reduceRight(function (basis, item) {
         return callback.call(thisp, basis, item.value, item.key, this);
     }, basis, this);
 };
 
-GenericMap.keys = function () {
-    return this.map(getKey);
+GenericMap.prototype.keys = function () {
+    return this.map(function (value, key) {
+        return key;
+    });
 };
 
-function getKey(value, key) {
-    return key;
-}
-
-GenericMap.values = function () {
-    return this.map(getValue);
+GenericMap.prototype.values = function () {
+    return this.map(Function.identity);
 };
 
-function getValue(value) {
-    return value;
-}
-
-GenericMap.items = function () {
-    return this.map(getItem);
+GenericMap.prototype.items = function () {
+    return this.map(function (value, key) {
+        return [key, value];
+    });
 };
 
-function getItem(value, key) {
-    return [key, value];
-}
-
-GenericMap.equals = function (that, equals) {
+GenericMap.prototype.equals = function (that, equals) {
     equals = equals || Object.equals;
     if (this === that) {
         return true;
@@ -152,7 +149,7 @@ GenericMap.equals = function (that, equals) {
     }
 };
 
-GenericMap.Item = Item;
+GenericMap.prototype.Item = Item;
 
 function Item(key, value) {
     this.key = key;

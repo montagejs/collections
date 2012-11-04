@@ -4,7 +4,7 @@ var Shim = require("./shim");
 var Set = require("./set");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
-var ContentChanges = require("./dispatch/content-changes");
+var PropertyChanges = require("./listen/property-changes");
 
 module.exports = LruSet;
 
@@ -25,9 +25,9 @@ function LruSet(values, maxLength, equals, hash, content) {
     this.addEach(values);
 }
 
-Object.addEach(LruSet.prototype, GenericCollection);
-Object.addEach(LruSet.prototype, GenericSet);
-Object.addEach(LruSet.prototype, ContentChanges);
+Object.addEach(LruSet.prototype, GenericCollection.prototype);
+Object.addEach(LruSet.prototype, GenericSet.prototype);
+Object.addEach(LruSet.prototype, PropertyChanges.prototype);
 
 LruSet.prototype.constructClone = function (values) {
     return new this.constructor(
@@ -104,17 +104,6 @@ LruSet.prototype.reduceRight = function () {
     return set.reduceRight(function (basis, value) {
         return callback.call(thisp, basis, value, value, this);
     }, basis, this);
-};
-
-LruSet.prototype.makeObservable = function () {
-    var self = this;
-    this.store.addBeforeContentChangeListener(function () {
-        self.dispatchBeforeContentChange.apply(self, arguments);
-    });
-    this.store.addContentChangeListener(function () {
-        self.dispatchContentChange.apply(self, arguments);
-    });
-    this.isObservable = true;
 };
 
 LruSet.prototype.iterate = function () {

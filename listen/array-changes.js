@@ -16,7 +16,7 @@ require("../shim");
 var List = require("../list");
 var WeakMap = require("../weak-map");
 var PropertyChanges = require("./property-changes");
-var ContentChanges = require("./content-changes");
+var RangeChanges = require("./range-changes");
 var MapChanges = require("./map-changes");
 
 var array_splice = Array.prototype.splice;
@@ -39,8 +39,9 @@ if (protoIsSupported) {
 }
 Array.prototype.makeObservable = array_makeObservable;
 
-Object.addEach(Array.prototype, ContentChanges);
-Object.addEach(Array.prototype, MapChanges);
+Object.addEach(Array.prototype, PropertyChanges.prototype);
+Object.addEach(Array.prototype, RangeChanges.prototype);
+Object.addEach(Array.prototype, MapChanges.prototype);
 
 var observableArrayProperties = {
 
@@ -60,7 +61,7 @@ var observableArrayProperties = {
         value: function reverse() {
 
             // dispatch before change events
-            this.dispatchBeforeContentChange(this, this, 0);
+            this.dispatchBeforeRangeChange(this, this, 0);
             for (var i = 0; i < this.length; i++) {
                 PropertyChanges.dispatchBeforePropertyChange(this, i, this[i]);
                 this.dispatchBeforeMapChange(i, this[i]);
@@ -74,7 +75,7 @@ var observableArrayProperties = {
                 PropertyChanges.dispatchPropertyChange(this, i, this[i]);
                 this.dispatchMapChange(i, this[i]);
             }
-            this.dispatchContentChange(this, this, 0);
+            this.dispatchRangeChange(this, this, 0);
 
             return this;
         },
@@ -86,7 +87,7 @@ var observableArrayProperties = {
         value: function sort() {
 
             // dispatch before change events
-            this.dispatchBeforeContentChange(this, this, 0);
+            this.dispatchBeforeRangeChange(this, this, 0);
             for (var i = 0; i < this.length; i++) {
                 PropertyChanges.dispatchBeforePropertyChange(this, i, this[i]);
                 this.dispatchBeforeMapChange(i, this[i]);
@@ -100,7 +101,7 @@ var observableArrayProperties = {
                 PropertyChanges.dispatchPropertyChange(this, i, this[i]);
                 this.dispatchMapChange(i, this[i]);
             }
-            this.dispatchContentChange(this, this, 0);
+            this.dispatchRangeChange(this, this, 0);
 
             return this;
         },
@@ -121,7 +122,7 @@ var observableArrayProperties = {
             if (diff) {
                 PropertyChanges.dispatchBeforePropertyChange(this, "length", this.length);
             }
-            this.dispatchBeforeContentChange(plus, minus, start);
+            this.dispatchBeforeRangeChange(plus, minus, start);
             if (diff === 0) { // substring replacement
                 for (var i = start; i < start + plus.length; i++) {
                     PropertyChanges.dispatchBeforePropertyChange(this, i, this[i]);
@@ -155,10 +156,7 @@ var observableArrayProperties = {
                     this.dispatchMapChange(i, this[i]);
                 }
             }
-            // in addEachContentChange, the content change event may remove
-            // some of the above dispatched listeners, so contentChange must
-            // occur after ownPropertyChanges
-            this.dispatchContentChange(plus, minus, start);
+            this.dispatchRangeChange(plus, minus, start);
             if (diff) {
                 PropertyChanges.dispatchPropertyChange(this, "length", this.length);
             }
@@ -237,8 +235,8 @@ var observableArrayProperties = {
         configurable: true
     },
 
-    wipe: {
-        value: function wipe() {
+    clear: {
+        value: function clear() {
             return this.splice(0, this.length);
         },
         writable: true,

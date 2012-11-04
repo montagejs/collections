@@ -4,7 +4,8 @@ module.exports = SortedArray;
 
 var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
-var ContentChanges = require("./dispatch/content-changes");
+var PropertyChanges = require("./listen/property-changes");
+var RangeChanges = require("./listen/range-changes");
 
 function SortedArray(values, equals, compare, content) {
     if (!(this instanceof SortedArray)) {
@@ -24,8 +25,9 @@ function SortedArray(values, equals, compare, content) {
     this.addEach(values);
 }
 
-Object.addEach(SortedArray.prototype, GenericCollection);
-Object.addEach(SortedArray.prototype, ContentChanges);
+Object.addEach(SortedArray.prototype, GenericCollection.prototype);
+Object.addEach(SortedArray.prototype, PropertyChanges.prototype);
+Object.addEach(SortedArray.prototype, RangeChanges.prototype);
 
 function search(array, value, compare) {
     var first = 0;
@@ -114,13 +116,13 @@ SortedArray.prototype.get = function (value) {
 
 SortedArray.prototype.add = function (value) {
     var index = searchForInsertionIndex(this.array, value, this.contentCompare);
-    if (this.dispatchesContentChanges) {
-        this.dispatchBeforeContentChange([value], [], index);
+    if (this.dispatchesRangeChanges) {
+        this.dispatchBeforeRangeChange([value], [], index);
     }
     this.array.splice(index, 0, value);
     this.length++;
-    if (this.dispatchesContentChanges) {
-        this.dispatchContentChange([value], [], index);
+    if (this.dispatchesRangeChanges) {
+        this.dispatchRangeChange([value], [], index);
     }
     return true;
 };
@@ -128,13 +130,13 @@ SortedArray.prototype.add = function (value) {
 SortedArray.prototype["delete"] = function (value) {
     var index = searchFirst(this.array, value, this.contentCompare, this.contentEquals);
     if (index !== -1) {
-        if (this.dispatchesContentChanges) {
-            this.dispatchBeforeContentChange([], [value], index);
+        if (this.dispatchesRangeChanges) {
+            this.dispatchBeforeRangeChange([], [value], index);
         }
         this.array.splice(index, 1);
         this.length--;
-        if (this.dispatchesContentChanges) {
-            this.dispatchContentChange([], [value], index);
+        if (this.dispatchesRangeChanges) {
+            this.dispatchRangeChange([], [value], index);
         }
         return true;
     } else {
@@ -194,13 +196,13 @@ SortedArray.prototype.swap = function (index, length, plus) {
         length = Infinity;
     }
     var minus = this.slice(index, index + length);
-    if (this.dispatchesContentChanges) {
-        this.dispatchBeforeContentChange(plus, minus, index);
+    if (this.dispatchesRangeChanges) {
+        this.dispatchBeforeRangeChange(plus, minus, index);
     }
     this.array.splice(index, length);
     this.addEach(plus);
-    if (this.dispatchesContentChanges) {
-        this.dispatchContentChange(plus, minus, index);
+    if (this.dispatchesRangeChanges) {
+        this.dispatchRangeChange(plus, minus, index);
     }
     return minus;
 };
@@ -237,14 +239,14 @@ SortedArray.prototype.one = function () {
 
 SortedArray.prototype.clear = function () {
     var minus;
-    if (this.dispatchesContentChanges) {
+    if (this.dispatchesRangeChanges) {
         minus = this.array.slice();
-        this.dispatchBeforeContentChange([], minus, 0);
+        this.dispatchBeforeRangeChange([], minus, 0);
     }
     this.length = 0;
     this.array.clear();
-    if (this.dispatchesContentChanges) {
-        this.dispatchContentChange([], minus, 0);
+    if (this.dispatchesRangeChanges) {
+        this.dispatchRangeChange([], minus, 0);
     }
 };
 

@@ -36,7 +36,7 @@ function Iterator(iterable) {
 
 }
 
-Object.addEach(Iterator.prototype, GenericCollection);
+Object.addEach(Iterator.prototype, GenericCollection.prototype);
 
 // this is a bit of a cheat so flatten and such work with the generic
 // reducible

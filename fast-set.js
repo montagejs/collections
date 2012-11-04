@@ -6,6 +6,7 @@ var List = require("./list");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
 var TreeLog = require("./tree-log");
+var PropertyChanges = require("./listen/property-changes");
 
 var object_has = Object.prototype.hasOwnProperty;
 
@@ -26,8 +27,9 @@ function FastSet(values, equals, hash, content) {
     this.addEach(values);
 }
 
-Object.addEach(FastSet.prototype, GenericCollection);
-Object.addEach(FastSet.prototype, GenericSet);
+Object.addEach(FastSet.prototype, GenericCollection.prototype);
+Object.addEach(FastSet.prototype, GenericSet.prototype);
+Object.addEach(FastSet.prototype, PropertyChanges.prototype);
 
 FastSet.prototype.Buckets = Dict;
 FastSet.prototype.Bucket = List;

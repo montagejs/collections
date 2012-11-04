@@ -4,6 +4,7 @@ var Shim = require("./shim");
 var Set = require("./set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
+var PropertyChanges = require("./listen/property-changes");
 
 module.exports = Map;
 
@@ -30,8 +31,9 @@ function Map(values, equals, hash, content) {
     this.addEach(values);
 }
 
-Object.addEach(Map.prototype, GenericCollection);
-Object.addEach(Map.prototype, GenericMap); // overrides GenericCollection
+Object.addEach(Map.prototype, GenericCollection.prototype);
+Object.addEach(Map.prototype, GenericMap.prototype); // overrides GenericCollection
+Object.addEach(Map.prototype, PropertyChanges.prototype);
 
 Map.prototype.constructClone = function (values) {
     return new this.constructor(

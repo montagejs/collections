@@ -4,6 +4,7 @@ var Shim = require("./shim");
 var SortedArraySet = require("./sorted-array-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
+var PropertyChanges = require("./listen/property-changes");
 
 module.exports = SortedArrayMap;
 
@@ -30,8 +31,9 @@ function SortedArrayMap(values, equals, compare, content) {
     this.addEach(values);
 }
 
-Object.addEach(SortedArrayMap.prototype, GenericCollection);
-Object.addEach(SortedArrayMap.prototype, GenericMap);
+Object.addEach(SortedArrayMap.prototype, GenericCollection.prototype);
+Object.addEach(SortedArrayMap.prototype, GenericMap.prototype);
+Object.addEach(SortedArrayMap.prototype, PropertyChanges.prototype);
 
 SortedArrayMap.prototype.constructClone = function (values) {
     return new this.constructor(

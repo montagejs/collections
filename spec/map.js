@@ -1,7 +1,7 @@
 // Tests that are equally applicable to Map, unbounded LruMap, FastMap.
 // These do not apply to SortedMap since keys are not comparable.
 
-var describeMapChanges = require("./dispatch/map-changes");
+var describeMapChanges = require("./listen/map-changes");
 
 module.exports = describeMap;
 function describeMap(Map, values) {

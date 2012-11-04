@@ -14,11 +14,14 @@
             generic-set.js \
             iterator.js \
             list.js \
+            listen/array-changes.js \
+            listen/map-changes.js \
+            listen/property-changes.js \
+            listen/range-changes.js \
             lru-map.js \
             lru-set.js \
             map.js \
             multi-map.js \
-            observable.js \
             set.js \
             shim-array-es5.js \
             shim-array.js \

@@ -4,6 +4,7 @@ var Shim = require("./shim");
 var LruSet = require("./lru-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
+var PropertyChanges = require("./listen/property-changes");
 
 module.exports = LruMap;
 
@@ -31,8 +32,9 @@ function LruMap(values, maxLength, equals, hash, content) {
     this.addEach(values);
 }
 
-Object.addEach(LruMap.prototype, GenericCollection);
-Object.addEach(LruMap.prototype, GenericMap);
+Object.addEach(LruMap.prototype, GenericCollection.prototype);
+Object.addEach(LruMap.prototype, GenericMap.prototype);
+Object.addEach(LruMap.prototype, PropertyChanges.prototype);
 
 LruMap.prototype.constructClone = function (values) {
     return new this.constructor(

@@ -15,7 +15,7 @@ function describeOrder(Collection) {
     function FakeArray() {
         this.length = 3;
     }
-    Object.addEach(FakeArray.prototype, GenericCollection);
+    Object.addEach(FakeArray.prototype, GenericCollection.prototype);
     FakeArray.prototype.reduce = function (callback, basis) {
         basis = callback(basis, 10, 0, this);
         basis = callback(basis, 20, 1, this);

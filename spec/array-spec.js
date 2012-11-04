@@ -1,11 +1,11 @@
 
 require("../shim");
-require("../dispatch/array-changes");
+require("../listen/array-changes");
 var GenericCollection = require("../generic-collection");
 var describeDequeue = require("./dequeue");
 var describeCollection = require("./collection");
 var describeOrder = require("./order");
-var describeMapChanges = require("./dispatch/map-changes");
+var describeMapChanges = require("./listen/map-changes");
 
 describe("Array", function () {
 
@@ -34,7 +34,7 @@ describe("Array", function () {
     function FakeArray() {
         this.length = 3;
     }
-    Object.addEach(FakeArray.prototype, GenericCollection);
+    Object.addEach(FakeArray.prototype, GenericCollection.prototype);
     FakeArray.prototype.reduce = function (callback, basis) {
         basis = callback(basis, 10, 0, this);
         basis = callback(basis, 20, 1, this);

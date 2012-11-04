@@ -5,7 +5,8 @@ module.exports = SortedSet;
 var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
-var ContentChanges = require("./dispatch/content-changes");
+var PropertyChanges = require("./listen/property-changes");
+var RangeChanges = require("./listen/range-changes");
 var TreeLog = require("./tree-log");
 
 function SortedSet(values, equals, compare, content) {
@@ -20,9 +21,10 @@ function SortedSet(values, equals, compare, content) {
     this.addEach(values);
 }
 
-Object.addEach(SortedSet.prototype, GenericCollection);
-Object.addEach(SortedSet.prototype, GenericSet);
-Object.addEach(SortedSet.prototype, ContentChanges);
+Object.addEach(SortedSet.prototype, GenericCollection.prototype);
+Object.addEach(SortedSet.prototype, GenericSet.prototype);
+Object.addEach(SortedSet.prototype, PropertyChanges.prototype);
+Object.addEach(SortedSet.prototype, RangeChanges.prototype);
 
 SortedSet.prototype.constructClone = function (values) {
     return new this.constructor(
@@ -57,8 +59,8 @@ SortedSet.prototype.add = function (value) {
     if (this.root) {
         this.splay(value);
         if (!this.contentEquals(value, this.root.value)) {
-            if (this.dispatchesContentChanges) {
-                this.dispatchBeforeContentChange([value], [], this.root.index);
+            if (this.dispatchesRangeChanges) {
+                this.dispatchBeforeRangeChange([value], [], this.root.index);
             }
             if (this.contentCompare(value, this.root.value) < 0) {
                 // rotate right
@@ -88,19 +90,19 @@ SortedSet.prototype.add = function (value) {
             node.touch();
             this.root = node;
             this.length++;
-            if (this.dispatchesContentChanges) {
-                this.dispatchContentChange([value], [], this.root.index);
+            if (this.dispatchesRangeChanges) {
+                this.dispatchRangeChange([value], [], this.root.index);
             }
             return true;
         }
     } else {
-        if (this.dispatchesContentChanges) {
-            this.dispatchBeforeContentChange([value], [], 0);
+        if (this.dispatchesRangeChanges) {
+            this.dispatchBeforeRangeChange([value], [], 0);
         }
         this.root = node;
         this.length++;
-        if (this.dispatchesContentChanges) {
-            this.dispatchContentChange([value], [], 0);
+        if (this.dispatchesRangeChanges) {
+            this.dispatchRangeChange([value], [], 0);
         }
         return true;
     }
@@ -112,8 +114,8 @@ SortedSet.prototype['delete'] = function (value) {
         this.splay(value);
         if (this.contentEquals(value, this.root.value)) {
             var index = this.root.index;
-            if (this.dispatchesContentChanges) {
-                this.dispatchBeforeContentChange([], [value], index);
+            if (this.dispatchesRangeChanges) {
+                this.dispatchBeforeRangeChange([], [value], index);
             }
             if (!this.root.left) {
                 this.root = this.root.right;
@@ -132,8 +134,8 @@ SortedSet.prototype['delete'] = function (value) {
             if (this.root) {
                 this.root.touch();
             }
-            if (this.dispatchesContentChanges) {
-                this.dispatchContentChange([], [value], index);
+            if (this.dispatchesRangeChanges) {
+                this.dispatchRangeChange([], [value], index);
             }
             return true;
         }
@@ -489,14 +491,14 @@ SortedSet.prototype.one = function () {
 
 SortedSet.prototype.clear = function () {
     var minus;
-    if (this.dispatchesContentChanges) {
+    if (this.dispatchesRangeChanges) {
         minus = this.toArray();
-        this.dispatchBeforeContentChange([], minus, 0);
+        this.dispatchBeforeRangeChange([], minus, 0);
     }
     this.root = null;
     this.length = 0;
-    if (this.dispatchesContentChanges) {
-        this.dispatchContentChange([], minus, 0);
+    if (this.dispatchesRangeChanges) {
+        this.dispatchRangeChange([], minus, 0);
     }
 };
 

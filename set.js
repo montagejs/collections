@@ -5,7 +5,7 @@ var List = require("./list");
 var FastSet = require("./fast-set");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
-var ContentChanges = require("./dispatch/content-changes");
+var PropertyChanges = require("./listen/property-changes");
 
 module.exports = Set;
 
@@ -37,9 +37,9 @@ function Set(values, equals, hash, content) {
     this.addEach(values);
 }
 
-Object.addEach(Set.prototype, GenericCollection);
-Object.addEach(Set.prototype, GenericSet);
-Object.addEach(Set.prototype, ContentChanges);
+Object.addEach(Set.prototype, GenericCollection.prototype);
+Object.addEach(Set.prototype, GenericSet.prototype);
+Object.addEach(Set.prototype, PropertyChanges.prototype);
 
 Set.prototype.Order = List;
 Set.prototype.Store = FastSet;
@@ -114,17 +114,6 @@ Set.prototype.reduceRight = function (callback, basis /*, thisp*/) {
     return list.reduceRight(function (basis, value) {
         return callback.call(thisp, basis, value, value, this);
     }, basis, this);
-};
-
-Set.prototype.makeObservable = function () {
-    var self = this;
-    this.store.addBeforeContentChangeListener(function () {
-        self.dispatchBeforeContentChange.apply(self, arguments);
-    });
-    this.store.addContentChangeListener(function () {
-        self.dispatchContentChange.apply(self, arguments);
-    });
-    this.isObservable = true;
 };
 
 Set.prototype.iterate = function () {

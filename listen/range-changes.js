@@ -4,9 +4,12 @@ var WeakMap = require("../weak-map");
 
 var contentChangeDescriptors = new WeakMap(); // {isActive, willChangeListeners, changeListeners}
 
-var DispatchContentChange = exports;
+module.exports = RangeChanges;
+function RangeChanges() {
+    throw new Error("Can't construct. RangeChanges is a mixin.");
+}
 
-DispatchContentChange.getContentChangeDescriptor = function () {
+RangeChanges.prototype.getRangeChangeDescriptor = function () {
     if (!contentChangeDescriptors.has(this)) {
         contentChangeDescriptors.set(this, {
             isActive: false,
@@ -17,13 +20,13 @@ DispatchContentChange.getContentChangeDescriptor = function () {
     return contentChangeDescriptors.get(this);
 };
 
-DispatchContentChange.addContentChangeListener = function (listener, beforeChange) {
+RangeChanges.prototype.addRangeChangeListener = function (listener, beforeChange) {
     // a concession for objects like Array that are not inherently observable
     if (!this.isObservable && this.makeObservable) {
         this.makeObservable();
     }
 
-    var descriptor = this.getContentChangeDescriptor();
+    var descriptor = this.getRangeChangeDescriptor();
 
     var listeners;
     if (beforeChange) {
@@ -34,11 +37,11 @@ DispatchContentChange.addContentChangeListener = function (listener, beforeChang
 
     // even if already registered
     listeners.push(listener);
-    this.dispatchesContentChanges = !!listeners.length;
+    this.dispatchesRangeChanges = !!listeners.length;
 };
 
-DispatchContentChange.removeContentChangeListener = function (listener, beforeChange) {
-    var descriptor = this.getContentChangeDescriptor();
+RangeChanges.prototype.removeRangeChangeListener = function (listener, beforeChange) {
+    var descriptor = this.getRangeChangeDescriptor();
 
     var listeners;
     if (beforeChange) {
@@ -52,11 +55,11 @@ DispatchContentChange.removeContentChangeListener = function (listener, beforeCh
         throw new Error("Can't remove listener: does not exist.");
     }
     listeners.splice(index, 1);
-    this.dispatchesContentChanges = !!listeners.length;
+    this.dispatchesRangeChanges = !!listeners.length;
 };
 
-DispatchContentChange.dispatchContentChange = function (plus, minus, index, beforeChange) {
-    var descriptor = this.getContentChangeDescriptor();
+RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, beforeChange) {
+    var descriptor = this.getRangeChangeDescriptor();
 
     if (descriptor.isActive) {
         return;
@@ -86,12 +89,12 @@ DispatchContentChange.dispatchContentChange = function (plus, minus, index, befo
                     index: index
                 });
             } else {
-                // support listener() listener.handleContentChange() and
-                // listener.handleContentChange() forms
+                // support listener() listener.handleRangeChange() and
+                // listener.handleRangeChange() forms
                 if (beforeChange) {
-                    listener = listener.handleContentWillChange || listener;
+                    listener = listener.handleRangeWillChange || listener;
                 } else {
-                    listener = listener.handleContentChange || listener;
+                    listener = listener.handleRangeChange || listener;
                 }
                 if (listener.call) {
                     listener.call(this, plus, minus, index, beforeChange);
@@ -103,15 +106,15 @@ DispatchContentChange.dispatchContentChange = function (plus, minus, index, befo
     }
 };
 
-DispatchContentChange.addBeforeContentChangeListener = function (listener) {
-    return this.addContentChangeListener(listener, true);
+RangeChanges.prototype.addBeforeRangeChangeListener = function (listener) {
+    return this.addRangeChangeListener(listener, true);
 };
 
-DispatchContentChange.removeBeforeContentChangeListener = function (listener) {
-    return this.removeContentChangeListener(listener, true);
+RangeChanges.prototype.removeBeforeRangeChangeListener = function (listener) {
+    return this.removeRangeChangeListener(listener, true);
 };
 
-DispatchContentChange.dispatchBeforeContentChange = function (plus, minus, index) {
-    return this.dispatchContentChange(plus, minus, index, true);
+RangeChanges.prototype.dispatchBeforeRangeChange = function (plus, minus, index) {
+    return this.dispatchRangeChange(plus, minus, index, true);
 };
 

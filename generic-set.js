@@ -1,31 +1,34 @@
 
-var GenericSet = exports;
+module.exports = GenericSet;
+function GenericSet() {
+    throw new Error("Can't construct. GenericSet is a mixin.");
+}
 
-GenericSet.union = function (that) {
+GenericSet.prototype.union = function (that) {
     var union =  this.constructClone(this);
     union.addEach(that);
     return union;
 };
 
-GenericSet.intersection = function (that) {
+GenericSet.prototype.intersection = function (that) {
     return this.constructClone(this.filter(function (value) {
         return that.has(value);
     }));
 };
 
-GenericSet.difference = function (that) {
+GenericSet.prototype.difference = function (that) {
     var union =  this.constructClone(this);
     union.deleteEach(that);
     return union;
 };
 
-GenericSet.symmetricDifference = function (that) {
+GenericSet.prototype.symmetricDifference = function (that) {
     var union = this.union(that);
     var intersection = this.intersection(that);
     return union.difference(intersection);
 };
 
-GenericSet.equals = function (that, equals) {
+GenericSet.prototype.equals = function (that, equals) {
     var self = this;
     return (
         Object.can(that, "reduce") &&
