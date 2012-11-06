@@ -812,7 +812,7 @@ SortedArrayMap, FastSet, FastMap, Dict)
     Repeats the given value either finite times or indefinitely.
 
 
-### Change Listeners
+## Change Listeners
 
 All collections support change listeners.  There are three types of
 changes.
@@ -949,8 +949,9 @@ All **descriptors** are objects with the properties `changeListeners`
 and `willChangeListeners`.  Both are arrays of listener functions or
 objects, in the order in which they were added.
 
+## Miscellanea
 
-## Set and Map
+### Set and Map
 
 Set and map are like hash tables, but not implemented with a block of
 memory as they would be in a lower-level language.  Most of the work of
@@ -974,7 +975,7 @@ structure of the bucket list in an NPM-style.
 ```
 
 
-## Sorted Set and Sorted Map
+### Sorted Set and Sorted Map
 
 A binary splay tree is a balanced binary tree that rotates the most
 frequently used items toward the root such that they can be accessed the
@@ -1015,7 +1016,7 @@ tree.
 ```
 
 
-## Object and Function Shims
+### Object and Function Shims
 
 The collection methods on the `Object` constructor all polymorphically
 delegate to the corresponding method of any object that implements the
@@ -1046,7 +1047,7 @@ a method, to aid in distinguishing "static" functions.
 `Function.identity` returns its first argument.
 
 
-## References
+### References
 
 - a SplayTree impementation buried in Fedor Indutny’s super-secret
   [Callgrind](https://github.com/indutny/callgrind.js). This
@@ -1063,7 +1064,7 @@ a method, to aid in distinguishing "static" functions.
   Derrick Burns that supports change-resilient iterators and a
   comprehensive set of introspection functions.
 
-## Future work
+### Future work
 
 Goals
 
