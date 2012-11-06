@@ -815,139 +815,137 @@ SortedArrayMap, FastSet, FastMap, Dict)
 ## Change Listeners
 
 All collections support change listeners.  There are three types of
-changes.
+changes.  Property changes, map changes, and range changes.
 
--   **property changes**
+### Property Changes
 
-    `PropertyChanges` from the `listen/property-changes` module can
-    configure listeners for property changes to specific keys of any
-    object.
+`PropertyChanges` from the `listen/property-changes` module can
+configure listeners for property changes to specific keys of any object.
 
-    With the `listen/array-changes` module required, `PropertyChanges`
-    can also listen to changes to the length and indexed properties of
-    an array.  The only caveat is that watched arrays can only modify
-    their contents with method calls like `array.push`.  All methods of
-    a watched array support change dispatch.  In addition, arrays have a
-    `set` method to make setting the value at a particular index
-    observable.
+With the `listen/array-changes` module required, `PropertyChanges` can
+also listen to changes to the length and indexed properties of an array.
+The only caveat is that watched arrays can only modify their contents
+with method calls like `array.push`.  All methods of a watched array
+support change dispatch.  In addition, arrays have a `set` method to
+make setting the value at a particular index observable.
 
-    -   **PropertyChanges.addPropertyChangeListener(object, key,
-        listener, before)**
-    -   **PropertyChanges.removePropertyChangeListener(object, key,
-        listener, before)**
-    -   **PropertyChanges.dispatchPropertyChange(object, key, value,
-        before)**
-    -   **PropertyChanges.addBeforePropertyChangeListener(object, key,
-        listener)**
-    -   **PropertyChanges.removeBeforePropertyChangeListener(object,
-        key, listener)**
-    -   **PropertyChanges.dispatchBeforePropertyChange(object, key,
-        value)**
-    -   **PropertyChanges.getPropertyChangeDescriptor(object, key)**
+-   **PropertyChanges.addPropertyChangeListener(object, key, listener,
+    before)**
+-   **PropertyChanges.removePropertyChangeListener(object, key,
+    listener, before)**
+-   **PropertyChanges.dispatchPropertyChange(object, key, value,
+    before)**
+-   **PropertyChanges.addBeforePropertyChangeListener(object, key,
+    listener)**
+-   **PropertyChanges.removeBeforePropertyChangeListener(object, key,
+    listener)**
+-   **PropertyChanges.dispatchBeforePropertyChange(object, key, value)**
+-   **PropertyChanges.getPropertyChangeDescriptor(object, key)**
 
-    All of these functions delegate to methods of the same name if one
-    exists on the object.
+All of these functions delegate to methods of the same name if one
+exists on the object.
 
-    -   **object.addPropertyChangeListener(key, listener, before)**
-    -   **object.removePropertyChangeListener(key, listener, before)**
-    -   **object.dispatchPropertyChange(key, value)**
-    -   **object.addBeforePropertyChangeListener(key, listener)**
-    -   **object.removeBeforePropertyChangeListener(key, listener)**
-    -   **object.dispatchBeforePropertyChange(key, value)**
-    -   **object.getPropertyChangeDescriptor(key)**
+-   **object.addPropertyChangeListener(key, listener, before)**
+-   **object.removePropertyChangeListener(key, listener, before)**
+-   **object.dispatchPropertyChange(key, value)**
+-   **object.addBeforePropertyChangeListener(key, listener)**
+-   **object.removeBeforePropertyChangeListener(key, listener)**
+-   **object.dispatchBeforePropertyChange(key, value)**
+-   **object.getPropertyChangeDescriptor(key)**
 
-    Additionally, `PropertyChanges.prototype` can be **mixed into**
-    other types of objects to support the property change dispatch
-    interface.  All collections support this interface.
+Additionally, `PropertyChanges.prototype` can be **mixed into** other
+types of objects to support the property change dispatch interface.  All
+collections support this interface.
 
-    The **listener** for a property change receives the arguments
-    `value`, `key`, and `object`, just as a `forEach` or `map` callback.
-    The listener may alternately be a delegate object that implements
-    one of these methods:
+The **listener** for a property change receives the arguments `value`,
+`key`, and `object`, just as a `forEach` or `map` callback.  The
+listener may alternately be a delegate object that implements one of
+these methods:
 
--   **map changes**
+### Map Changes
 
-    A map change listener receives notifications for the creation,
-    removal, or updates for any item in a map data structure.
+A map change listener receives notifications for the creation, removal,
+or updates for any item in a map data structure.
 
-    With the `listen/array-changes` module required, `Array` can also
-    dispatch map changes for the values at each index.
+With the `listen/array-changes` module required, `Array` can also
+dispatch map changes for the values at each index.
 
-    -   **collection.addMapChangeListener(listener)**
-    -   **collection.removeMapChangeListener(listener)**
-    -   **collection.dispatchMapChange(key, value)**
-    -   **collection.addBeforeMapChangeListener(listener)**
-    -   **collection.removeBeforeMapChangeListener(listener)**
-    -   **collection.dispatchBeforeMapChange(key, value)**
-    -   **collection.getMapChangeDescriptor()**
+-   **collection.addMapChangeListener(listener)**
+-   **collection.removeMapChangeListener(listener)**
+-   **collection.dispatchMapChange(key, value)**
+-   **collection.addBeforeMapChangeListener(listener)**
+-   **collection.removeBeforeMapChangeListener(listener)**
+-   **collection.dispatchBeforeMapChange(key, value)**
+-   **collection.getMapChangeDescriptor()**
 
-    The **listener** for a map change receives the `value`, `key`, and
-    collection `object` as arguments, the same pattern as a `forEach` or
-    `map` callback.  In the after change phase, a value of `undefined`
-    may indicate that the value was deleted or set to `undefined`.  In
-    the before change phase, a value of `undefined` may indicate the the
-    value was added or was previously `undefined`.
+The **listener** for a map change receives the `value`, `key`, and
+collection `object` as arguments, the same pattern as a `forEach` or
+`map` callback.  In the after change phase, a value of `undefined` may
+indicate that the value was deleted or set to `undefined`.  In the
+before change phase, a value of `undefined` may indicate the the value
+was added or was previously `undefined`.
 
-    The `listen/map-changes` module exports a map changes **mixin**.
-    The methods of `MaxChanges.prototype` can be copied to any
-    collection that needs this interface.  Its mutation methods will
-    then need to dispatch map changes.
+The `listen/map-changes` module exports a map changes **mixin**.  The
+methods of `MaxChanges.prototype` can be copied to any collection that
+needs this interface.  Its mutation methods will then need to dispatch
+map changes.
 
--   **range changes**
+### Range Changes
 
-    A range change listener receives notifications when a range of
-    values at a particular position is added, removed, or replaced
-    within an ordered collection.
+A range change listener receives notifications when a range of values at
+a particular position is added, removed, or replaced within an ordered
+collection.
 
-    -   **collection.addRangeChangeListener(listener)**
-    -   **collection.removeRangeChangeListener(listener)**
-    -   **collection.dispatchRangeChange(plus, minus, index)**
-    -   **collection.addBeforeRangeChangeListener(listener)**
-    -   **collection.removeBeforeRangeChangeListener(listener)**
-    -   **collection.dispatchBeforeRangeChange(plus, minus, index)**
-    -   **collection.getRangeChangeDescriptor()**
+-   **collection.addRangeChangeListener(listener)**
+-   **collection.removeRangeChangeListener(listener)**
+-   **collection.dispatchRangeChange(plus, minus, index)**
+-   **collection.addBeforeRangeChangeListener(listener)**
+-   **collection.removeBeforeRangeChangeListener(listener)**
+-   **collection.dispatchBeforeRangeChange(plus, minus, index)**
+-   **collection.getRangeChangeDescriptor()**
 
-    The **listener** for a range change is a function that accepts
-    `plus`, `minus`, and `index` arguments.  `plus` and `minus` are the
-    values that were added or removed at the `index`.  Whatever
-    operation caused these changes is equivalent to:
+The **listener** for a range change is a function that accepts `plus`,
+`minus`, and `index` arguments.  `plus` and `minus` are the values that
+were added or removed at the `index`.  Whatever operation caused these
+changes is equivalent to:
 
-    ```javascript
-    var minus = collection.splice(index, minus.length, ...plus)
-    ```
+```javascript
+var minus = collection.splice(index, minus.length, ...plus)
+```
 
-    The listener can alternately be an object that has either a
-    `handleRangeChange` or `handleRangeWillChange` method, depending on
-    whether the notification is dispatched after or before the change
-    takes effect.  The arguments are the same either way, but `this`
-    will be the handler object.
+The listener can alternately be an object that has either a
+`handleRangeChange` or `handleRangeWillChange` method, depending on
+whether the notification is dispatched after or before the change takes
+effect.  The arguments are the same either way, but `this` will be the
+handler object.
 
-    If the listener is neither of the above, it can be a delegate that
-    implements a W3C-alike `handleEvent(event)` method.  The event has
-    these properties:
+If the listener is neither of the above, it can be a delegate that
+implements a W3C-alike `handleEvent(event)` method.  The event has these
+properties:
 
-    -   `phase` of `"before"` or `"after"`
-    -   `currentTarget` is the object
-    -   `target` is the object
-    -   `plus`
-    -   `minus`
-    -   `index`
+-   `phase` of `"before"` or `"after"`
+-   `currentTarget` is the object
+-   `target` is the object
+-   `plus`
+-   `minus`
+-   `index`
 
-    The following support range change dispatch:
+The following support range change dispatch:
 
-    -   `Array`
-    -   `SortedSet`
-    -   `SortedArray`
-    -   `SortedArraySet`
+-   `Array`
+-   `SortedSet`
+-   `SortedArray`
+-   `SortedArraySet`
 
-    The `listen/range-changes` module exports a range changes **mixin**.
-    The methods of `RangeChanges.prototype` can be copied to any
-    collection that needs this interface.  Its mutation methods will
-    need to dispatch the range changes.
+The `listen/range-changes` module exports a range changes **mixin**.
+The methods of `RangeChanges.prototype` can be copied to any collection
+that needs this interface.  Its mutation methods will need to dispatch
+the range changes.
 
 All **descriptors** are objects with the properties `changeListeners`
 and `willChangeListeners`.  Both are arrays of listener functions or
 objects, in the order in which they were added.
+
 
 ## Miscellanea
 
