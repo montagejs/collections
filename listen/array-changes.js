@@ -180,17 +180,6 @@ var observableArrayProperties = {
         configurable: true
     },
 
-    "delete": {
-        value: function delete_(index) {
-            if (index in this) {
-                this.splice(index, 1);
-                return true;
-            } else {
-                return false;
-            }
-        }
-    },
-
     shift: {
         value: function shift() {
             return this.splice(0, 1)[0];
