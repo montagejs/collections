@@ -285,8 +285,8 @@ describe("Array change dispatch", function () {
     it("deletes one value", function () {
         spy = jasmine.createSpy();
         expect(array.slice()).toEqual([10, 20, 30]);
-        expect(array.delete(3)).toBe(false); // to exercise deletion of non-existing entry
-        expect(array.delete(1)).toBe(true);
+        expect(array.delete(40)).toBe(false); // to exercise deletion of non-existing entry
+        expect(array.delete(20)).toBe(true);
         expect(array.slice()).toEqual([10, 30]);
         expect(spy.argsForCall).toEqual([
             ["length change from", 3],

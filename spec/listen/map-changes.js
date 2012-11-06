@@ -36,6 +36,10 @@ function describeMapChanges(Map) {
 
     it("should dispatch deletion", function () {
         var map = Map([[0, 20]]);
+        // Arrays do not behave like maps for deletion.
+        if (Array.isArray(map)) {
+            return;
+        }
         var spy = jasmine.createSpy();
         map.addBeforeMapChangeListener(function (value, key) {
             spy('before', key, value);

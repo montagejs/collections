@@ -8,12 +8,12 @@ var describeOrder = require("./order");
 var describeMapChanges = require("./listen/map-changes");
 
 describe("Array", function () {
-
     describeDequeue(Array.from);
     describeCollection(Array.from, [1, 2, 3, 4]);
     describeCollection(Array.from, [{id: 0}, {id: 1}, {id: 2}, {id: 3}]);
     describeOrder(Array.from);
-    describeMapChanges(function (items) {
+
+    function mapAlike(items) {
         var array = [];
         if (items) {
             items.forEach(function (pair) {
@@ -21,7 +21,9 @@ describe("Array", function () {
             });
         }
         return array;
-    });
+    }
+
+    describeMapChanges(mapAlike);
 
     /*
         The following tests are from Montage.
@@ -127,29 +129,6 @@ describe("Array", function () {
             expect(array[0]).toEqual({a: 10});
             expect(array[1]).toEqual({a: 10});
             expect(array.has({a: 10})).toBe(true);
-        });
-
-    });
-
-    describe("delete", function () {
-
-        it("should delete values that are present", function () {
-            var array = [{a: 10}];
-            array["delete"]({a: 10});
-            expect(array.length).toEqual(0);
-        });
-
-        it("should ignore values that are not present", function () {
-            var array = [{b: 20}];
-            expect(array["delete"]({a: 10})).toBe(false);
-            expect(array.length).toEqual(1);
-        });
-
-        it("should allow equality override", function () {
-            var a = {}, b = {}, c = {};
-            var array = [a, b, c];
-            array["delete"](b, Object.is);
-            expect(array).toEqual([a, c]);
         });
 
     });

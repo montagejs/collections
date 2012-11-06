@@ -285,8 +285,13 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
     Deletes a value.  Returns whether the value was found.
 
-    (Array+, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
-    FastSet)
+    (Set, SortedSet, LruSet, SortedArray, SortedArraySet, FastSet)
+
+    **delete(value, equals)**
+
+    Deletes the equivalent value.  Returns whether the value was found.
+
+    (Array+, List)
 
 -   **deleteEach(values or keys)**
 
