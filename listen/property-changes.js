@@ -124,7 +124,7 @@ PropertyChanges.prototype.removePropertyChangeListener = function (key, listener
     }
     listeners.splice(index, 1);
 
-    if (listeners.length === 0) {
+    if (descriptor.changeListeners.length + descriptor.willChangeListeners.length === 0) {
         PropertyChanges.makePropertyUnobservable(this, key);
     }
 };
@@ -312,6 +312,7 @@ PropertyChanges.prototype.makePropertyUnobservable = function (key) {
     }
 
     var overriddenDescriptor = overriddenPropertyDescriptors[key];
+    delete overriddenPropertyDescriptors[key];
 
     Object.defineProperty(this, key, overriddenDescriptor);
 };

@@ -7,7 +7,7 @@
 
 var PropertyChanges = require("../../listen/property-changes");
 
-describe("ObservableObject", function () {
+describe("PropertyChanges", function () {
 
     it("observes setter on object", function () {
         spy = jasmine.createSpy();

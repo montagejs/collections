@@ -37,7 +37,10 @@ RangeChanges.prototype.addRangeChangeListener = function (listener, beforeChange
 
     // even if already registered
     listeners.push(listener);
-    this.dispatchesRangeChanges = !!listeners.length;
+    this.dispatchesRangeChanges = !!(
+        descriptor.willChangeListeners.length +
+        descriptor.changeListeners.length
+    );
 };
 
 RangeChanges.prototype.removeRangeChangeListener = function (listener, beforeChange) {
@@ -55,7 +58,10 @@ RangeChanges.prototype.removeRangeChangeListener = function (listener, beforeCha
         throw new Error("Can't remove listener: does not exist.");
     }
     listeners.splice(index, 1);
-    this.dispatchesRangeChanges = !!listeners.length;
+    this.dispatchesRangeChanges = !!(
+        descriptor.willChangeListeners.length +
+        descriptor.changeListeners.length
+    );
 };
 
 RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, beforeChange) {
