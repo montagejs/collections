@@ -6,6 +6,7 @@ var FastSet = require("./fast-set");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
 var PropertyChanges = require("./listen/property-changes");
+var RangeChanges = require("./listen/range-changes");
 
 module.exports = Set;
 
@@ -40,6 +41,7 @@ function Set(values, equals, hash, content) {
 Object.addEach(Set.prototype, GenericCollection.prototype);
 Object.addEach(Set.prototype, GenericSet.prototype);
 Object.addEach(Set.prototype, PropertyChanges.prototype);
+Object.addEach(Set.prototype, RangeChanges.prototype);
 
 Set.prototype.Order = List;
 Set.prototype.Store = FastSet;
@@ -66,10 +68,16 @@ Set.prototype.get = function (value) {
 Set.prototype.add = function (value) {
     var node = new this.order.Node(value);
     if (!this.store.has(node)) {
+        if (this.dispatchesRangeChanges) {
+            this.dispatchBeforeRangeChange([value], [], 0);
+        }
         this.order.add(value);
         node = this.order.head.prev;
         this.store.add(node);
         this.length++;
+        if (this.dispatchesRangeChanges) {
+            this.dispatchRangeChange([value], [], 0);
+        }
         return true;
     }
     return false;
@@ -78,10 +86,16 @@ Set.prototype.add = function (value) {
 Set.prototype["delete"] = function (value) {
     var node = new this.order.Node(value);
     if (this.store.has(node)) {
+        if (this.dispatchesRangeChanges) {
+            this.dispatchBeforeRangeChange([], [value], 0);
+        }
         var node = this.store.get(node);
         this.store["delete"](node); // removes from the set
         node["delete"](); // removes the node from the list in place
         this.length--;
+        if (this.dispatchesRangeChanges) {
+            this.dispatchRangeChange([], [value], 0);
+        }
         return true;
     }
     return false;
