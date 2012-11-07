@@ -11,11 +11,11 @@ describe("Array change dispatch", function () {
 
     it("set up listeners", function () {
 
-        array.addBeforePropertyChangeListener("length", function (length) {
+        array.addBeforeOwnPropertyChangeListener("length", function (length) {
             spy("length change from", length);
         });
 
-        array.addPropertyChangeListener("length", function (length) {
+        array.addOwnPropertyChangeListener("length", function (length) {
             spy("length change to", length);
         });
 
@@ -322,12 +322,12 @@ describe("Array change dispatch", function () {
 
         // mute all listeners
 
-        var descriptor = array.getPropertyChangeDescriptor('length');
+        var descriptor = array.getOwnPropertyChangeDescriptor('length');
         descriptor.willChangeListeners.forEach(function (listener) {
-            array.removeBeforePropertyChangeListener('length', listener);
+            array.removeBeforeOwnPropertyChangeListener('length', listener);
         });
         descriptor.changeListeners.forEach(function (listener) {
-            array.removePropertyChangeListener('length', listener);
+            array.removeOwnPropertyChangeListener('length', listener);
         });
 
         var descriptor = array.getRangeChangeDescriptor();
@@ -379,7 +379,7 @@ describe("Array change dispatch", function () {
     it("observes length changes on arrays that are not otherwised observed", function () {
         var array = [1, 2, 3];
         var spy = jasmine.createSpy();
-        array.addPropertyChangeListener("length", spy);
+        array.addOwnPropertyChangeListener("length", spy);
         array.push(4);
         expect(spy).toHaveBeenCalled();
     });

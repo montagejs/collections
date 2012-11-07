@@ -3,11 +3,11 @@ require("../listen/array-changes");
 
 var array = [];
 
-array.addPropertyChangeListener("length", function (length) {
+array.addOwnPropertyChangeListener("length", function (length) {
     console.log("changed", length);
 });
 
-array.addPropertyChangeListener(0, function (value) {
+array.addOwnPropertyChangeListener(0, function (value) {
     console.log("array[0] changed to", value);
 });
 

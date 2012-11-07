@@ -829,29 +829,24 @@ with method calls like `array.push`.  All methods of a watched array
 support change dispatch.  In addition, arrays have a `set` method to
 make setting the value at a particular index observable.
 
--   **PropertyChanges.addPropertyChangeListener(object, key, listener,
-    before)**
--   **PropertyChanges.removePropertyChangeListener(object, key,
-    listener, before)**
--   **PropertyChanges.dispatchPropertyChange(object, key, value,
-    before)**
--   **PropertyChanges.addBeforePropertyChangeListener(object, key,
-    listener)**
--   **PropertyChanges.removeBeforePropertyChangeListener(object, key,
-    listener)**
--   **PropertyChanges.dispatchBeforePropertyChange(object, key, value)**
--   **PropertyChanges.getPropertyChangeDescriptor(object, key)**
+-   PropertyChanges.**add**OwnPropertyChange**Listener**(object, key, listener, before)
+-   PropertyChanges.**remove**OwnPropertyChange**Listener**(object, key, listener, before)
+-   PropertyChanges.**dispatch**OwnPropertyChange(object, key, value, before)
+-   PropertyChanges.add**Before**OwnPropertyChangeListener(object, key, listener)
+-   PropertyChanges.remove**Before**OwnPropertyChangeListener(object, key, listener)
+-   PropertyChanges.dispatch**Before**OwnPropertyChange(object, key, value)
+-   PropertyChanges.**get**OwnPropertyChange**Descriptor**(object, key)
 
 All of these functions delegate to methods of the same name if one
 exists on the object.
 
--   **object.addPropertyChangeListener(key, listener, before)**
--   **object.removePropertyChangeListener(key, listener, before)**
--   **object.dispatchPropertyChange(key, value)**
--   **object.addBeforePropertyChangeListener(key, listener)**
--   **object.removeBeforePropertyChangeListener(key, listener)**
--   **object.dispatchBeforePropertyChange(key, value)**
--   **object.getPropertyChangeDescriptor(key)**
+-   object.**add**OwnPropertyChange**Listener**(key, listener, before)
+-   object.**remove**OwnPropertyChange**Listener**(key, listener, before)
+-   object.**dispatch**OwnPropertyChange(key, value, before)
+-   object.add**Before**OwnPropertyChangeListener(key, listener)
+-   object.remove**Before**OwnPropertyChangeListener(key, listener)
+-   object.dispatch**Before**OwnPropertyChange(key, value)
+-   object.**get**OwnPropertyChange**Descriptor**(key)
 
 Additionally, `PropertyChanges.prototype` can be **mixed into** other
 types of objects to support the property change dispatch interface.  All
@@ -870,13 +865,13 @@ or updates for any item in a map data structure.
 With the `listen/array-changes` module required, `Array` can also
 dispatch map changes for the values at each index.
 
--   **collection.addMapChangeListener(listener)**
--   **collection.removeMapChangeListener(listener)**
--   **collection.dispatchMapChange(key, value)**
--   **collection.addBeforeMapChangeListener(listener)**
--   **collection.removeBeforeMapChangeListener(listener)**
--   **collection.dispatchBeforeMapChange(key, value)**
--   **collection.getMapChangeDescriptor()**
+-   collection.**add**MapChangeListener(listener, before)
+-   collection.**remove**MapChangeListener(listener, before)
+-   collection.**dispatch**MapChange(key, value, before)
+-   collection.add**Before**MapChangeListener(listener)
+-   collection.remove**Before**MapChangeListener(listener)
+-   collection.dispatch**Before**MapChange(key, value)
+-   collection.**get**MapChange**Descriptor**()
 
 The **listener** for a map change receives the `value`, `key`, and
 collection `object` as arguments, the same pattern as a `forEach` or
@@ -896,13 +891,13 @@ A range change listener receives notifications when a range of values at
 a particular position is added, removed, or replaced within an ordered
 collection.
 
--   **collection.addRangeChangeListener(listener)**
--   **collection.removeRangeChangeListener(listener)**
--   **collection.dispatchRangeChange(plus, minus, index)**
--   **collection.addBeforeRangeChangeListener(listener)**
--   **collection.removeBeforeRangeChangeListener(listener)**
--   **collection.dispatchBeforeRangeChange(plus, minus, index)**
--   **collection.getRangeChangeDescriptor()**
+-   collection.**add**RangeChange**Listener**(listener, before)
+-   collection.**remove**RangeChange**Listener**(listener, before)
+-   collection.**dispatch**RangeChange(plus, minus, index, before)
+-   collection.add**Before**RangeChange**Listener**(listener)
+-   collection.remove**Before**RangeChange**Listener**(listener)
+-   collection.dispatch**Before**RangeChange(plus, minus, index)
+-   collection.**get**RangeChange**Descriptor**()
 
 The **listener** for a range change is a function that accepts `plus`,
 `minus`, and `index` arguments.  `plus` and `minus` are the values that

@@ -63,7 +63,7 @@ var observableArrayProperties = {
             // dispatch before change events
             this.dispatchBeforeRangeChange(this, this, 0);
             for (var i = 0; i < this.length; i++) {
-                PropertyChanges.dispatchBeforePropertyChange(this, i, this[i]);
+                PropertyChanges.dispatchBeforeOwnPropertyChange(this, i, this[i]);
                 this.dispatchBeforeMapChange(i, this[i]);
             }
 
@@ -72,7 +72,7 @@ var observableArrayProperties = {
 
             // dispatch after change events
             for (var i = 0; i < this.length; i++) {
-                PropertyChanges.dispatchPropertyChange(this, i, this[i]);
+                PropertyChanges.dispatchOwnPropertyChange(this, i, this[i]);
                 this.dispatchMapChange(i, this[i]);
             }
             this.dispatchRangeChange(this, this, 0);
@@ -89,7 +89,7 @@ var observableArrayProperties = {
             // dispatch before change events
             this.dispatchBeforeRangeChange(this, this, 0);
             for (var i = 0; i < this.length; i++) {
-                PropertyChanges.dispatchBeforePropertyChange(this, i, this[i]);
+                PropertyChanges.dispatchBeforeOwnPropertyChange(this, i, this[i]);
                 this.dispatchBeforeMapChange(i, this[i]);
             }
 
@@ -98,7 +98,7 @@ var observableArrayProperties = {
 
             // dispatch after change events
             for (var i = 0; i < this.length; i++) {
-                PropertyChanges.dispatchPropertyChange(this, i, this[i]);
+                PropertyChanges.dispatchOwnPropertyChange(this, i, this[i]);
                 this.dispatchMapChange(i, this[i]);
             }
             this.dispatchRangeChange(this, this, 0);
@@ -120,20 +120,20 @@ var observableArrayProperties = {
 
             // dispatch before change events
             if (diff) {
-                PropertyChanges.dispatchBeforePropertyChange(this, "length", this.length);
+                PropertyChanges.dispatchBeforeOwnPropertyChange(this, "length", this.length);
             }
             this.dispatchBeforeRangeChange(plus, minus, start);
             if (diff === 0) { // substring replacement
                 for (var i = start; i < start + plus.length; i++) {
-                    PropertyChanges.dispatchBeforePropertyChange(this, i, this[i]);
+                    PropertyChanges.dispatchBeforeOwnPropertyChange(this, i, this[i]);
                     this.dispatchBeforeMapChange(i, this[i]);
                 }
-            } else if (PropertyChanges.hasPropertyChangeDescriptor(this)) {
+            } else if (PropertyChanges.hasOwnPropertyChangeDescriptor(this)) {
                 // all subsequent values changed or shifted.
                 // avoid (longest - start) long walks if there are no
                 // registered descriptors.
                 for (var i = start; i < longest; i++) {
-                    PropertyChanges.dispatchBeforePropertyChange(this, i, this[i]);
+                    PropertyChanges.dispatchBeforeOwnPropertyChange(this, i, this[i]);
                     this.dispatchBeforeMapChange(i, this[i]);
                 }
             }
@@ -144,21 +144,21 @@ var observableArrayProperties = {
             // dispatch after change events
             if (diff === 0) { // substring replacement
                 for (var i = start; i < start + plus.length; i++) {
-                    PropertyChanges.dispatchPropertyChange(this, i, this[i]);
+                    PropertyChanges.dispatchOwnPropertyChange(this, i, this[i]);
                     this.dispatchMapChange(i, this[i]);
                 }
-            } else if (PropertyChanges.hasPropertyChangeDescriptor(this)) {
+            } else if (PropertyChanges.hasOwnPropertyChangeDescriptor(this)) {
                 // all subsequent values changed or shifted.
                 // avoid (longest - start) long walks if there are no
                 // registered descriptors.
                 for (var i = start; i < longest; i++) {
-                    PropertyChanges.dispatchPropertyChange(this, i, this[i]);
+                    PropertyChanges.dispatchOwnPropertyChange(this, i, this[i]);
                     this.dispatchMapChange(i, this[i]);
                 }
             }
             this.dispatchRangeChange(plus, minus, start);
             if (diff) {
-                PropertyChanges.dispatchPropertyChange(this, "length", this.length);
+                PropertyChanges.dispatchOwnPropertyChange(this, "length", this.length);
             }
 
             return result;

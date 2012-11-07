@@ -12,10 +12,10 @@ describe("PropertyChanges", function () {
     it("observes setter on object", function () {
         spy = jasmine.createSpy();
         var object = {};
-        PropertyChanges.addBeforePropertyChangeListener(object, 'x', function (value, key) {
+        PropertyChanges.addBeforeOwnPropertyChangeListener(object, 'x', function (value, key) {
             spy('from', value, key);
         });
-        PropertyChanges.addPropertyChangeListener(object, 'x', function (value, key) {
+        PropertyChanges.addOwnPropertyChangeListener(object, 'x', function (value, key) {
             spy('to', value, key);
         });
         object.x = 10;
@@ -44,10 +44,10 @@ describe("PropertyChanges", function () {
                 configurable: true
             }
         });
-        PropertyChanges.addBeforePropertyChangeListener(object, 'x', function (value, key) {
+        PropertyChanges.addBeforeOwnPropertyChangeListener(object, 'x', function (value, key) {
             spy('from', value, key);
         });
-        PropertyChanges.addPropertyChangeListener(object, 'x', function (value, key) {
+        PropertyChanges.addOwnPropertyChangeListener(object, 'x', function (value, key) {
             spy('to', value, key);
         });
         object.x = 10;
@@ -61,10 +61,10 @@ describe("PropertyChanges", function () {
     it("handles cyclic own property change listeners", function () {
         var a = {};
         var b = {};
-        PropertyChanges.addPropertyChangeListener(a, 'foo', function (value) {
+        PropertyChanges.addOwnPropertyChangeListener(a, 'foo', function (value) {
             b.bar = value;
         });
-        PropertyChanges.addPropertyChangeListener(b, 'bar', function (value) {
+        PropertyChanges.addOwnPropertyChangeListener(b, 'bar', function (value) {
             a.foo = value;
         });
         a.foo = 10;
@@ -79,7 +79,7 @@ describe("PropertyChanges", function () {
             }
         };
         spyOn(object, "handlePropertyChange").andCallThrough();
-        PropertyChanges.addPropertyChangeListener(object, "foo", object);
+        PropertyChanges.addOwnPropertyChangeListener(object, "foo", object);
         object.foo = 10;
         expect(object.handlePropertyChange).toHaveBeenCalled();
     });
@@ -91,7 +91,7 @@ describe("PropertyChanges", function () {
             }
         };
         spyOn(object, "handleFooChange").andCallThrough();
-        PropertyChanges.addPropertyChangeListener(object, "foo", object);
+        PropertyChanges.addOwnPropertyChangeListener(object, "foo", object);
         object.foo = 10;
         expect(object.handleFooChange).toHaveBeenCalled();
     });

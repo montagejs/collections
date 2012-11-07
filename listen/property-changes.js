@@ -34,7 +34,7 @@ var propertyChangeDescriptors = new WeakMap();
 // book-keeping is probably not warranted since it would be rare for an
 // observed object to no longer be observed unless it was about to be disposed
 // of or reused as an observable.  The only benefit would be in avoiding bulk
-// calls to dispatchPropertyChange events on objects that have no listeners.
+// calls to dispatchOwnPropertyChange events on objects that have no listeners.
 
 /*
     To observe shallow property changes for a particular key of a particular
@@ -60,7 +60,7 @@ function PropertyChanges() {
     throw new Error("This is an abstract interface. Mix it. Don't construct it");
 }
 
-PropertyChanges.prototype.getPropertyChangeDescriptor = function (key) {
+PropertyChanges.prototype.getOwnPropertyChangeDescriptor = function (key) {
     if (!propertyChangeDescriptors.has(this)) {
         propertyChangeDescriptors.set(this, {});
     }
@@ -74,7 +74,7 @@ PropertyChanges.prototype.getPropertyChangeDescriptor = function (key) {
     return objectPropertyChangeDescriptors[key];
 };
 
-PropertyChanges.prototype.hasPropertyChangeDescriptor = function (key) {
+PropertyChanges.prototype.hasOwnPropertyChangeDescriptor = function (key) {
     if (!propertyChangeDescriptors.has(this)) {
         return false;
     }
@@ -88,12 +88,12 @@ PropertyChanges.prototype.hasPropertyChangeDescriptor = function (key) {
     return true;
 };
 
-PropertyChanges.prototype.addPropertyChangeListener = function (key, listener, beforeChange) {
+PropertyChanges.prototype.addOwnPropertyChangeListener = function (key, listener, beforeChange) {
     if (this.makeObservable && !this.isObservable) {
         this.makeObservable(); // particularly for observable arrays, for
         // their length property
     }
-    var descriptor = PropertyChanges.getPropertyChangeDescriptor(this, key);
+    var descriptor = PropertyChanges.getOwnPropertyChangeDescriptor(this, key);
     var listeners;
     if (beforeChange) {
         listeners = descriptor.willChangeListeners;
@@ -104,12 +104,12 @@ PropertyChanges.prototype.addPropertyChangeListener = function (key, listener, b
     listeners.push(listener);
 };
 
-PropertyChanges.prototype.addBeforePropertyChangeListener = function (key, listener) {
-    return PropertyChanges.addPropertyChangeListener(this, key, listener, true);
+PropertyChanges.prototype.addBeforeOwnPropertyChangeListener = function (key, listener) {
+    return PropertyChanges.addOwnPropertyChangeListener(this, key, listener, true);
 };
 
-PropertyChanges.prototype.removePropertyChangeListener = function (key, listener, beforeChange) {
-    var descriptor = PropertyChanges.getPropertyChangeDescriptor(this, key);
+PropertyChanges.prototype.removeOwnPropertyChangeListener = function (key, listener, beforeChange) {
+    var descriptor = PropertyChanges.getOwnPropertyChangeDescriptor(this, key);
 
     var listeners;
     if (beforeChange) {
@@ -129,12 +129,12 @@ PropertyChanges.prototype.removePropertyChangeListener = function (key, listener
     }
 };
 
-PropertyChanges.prototype.removeBeforePropertyChangeListener = function (key, listener) {
-    return PropertyChanges.removePropertyChangeListener(this, key, listener, true);
+PropertyChanges.prototype.removeBeforeOwnPropertyChangeListener = function (key, listener) {
+    return PropertyChanges.removeOwnPropertyChangeListener(this, key, listener, true);
 };
 
-PropertyChanges.prototype.dispatchPropertyChange = function (key, value, beforeChange) {
-    var descriptor = PropertyChanges.getPropertyChangeDescriptor(this, key);
+PropertyChanges.prototype.dispatchOwnPropertyChange = function (key, value, beforeChange) {
+    var descriptor = PropertyChanges.getOwnPropertyChangeDescriptor(this, key);
 
     var listeners;
     if (beforeChange) {
@@ -164,8 +164,8 @@ PropertyChanges.prototype.dispatchPropertyChange = function (key, value, beforeC
     }, this);
 };
 
-PropertyChanges.prototype.dispatchBeforePropertyChange = function (key, listener) {
-    return PropertyChanges.dispatchPropertyChange(this, key, listener, true);
+PropertyChanges.prototype.dispatchBeforeOwnPropertyChange = function (key, listener) {
+    return PropertyChanges.dispatchOwnPropertyChange(this, key, listener, true);
 };
 
 PropertyChanges.prototype.makePropertyObservable = function (key) {
@@ -245,9 +245,9 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
                 if (value === overriddenDescriptor.value) {
                     return value;
                 }
-                PropertyChanges.dispatchBeforePropertyChange(this, key, overriddenDescriptor.value);
+                PropertyChanges.dispatchBeforeOwnPropertyChange(this, key, overriddenDescriptor.value);
                 overriddenDescriptor.value = value;
-                PropertyChanges.dispatchPropertyChange(this, key, value);
+                PropertyChanges.dispatchOwnPropertyChange(this, key, value);
                 return value;
             },
             enumerable: overriddenDescriptor.enumerable,
@@ -270,7 +270,7 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
                 if (value === formerValue) {
                     return value;
                 }
-                PropertyChanges.dispatchBeforePropertyChange(this, key, formerValue);
+                PropertyChanges.dispatchBeforeOwnPropertyChange(this, key, formerValue);
                 // call through to actual setter
                 if (overriddenDescriptor.set) {
                     overriddenDescriptor.set.apply(this, arguments)
@@ -282,7 +282,7 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
                 }
                 // dispatch the new value: the given value if there is
                 // no getter, or the actual value if there is one
-                PropertyChanges.dispatchPropertyChange(this, key, value);
+                PropertyChanges.dispatchOwnPropertyChange(this, key, value);
                 return value;
             },
             enumerable: overriddenDescriptor.enumerable,
@@ -319,56 +319,56 @@ PropertyChanges.prototype.makePropertyUnobservable = function (key) {
 
 // constructor functions
 
-PropertyChanges.getPropertyChangeDescriptor = function (object, key) {
-    if (object.getPropertyChangeDescriptor) {
-        return object.getPropertyChangeDescriptor(key);
+PropertyChanges.getOwnPropertyChangeDescriptor = function (object, key) {
+    if (object.getOwnPropertyChangeDescriptor) {
+        return object.getOwnPropertyChangeDescriptor(key);
     } else {
-        return PropertyChanges.prototype.getPropertyChangeDescriptor.call(object, key);
+        return PropertyChanges.prototype.getOwnPropertyChangeDescriptor.call(object, key);
     }
 };
 
-PropertyChanges.hasPropertyChangeDescriptor = function (object, key) {
-    if (object.hasPropertyChangeDescriptor) {
-        return object.hasPropertyChangeDescriptor(key);
+PropertyChanges.hasOwnPropertyChangeDescriptor = function (object, key) {
+    if (object.hasOwnPropertyChangeDescriptor) {
+        return object.hasOwnPropertyChangeDescriptor(key);
     } else {
-        return PropertyChanges.prototype.hasPropertyChangeDescriptor.call(object, key);
+        return PropertyChanges.prototype.hasOwnPropertyChangeDescriptor.call(object, key);
     }
 };
 
-PropertyChanges.addPropertyChangeListener = function (object, key, listener, beforeChange) {
-    if (object.addPropertyChangeListener) {
-        return object.addPropertyChangeListener(key, listener, beforeChange);
+PropertyChanges.addOwnPropertyChangeListener = function (object, key, listener, beforeChange) {
+    if (object.addOwnPropertyChangeListener) {
+        return object.addOwnPropertyChangeListener(key, listener, beforeChange);
     } else {
-        return PropertyChanges.prototype.addPropertyChangeListener.call(object, key, listener, beforeChange);
+        return PropertyChanges.prototype.addOwnPropertyChangeListener.call(object, key, listener, beforeChange);
     }
 };
 
-PropertyChanges.removePropertyChangeListener = function (object, key, listener, beforeChange) {
-    if (object.removePropertyChangeListener) {
-        return object.removePropertyChangeListener(key, listener, beforeChange);
+PropertyChanges.removeOwnPropertyChangeListener = function (object, key, listener, beforeChange) {
+    if (object.removeOwnPropertyChangeListener) {
+        return object.removeOwnPropertyChangeListener(key, listener, beforeChange);
     } else {
-        return PropertyChanges.prototype.removePropertyChangeListener.call(object, key, listener, beforeChange);
+        return PropertyChanges.prototype.removeOwnPropertyChangeListener.call(object, key, listener, beforeChange);
     }
 };
 
-PropertyChanges.dispatchPropertyChange = function (object, key, value, beforeChange) {
-    if (object.dispatchPropertyChange) {
-        return object.dispatchPropertyChange(key, value, beforeChange);
+PropertyChanges.dispatchOwnPropertyChange = function (object, key, value, beforeChange) {
+    if (object.dispatchOwnPropertyChange) {
+        return object.dispatchOwnPropertyChange(key, value, beforeChange);
     } else {
-        return PropertyChanges.prototype.dispatchPropertyChange.call(object, key, value, beforeChange);
+        return PropertyChanges.prototype.dispatchOwnPropertyChange.call(object, key, value, beforeChange);
     }
 };
 
-PropertyChanges.addBeforePropertyChangeListener = function (object, key, listener) {
-    return PropertyChanges.addPropertyChangeListener(object, key, listener, true);
+PropertyChanges.addBeforeOwnPropertyChangeListener = function (object, key, listener) {
+    return PropertyChanges.addOwnPropertyChangeListener(object, key, listener, true);
 };
 
-PropertyChanges.removeBeforePropertyChangeListener = function (object, key, listener) {
-    return PropertyChanges.removePropertyChangeListener(object, key, listener, true);
+PropertyChanges.removeBeforeOwnPropertyChangeListener = function (object, key, listener) {
+    return PropertyChanges.removeOwnPropertyChangeListener(object, key, listener, true);
 };
 
-PropertyChanges.dispatchBeforePropertyChange = function (object, key, value) {
-    return PropertyChanges.dispatchPropertyChange(object, key, value, true);
+PropertyChanges.dispatchBeforeOwnPropertyChange = function (object, key, value) {
+    return PropertyChanges.dispatchOwnPropertyChange(object, key, value, true);
 };
 
 PropertyChanges.makePropertyObservable = function (object, key) {
