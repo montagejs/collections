@@ -60,6 +60,8 @@ function PropertyChanges() {
     throw new Error("This is an abstract interface. Mix it. Don't construct it");
 }
 
+PropertyChanges.debug = true;
+
 PropertyChanges.prototype.getOwnPropertyChangeDescriptor = function (key) {
     if (!propertyChangeDescriptors.has(this)) {
         propertyChangeDescriptors.set(this, {});
@@ -177,6 +179,21 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
         return;
     }
 
+    var state;
+    if (typeof this.__state__ === "object") {
+        state = this.__state__;
+    } else {
+        state = {};
+        if (Object.isExtensible(this, "__state__")) {
+            Object.defineProperty(this, "__state__", {
+                value: state,
+                writable: true,
+                enumerable: true
+            });
+        }
+    }
+    state[key] = this[key];
+
     // memoize overridden property descriptor table
     if (!overriddenObjectDescriptors.has(this)) {
         overriddenPropertyDescriptors = {};
@@ -247,6 +264,7 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
                 }
                 PropertyChanges.dispatchBeforeOwnPropertyChange(this, key, overriddenDescriptor.value);
                 overriddenDescriptor.value = value;
+                state[key] = value;
                 PropertyChanges.dispatchOwnPropertyChange(this, key, value);
                 return value;
             },
@@ -279,6 +297,7 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
                 // was successful
                 if (overriddenDescriptor.get) {
                     value = overriddenDescriptor.get.apply(this, arguments);
+                    state[key] = value;
                 }
                 // dispatch the new value: the given value if there is
                 // no getter, or the actual value if there is one
@@ -313,6 +332,21 @@ PropertyChanges.prototype.makePropertyUnobservable = function (key) {
 
     var overriddenDescriptor = overriddenPropertyDescriptors[key];
     delete overriddenPropertyDescriptors[key];
+
+    var state;
+    if (typeof this.__state__ === "object") {
+        state = this.__state__;
+    } else {
+        state = {};
+        if (Object.isExtensible(this, "__state__")) {
+            Object.defineProperty(this, "__state__", {
+                value: state,
+                writable: true,
+                enumerable: false
+            });
+        }
+    }
+    delete state[key];
 
     Object.defineProperty(this, key, overriddenDescriptor);
 };
