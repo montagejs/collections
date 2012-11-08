@@ -15,6 +15,7 @@ var WeakMap = require("./weak-map");
 module.exports = Array;
 
 Array.empty = [];
+
 if (Object.freeze) {
     Object.freeze(Array.empty);
 }
@@ -25,58 +26,67 @@ Array.from = function (values) {
     return array;
 };
 
-Array.prototype.addEach = GenericCollection.prototype.addEach;
-Array.prototype.deleteEach = GenericCollection.prototype.deleteEach;
-Array.prototype.toArray = GenericCollection.prototype.toArray;
-Array.prototype.toObject = GenericCollection.prototype.toObject;
-Array.prototype.all = GenericCollection.prototype.all;
-Array.prototype.any = GenericCollection.prototype.any;
-Array.prototype.min = GenericCollection.prototype.min;
-Array.prototype.max = GenericCollection.prototype.max;
-Array.prototype.sum = GenericCollection.prototype.sum;
-Array.prototype.average = GenericCollection.prototype.average;
-Array.prototype.only = GenericCollection.prototype.only;
-Array.prototype.flatten = GenericCollection.prototype.flatten;
-Array.prototype.zip = GenericCollection.prototype.zip;
-Array.prototype.sorted = GenericCollection.prototype.sorted;
-Array.prototype.reversed = GenericCollection.prototype.reversed;
+function define(key, value) {
+    Object.defineProperty(Array.prototype, key, {
+        value: value,
+        writable: true,
+        configurable: true,
+        enumerable: false
+    });
+}
 
-Array.prototype.constructClone = function (values) {
+define("addEach", GenericCollection.prototype.addEach);
+define("deleteEach", GenericCollection.prototype.deleteEach);
+define("toArray", GenericCollection.prototype.toArray);
+define("toObject", GenericCollection.prototype.toObject);
+define("all", GenericCollection.prototype.all);
+define("any", GenericCollection.prototype.any);
+define("min", GenericCollection.prototype.min);
+define("max", GenericCollection.prototype.max);
+define("sum", GenericCollection.prototype.sum);
+define("average", GenericCollection.prototype.average);
+define("only", GenericCollection.prototype.only);
+define("flatten", GenericCollection.prototype.flatten);
+define("zip", GenericCollection.prototype.zip);
+define("sorted", GenericCollection.prototype.sorted);
+define("reversed", GenericCollection.prototype.reversed);
+
+define("constructClone", function (values) {
     var clone = new this.constructor();
     clone.addEach(values);
     return clone;
-};
+});
 
-Array.prototype.has = function (value, equals) {
+define("has", function (value, equals) {
     return this.find(value, equals) !== -1;
-};
+});
 
-Array.prototype.get = function (index) {
+define("get", function (index) {
     if (+index !== index)
         throw new Error("Indicies must be numbers");
     return this[index];
-};
+});
 
-Array.prototype.set = function (index, value) {
+define("set", function (index, value) {
     this.splice(index, 1, value);
     return true;
-};
+});
 
-Array.prototype.add = function (value) {
+define("add", function (value) {
     this.push(value);
     return true;
-};
+});
 
-Array.prototype['delete'] = function (value, equals) {
+define("delete", function (value, equals) {
     var index = this.find(value, equals);
     if (index !== -1) {
         this.splice(index, 1);
         return true;
     }
     return false;
-};
+});
 
-Array.prototype.find = function (value, equals) {
+define("find", function (value, equals) {
     equals = equals || this.contentEquals || Object.equals;
     for (var index = 0; index < this.length; index++) {
         if (index in this && equals(this[index], value)) {
@@ -84,9 +94,9 @@ Array.prototype.find = function (value, equals) {
         }
     }
     return -1;
-};
+});
 
-Array.prototype.findLast = function (value, equals) {
+define("findLast", function (value, equals) {
     equals = equals || this.contentEquals || Object.equals;
     var index = this.length;
     do {
@@ -96,17 +106,17 @@ Array.prototype.findLast = function (value, equals) {
         }
     } while (index > 0);
     return -1;
-};
+});
 
-Array.prototype.swap = function (index, length, plus) {
+define("swap", function (index, length, plus) {
     var args = Array.prototype.slice.call(arguments, 0, 2);
     if (plus) {
         args.push.apply(args, plus);
     }
     return this.splice.apply(this, args);
-};
+});
 
-Array.prototype.one = function () {
+define("one", function () {
     if (this.length === 0) {
         throw new Error("Can't get one element from empty array.");
     }
@@ -115,14 +125,14 @@ Array.prototype.one = function () {
             return this[i];
         }
     }
-};
+});
 
-Array.prototype.clear = function () {
+define("clear", function () {
     this.length = 0;
     return this;
-};
+});
 
-Array.prototype.compare = function (that, compare) {
+define("compare", function (that, compare) {
     compare = compare || Object.compare;
     var i;
     var length;
@@ -158,9 +168,9 @@ Array.prototype.compare = function (that, compare) {
     }
 
     return this.length - that.length;
-};
+});
 
-Array.prototype.equals = function (that) {
+define("equals", function (that) {
     var equals = equals || Object.equals;
     var i = 0;
     var length = this.length;
@@ -192,9 +202,9 @@ Array.prototype.equals = function (that) {
         }
     }
     return true;
-};
+});
 
-Array.prototype.clone = function (depth, memo) {
+define("clone", function (depth, memo) {
     if (depth === undefined) {
         depth = Infinity;
     } else if (depth === 0) {
@@ -208,13 +218,13 @@ Array.prototype.clone = function (depth, memo) {
         }
     };
     return clone;
-};
+});
 
-Array.prototype.iterate = function (start, end) {
+define("iterate", function (start, end) {
     return new ArrayIterator(this, start, end);
-};
+});
 
-Array.prototype.Iterator = ArrayIterator;
+define("Iterator", ArrayIterator);
 
 function ArrayIterator(array, start, end) {
     this.array = array;

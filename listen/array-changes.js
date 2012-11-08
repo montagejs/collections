@@ -37,11 +37,28 @@ if (protoIsSupported) {
         Object.defineProperties(this, observableArrayProperties);
     };
 }
-Array.prototype.makeObservable = array_makeObservable;
 
-Object.addEach(Array.prototype, PropertyChanges.prototype);
-Object.addEach(Array.prototype, RangeChanges.prototype);
-Object.addEach(Array.prototype, MapChanges.prototype);
+Object.defineProperty(Array.prototype, "makeObservable", {
+    value: array_makeObservable,
+    writable: true,
+    configurable: true,
+    enumerable: false
+});
+
+function defineEach(prototype) {
+    for (var name in prototype) {
+        Object.defineProperty(Array.prototype, name, {
+            value: prototype[name],
+            writable: true,
+            configurable: true,
+            enumerable: false
+        });
+    }
+}
+
+defineEach(PropertyChanges.prototype);
+defineEach(RangeChanges.prototype);
+defineEach(MapChanges.prototype);
 
 var observableArrayProperties = {
 
