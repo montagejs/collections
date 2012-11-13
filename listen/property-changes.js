@@ -194,7 +194,7 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
             Object.defineProperty(this, "__state__", {
                 value: state,
                 writable: true,
-                enumerable: true
+                enumerable: false
             });
         }
     }
