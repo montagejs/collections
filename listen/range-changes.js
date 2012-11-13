@@ -41,6 +41,12 @@ RangeChanges.prototype.addRangeChangeListener = function (listener, beforeChange
         descriptor.willChangeListeners.length +
         descriptor.changeListeners.length
     );
+
+    var self = this;
+    return function cancelRangeChangeListener() {
+        self.removeRangeChangeListener(listener, beforeChange);
+        self = null;
+    };
 };
 
 RangeChanges.prototype.removeRangeChangeListener = function (listener, beforeChange) {

@@ -46,6 +46,12 @@ MapChanges.prototype.addMapChangeListener = function (listener, beforeChange) {
     }
     listeners.push(listener);
     this.dispatchesMapChanges = true;
+
+    var self = this;
+    return function cancelMapChangeListener() {
+        self.removeMapChangeListener(listener, beforeChange);
+        self = null;
+    };
 };
 
 MapChanges.prototype.removeMapChangeListener = function (listener, beforeChange) {

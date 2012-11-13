@@ -104,6 +104,12 @@ PropertyChanges.prototype.addOwnPropertyChangeListener = function (key, listener
     }
     PropertyChanges.makePropertyObservable(this, key);
     listeners.push(listener);
+
+    var self = this;
+    return function cancelOwnPropertyChangeListener() {
+        PropertyChanges.removeOwnPropertyChangeListener(self, key, listeners, beforeChange);
+        self = null;
+    };
 };
 
 PropertyChanges.prototype.addBeforeOwnPropertyChangeListener = function (key, listener) {
