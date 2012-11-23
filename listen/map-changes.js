@@ -22,14 +22,16 @@ var object_owns = Object.prototype.hasOwnProperty;
     }
 */
 
+var mapChangeDescriptors = new WeakMap();
+
 MapChanges.prototype.getMapChangeDescriptor = function () {
-    if (!this.mapChangeDescriptor) {
-        this.mapChangeDescriptor = {
+    if (!mapChangeDescriptors.has(this)) {
+        mapChangeDescriptors.set(this, {
             willChangeListeners: new List(),
             changeListeners: new List()
-        };
+        });
     }
-    return this.mapChangeDescriptor;
+    return mapChangeDescriptors.get(this);
 };
 
 MapChanges.prototype.addMapChangeListener = function (listener, beforeChange) {
