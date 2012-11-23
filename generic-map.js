@@ -35,6 +35,7 @@ GenericMap.prototype.addEach = function (values) {
             }, this);
         }
     }
+    return this;
 }
 
 GenericMap.prototype.get = function (key, defaultValue) {

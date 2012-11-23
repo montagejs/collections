@@ -236,6 +236,7 @@ Object.addEach = function (target, source) {
             target[key] = source[key];
         });
     }
+    return target;
 };
 
 /**

@@ -21,6 +21,7 @@ GenericCollection.prototype.addEach = function (values) {
             }, this);
         }
     }
+    return this;
 };
 
 GenericCollection.prototype.deleteEach = function (values) {
