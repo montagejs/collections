@@ -287,6 +287,15 @@ Object.values = function (object) {
     return Object.map(object, Function.identity);
 };
 
+// TODO inline document concat
+Object.concat = function () {
+    var object = {};
+    for (var i = 0; i < arguments.length; i++) {
+        Object.addEach(object, arguments[i]);
+    }
+    return object;
+};
+
 /**
     Returns whether two values are identical.  Any value is identical to itself
     and only itself.  This is much more restictive than equivalence and subtly

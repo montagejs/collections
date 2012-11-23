@@ -8,6 +8,7 @@
 */
 
 require("../shim");
+var Dict = require("../dict");
 
 describe("Object", function () {
 
@@ -255,6 +256,26 @@ describe("Object", function () {
 
         it("should produce the values for owned properties", function () {
             expect(Object.values({b: 10, a: 20})).toEqual([10, 20]);
+        });
+
+    });
+
+    describe("concat", function () {
+
+        it("should merge objects into a new object", function () {
+            expect(Object.concat({a: 10}, {b: 20})).toEqual({a: 10, b: 20});
+        });
+
+        it("should prioritize latter objects", function () {
+            expect(Object.concat({a: 10}, {a: 20})).toEqual({a: 20});
+        });
+
+        it("should delegate to arrays", function () {
+            expect(Object.concat({a: 10, b: 20}, [['c', 30]])).toEqual({a: 10, b: 20, c: 30});
+        });
+
+        it("should delegate to maps", function () {
+            expect(Object.concat({a: 10, b: 20}, Dict({c: 30}))).toEqual({a: 10, b: 20, c: 30});
         });
 
     });
