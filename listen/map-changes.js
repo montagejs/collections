@@ -24,22 +24,32 @@ var object_owns = Object.prototype.hasOwnProperty;
 
 var mapChangeDescriptors = new WeakMap();
 
-MapChanges.prototype.getMapChangeDescriptor = function () {
+MapChanges.prototype.getAllMapChangeDescriptors = function () {
+    var Dict = require("../dict");
     if (!mapChangeDescriptors.has(this)) {
-        mapChangeDescriptors.set(this, {
-            willChangeListeners: new List(),
-            changeListeners: new List()
-        });
+        mapChangeDescriptors.set(this, Dict());
     }
     return mapChangeDescriptors.get(this);
 };
 
-MapChanges.prototype.addMapChangeListener = function (listener, beforeChange) {
+MapChanges.prototype.getMapChangeDescriptor = function (token) {
+    var tokenChangeDescriptors = this.getAllMapChangeDescriptors();
+    token = token || "";
+    if (!tokenChangeDescriptors.has(token)) {
+        tokenChangeDescriptors.set(token, {
+            willChangeListeners: new List(),
+            changeListeners: new List()
+        });
+    }
+    return tokenChangeDescriptors.get(token);
+};
+
+MapChanges.prototype.addMapChangeListener = function (listener, token, beforeChange) {
     if (this.makeObservable && !this.dispatchMapChanges) {
         // for Array
         this.makeObservable();
     }
-    var descriptor = this.getMapChangeDescriptor();
+    var descriptor = this.getMapChangeDescriptor(token);
     var listeners;
     if (beforeChange) {
         listeners = descriptor.willChangeListeners;
@@ -56,8 +66,8 @@ MapChanges.prototype.addMapChangeListener = function (listener, beforeChange) {
     };
 };
 
-MapChanges.prototype.removeMapChangeListener = function (listener, beforeChange) {
-    var descriptor = this.getMapChangeDescriptor();
+MapChanges.prototype.removeMapChangeListener = function (listener, token, beforeChange) {
+    var descriptor = this.getMapChangeDescriptor(token);
 
     var listeners;
     if (beforeChange) {
@@ -74,34 +84,50 @@ MapChanges.prototype.removeMapChangeListener = function (listener, beforeChange)
 };
 
 MapChanges.prototype.dispatchMapChange = function (key, value, beforeChange) {
-    var descriptor = this.getMapChangeDescriptor();
+    var descriptors = this.getAllMapChangeDescriptors();
+    var changeName = "Map" + (beforeChange ? "WillChange" : "Change");
+    descriptors.forEach(function (descriptor, token) {
 
-    var listeners;
-    if (beforeChange) {
-        listeners = descriptor.willChangeListeners;
-    } else {
-        listeners = descriptor.changeListeners;
-    }
-
-    var changeName = (beforeChange ? "Will" : "") + "Change";
-    var handlerName = "handleMap" + changeName;
-
-    // dispatch to each listener
-    listeners.forEach(function (listener) {
-        var thisp = listener;
-        listener = listener[handlerName] || listener;
-        if (listener.call) {
-            listener.call(thisp, value, key, this);
+        if (descriptor.isActive) {
+            return;
+        } else {
+            descriptor.isActive = true;
         }
-    }, this);
+
+        var listeners;
+        if (beforeChange) {
+            listeners = descriptor.willChangeListeners;
+        } else {
+            listeners = descriptor.changeListeners;
+        }
+
+        var tokenName = "handle" + (
+            token.slice(0, 1).toUpperCase() +
+            token.slice(1)
+        ) + changeName;
+
+        try {
+            // dispatch to each listener
+            listeners.forEach(function (listener) {
+                if (listener[tokenName]) {
+                    listener[tokenName](value, key, this);
+                } else {
+                    listener.call(listener, value, key, this);
+                }
+            }, this);
+        } finally {
+            descriptor.isActive = false;
+        }
+
+    });
 };
 
-MapChanges.prototype.addBeforeMapChangeListener = function (listener) {
-    return this.addMapChangeListener(listener, true);
+MapChanges.prototype.addBeforeMapChangeListener = function (listener, token) {
+    return this.addMapChangeListener(listener, token, true);
 };
 
-MapChanges.prototype.removeBeforeMapChangeListener = function (listener) {
-    return this.removeMapChangeListener(listener, true);
+MapChanges.prototype.removeBeforeMapChangeListener = function (listener, token) {
+    return this.removeMapChangeListener(listener, token, true);
 };
 
 MapChanges.prototype.dispatchBeforeMapChange = function (key, value) {
