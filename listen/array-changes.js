@@ -132,7 +132,7 @@ var observableArrayProperties = {
             var plus = array_slice.call(arguments, 2);
             var diff = plus.length - minus.length;
             var oldLength = this.length;
-            var newLength = this.length + diff;
+            var newLength = Math.max(this.length + diff, start + plus.length);
             var longest = Math.max(oldLength, newLength);
 
             // dispatch before change events
@@ -156,6 +156,9 @@ var observableArrayProperties = {
             }
 
             // actual work
+            if (start > oldLength) {
+                this.length = start;
+            }
             var result = array_splice.apply(this, arguments);
 
             // dispatch after change events
