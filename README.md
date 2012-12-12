@@ -857,6 +857,10 @@ The **listener** for a property change receives the arguments `value`,
 listener may alternately be a delegate object that implements one of
 these methods:
 
+-   listener.handle + **key** + Change **or** WillChange
+-   listener.handleProperty + Change **or** WillChange
+-   listener.call
+
 ### Map Changes
 
 A map change listener receives notifications for the creation, removal,
@@ -865,8 +869,8 @@ or updates for any item in a map data structure.
 With the `listen/array-changes` module required, `Array` can also
 dispatch map changes for the values at each index.
 
--   collection.**add**MapChangeListener(listener, before)
--   collection.**remove**MapChangeListener(listener, before)
+-   collection.**add**MapChangeListener(listener, token, before)
+-   collection.**remove**MapChangeListener(listener, token, before)
 -   collection.**dispatch**MapChange(key, value, before)
 -   collection.add**Before**MapChangeListener(listener)
 -   collection.remove**Before**MapChangeListener(listener)
@@ -880,6 +884,13 @@ indicate that the value was deleted or set to `undefined`.  In the
 before change phase, a value of `undefined` may indicate the the value
 was added or was previously `undefined`.
 
+The listener may be a delegate object with one of the following methods,
+in order of precedence:
+
+-   listener.handleMap + Change **or** WillChange
+-   listener.handleMap + **token** + Change **or** WillChange
+-   listener.call
+
 The `listen/map-changes` module exports a map changes **mixin**.  The
 methods of `MaxChanges.prototype` can be copied to any collection that
 needs this interface.  Its mutation methods will then need to dispatch
@@ -891,8 +902,8 @@ A range change listener receives notifications when a range of values at
 a particular position is added, removed, or replaced within an ordered
 collection.
 
--   collection.**add**RangeChange**Listener**(listener, before)
--   collection.**remove**RangeChange**Listener**(listener, before)
+-   collection.**add**RangeChange**Listener**(listener, token, before)
+-   collection.**remove**RangeChange**Listener**(listener, token, before)
 -   collection.**dispatch**RangeChange(plus, minus, index, before)
 -   collection.add**Before**RangeChange**Listener**(listener)
 -   collection.remove**Before**RangeChange**Listener**(listener)
@@ -908,26 +919,16 @@ changes is equivalent to:
 var minus = collection.splice(index, minus.length, ...plus)
 ```
 
-The listener can alternately be an object that has either a
-`handleRangeChange` or `handleRangeWillChange` method, depending on
-whether the notification is dispatched after or before the change takes
-effect.  The arguments are the same either way, but `this` will be the
-handler object.
+The listener can alternately be a delegate object with one of the
+following methods in order of precedence:
 
-If the listener is neither of the above, it can be a delegate that
-implements a W3C-alike `handleEvent(event)` method.  The event has these
-properties:
-
--   `phase` of `"before"` or `"after"`
--   `currentTarget` is the object
--   `target` is the object
--   `plus`
--   `minus`
--   `index`
+-   handle + **token** + Range + Change **or** WillChange
+-   handleRange + Change **or** WillChange
+-   call
 
 The following support range change dispatch:
 
--   `Array`
+-   `Array` with `require("collections/listen/array-changes")`
 -   `SortedSet`
 -   `SortedArray`
 -   `SortedArraySet`
@@ -1061,8 +1062,6 @@ a method, to aid in distinguishing "static" functions.
 
 Goals
 
-- handle event for other change dispatch systems, in addition to range,
-  and the rest of the W3C event interface
 - automate the generation of the method support tables in readme and
   normalize declaration order
 - comprehensive specs and spec coverage tests
