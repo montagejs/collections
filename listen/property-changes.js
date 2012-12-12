@@ -376,7 +376,8 @@ PropertyChanges.hasOwnPropertyChangeDescriptor = function (object, key) {
 };
 
 PropertyChanges.addOwnPropertyChangeListener = function (object, key, listener, beforeChange) {
-    if (object.addOwnPropertyChangeListener) {
+    if (!Object.isObject(object)) {
+    } else if (object.addOwnPropertyChangeListener) {
         return object.addOwnPropertyChangeListener(key, listener, beforeChange);
     } else {
         return PropertyChanges.prototype.addOwnPropertyChangeListener.call(object, key, listener, beforeChange);
@@ -384,7 +385,8 @@ PropertyChanges.addOwnPropertyChangeListener = function (object, key, listener, 
 };
 
 PropertyChanges.removeOwnPropertyChangeListener = function (object, key, listener, beforeChange) {
-    if (object.removeOwnPropertyChangeListener) {
+    if (!Object.isObject(object)) {
+    } else if (object.removeOwnPropertyChangeListener) {
         return object.removeOwnPropertyChangeListener(key, listener, beforeChange);
     } else {
         return PropertyChanges.prototype.removeOwnPropertyChangeListener.call(object, key, listener, beforeChange);
@@ -392,7 +394,8 @@ PropertyChanges.removeOwnPropertyChangeListener = function (object, key, listene
 };
 
 PropertyChanges.dispatchOwnPropertyChange = function (object, key, value, beforeChange) {
-    if (object.dispatchOwnPropertyChange) {
+    if (!Object.isObject(object)) {
+    } else if (object.dispatchOwnPropertyChange) {
         return object.dispatchOwnPropertyChange(key, value, beforeChange);
     } else {
         return PropertyChanges.prototype.dispatchOwnPropertyChange.call(object, key, value, beforeChange);
