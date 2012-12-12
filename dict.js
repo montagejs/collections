@@ -102,6 +102,5 @@ Dict.prototype.one = function () {
     for (var key in this.store) {
         return this.store[key];
     }
-    throw new Error("Can't get one value from empty dictionary.");
 };
 

@@ -87,9 +87,7 @@ function describeCollection(Collection, values, setLike) {
 
         it("should throw an error for an empty collection", function () {
             var collection = Collection();
-            expect(function () {
-                collection.one();
-            }).toThrow();
+            expect(collection.one()).toBe(undefined);
         });
     });
 
@@ -100,16 +98,12 @@ function describeCollection(Collection, values, setLike) {
             expect(collection.only()).toBe(a);
         });
 
-        it("should throw if there are no values in the collection", function () {
-            expect(function () {
-                Collection().only();
-            }).toThrow();
+        it("should be undefined if there are no values in the collection", function () {
+            expect(Collection().only()).toBeUndefined();
         });
 
-        it("should throw if there are many values in the collection", function () {
-            expect(function () {
-                Collection([a, b]).only();
-            }).toThrow();
+        it("should be undefined if there are many values in the collection", function () {
+            expect(Collection([a, b]).only()).toBeUndefined();
         });
 
     });

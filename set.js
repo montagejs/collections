@@ -102,10 +102,9 @@ Set.prototype["delete"] = function (value) {
 };
 
 Set.prototype.one = function () {
-    if (this.length === 0) {
-        throw new Error("Can't get one value from empty set.");
+    if (this.length > 0) {
+        return this.store.one().value;
     }
-    return this.store.one().value;
 };
 
 Set.prototype.clear = function () {

@@ -211,9 +211,7 @@ function describeOrder(Collection) {
         });
 
         it("should throw if empty", function () {
-            expect(function () {
-                Collection([]).one();
-            }).toThrow();
+            expect(Collection([]).one()).toBe(undefined);
         });
 
     });
@@ -224,16 +222,12 @@ function describeOrder(Collection) {
             expect(Collection([0]).only()).toEqual(0);
         });
 
-        it("should throw if empty", function () {
-            expect(function () {
-                Collection([]).only();
-            }).toThrow();
+        it("should be undefined if empty", function () {
+            expect(Collection([]).only()).toBeUndefined();
         });
 
-        it("should throw if more than one value", function () {
-            expect(function () {
-                Collection([1, 2]).only();
-            }).toThrow();
+        it("should be undefined if more than one value", function () {
+            expect(Collection([1, 2]).only()).toBeUndefined();
         });
 
     });

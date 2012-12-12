@@ -483,10 +483,9 @@ SortedSet.prototype.max = function (at) {
 };
 
 SortedSet.prototype.one = function () {
-    if (!this.root) {
-        throw new Error("Can't get one value from empty set");
+    if (this.root) {
+        return this.root.value;
     }
-    return this.root.value;
 };
 
 SortedSet.prototype.clear = function () {

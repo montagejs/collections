@@ -130,6 +130,24 @@ List.prototype.shift = function () {
     return value;
 };
 
+List.prototype.peek = function () {
+    if (this.head !== this.head.next) {
+        return this.head.next.value;
+    }
+};
+
+List.prototype.poke = function (value) {
+    if (this.head !== this.head.next) {
+        this.head.next.value = value;
+    } else {
+        this.push(value);
+    }
+};
+
+List.prototype.one = function () {
+    return this.peek();
+};
+
 // an internal utility for coercing index offsets to nodes
 List.prototype.scan = function (at, fallback) {
     var head = this.head;
@@ -238,13 +256,6 @@ List.prototype.reduceRight = function (callback, basis /*, thisp*/) {
         at = at.prev;
     }
     return basis;
-};
-
-List.prototype.one = function () {
-    if (this.head === this.head.next) {
-        throw new Error("Can't get one value from empty list");
-    }
-    return this.head.next.value;
 };
 
 List.prototype.iterate = function () {

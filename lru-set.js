@@ -79,10 +79,9 @@ LruSet.prototype["delete"] = function (value) {
 };
 
 LruSet.prototype.one = function () {
-    if (this.length === 0) {
-        throw new Error("Can't get one value from empty collection.");
+    if (this.length > 0) {
+        return this.store.one();
     }
-    return this.store.one();
 };
 
 LruSet.prototype.clear = function () {

@@ -117,9 +117,6 @@ define("swap", function (index, length, plus) {
 });
 
 define("one", function () {
-    if (this.length === 0) {
-        throw new Error("Can't get one element from empty array.");
-    }
     for (var i in this) {
         if (Object.owns(this, i)) {
             return this[i];

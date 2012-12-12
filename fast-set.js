@@ -104,10 +104,9 @@ FastSet.prototype.reduce = function (callback, basis /*, thisp*/) {
 };
 
 FastSet.prototype.one = function () {
-    if (this.length === 0) {
-        throw new Error("Can't get one value from empty set.");
+    if (this.length > 0) {
+        return this.buckets.one().one();
     }
-    return this.buckets.one().one();
 };
 
 FastSet.prototype.iterate = function () {

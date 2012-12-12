@@ -219,12 +219,8 @@ GenericCollection.prototype.clone = function (depth, memo) {
 };
 
 GenericCollection.prototype.only = function () {
-    if (this.length === 0) {
-        throw new Error("Can't get only value in empty collection.");
+    if (this.length === 1) {
+        return this.one();
     }
-    if (this.length > 1) {
-        throw new Error("Can't get only value in collection with multiple values.");
-    }
-    return this.one();
 };
 
