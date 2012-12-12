@@ -7,9 +7,9 @@ var GenericCollection = require("./generic-collection");
 var PropertyChanges = require("./listen/property-changes");
 var RangeChanges = require("./listen/range-changes");
 
-function SortedArray(values, equals, compare, content) {
+function SortedArray(values, equals, compare, getDefault) {
     if (!(this instanceof SortedArray)) {
-        return new SortedArray(values, equals, compare, content);
+        return new SortedArray(values, equals, compare, getDefault);
     }
     if (Array.isArray(values)) {
         this.array = values;
@@ -19,7 +19,7 @@ function SortedArray(values, equals, compare, content) {
     }
     this.contentEquals = equals || Object.equals;
     this.contentCompare = compare || Object.compare;
-    this.content = content || Function.noop;
+    this.getDefault = getDefault || Function.noop;
 
     this.length = 0;
     this.addEach(values);
@@ -96,7 +96,7 @@ SortedArray.prototype.constructClone = function (values) {
         values,
         this.contentEquals,
         this.contentCompare,
-        this.content
+        this.getDefault
     );
 };
 
@@ -110,7 +110,7 @@ SortedArray.prototype.get = function (value) {
     if (index !== -1) {
         return this.array[index];
     } else {
-        return this.content(value);
+        return this.getDefault(value);
     }
 };
 

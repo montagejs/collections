@@ -10,16 +10,16 @@ var RangeChanges = require("./listen/range-changes");
 
 module.exports = Set;
 
-function Set(values, equals, hash, content) {
+function Set(values, equals, hash, getDefault) {
     if (!(this instanceof Set)) {
         return new Set(values, equals, hash);
     }
     equals = equals || Object.equals;
     hash = hash || Object.hash;
-    content = content || Function.noop;
+    getDefault = getDefault || Function.noop;
     this.contentEquals = equals;
     this.contentHash = hash;
-    this.content = content;
+    this.getDefault = getDefault;
     // a list of values in insertion order, used for all operations that depend
     // on iterating in insertion order
     this.order = new this.Order(undefined, equals);
@@ -47,7 +47,7 @@ Set.prototype.Order = List;
 Set.prototype.Store = FastSet;
 
 Set.prototype.constructClone = function (values) {
-    return new this.constructor(values, this.contentEquals, this.contentHash, this.content);
+    return new this.constructor(values, this.contentEquals, this.contentHash, this.getDefault);
 };
 
 Set.prototype.has = function (value) {
@@ -61,7 +61,7 @@ Set.prototype.get = function (value) {
     if (node) {
         return node.value;
     } else {
-        return this.content(value);
+        return this.getDefault(value);
     }
 };
 

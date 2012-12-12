@@ -8,12 +8,12 @@ var PropertyChanges = require("./listen/property-changes");
 // Burgled from https://github.com/domenic/dict
 
 module.exports = Dict;
-function Dict(values, content) {
+function Dict(values, getDefault) {
     if (!(this instanceof Dict)) {
-        return new Dict(values, content);
+        return new Dict(values, getDefault);
     }
-    content = content || Function.noop;
-    this.content = content;
+    getDefault = getDefault || Function.noop;
+    this.getDefault = getDefault;
     this.store = {};
     this.length = 0;
     this.addEach(values);
@@ -32,7 +32,7 @@ Object.addEach(Dict.prototype, GenericMap.prototype);
 Object.addEach(Dict.prototype, PropertyChanges.prototype);
 
 Dict.prototype.constructClone = function (values) {
-    return new this.constructor(values, this.mangle, this.content);
+    return new this.constructor(values, this.mangle, this.getDefault);
 };
 
 Dict.prototype.assertString = function (key) {
@@ -49,7 +49,7 @@ Dict.prototype.get = function (key, defaultValue) {
     } else if (arguments.length > 1) {
         return defaultValue;
     } else {
-        return this.content();
+        return this.getDefault(key);
     }
 };
 

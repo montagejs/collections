@@ -8,16 +8,16 @@ var PropertyChanges = require("./listen/property-changes");
 
 module.exports = Map;
 
-function Map(values, equals, hash, content) {
+function Map(values, equals, hash, getDefault) {
     if (!(this instanceof Map)) {
         return new Map(values, equals, hash);
     }
     equals = equals || Object.equals;
     hash = hash || Object.hash;
-    content = content || Function.noop;
+    getDefault = getDefault || Function.noop;
     this.contentEquals = equals;
     this.contentHash = hash;
-    this.content = content;
+    this.getDefault = getDefault;
     this.store = new Set(
         undefined,
         function keysEqual(a, b) {
@@ -40,7 +40,7 @@ Map.prototype.constructClone = function (values) {
         values,
         this.contentEquals,
         this.contentHash,
-        this.content
+        this.getDefault
     );
 };
 

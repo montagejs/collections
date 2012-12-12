@@ -8,16 +8,16 @@ var PropertyChanges = require("./listen/property-changes");
 
 module.exports = SortedMap;
 
-function SortedMap(values, equals, compare, content) {
+function SortedMap(values, equals, compare, getDefault) {
     if (!(this instanceof SortedMap)) {
-        return new SortedMap(values, equals, compare, content);
+        return new SortedMap(values, equals, compare, getDefault);
     }
     equals = equals || Object.equals;
     compare = compare || Object.compare;
-    content = content || Function.noop;
+    getDefault = getDefault || Function.noop;
     this.contentEquals = equals;
     this.contentCompare = compare;
-    this.content = content;
+    this.getDefault = getDefault;
     this.store = new SortedSet(
         null,
         function keysEqual(a, b) {
@@ -41,7 +41,7 @@ SortedMap.prototype.constructClone = function (values) {
         values,
         this.contentEquals,
         this.contentCompare,
-        this.content
+        this.getDefault
     );
 };
 

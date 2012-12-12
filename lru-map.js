@@ -8,16 +8,16 @@ var PropertyChanges = require("./listen/property-changes");
 
 module.exports = LruMap;
 
-function LruMap(values, maxLength, equals, hash, content) {
+function LruMap(values, maxLength, equals, hash, getDefault) {
     if (!(this instanceof LruMap)) {
         return new LruMap(values, maxLength, equals, hash);
     }
     equals = equals || Object.equals;
     hash = hash || Object.hash;
-    content = content || Function.noop;
+    getDefault = getDefault || Function.noop;
     this.contentEquals = equals;
     this.contentHash = hash;
-    this.content = content;
+    this.getDefault = getDefault;
     this.store = new LruSet(
         undefined,
         maxLength,
@@ -42,7 +42,7 @@ LruMap.prototype.constructClone = function (values) {
         this.maxLength,
         this.contentEquals,
         this.contentHash,
-        this.content
+        this.getDefault
     );
 };
 

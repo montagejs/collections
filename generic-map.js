@@ -45,7 +45,7 @@ GenericMap.prototype.get = function (key, defaultValue) {
     } else if (arguments.length > 1) {
         return defaultValue;
     } else {
-        return this.content(key);
+        return this.getDefault(key);
     }
 };
 

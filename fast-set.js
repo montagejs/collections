@@ -12,16 +12,16 @@ var object_has = Object.prototype.hasOwnProperty;
 
 module.exports = FastSet;
 
-function FastSet(values, equals, hash, content) {
+function FastSet(values, equals, hash, getDefault) {
     if (!(this instanceof FastSet)) {
         return new FastSet(values, equals, hash);
     }
     equals = equals || Object.equals;
     hash = hash || Object.hash;
-    content = content || Function.noop;
+    getDefault = getDefault || Function.noop;
     this.contentEquals = equals;
     this.contentHash = hash;
-    this.content = content;
+    this.getDefault = getDefault;
     this.buckets = new this.Buckets(null, this.Bucket);
     this.length = 0;
     this.addEach(values);
@@ -39,7 +39,7 @@ FastSet.prototype.constructClone = function (values) {
         values,
         this.contentEquals,
         this.contentHash,
-        this.content
+        this.getDefault
     );
 };
 
@@ -54,7 +54,7 @@ FastSet.prototype.get = function (value) {
     if (buckets.has(hash)) {
         return buckets.get(hash).get(value);
     } else {
-        return this.content(value);
+        return this.getDefault(value);
     }
 };
 

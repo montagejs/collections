@@ -8,18 +8,18 @@ var PropertyChanges = require("./listen/property-changes");
 
 module.exports = LruSet;
 
-function LruSet(values, maxLength, equals, hash, content) {
+function LruSet(values, maxLength, equals, hash, getDefault) {
     if (!(this instanceof LruSet)) {
         return new LruSet(values, maxLength, equals, hash);
     }
     maxLength = maxLength || Infinity;
     equals = equals || Object.equals;
     hash = hash || Object.hash;
-    content = content || Function.noop;
+    getDefault = getDefault || Function.noop;
     this.store = new Set(undefined, equals, hash);
     this.contentEquals = equals;
     this.contentHash = hash;
-    this.content = content;
+    this.getDefault = getDefault;
     this.maxLength = maxLength;
     this.length = 0;
     this.addEach(values);
@@ -35,7 +35,7 @@ LruSet.prototype.constructClone = function (values) {
         this.maxLength,
         this.contentEquals,
         this.contentHash,
-        this.content
+        this.getDefault
     );
 };
 
@@ -49,7 +49,7 @@ LruSet.prototype.get = function (value) {
         this.store["delete"](value);
         this.store.add(value);
     } else {
-        value = this.content();
+        value = this.getDefault(value);
     }
     return value;
 };

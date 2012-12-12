@@ -7,11 +7,11 @@ var SortedArray = require("./sorted-array");
 var GenericSet = require("./generic-set");
 var PropertyChanges = require("./listen/property-changes");
 
-function SortedArraySet(values, equals, compare, content) {
+function SortedArraySet(values, equals, compare, getDefault) {
     if (!(this instanceof SortedArraySet)) {
-        return new SortedArraySet(values, equals, compare, content);
+        return new SortedArraySet(values, equals, compare, getDefault);
     }
-    SortedArray.call(this, values, equals, compare, content);
+    SortedArray.call(this, values, equals, compare, getDefault);
 }
 
 SortedArraySet.prototype = Object.create(SortedArray.prototype);

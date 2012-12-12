@@ -8,16 +8,16 @@ var PropertyChanges = require("./listen/property-changes");
 
 module.exports = SortedArrayMap;
 
-function SortedArrayMap(values, equals, compare, content) {
+function SortedArrayMap(values, equals, compare, getDefault) {
     if (!(this instanceof SortedArrayMap)) {
-        return new SortedArrayMap(values, equals, compare, content);
+        return new SortedArrayMap(values, equals, compare, getDefault);
     }
     equals = equals || Object.equals;
     compare = compare || Object.compare;
-    content = content || Function.noop;
+    getDefault = getDefault || Function.noop;
     this.contentEquals = equals;
     this.contentCompare = compare;
-    this.content = content;
+    this.getDefault = getDefault;
     this.store = new SortedArraySet(
         null,
         function keysEqual(a, b) {
@@ -40,7 +40,7 @@ SortedArrayMap.prototype.constructClone = function (values) {
         values,
         this.contentEquals,
         this.contentCompare,
-        this.content
+        this.getDefault
     );
 };
 

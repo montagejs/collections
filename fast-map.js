@@ -8,16 +8,16 @@ var PropertyChanges = require("./listen/property-changes");
 
 module.exports = FastMap;
 
-function FastMap(values, equals, hash, content) {
+function FastMap(values, equals, hash, getDefault) {
     if (!(this instanceof FastMap)) {
         return new FastMap(values, equals, hash);
     }
     equals = equals || Object.equals;
     hash = hash || Object.hash;
-    content = content || Function.noop;
+    getDefault = getDefault || Function.noop;
     this.contentEquals = equals;
     this.contentHash = hash;
-    this.content = content;
+    this.getDefault = getDefault;
     this.store = new Set(
         undefined,
         function keysEqual(a, b) {
@@ -40,7 +40,7 @@ FastMap.prototype.constructClone = function (values) {
         values,
         this.contentEquals,
         this.contentHash,
-        this.content
+        this.getDefault
     );
 };
 

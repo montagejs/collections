@@ -6,7 +6,7 @@ This package contains JavaScript implementations of common data
 structures with idiomatic iterfaces, including extensions for Array and
 Object.
 
--   **List(values, equals, content)**
+-   **List(values, equals, getDefault)**
 
     An ordered collection of values with fast insertion and deletion and
     forward and backward traversal, backed by a cyclic doubly linked
@@ -18,7 +18,7 @@ Object.
     the list prototype and can be overridden by inheritors.  Each node
     has `prev` and `next` properties.
 
--   **Set(values, equals, hash, content)**
+-   **Set(values, equals, hash, getDefault)**
 
     A collection of unique values.  The set can be iterated in the order
     of insertion.  With a good hash function for the stored values,
@@ -27,18 +27,18 @@ Object.
     functions can be overridden to provide alternate definitions of
     "unique".  `Set` is backed by `FastSet` and `List`.
 
--   **Map(map, equals, hash, content)**
+-   **Map(map, equals, hash, getDefault)**
 
     A collection of key and value items with unique keys.  Keys may be
     objects.  The collection iterates in the order of insertion.  `Map`
     is backed by `Set`.
 
--   **MultiMap(map, content, equals, hash)**
+-   **MultiMap(map, getDefault, equals, hash)**
 
     A collection of keys mapped to collections of values.  The default
-    `content` collection is an `Array`, but it can be a `List` or any
+    `getDefault` collection is an `Array`, but it can be a `List` or any
     other array-like object.  `MultiMap` inherits `Map` but overrides
-    the `content` constructor.
+    the `getDefault(key)` provider.
 
 -   **WeakMap()**
 
@@ -51,18 +51,18 @@ Object.
     not necessarily leak memory, but cannot collect certain reference
     graphs.  This WeakMap shim was implemented by Mark Miller of Google.
 
--   **SortedSet(values, equals, compare, content)**
+-   **SortedSet(values, equals, compare, getDefault)**
 
     A collection of unique values stored in stored order, backed by a
     splay tree.  The `equals` and `compare` functions can be overridden
     to provide alternate definitions of "unique".
 
--   **SortedMap(map, equals, compare, content)**
+-   **SortedMap(map, equals, compare, getDefault)**
 
     A collection of key value pairs stored in sorted order.  `SortedMap`
     is backed by `SortedSet` and the `GenericMap` mixin.
 
--   **LruSet(values, maxLength, equals, hash, content)**
+-   **LruSet(values, maxLength, equals, hash, getDefault)**
 
     A cache with the Least-Recently-Used strategy for truncating its
     content when it’s length exceeds `maxLength`.  `LruSet` is backed by
@@ -70,16 +70,16 @@ Object.
     Both getting and setting a value constitute usage, but checking
     whether the set has a value and iterating values do not.
 
--   **LruMap(map, maxLength, equals, hash, content)**
+-   **LruMap(map, maxLength, equals, hash, getDefault)**
 
     A cache of items backed by an `LruSet`.
 
--   **SortedArray(values, equals, compare, content)**
+-   **SortedArray(values, equals, compare, getDefault)**
 
     A collection of values stored in a stable sorted order, backed by an
     array.
 
--   **SortedArraySet(values, equals, compare, content)**
+-   **SortedArraySet(values, equals, compare, getDefault)**
 
     A collection of unique values stored in sorted order, backed by a
     plain array.  If the given values are an actual array, the sorted
@@ -87,12 +87,12 @@ Object.
     sorted array set performs better than a sorted set when it has
     roughly less than 100 values.
 
--   **SortedArrayMap(values, equals, compare, content)**
+-   **SortedArrayMap(values, equals, compare, getDefault)**
 
     A collection of key value pairs stored in sorted order, backed by a
     sorted array set.
 
--   **FastSet(values, equals, hash, content)**
+-   **FastSet(values, equals, hash, getDefault)**
 
     A collection of unique values stored like a hash table.  The
     underlying storage is a `Dict` that maps hashes to lists of values
@@ -100,13 +100,13 @@ Object.
     `hash` functions can be overridden to provide alternate definitions
     of "unique".
 
--   **FastMap(map, equals, hash, content)**
+-   **FastMap(map, equals, hash, getDefault)**
 
     A collection of key and value items with unique keys, backed by a
     set.  Keys may be objects.  `FastMap` is backed by `FastSet` and the
     `GenericMap` mixin.
 
--   **Dict(values, content)**
+-   **Dict(values, getDefault)**
 
     A collection of string to value mappings backed by a plain
     JavaScript object.  The keys are mangled to prevent collisions with
@@ -178,12 +178,12 @@ same string for any given object.
 
 [Unique Label]: (http://wiki.ecmascript.org/doku.php?id=harmony:weak_maps#unique_labeler)
 
--   **content(key or value)**
+-   **getDefault(key or value)**
 
-    The default `content` function is `Function.noop`, which returns
-    `undefined`.  The content function is used when you `get` a
-    nonexistant value from any collection.  The `content` function
-    becomes a member of the collection object, so `content` is called
+    The default `getDefault` function is `Function.noop`, which returns
+    `undefined`.  The fallback function is used when you `get` a
+    nonexistant value from any collection.  The `getDefault` function
+    becomes a member of the collection object, so `getDefault` is called
     with the collection as `this`, so you can also use it to guarantee
     that default values in a collection are retained, as in `MultiMap`.
 
@@ -225,13 +225,13 @@ SortedArrayMap, FastSet, FastMap, Dict)
 -   **get(key or index)**
 
     The value for a key.  If a Map or SortedMap lacks a key, returns
-    `content(key)`.
+    `getDefault(key)`.
 
     (Array+, Map, SortedMap, SortedArrayMap, WeakMap, Object+)
 
     **get(value)**
 
-    Gets the equivalent value, or falls back to `content(value)`.
+    Gets the equivalent value, or falls back to `getDefault(value)`.
 
     (List, Set, SortedSet, LruSet, SortedArray, SortedArraySet, FastSet)
 

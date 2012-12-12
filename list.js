@@ -7,15 +7,15 @@ var GenericCollection = require("./generic-collection");
 var GenericOrder = require("./generic-order");
 var PropertyChanges = require("./listen/property-changes");
 
-function List(values, equals, content) {
+function List(values, equals, getDefault) {
     if (!(this instanceof List)) {
-        return new List(values, equals, content);
+        return new List(values, equals, getDefault);
     }
     var head = this.head = new this.Node();
     head.next = head;
     head.prev = head;
     this.contentEquals = equals || Object.equals;
-    this.content = content || Function.noop;
+    this.getDefault = getDefault || Function.noop;
     this.length = 0;
     this.addEach(values);
 }
@@ -25,7 +25,7 @@ Object.addEach(List.prototype, GenericOrder.prototype);
 Object.addEach(List.prototype, PropertyChanges.prototype);
 
 List.prototype.constructClone = function (values) {
-    return new this.constructor(values, this.contentEquals, this.content);
+    return new this.constructor(values, this.contentEquals, this.getDefault);
 };
 
 List.prototype.find = function (value, equals) {
@@ -61,7 +61,7 @@ List.prototype.get = function (value, equals) {
     if (found) {
         return found.value;
     }
-    return this.content();
+    return this.getDefault(value);
 };
 
 // LIFO (delete removes the most recently added equivalent value)

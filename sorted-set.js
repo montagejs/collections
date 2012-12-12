@@ -9,13 +9,13 @@ var PropertyChanges = require("./listen/property-changes");
 var RangeChanges = require("./listen/range-changes");
 var TreeLog = require("./tree-log");
 
-function SortedSet(values, equals, compare, content) {
+function SortedSet(values, equals, compare, getDefault) {
     if (!(this instanceof SortedSet)) {
-        return new SortedSet(values, equals, compare, content);
+        return new SortedSet(values, equals, compare, getDefault);
     }
     this.contentEquals = equals || Object.equals;
     this.contentCompare = compare || Object.compare;
-    this.content = content || Function.noop;
+    this.getDefault = getDefault || Function.noop;
     this.root = null;
     this.length = 0;
     this.addEach(values);
@@ -31,7 +31,7 @@ SortedSet.prototype.constructClone = function (values) {
         values,
         this.contentEquals,
         this.contentCompare,
-        this.content
+        this.getDefault
     );
 };
 
@@ -51,7 +51,7 @@ SortedSet.prototype.get = function (value) {
             return this.root.value;
         }
     }
-    return this.content(value);
+    return this.getDefault(value);
 };
 
 SortedSet.prototype.add = function (value) {
