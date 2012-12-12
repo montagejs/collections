@@ -5,6 +5,7 @@
     https://github.com/motorola-mobility/montage/blob/master/LICENSE.md
 */
 
+require("../../shim");
 var PropertyChanges = require("../../listen/property-changes");
 
 describe("PropertyChanges", function () {

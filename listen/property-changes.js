@@ -144,6 +144,11 @@ PropertyChanges.prototype.removeBeforeOwnPropertyChangeListener = function (key,
 PropertyChanges.prototype.dispatchOwnPropertyChange = function (key, value, beforeChange) {
     var descriptor = PropertyChanges.getOwnPropertyChangeDescriptor(this, key);
 
+    if (descriptor.isActive) {
+        return;
+    }
+    descriptor.isActive = true;
+
     var listeners;
     if (beforeChange) {
         listeners = descriptor.willChangeListeners;
@@ -157,19 +162,20 @@ PropertyChanges.prototype.dispatchOwnPropertyChange = function (key, value, befo
     propertyName = propertyName && propertyName[0].toUpperCase() + propertyName.slice(1);
     var specificHandlerName = "handle" + propertyName + changeName;
 
-    // dispatch to each listener
-    listeners.forEach(function (listener) {
-        var thisp = listener;
-        listener = (
-            listener[specificHandlerName] ||
-            listener[genericHandlerName] ||
-            // TODO: handleEvent(event)
-            listener
-        );
-        if (listener.call) {
+    try {
+        // dispatch to each listener
+        listeners.forEach(function (listener) {
+            var thisp = listener;
+            listener = (
+                listener[specificHandlerName] ||
+                listener[genericHandlerName] ||
+                listener
+            );
             listener.call(thisp, value, key, this);
-        }
-    }, this);
+        }, this);
+    } finally {
+        descriptor.isActive = false;
+    }
 };
 
 PropertyChanges.prototype.dispatchBeforeOwnPropertyChange = function (key, listener) {
