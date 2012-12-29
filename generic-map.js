@@ -157,3 +157,11 @@ function Item(key, value) {
     this.value = value;
 }
 
+Item.prototype.equals = function (that) {
+    return Object.equals(this.key, that.key) && Object.equals(this.value, that.value);
+};
+
+Item.prototype.compare = function (that) {
+    return Object.compare(this.key, that.key);
+};
+
