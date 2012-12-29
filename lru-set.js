@@ -5,6 +5,7 @@ var Set = require("./set");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
 var PropertyChanges = require("./listen/property-changes");
+var RangeChanges = require("./listen/range-changes");
 
 module.exports = LruSet;
 
@@ -28,6 +29,7 @@ function LruSet(values, maxLength, equals, hash, getDefault) {
 Object.addEach(LruSet.prototype, GenericCollection.prototype);
 Object.addEach(LruSet.prototype, GenericSet.prototype);
 Object.addEach(LruSet.prototype, PropertyChanges.prototype);
+Object.addEach(LruSet.prototype, RangeChanges.prototype);
 
 LruSet.prototype.constructClone = function (values) {
     return new this.constructor(
@@ -55,27 +57,48 @@ LruSet.prototype.get = function (value) {
 };
 
 LruSet.prototype.add = function (value) {
-    if (this.store.has(value)) {
+    var found = this.store.has(value);
+    // if the value already exists, we delete it and add it back again so it
+    // appears at the end of the list of values to truncate
+    var length = this.length;
+    if (found) {
         this.store["delete"](value);
-        this.length--;
+        length--;
+    }
+    // before change
+    if (!found && this.dispachesRangeChanges) {
+        this.dispatchBeforeRangeChange([value], [], 0);
     }
     this.store.add(value);
-    this.length++;
+    length++;
+    // only assign to length once to avoid jitter on length observers
+    this.length = length;
+    // after change
+    if (!found && this.dispatchesRangeChanges) {
+        this.dispatchRangeChange([value], [], 0);
+    }
+    // truncate if necessary
     if (this.store.length > this.maxLength) {
         var eldest = this.store.order.head.next;
-        this.store["delete"](eldest.value);
-        this.length--;
-        return false;
+        this["delete"](eldest.value);
+        return false; // did not grow
     }
-    return true;
+    return !found; // whether it grew
 };
 
 LruSet.prototype["delete"] = function (value) {
-    if (this.store["delete"](value)) {
+    var found = this.store.has(value);
+    if (found) {
+        if (this.dispatchesRangeChanges) {
+            this.dispatchBeforeRangeChange([], [value], 0);
+        }
+        this.store["delete"](value);
         this.length--;
-        return true;
+        if (this.dispatchesRangeChanges) {
+            this.dispatcheRangeChange([], [value], 0);
+        }
     }
-    return false;
+    return found;
 };
 
 LruSet.prototype.one = function () {
