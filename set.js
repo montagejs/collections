@@ -101,6 +101,22 @@ Set.prototype["delete"] = function (value) {
     return false;
 };
 
+Set.prototype.pop = function () {
+    if (this.length) {
+        var result = this.order.head.prev.value;
+        this["delete"](result);
+        return result;
+    }
+};
+
+Set.prototype.shift = function () {
+    if (this.length) {
+        var result = this.order.head.next.value;
+        this["delete"](result);
+        return result;
+    }
+};
+
 Set.prototype.one = function () {
     if (this.length > 0) {
         return this.store.one().value;

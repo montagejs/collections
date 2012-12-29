@@ -19,5 +19,14 @@ describe("Set", function () {
         return Set(values, Object.is);
     }, [{}, {}, {}, {}], true);
 
+    it("should pop and shift", function () {
+        var a = {i: 2};
+        var b = {i: 1};
+        var c = {i: 0};
+        var set = Set([a, b, c], Object.is);
+        expect(set.pop()).toBe(c);
+        expect(set.shift()).toBe(a);
+    });
+
 });
 
