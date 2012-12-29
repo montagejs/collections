@@ -1065,7 +1065,6 @@ Goals
 - automate the generation of the method support tables in readme and
   normalize declaration order
 - comprehensive specs and spec coverage tests
-- map change dispatch and listeners
 - fast list splicing
 
 More possible collections
