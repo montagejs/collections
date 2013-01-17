@@ -51,7 +51,11 @@ RangeChanges.prototype.addRangeChangeListener = function (listener, token, befor
 
     var self = this;
     return function cancelRangeChangeListener() {
-        self.removeRangeChangeListener(listener, beforeChange);
+        if (!self) {
+            // TODO throw new Error("Range change listener " + JSON.stringify(token) + " has already been canceled");
+            return;
+        }
+        self.removeRangeChangeListener(listener, token, beforeChange);
         self = null;
     };
 };

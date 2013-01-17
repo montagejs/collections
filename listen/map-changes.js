@@ -61,7 +61,11 @@ MapChanges.prototype.addMapChangeListener = function (listener, token, beforeCha
 
     var self = this;
     return function cancelMapChangeListener() {
-        self.removeMapChangeListener(listener, beforeChange);
+        if (!self) {
+            // TODO throw new Error("Can't remove map change listener again");
+            return;
+        }
+        self.removeMapChangeListener(listener, token, beforeChange);
         self = null;
     };
 };
