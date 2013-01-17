@@ -1036,6 +1036,10 @@ implements that method.
 on its prototype chain.  An owned function property does not qualify as
 a method, to aid in distinguishing "static" functions.
 
+`Object.concat(...maps)` and `Object.from(items)` construct an object
+by adding the items of other objects in order.  The maps can be other
+objects, arrays of items, or map alike collections.
+
 `Function.noop` is returns undefined.
 
 `Function.identity` returns its first argument.

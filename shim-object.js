@@ -297,6 +297,8 @@ Object.concat = function () {
     return object;
 };
 
+Object.from = Object.concat;
+
 /**
     Returns whether two values are identical.  Any value is identical to itself
     and only itself.  This is much more restictive than equivalence and subtly
