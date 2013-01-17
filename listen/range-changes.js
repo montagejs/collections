@@ -107,15 +107,17 @@ RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, befor
         try {
             listeners.forEach(function (listener) {
                 if (listener[tokenName]) {
-                    listener[tokenName](plus, minus, index, beforeChange);
+                    listener[tokenName](plus, minus, index, this, beforeChange);
+                } else if (listener.call) {
+                    listener.call(this, plus, minus, index, this, beforeChange);
                 } else {
-                    listener.call(this, plus, minus, index, beforeChange);
+                    throw new Error("Handler " + listener + " has no method " + tokenName + " and is not callable");
                 }
             }, this);
         } finally {
             descriptor.isActive = false;
         }
-    });
+    }, this);
 };
 
 RangeChanges.prototype.addBeforeRangeChangeListener = function (listener, token) {

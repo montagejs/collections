@@ -115,15 +115,17 @@ MapChanges.prototype.dispatchMapChange = function (key, value, beforeChange) {
             listeners.forEach(function (listener) {
                 if (listener[tokenName]) {
                     listener[tokenName](value, key, this);
-                } else {
+                } else if (listener.call) {
                     listener.call(listener, value, key, this);
+                } else {
+                    throw new Error("Handler " + listener + " has no method " + tokenName + " and is not callable");
                 }
             }, this);
         } finally {
             descriptor.isActive = false;
         }
 
-    });
+    }, this);
 };
 
 MapChanges.prototype.addBeforeMapChangeListener = function (listener, token) {
