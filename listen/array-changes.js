@@ -130,6 +130,8 @@ var observableArrayProperties = {
         value: function splice(start, length) {
             var minus = array_slice.call(this, start, start + length);
             var plus = array_slice.call(arguments, 2);
+            if (!minus.length && !plus.length)
+                return;
             var diff = plus.length - minus.length;
             var oldLength = this.length;
             var newLength = Math.max(this.length + diff, start + plus.length);
