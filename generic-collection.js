@@ -28,6 +28,7 @@ GenericCollection.prototype.deleteEach = function (values) {
     values.forEach(function (value) {
         this["delete"](value);
     }, this);
+    return this;
 };
 
 // all of the following functions are implemented in terms of "reduce".
