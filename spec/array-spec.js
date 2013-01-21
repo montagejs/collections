@@ -201,5 +201,24 @@ describe("Array", function () {
         });
     });
 
+    describe("group", function () {
+        it("should make a histogram", function () {
+
+            var groups = [
+                {x: 0},
+                {x: 1},
+                {x: 2},
+                {x: 3}
+            ].group(function (object) {
+                return Math.floor(object.x / 2);
+            })
+            expect(groups).toEqual([
+                [0, [{x: 0}, {x: 1}]],
+                [1, [{x: 2}, {x: 3}]]
+            ]);
+
+        });
+    });
+
 });
 

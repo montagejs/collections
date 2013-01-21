@@ -62,6 +62,26 @@ GenericCollection.prototype.enumerate = function (start) {
     return result;
 };
 
+GenericCollection.prototype.group = function (callback, thisp, equals) {
+    equals = equals || Object.equals;
+    var groups = [];
+    var keys = [];
+    this.forEach(function (value, key, object) {
+        var key = callback.call(thisp, value, key, object);
+        var index = keys.indexOf(key, equals);
+        var group;
+        if (index === -1) {
+            group = [];
+            groups.push([key, group]);
+            keys.push(key);
+        } else {
+            group = groups[index][1];
+        }
+        group.push(value);
+    });
+    return groups;
+};
+
 GenericCollection.prototype.toArray = function () {
     return this.map(Function.identity);
 };

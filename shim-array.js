@@ -72,6 +72,7 @@ define("only", GenericCollection.prototype.only);
 define("flatten", GenericCollection.prototype.flatten);
 define("zip", GenericCollection.prototype.zip);
 define("enumerate", GenericCollection.prototype.enumerate);
+define("group", GenericCollection.prototype.group);
 define("sorted", GenericCollection.prototype.sorted);
 define("reversed", GenericCollection.prototype.reversed);
 

@@ -51,6 +51,7 @@ Iterator.prototype.flatten = GenericCollection.prototype.flatten;
 Iterator.prototype.zip = GenericCollection.prototype.zip;
 Iterator.prototype.enumerate = GenericCollection.prototype.enumerate;
 Iterator.prototype.sorted = GenericCollection.prototype.sorted;
+Iterator.prototype.group = GenericCollection.prototype.group;
 Iterator.prototype.reversed = GenericCollection.prototype.reversed;
 Iterator.prototype.toArray = GenericCollection.prototype.toArray;
 Iterator.prototype.toObject = GenericCollection.prototype.toObject;
