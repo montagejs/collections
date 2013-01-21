@@ -97,6 +97,14 @@ Dict.prototype.reduce = function (callback, basis, thisp) {
     return basis;
 };
 
+Dict.prototype.reduceRight = function (callback, basis, thisp) {
+    var self = this;
+    var store = this.store;
+    return Object.keys(this.store).reduceRight(function (basis, mangled) {
+        return callback.call(thisp, basis, store[mangled], unmangle(mangled), self);
+    }, basis);
+};
+
 Dict.prototype.one = function () {
     var key;
     for (var key in this.store) {
