@@ -33,7 +33,6 @@ function SortedMap(values, equals, compare, getDefault) {
 
 Object.addEach(SortedMap.prototype, GenericCollection.prototype);
 Object.addEach(SortedMap.prototype, GenericMap.prototype);
-// GenericMap overrides GenericCollection, particularly addEach
 Object.addEach(SortedMap.prototype, PropertyChanges.prototype);
 
 SortedMap.prototype.constructClone = function (values) {
