@@ -499,6 +499,11 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
     (Array, List)
 
+-   **enumerate(start=0)**
+
+    Returns an array of [index, value] pairs from the source collection,
+    starting with the given index.
+
 -   **concat(...iterables)**
 
     Produces a new collection of the same type containing all the values
@@ -806,6 +811,16 @@ SortedArrayMap, FastSet, FastMap, Dict)
     Returns an iterator for those values from the source that pass the
     given guard.  Values are consumed on demand.
 
+-   **zipIterator(...iterables)**
+
+    Returns an iterator that incrementally combines the respective
+    values of the given iterations.
+
+-   **enumerateIterator(start = 0)**
+
+    Returns an iterator that provides [index, value] pairs from the
+    source iteration.
+
 
 ### Iterator utilities
 
@@ -1041,6 +1056,15 @@ delegate to the corresponding method of any object that implements the
 method of the same name.  So, `Object.has` can be used to check whether
 a key exists on an object, or in any collection that implements `has`.
 This permits the `Object` interface to be agnostic of the input type.
+
+`Array.from` creates an array from any iterable.
+
+`Array.unzip` transposes a collection of arrays, so rows become columns.
+
+`Array.empty` is an empty array, frozen if possible.  Do not modify it.
+
+`Object.from` creates an object from any map or collection.  For arrays
+and array-like collections, uses the index for the key.
 
 `Object.empty` is an empty object literal.
 

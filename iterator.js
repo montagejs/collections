@@ -36,7 +36,24 @@ function Iterator(iterable) {
 
 }
 
-Object.addEach(Iterator.prototype, GenericCollection.prototype);
+Iterator.prototype.forEach = GenericCollection.prototype.forEach;
+Iterator.prototype.map = GenericCollection.prototype.map;
+Iterator.prototype.filter = GenericCollection.prototype.filter;
+Iterator.prototype.every = GenericCollection.prototype.every;
+Iterator.prototype.some = GenericCollection.prototype.some;
+Iterator.prototype.any = GenericCollection.prototype.any;
+Iterator.prototype.all = GenericCollection.prototype.all;
+Iterator.prototype.min = GenericCollection.prototype.min;
+Iterator.prototype.max = GenericCollection.prototype.max;
+Iterator.prototype.sum = GenericCollection.prototype.sum;
+Iterator.prototype.average = GenericCollection.prototype.average;
+Iterator.prototype.flatten = GenericCollection.prototype.flatten;
+Iterator.prototype.zip = GenericCollection.prototype.zip;
+Iterator.prototype.enumerate = GenericCollection.prototype.enumerate;
+Iterator.prototype.sorted = GenericCollection.prototype.sorted;
+Iterator.prototype.reversed = GenericCollection.prototype.reversed;
+Iterator.prototype.toArray = GenericCollection.prototype.toArray;
+Iterator.prototype.toObject = GenericCollection.prototype.toObject;
 
 // this is a bit of a cheat so flatten and such work with the generic
 // reducible
@@ -125,44 +142,6 @@ Iterator.prototype.reduce = function (callback /*, initial, thisp*/) {
 
 };
 
-Iterator.prototype.every = function (callback /*, thisp*/) {
-    var self = Iterator(this),
-        thisp = arguments[1],
-        result = true;
-
-    if (Object.prototype.toString.call(callback) != "[object Function]")
-        throw new TypeError();
-
-    self.mapIterator.apply(self, arguments)
-    .forEach(function (value) {
-        if (!value) {
-            result = false;
-            throw StopIteration;
-        }
-    });
-
-    return result;
-};
-
-Iterator.prototype.some = function (callback /*, thisp*/) {
-    var self = Iterator(this),
-        thisp = arguments[1],
-        result = false;
-
-    if (Object.prototype.toString.call(callback) != "[object Function]")
-        throw new TypeError();
-
-    self.mapIterator.apply(self, arguments)
-    .forEach(function (value) {
-        if (value) {
-            result = true;
-            throw StopIteration;
-        }
-    });
-
-    return result;
-};
-
 Iterator.prototype.concat = function () {
     return Iterator.concat(
         Array.prototype.concat.apply(this, arguments)
@@ -225,14 +204,14 @@ Iterator.prototype.filterIterator = function (callback /*, thisp*/) {
     });
 };
 
-Iterator.prototype.zip = function () {
-    return Iterator.transpose(
+Iterator.prototype.zipIterator = function () {
+    return Iterator.unzip(
         Array.prototype.concat.apply(this, arguments)
     );
 };
 
-Iterator.prototype.enumerate = function (start) {
-    return Iterator.count(start).zip(this);
+Iterator.prototype.enumerateIterator = function (start) {
+    return Iterator.count(start).zipIterator(this);
 };
 
 // coerces arrays to iterators
@@ -305,7 +284,7 @@ Iterator.concat = function (iterators) {
     });
 };
 
-Iterator.transpose = function (iterators) {
+Iterator.unzip = function (iterators) {
     iterators = Iterator(iterators).map(Iterator);
     if (iterators.length < 1)
         return new Iterator([]);
@@ -330,7 +309,7 @@ Iterator.transpose = function (iterators) {
 };
 
 Iterator.zip = function () {
-    return Iterator.transpose(
+    return Iterator.unzip(
         Array.prototype.slice.call(arguments)
     );
 };

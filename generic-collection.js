@@ -1,5 +1,7 @@
 "use strict";
 
+require("./shim-array");
+
 module.exports = GenericCollection;
 function GenericCollection() {
     throw new Error("Can't construct. GenericCollection is a mixin.");
@@ -46,6 +48,14 @@ GenericCollection.prototype.map = function (callback /*, thisp*/) {
     var result = [];
     this.reduce(function (undefined, value, key, object, depth) {
         result.push(callback.call(thisp, value, key, object, depth));
+    }, undefined);
+    return result;
+};
+
+GenericCollection.prototype.enumerate = function (start) {
+    var result = [];
+    this.reduce(function (undefined, value) {
+        result.push([start++, value]);
     }, undefined);
     return result;
 };
@@ -151,30 +161,7 @@ GenericCollection.prototype.flatten = function () {
 GenericCollection.prototype.zip = function () {
     var table = Array.prototype.slice.call(arguments);
     table.unshift(this);
-    return transpose(table);
-}
-
-function transpose(table) {
-    var transpose = [];
-    var length = Infinity;
-    // compute shortest row
-    for (var i = 0; i < table.length; i++) {
-        var row = table[i];
-        table[i] = row.toArray();
-        if (row.length < length) {
-            length = row.length;
-        }
-    }
-    for (var i = 0; i < table.length; i++) {
-        var row = table[i];
-        for (var j = 0; j < row.length; j++) {
-            if (j < length && j in row) {
-                transpose[j] = transpose[j] || [];
-                transpose[j][i] = row[j];
-            }
-        }
-    }
-    return transpose;
+    return Array.unzip(table);
 }
 
 GenericCollection.prototype.sorted = function (compare, by, order) {

@@ -26,6 +26,29 @@ Array.from = function (values) {
     return array;
 };
 
+Array.unzip = function (table) {
+    var transpose = [];
+    var length = Infinity;
+    // compute shortest row
+    for (var i = 0; i < table.length; i++) {
+        var row = table[i];
+        table[i] = row.toArray();
+        if (row.length < length) {
+            length = row.length;
+        }
+    }
+    for (var i = 0; i < table.length; i++) {
+        var row = table[i];
+        for (var j = 0; j < row.length; j++) {
+            if (j < length && j in row) {
+                transpose[j] = transpose[j] || [];
+                transpose[j][i] = row[j];
+            }
+        }
+    }
+    return transpose;
+};
+
 function define(key, value) {
     Object.defineProperty(Array.prototype, key, {
         value: value,
@@ -48,6 +71,7 @@ define("average", GenericCollection.prototype.average);
 define("only", GenericCollection.prototype.only);
 define("flatten", GenericCollection.prototype.flatten);
 define("zip", GenericCollection.prototype.zip);
+define("enumerate", GenericCollection.prototype.enumerate);
 define("sorted", GenericCollection.prototype.sorted);
 define("reversed", GenericCollection.prototype.reversed);
 
