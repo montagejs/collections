@@ -26,9 +26,11 @@ GenericCollection.prototype.addEach = function (values) {
     return this;
 };
 
-GenericCollection.prototype.deleteEach = function (values) {
+// This is sufficiently generic for Map (since the value may be a key)
+// and ordered collections (since it forwards the equals argument)
+GenericCollection.prototype.deleteEach = function (values, equals) {
     values.forEach(function (value) {
-        this["delete"](value);
+        this["delete"](value, equals);
     }, this);
     return this;
 };
