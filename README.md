@@ -112,6 +112,13 @@ Object.
     JavaScript object.  The keys are mangled to prevent collisions with
     JavaScript properties.
 
+-   **Heap(values, equals, compare)**
+
+    A collection that can always quickly (constant time) report its
+    largest value, with reasonable performance for incremental changes
+    (logarithmic), using a contiguous array as its backing storage.
+    However, it does not track the sorted order of its elements.
+
 -   **Iterator(iterable)**
 
     A wrapper for any iterable that implements `iterate` or iterator the
@@ -248,7 +255,7 @@ SortedArrayMap, FastSet, FastMap, Dict)
     equivalent value already exists.
 
     (Array+, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
-    FastSet)
+    FastSet, Heap)
 
     **add(value, key)**
 
@@ -260,7 +267,7 @@ SortedArrayMap, FastSet, FastMap, Dict)
     Copies values from another collection to this one.
 
     (Array+, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
-    FastSet)
+    FastSet, Heap)
 
     **addEach(mapping)**
 
@@ -285,7 +292,7 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
     Deletes a value.  Returns whether the value was found.
 
-    (Set, SortedSet, LruSet, SortedArray, SortedArraySet, FastSet)
+    (Set, SortedSet, LruSet, SortedArray, SortedArraySet, FastSet, Heap)
 
     **delete(value, equals)**
 
@@ -297,9 +304,9 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
     Deletes every value or every value for each key.
 
-    (Array+, List, Set, Map, MultiMap, WeakMap, SortedSet, SortedMap,
+    (Array+, List, Set, Map, MultiMap, SortedSet, SortedMap,
     LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
-    FastSet, FastMap, Dict)
+    FastSet, FastMap, Dict, Heap)
 
 -   **indexOf(value)**
 
@@ -380,7 +387,7 @@ SortedArrayMap, FastSet, FastMap, Dict)
     This method exists only to have the same interface as other
     collections.
 
-    (Set, SortedSet, LruSet, SortedArray, SortedArraySet, FastSet)
+    (Set, SortedSet, LruSet, SortedArray, SortedArraySet, FastSet, Heap)
 
 -   **unshift(...values)**
 
@@ -398,9 +405,12 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
 -   **pop()**
 
-    Removes and returns the value at the end of a collection.
+    Removes and returns the value at the end of a collection.  For a
+    Heap, this means the greatest contained value, as defined by the
+    comparator.
 
-    (Array, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet)
+    (Array, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
+    Heap)
 
 -   **shift()**
 
@@ -435,7 +445,7 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
     Deletes the all values.
 
-    (Array+, Object+, List, Set, Map, MultiMap, WeakMap, SortedSet,
+    (Array+, Object+, List, Set, Map, MultiMap, SortedSet,
     SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
     SortedArrayMap, FastSet, FastMap, Dict)
 
@@ -462,7 +472,7 @@ SortedArrayMap, FastSet, FastMap, Dict)
     collection and returns a representative value on which to sort.
 
     (Array+, List, Set, Map, SortedSet, LruSet, SortedArray,
-    SortedArraySet, FastSet)
+    SortedArraySet, FastSet, Heap)
 
 -   **reverse()**
 
@@ -488,7 +498,7 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
     (Array, ~~Object+~~, Iterator, List, Set, Map, MultiMap,
     SortedSet, SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
-    SortedArrayMap, FastSet, FastMap, Dict)
+    SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 -   **keys()**
 
@@ -516,13 +526,13 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
     (Array, Iterator, List, Set, Map, MultiMap, SortedSet, SortedMap,
     LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
-    FastSet, FastMap, Dict)
+    FastSet, FastMap, Dict, Heap)
 
 -   **reduceRight(callback(result, value, key, object, depth), basis,
     thisp)**:
 
     (Array, List, SortedSet, ~~SortedMap~~, SortedArray, SortedArraySet,
-    ~~SortedArrayMap~~)
+    ~~SortedArrayMap~~, Heap)
 
 -   **forEach(callback(value, key, object, depth), thisp)**
 
@@ -533,19 +543,19 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
     (Array, Object+, Iterator, List, Set, Map, MultiMap, WeakMap,
     SortedSet, SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
-    SortedArrayMap, FastSet, FastMap, Dict)
+    SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 -   **map(callback(value, key, object, depth), thisp)**
 
     (Array, Object+, Iterator, List, Set, Map, MultiMap, WeakMap,
     SortedSet, SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
-    SortedArrayMap, FastSet, FastMap, Dict)
+    SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 -   **toArray()**
 
     (Array+, Iterator, List, Set, Map, MultiMap, SortedSet, SortedMap,
     LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
-    FastSet, FastMap, Dict)
+    FastSet, FastMap, Dict, Heap)
 
 -   **toObject()**
 
@@ -553,13 +563,13 @@ SortedArrayMap, FastSet, FastMap, Dict)
     map-like object.  Array is like a map from index to value.
 
     (Array+ Iterator, List, Map, MultiMap, SortedMap, LruMap,
-    SortedArrayMap, FastMap, Dict)
+    SortedArrayMap, FastMap, Dict, Heap)
 
 -   **filter(callback(value, key, object, depth), thisp)**
 
     (Array, Iterator, List, Set, Map, MultiMap, SortedSet, SortedMap,
     LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
-    FastSet, FastMap, Dict)
+    FastSet, FastMap, Dict, Heap)
 
 -   **every(callback(value, key, object, depth), thisp)**
 
@@ -569,7 +579,7 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
     (Array, Iterator, List, Set, Map, MultiMap, SortedSet, SortedMap,
     LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
-    FastSet, FastMap, Dict)
+    FastSet, FastMap, Dict, Heap)
 
 -   **some(callback(value, key, object, depth), thisp)**
 
@@ -579,7 +589,7 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
     (Array, Iterator, List, Set, Map, MultiMap, SortedSet, SortedMap,
     LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
-    FastSet, FastMap, Dict)
+    FastSet, FastMap, Dict, Heap)
 
 -   **any()**
 
@@ -587,7 +597,7 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
     (Array+, Iterator, List, Set, Map, MultiMap, SortedSet, SortedMap,
     LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
-    FastSet, FastMap, Dict)
+    FastSet, FastMap, Dict, Heap)
 
 -   **all()**
 
@@ -595,7 +605,7 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
     (Array+, Iterator, List, Set, Map, MultiMap, SortedSet, SortedMap,
     LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
-    FastSet, FastMap, Dict)
+    FastSet, FastMap, Dict, Heap)
 
 -   **min()**
 
@@ -615,7 +625,7 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
     (Array+, Iterator, List, Set, Map, MultiMap, SortedSet, SortedMap,
     LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
-    FastSet, FastMap, Dict)
+    FastSet, FastMap, Dict, Heap)
 
 -   **one()**
 
@@ -626,7 +636,7 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
     (Array+, List, Set, Map, MultiMap, SortedSet, SortedMap, LruSet,
     LruMap, SortedArray, SortedArray, SortedArraySet, SortedArrayMap,
-    FastSet, FastMap, Dict)
+    FastSet, FastMap, Dict, Heap)
 
 -   **only()**
 
@@ -635,35 +645,37 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
     (Array+, List, Set, Map, MultiMap, SortedSet, SortedMap, LruSet,
     LruMap, SortedArray, SortedArray, SortedArraySet, SortedArrayMap,
-    FastSet, FastMap, Dict)
+    FastSet, FastMap, Dict, Heap)
 
 -   **sum()**
 
-    (Array+, Iterator, List, Set, Map, MultiMap, WeakMap, SortedSet,
+    (Array+, Iterator, List, Set, Map, MultiMap, SortedSet,
     SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
     SortedArrayMap, FastSet, FastMap, Dict)
 
 -   **average()**
 
-    (Array+, Iterator, List, Set, Map, MultiMap, WeakMap, SortedSet,
+    (Array+, Iterator, List, Set, Map, MultiMap, SortedSet,
     SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
     SortedArrayMap, FastSet, FastMap, Dict)
 
 -   **flatten()**
 
-    (Array+, Iterator, List, Set, Map, MultiMap, WeakMap, SortedSet,
+    (Array+, Iterator, List, Set, Map, MultiMap, SortedSet,
     SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
-    SortedArrayMap, FastSet, FastMap, Dict)
+    SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 -   **zip(...collections)**
 
-    (Array+, Iterator, List, Set, Map, MultiMap, WeakMap, SortedSet,
+    (Array+, Iterator, List, Set, Map, MultiMap, SortedSet,
     SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
-    SortedArrayMap, FastSet, FastMap, Dict)
+    SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 -   **enumrate(zero)**
 
-    (Iterator, ~~other collections~~)
+    (Array+, Iterator, List, Set, Map, MultiMap, SortedSet, SortedMap,
+    LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
+    FastSet, FastMap, Dict, Heap)
 
 -   **clone(depth, memo)**
 
@@ -682,9 +694,9 @@ SortedArrayMap, FastSet, FastMap, Dict)
     directly since they do not necessarily supply a default depth and
     memo.
 
-    (Array+, Object+, List, Set, Map, MultiMap, WeakMap, SortedSet,
+    (Array+, Object+, List, Set, Map, MultiMap, SortedSet,
     SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
-    SortedArrayMap, FastSet, FastMap, Dict)
+    SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 -   **constructClone(values)**
 
@@ -694,9 +706,9 @@ SortedArrayMap, FastSet, FastMap, Dict)
     the job of deeply cloning the values to the more general `clone`
     method.
 
-    (Array+, Object+, List, Set, Map, MultiMap, WeakMap, SortedSet,
+    (Array+, Object+, List, Set, Map, MultiMap, SortedSet,
     SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
-    SortedArrayMap, FastSet, FastMap, Dict)
+    SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 -   **equals(that, equals)**
 
