@@ -1118,11 +1118,14 @@ Goals
   normalize declaration order
 - comprehensive specs and spec coverage tests
 - fast list splicing
+- dict map changes
+- revise map changes to use separate handlers for add/delete
+- revise tokens for range and map changes to specify complete alternate
+  delegate methods, particularly for forwarding directly to dispatch
+- implement on/once/off listeners
 
 More possible collections
 
-- arc-set (adaptive replacement cache)
-- arc-map
 - sorted-order (sorted, can contain duplicates, perhaps backed by splay
   tree with relaxation on the uniqueness invariant)
 - sorted-multi-map (sorted, can contain duplicate entries, backed by
@@ -1132,6 +1135,4 @@ More possible collections
 - immutable-* (mutation functions return new objects that largely share
   the previous version's internal state, some perhaps backed by a hash
   trie)
-- array-heap implementation
-- binary-heap implementation
 
