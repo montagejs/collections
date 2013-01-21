@@ -112,17 +112,29 @@ GenericCollection.prototype.any = function () {
 };
 
 GenericCollection.prototype.min = function (compare) {
-    compare = this.contentCompare || Object.compare;
+    compare = compare || this.contentCompare || Object.compare;
+    var first = true;
     return this.reduce(function (result, value) {
-        return compare(value, result) < 0 ? value : result;
-    }, Infinity);
+        if (first) {
+            first = false;
+            return value;
+        } else {
+            return compare(value, result) < 0 ? value : result;
+        }
+    }, undefined);
 };
 
 GenericCollection.prototype.max = function (compare) {
-    compare = this.contentCompare || Object.compare;
+    compare = compare || this.contentCompare || Object.compare;
+    var first = true;
     return this.reduce(function (result, value) {
-        return compare(value, result) > 0 ? value : result;
-    }, -Infinity);
+        if (first) {
+            first = false;
+            return value;
+        } else {
+            return compare(value, result) > 0 ? value : result;
+        }
+    }, undefined);
 };
 
 GenericCollection.prototype.sum = function (zero) {
