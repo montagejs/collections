@@ -195,8 +195,8 @@ define("compare", function (that, compare) {
     return this.length - that.length;
 });
 
-define("equals", function (that) {
-    var equals = equals || Object.equals;
+define("equals", function (that, equals) {
+    equals = equals || Object.equals;
     var i = 0;
     var length = this.length;
     var left;
