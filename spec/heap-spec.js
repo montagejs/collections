@@ -49,5 +49,29 @@ describe("Heap", function () {
 
     });
 
+    it("should be observable", function () {
+
+        var heap = new Heap([1,2,3,4,5]);
+        var top;
+        heap.addMapChangeListener(function (value, key) {
+            if (key === 0) {
+                top = value;
+            }
+        });
+
+        heap.push(7);
+        expect(top).toBe(7);
+
+        heap.pop();
+        expect(top).toBe(5);
+
+        heap.pop();
+        expect(top).toBe(4);
+
+        heap.pop();
+        expect(top).toBe(3);
+
+    });
+
 });
 

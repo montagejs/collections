@@ -2,8 +2,11 @@
 // Adapted from Eloquent JavaScript by Marijn Haverbeke
 // http://eloquentjavascript.net/appendix2.html
 
+var ArrayChanges = require("./listen/array-changes");
 var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
+var MapChanges = require("./listen/map-changes");
+var RangeChanges = require("./listen/range-changes");
 var PropertyChanges = require("./listen/property-changes");
 
 // Max Heap by default.  Comparison can be reversed to produce a Min Heap.
@@ -23,6 +26,8 @@ function Heap(values, equals, compare) {
 
 Object.addEach(Heap.prototype, GenericCollection.prototype);
 Object.addEach(Heap.prototype, PropertyChanges.prototype);
+Object.addEach(Heap.prototype, RangeChanges.prototype);
+Object.addEach(Heap.prototype, MapChanges.prototype);
 
 Heap.prototype.constructClone = function (values) {
     return new this.constructor(
@@ -50,7 +55,7 @@ Heap.prototype.pop = function () {
     // If there are any values remaining, put the last value on the top and
     // let it sink back down.
     if (this.content.length > 0) {
-        this.content[0] = top;
+        this.content.set(0, top);
         this.sink(0);
     }
     this.length--;
@@ -79,7 +84,7 @@ Heap.prototype.delete = function (value) {
     if (index === -1)
         return false;
     var top = this.pop();
-    this.content[i] = top;
+    this.content.set(i, top);
     var comparison = this.contentCompare(top, value);
     if (comparison < 0) {
         this.float(i);
@@ -115,8 +120,8 @@ Heap.prototype.float = function (index) {
         var parent = this.content[parentIndex];
         // If the parent is less than it
         if (this.contentCompare(parent, value) < 0) {
-            this.content[parentIndex] = value;
-            this.content[index] = parent;
+            this.content.set(parentIndex, value);
+            this.content.set(index, parent);
         } else {
             // Stop propagating if the parent is greater than the value.
             break;
@@ -169,8 +174,8 @@ Heap.prototype.sink = function (index) {
         // if there is a child that is less than the value, float the child and
         // sink the value.
         if (needsSwap) {
-            this.content[index] = this.content[swapIndex];
-            this.content[swapIndex] = value;
+            this.content.set(index, this.content[swapIndex]);
+            this.content.set(swapIndex, value);
             index = swapIndex;
             // and continue sinking
         } else {
@@ -199,5 +204,29 @@ Heap.prototype.reduceRight = function () {
     return this.content.reduceRight(function (basis, value, key) {
         return callback.call(thisp, basis, value, key, this);
     }, basis, this);
+};
+
+Heap.prototype.makeObservable = function () {
+    // TODO refactor dispatchers to allow direct forwarding
+    this.content.addRangeChangeListener(this, "content");
+    this.content.addBeforeRangeChangeListener(this, "content");
+    this.content.addMapChangeListener(this, "content");
+    this.content.addBeforeMapChangeListener(this, "content");
+};
+
+Heap.prototype.handleContentRangeChange = function (plus, minus, index) {
+    this.dispatchRangeChange(plus, minus, index);
+};
+
+Heap.prototype.handleContentRangeWillChange = function (plus, minus, index) {
+    this.dispatchBeforeRangeChange(plus, minus, index);
+};
+
+Heap.prototype.handleContentMapChange = function (value, key) {
+    this.dispatchMapChange(key, value);
+};
+
+Heap.prototype.handleContentMapWillChange = function (value, key) {
+    this.dispatchBeforeMapChange(key, value);
 };
 

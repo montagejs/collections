@@ -45,7 +45,7 @@ MapChanges.prototype.getMapChangeDescriptor = function (token) {
 };
 
 MapChanges.prototype.addMapChangeListener = function (listener, token, beforeChange) {
-    if (this.makeObservable && !this.dispatchMapChanges) {
+    if (!this.isObservable && this.makeObservable) {
         // for Array
         this.makeObservable();
     }
