@@ -459,7 +459,7 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
     (Array+, Object+, List, Set, Map, MultiMap, SortedSet,
     SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
-    SortedArrayMap, FastSet, FastMap, Dict)
+    SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 -   **sort(compare)**
 
@@ -485,6 +485,17 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
     (Array+, List, Set, Map, SortedSet, LruSet, SortedArray,
     SortedArraySet, FastSet, Heap)
+
+-   **group(callback, thisp, equals)**
+
+    Returns an array of [key, equivalence class] pairs where every
+    element from the collection is placed into an equivalence class
+    if they have the same corresponding return value from the given
+    callback.
+
+    (Array+, Object+, List, Set, Map, MultiMap, SortedSet,
+    SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+    SortedArrayMap, FastSet, FastMap, Dict, Heap, Iterator)
 
 -   **reverse()**
 
