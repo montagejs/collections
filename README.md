@@ -1,4 +1,4 @@
-[![build status](https://secure.travis-ci.org/kriskowal/collections.png)](http://travis-ci.org/kriskowal/collections)
+[![Build Status](https://travis-ci.org/montagejs/collections.png?branch=master)](http://travis-ci.org/montagejs/collections)
 
 # Collections
 
