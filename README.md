@@ -418,6 +418,18 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
     (Array, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet)
 
+-   **peek()**
+
+    Returns the last value in an ordered collection.
+
+    (List)
+
+-   **poke(value)**
+
+    Replaces the last value in an ordered collection.
+
+    (List)
+
 -   **slice(start, end)**
 
     Returns an array of the values contained in the
