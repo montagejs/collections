@@ -83,13 +83,15 @@ Heap.prototype.delete = function (value) {
     var index = this.indexOf(value);
     if (index === -1)
         return false;
-    var top = this.pop();
-    this.content.set(i, top);
+    var top = this.content.pop();
+    if (index === this.content.length)
+        return true;
+    this.content.set(index, top);
     var comparison = this.contentCompare(top, value);
-    if (comparison < 0) {
-        this.float(i);
-    } else if (comparison > 0) {
-        this.sink(i);
+    if (comparison > 0) {
+        this.float(index);
+    } else if (comparison < 0) {
+        this.sink(index);
     }
     this.length--;
     return true;
@@ -134,7 +136,7 @@ Heap.prototype.float = function (index) {
 // Brings a value down until its children are both less than it
 Heap.prototype.sink = function (index) {
     // Moves a value downward until it is greater than its children.
-    var length = this.length;
+    var length = this.content.length;
     var value = this.content[index];
     var left, right, leftIndex, rightIndex, swapIndex, needsSwap;
 

@@ -73,5 +73,25 @@ describe("Heap", function () {
 
     });
 
+    it("should delete properly", function () {
+
+        var heap = new Heap([1, 2, 3, 4, 5, 6]);
+        heap.delete(3);
+        expect(heap.sorted()).toEqual([1, 2, 4, 5, 6]);
+        heap.delete(6);
+        expect(heap.sorted()).toEqual([1, 2, 4, 5]);
+        heap.delete(1);
+        expect(heap.sorted()).toEqual([2, 4, 5]);
+        heap.delete(4);
+        expect(heap.sorted()).toEqual([2, 5]);
+        heap.delete(2);
+        expect(heap.sorted()).toEqual([5]);
+        heap.delete(5);
+        expect(heap.sorted()).toEqual([]);
+        expect(heap.delete(null)).toBe(false);
+        expect(heap.sorted()).toEqual([]);
+
+    });
+
 });
 
