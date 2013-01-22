@@ -10,12 +10,19 @@ function describeSet(Set) {
     });
 
     describe("forEach", function () {
-        it("the callback should receive value, value, set", function () {
+        it("the callback should receive value, index, set", function () {
             var set = Set([1, 2, 3]);
+            var other = Set([]);
+            var i = 0;
             set.forEach(function (value, key, object) {
-                expect(value).toBe(key);
+                expect(key).toBe(i++);
+                other.add(value);
                 expect(object).toBe(set);
             });
+            expect(other.length).toBe(3);
+            expect(other.union(set).length).toBe(3);
+            expect(other.intersection(set).length).toBe(3);
+            expect(other.difference(set).length).toBe(0);
         });
     });
 

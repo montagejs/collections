@@ -456,14 +456,14 @@ SortedSet.prototype.splayIndex = function (index) {
 
 SortedSet.prototype.reduce = function (callback, basis, thisp) {
     if (this.root) {
-        basis = this.root.reduce(callback, basis, thisp, this);
+        basis = this.root.reduce(callback, basis, 0, thisp, this);
     }
     return basis;
 };
 
 SortedSet.prototype.reduceRight = function (callback, basis, thisp) {
     if (this.root) {
-        basis = this.root.reduceRight(callback, basis, thisp, this);
+        basis = this.root.reduceRight(callback, basis, this.length - 1, thisp, this);
     }
     return basis;
 };
@@ -545,26 +545,32 @@ function Node(value) {
 
 // TODO case where no basis is provided for reduction
 
-Node.prototype.reduce = function (callback, basis, thisp, tree, depth) {
+Node.prototype.reduce = function (callback, basis, index, thisp, tree, depth) {
     depth = depth || 0;
     if (this.left) {
-        basis = this.left.reduce(callback, basis, thisp, tree, depth + 1);
+        // prerecord length to be resistant to mutation
+        var length = this.left.length;
+        basis = this.left.reduce(callback, basis, index, thisp, tree, depth + 1);
+        index += length;
     }
-    basis = callback.call(thisp, basis, this.value, this.value, tree, this, depth);
+    basis = callback.call(thisp, basis, this.value, index, tree, this, depth);
+    index += 1;
     if (this.right) {
-        basis = this.right.reduce(callback, basis, thisp, tree, depth + 1);
+        basis = this.right.reduce(callback, basis, index, thisp, tree, depth + 1);
     }
     return basis;
 };
 
-Node.prototype.reduceRight = function (callback, basis, thisp, tree, depth) {
+Node.prototype.reduceRight = function (callback, basis, index, thisp, tree, depth) {
     depth = depth || 0;
     if (this.right) {
-        basis = this.right.reduce(callback, basis, thisp, tree, depth + 1);
+        basis = this.right.reduce(callback, basis, index, thisp, tree, depth + 1);
+        index -= this.right.length;
     }
     basis = callback.call(thisp, basis, this.value, this.value, tree, this, depth);
+    index -= 1;
     if (this.left) {
-        basis = this.left.reduce(callback, basis, thisp, tree, depth + 1);
+        basis = this.left.reduce(callback, basis, index, thisp, tree, depth + 1);
     }
     return basis;
 };

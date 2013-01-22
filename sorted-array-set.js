@@ -34,7 +34,7 @@ SortedArraySet.prototype.reduce = function (callback, basis /*, thisp*/) {
     var self = this;
     var thisp = arguments[2];
     return this.array.reduce(function (basis, value, index) {
-        return callback.call(thisp, basis, value, value, self, index);
+        return callback.call(thisp, basis, value, index, self);
     }, basis);
 };
 
@@ -42,7 +42,7 @@ SortedArraySet.prototype.reduceRight = function (callback, basis /*, thisp*/) {
     var self = this;
     var thisp = arguments[2];
     return this.array.reduceRight(function (basis, value, index) {
-        return callback.call(thisp, basis, value, value, self, index);
+        return callback.call(thisp, basis, value, index, self);
     }, basis);
 };
 

@@ -115,16 +115,18 @@ LruSet.prototype.clear = function () {
 LruSet.prototype.reduce = function (callback, basis /*, thisp*/) {
     var thisp = arguments[2];
     var set = this.store;
+    var index = 0;
     return set.reduce(function (basis, value) {
-        return callback.call(thisp, basis, value, value, this);
+        return callback.call(thisp, basis, value, index++, this);
     }, basis, this);
 };
 
 LruSet.prototype.reduceRight = function () {
     var thisp = arguments[2];
     var set = this.store;
+    var index = this.length - 1;
     return set.reduceRight(function (basis, value) {
-        return callback.call(thisp, basis, value, value, this);
+        return callback.call(thisp, basis, value, index--, this);
     }, basis, this);
 };
 

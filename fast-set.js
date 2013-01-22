@@ -96,9 +96,10 @@ FastSet.prototype.add = function (value) {
 FastSet.prototype.reduce = function (callback, basis /*, thisp*/) {
     var thisp = arguments[2];
     var buckets = this.buckets;
+    var index = 0;
     return buckets.reduce(function (basis, bucket) {
         return bucket.reduce(function (basis, value) {
-            return callback.call(thisp, basis, value, value, this);
+            return callback.call(thisp, basis, value, index++, this);
         }, basis, this);
     }, basis, this);
 };

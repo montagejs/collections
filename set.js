@@ -132,16 +132,18 @@ Set.prototype.clear = function () {
 Set.prototype.reduce = function (callback, basis /*, thisp*/) {
     var thisp = arguments[2];
     var list = this.order;
+    var index = 0;
     return list.reduce(function (basis, value) {
-        return callback.call(thisp, basis, value, value, this);
+        return callback.call(thisp, basis, value, index++, this);
     }, basis, this);
 };
 
 Set.prototype.reduceRight = function (callback, basis /*, thisp*/) {
     var thisp = arguments[2];
     var list = this.order;
+    var index = this.length - 1;
     return list.reduceRight(function (basis, value) {
-        return callback.call(thisp, basis, value, value, this);
+        return callback.call(thisp, basis, value, index--, this);
     }, basis, this);
 };
 
