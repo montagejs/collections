@@ -1103,6 +1103,11 @@ objects, arrays of items, or map alike collections.
 
 `Function.identity` returns its first argument.
 
+`Function.by(relation)` creates a comparator from a relation function.
+
+`Function.get(key)` creates a relation that returns the value for the
+property of a given object.
+
 
 ### References
 
@@ -1134,6 +1139,8 @@ Goals
 - revise tokens for range and map changes to specify complete alternate
   delegate methods, particularly for forwarding directly to dispatch
 - implement on/once/off listeners
+- Make it easier to created a SortedSet with a criterion like
+  Function.by(Function.get('name'))
 
 More possible collections
 

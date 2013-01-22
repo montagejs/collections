@@ -50,3 +50,10 @@ Function.by = function (by , compare) {
     return compareBy;
 };
 
+// TODO document
+Function.get = function (key) {
+    return function (object) {
+        return Object.get(object, key);
+    };
+};
+
