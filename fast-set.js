@@ -14,7 +14,7 @@ module.exports = FastSet;
 
 function FastSet(values, equals, hash, getDefault) {
     if (!(this instanceof FastSet)) {
-        return new FastSet(values, equals, hash);
+        return new FastSet(values, equals, hash, getDefault);
     }
     equals = equals || Object.equals;
     hash = hash || Object.hash;

@@ -10,7 +10,7 @@ module.exports = FastMap;
 
 function FastMap(values, equals, hash, getDefault) {
     if (!(this instanceof FastMap)) {
-        return new FastMap(values, equals, hash);
+        return new FastMap(values, equals, hash, getDefault);
     }
     equals = equals || Object.equals;
     hash = hash || Object.hash;

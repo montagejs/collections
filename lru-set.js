@@ -11,7 +11,7 @@ module.exports = LruSet;
 
 function LruSet(values, maxLength, equals, hash, getDefault) {
     if (!(this instanceof LruSet)) {
-        return new LruSet(values, maxLength, equals, hash);
+        return new LruSet(values, maxLength, equals, hash, getDefault);
     }
     maxLength = maxLength || Infinity;
     equals = equals || Object.equals;

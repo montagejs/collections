@@ -10,7 +10,7 @@ module.exports = LruMap;
 
 function LruMap(values, maxLength, equals, hash, getDefault) {
     if (!(this instanceof LruMap)) {
-        return new LruMap(values, maxLength, equals, hash);
+        return new LruMap(values, maxLength, equals, hash, getDefault);
     }
     equals = equals || Object.equals;
     hash = hash || Object.hash;
