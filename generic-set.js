@@ -39,3 +39,21 @@ GenericSet.prototype.equals = function (that, equals) {
     );
 };
 
+// W3C DOMTokenList API overlap (does not handle variadic arguments)
+
+GenericSet.prototype.contains = function (value) {
+    return this.has(value);
+};
+
+GenericSet.prototype.remove = function (value) {
+    return this["delete"](value);
+};
+
+GenericSet.prototype.toggle = function (value) {
+    if (this.has(value)) {
+        this["delete"](value);
+    } else {
+        this.add(value);
+    }
+};
+
