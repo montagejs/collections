@@ -34,6 +34,39 @@ describe("PropertyChanges", function () {
         spy = jasmine.createSpy();
         var value;
         var object = Object.create(Object.prototype, {
+            _x: {
+                value: 10,
+                writable: true
+            },
+            x: {
+                get: function () {
+                    return this._x;
+                },
+                set: function (_value) {
+                    this._x = _value;
+                },
+                enumerable: false,
+                configurable: true
+            }
+        });
+        PropertyChanges.addBeforeOwnPropertyChangeListener(object, 'x', function (value, key) {
+            spy('from', value, key);
+        });
+        PropertyChanges.addOwnPropertyChangeListener(object, 'x', function (value, key) {
+            spy('to', value, key);
+        });
+        object.x = 20;
+        expect(object.x).toEqual(20);
+        expect(spy.argsForCall).toEqual([
+            ['from', 10, 'x'],
+            ['to', 20, 'x'], // reports no change
+        ]);
+    });
+
+    it("shouldn't call the listener if the new value is the same after calling the object setter", function () {
+        spy = jasmine.createSpy();
+        var value;
+        var object = Object.create(Object.prototype, {
             x: {
                 get: function () {
                     return 20;
@@ -53,10 +86,30 @@ describe("PropertyChanges", function () {
         });
         object.x = 10;
         expect(object.x).toEqual(20);
-        expect(spy.argsForCall).toEqual([
-            ['from', 20, 'x'],
-            ['to', 20, 'x'], // reports no change
-        ]);
+        expect(spy).not.toHaveBeenCalled();
+    });
+
+    it("calls setter on object when the new value is the current value", function() {
+        var object = Object.create(Object.prototype, {
+            _x: {value: 0, writable: true},
+            x: {
+                get: function() {
+                    return this._x;
+                },
+                set: function(value) {
+                    this._x = value * 2;
+                },
+                configurable: true,
+                enumerable: true
+            }
+        });
+
+        PropertyChanges.addOwnPropertyChangeListener(object, "x", function() {});
+
+        object.x = 1;
+        object.x = 2;
+
+        expect(object.x).toBe(4);
     });
 
     it("handles cyclic own property change listeners", function () {
