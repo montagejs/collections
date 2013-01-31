@@ -879,24 +879,24 @@ with method calls like `array.push`.  All methods of a watched array
 support change dispatch.  In addition, arrays have a `set` method to
 make setting the value at a particular index observable.
 
--   PropertyChanges.**add**OwnPropertyChange**Listener**(object, key, listener, before)
--   PropertyChanges.**remove**OwnPropertyChange**Listener**(object, key, listener, before)
--   PropertyChanges.**dispatch**OwnPropertyChange(object, key, value, before)
--   PropertyChanges.add**Before**OwnPropertyChangeListener(object, key, listener)
--   PropertyChanges.remove**Before**OwnPropertyChangeListener(object, key, listener)
--   PropertyChanges.dispatch**Before**OwnPropertyChange(object, key, value)
--   PropertyChanges.**get**OwnPropertyChange**Descriptor**(object, key)
+-   PropertyChanges.addOwnPropertyChangeListener(object, key, listener, before)
+-   PropertyChanges.removeOwnPropertyChangeListener(object, key, listener, before)
+-   PropertyChanges.dispatchOwnPropertyChange(object, key, value, before)
+-   PropertyChanges.addBeforeOwnPropertyChangeListener(object, key, listener)
+-   PropertyChanges.removeBeforeOwnPropertyChangeListener(object, key, listener)
+-   PropertyChanges.dispatchBeforeOwnPropertyChange(object, key, value)
+-   PropertyChanges.getOwnPropertyChangeDescriptor(object, key)
 
 All of these functions delegate to methods of the same name if one
 exists on the object.
 
--   object.**add**OwnPropertyChange**Listener**(key, listener, before)
--   object.**remove**OwnPropertyChange**Listener**(key, listener, before)
--   object.**dispatch**OwnPropertyChange(key, value, before)
--   object.add**Before**OwnPropertyChangeListener(key, listener)
--   object.remove**Before**OwnPropertyChangeListener(key, listener)
--   object.dispatch**Before**OwnPropertyChange(key, value)
--   object.**get**OwnPropertyChange**Descriptor**(key)
+-   object.addOwnPropertyChangeListener(key, listener, before)
+-   object.removeOwnPropertyChangeListener(key, listener, before)
+-   object.dispatchOwnPropertyChange(key, value, before)
+-   object.addBeforeOwnPropertyChangeListener(key, listener)
+-   object.removeBeforeOwnPropertyChangeListener(key, listener)
+-   object.dispatchBeforeOwnPropertyChange(key, value)
+-   object.getOwnPropertyChangeDescriptor(key)
 
 Additionally, `PropertyChanges.prototype` can be **mixed into** other
 types of objects to support the property change dispatch interface.  All
@@ -919,13 +919,13 @@ or updates for any item in a map data structure.
 With the `listen/array-changes` module required, `Array` can also
 dispatch map changes for the values at each index.
 
--   collection.**add**MapChangeListener(listener, token, before)
--   collection.**remove**MapChangeListener(listener, token, before)
--   collection.**dispatch**MapChange(key, value, before)
--   collection.add**Before**MapChangeListener(listener)
--   collection.remove**Before**MapChangeListener(listener)
--   collection.dispatch**Before**MapChange(key, value)
--   collection.**get**MapChange**Descriptor**()
+-   collection.addMapChangeListener(listener, token, before)
+-   collection.removeMapChangeListener(listener, token, before)
+-   collection.dispatchMapChange(key, value, before)
+-   collection.addBeforeMapChangeListener(listener)
+-   collection.removeBeforeMapChangeListener(listener)
+-   collection.dispatchBeforeMapChange(key, value)
+-   collection.getMapChangeDescriptor()
 
 The **listener** for a map change receives the `value`, `key`, and
 collection `object` as arguments, the same pattern as a `forEach` or
@@ -938,7 +938,7 @@ The listener may be a delegate object with one of the following methods,
 in order of precedence:
 
 -   listener.handleMap + Change **or** WillChange
--   listener.handleMap + **token** + Change **or** WillChange
+-   listener.handle + **token** + Map + Change **or** WillChange
 -   listener.call
 
 The `listen/map-changes` module exports a map changes **mixin**.  The
