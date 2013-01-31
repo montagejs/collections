@@ -292,15 +292,11 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
             },
             set: function (value) {
                 var formerValue;
+
                 // get the actual former value if possible
                 if (overriddenDescriptor.get) {
                     formerValue = overriddenDescriptor.get.apply(this, arguments);
                 }
-                // if it has not changed, suppress a notification
-                if (value === formerValue) {
-                    return value;
-                }
-                PropertyChanges.dispatchBeforeOwnPropertyChange(this, key, formerValue);
                 // call through to actual setter
                 if (overriddenDescriptor.set) {
                     overriddenDescriptor.set.apply(this, arguments)
@@ -311,6 +307,12 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
                     value = overriddenDescriptor.get.apply(this, arguments);
                     state[key] = value;
                 }
+                // if it has not changed, suppress a notification
+                if (value === formerValue) {
+                    return value;
+                }
+                PropertyChanges.dispatchBeforeOwnPropertyChange(this, key, formerValue);
+
                 // dispatch the new value: the given value if there is
                 // no getter, or the actual value if there is one
                 PropertyChanges.dispatchOwnPropertyChange(this, key, value);
