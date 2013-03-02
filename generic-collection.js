@@ -53,6 +53,9 @@ GenericCollection.prototype.map = function (callback /*, thisp*/) {
 };
 
 GenericCollection.prototype.enumerate = function (start) {
+    if (start == null) {
+        start = 0;
+    }
     var result = [];
     this.reduce(function (undefined, value) {
         result.push([start++, value]);

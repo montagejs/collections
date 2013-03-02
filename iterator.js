@@ -31,7 +31,7 @@ function Iterator(iterable) {
     } else if (Object.prototype.toString.call(iterable) === "[object Function]") {
         this.next = iterable;
     } else {
-        throw new TypeError("Cannot iterate");
+        throw new TypeError("Can't iterate " + iterable);
     }
 
 }
@@ -60,7 +60,7 @@ Iterator.prototype.toObject = GenericCollection.prototype.toObject;
 // reducible
 Iterator.prototype.constructClone = function (values) {
     var clone = [];
-    Reducible.addEach.call(clone, values);
+    clone.addEach(values);
     return clone;
 };
 
@@ -187,24 +187,6 @@ Iterator.prototype.takeWhile = function (callback /*, thisp*/) {
     });
 };
 
-Iterator.prototype.filterIterator = function (callback /*, thisp*/) {
-    var self = Iterator(this),
-        thisp = arguments[1],
-        i = 0;
-
-    if (Object.prototype.toString.call(callback) != "[object Function]")
-        throw new TypeError();
-
-    return new self.constructor(function () {
-        var value;
-        while (true) {
-            value = self.next();
-            if (callback.call(thisp, value, i++, self))
-                return value;
-        }
-    });
-};
-
 Iterator.prototype.zipIterator = function () {
     return Iterator.unzip(
         Array.prototype.concat.apply(this, arguments)
@@ -215,8 +197,7 @@ Iterator.prototype.enumerateIterator = function (start) {
     return Iterator.count(start).zipIterator(this);
 };
 
-// coerces arrays to iterators
-// iterators to self
+// creates an iterator for Array and String
 Iterator.iterate = function (iterable) {
     var start;
     start = 0;
@@ -287,7 +268,7 @@ Iterator.concat = function (iterators) {
 
 Iterator.unzip = function (iterators) {
     iterators = Iterator(iterators).map(Iterator);
-    if (iterators.length < 1)
+    if (iterators.length === 0)
         return new Iterator([]);
     return new Iterator(function () {
         var stopped;
@@ -322,18 +303,18 @@ Iterator.chain = function () {
 };
 
 Iterator.range = function (start, stop, step) {
-    if (arguments.length < 3)
+    if (arguments.length < 3) {
         step = 1;
+    }
     if (arguments.length < 2) {
         stop = start;
         start = 0;
     }
     start = start || 0;
+    step = step || 1;
     return new Iterator(function () {
         if (start >= stop)
             throw StopIteration;
-        if (isNaN(start))
-            throw '';
         var result = start;
         start += step;
         return result;
@@ -341,14 +322,10 @@ Iterator.range = function (start, stop, step) {
 };
 
 Iterator.count = function (start, step) {
-    step = step || 1;
     return Iterator.range(start, Infinity, step);
 };
 
 Iterator.repeat = function (value, times) {
-    if (arguments.length < 2)
-        times = Infinity;
-    times = +times;
     return new Iterator.range(times).mapIterator(function () {
         return value;
     });
@@ -379,10 +356,15 @@ if (typeof StopIteration === "undefined") {
 
 // shim ReturnValue
 if (typeof ReturnValue === "undefined") {
-    global.ReturnValue = function (value) {
+    global.ReturnValue = function ReturnValue(value) {
+        this.message = "Iteration stopped with " + value;
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, ReturnValue);
+        }
         if (!(this instanceof global.ReturnValue))
             return new global.ReturnValue(value);
         this.value = value;
     };
+    ReturnValue.prototype = Error.prototype;
 }
 
