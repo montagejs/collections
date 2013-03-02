@@ -55,6 +55,7 @@ Iterator.prototype.group = GenericCollection.prototype.group;
 Iterator.prototype.reversed = GenericCollection.prototype.reversed;
 Iterator.prototype.toArray = GenericCollection.prototype.toArray;
 Iterator.prototype.toObject = GenericCollection.prototype.toObject;
+Iterator.prototype.iterator = GenericCollection.prototype.iterator;
 
 // this is a bit of a cheat so flatten and such work with the generic
 // reducible
