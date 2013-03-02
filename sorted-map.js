@@ -44,17 +44,15 @@ SortedMap.prototype.constructClone = function (values) {
     );
 };
 
-SortedMap.prototype.log = function (charmap, stringify) {
-    stringify = stringify || this.stringify;
-    this.store.log(charmap, stringify);
+SortedMap.prototype.log = function (charmap, logNode, callback, thisp) {
+    logNode = logNode || this.logNode
+    this.store.log(charmap, function (node, log, logBefore) {
+        logNode(node.value, log, logBefore);
+    }, callback, thisp);
 };
 
-SortedMap.prototype.report = function (callback, thisp, charmap, stringify) {
-    stringify = stringify || this.stringify;
-    this.store.report(callback, thisp, charmap, stringify);
-};
-
-SortedMap.prototype.stringify = function (callback, thisp, node, leader) {
-    callback.call(thisp, leader + ' ' + node.value.key + ': ' + node.value.value);
+SortedMap.prototype.logNode = function (node, log) {
+    log(" key: " + node.key);
+    log(" value: " + node.value);
 };
 

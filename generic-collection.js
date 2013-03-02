@@ -1,7 +1,5 @@
 "use strict";
 
-require("./shim-array");
-
 module.exports = GenericCollection;
 function GenericCollection() {
     throw new Error("Can't construct. GenericCollection is a mixin.");
@@ -245,4 +243,6 @@ GenericCollection.prototype.only = function () {
         return this.one();
     }
 };
+
+require("./shim-array");
 

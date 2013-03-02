@@ -1,5 +1,6 @@
 
 var Set = require("../fast-set");
+var Iterator = require("../iterator");
 
 console.log("\nignore non-unique values");
 var set = new Set([1, 1, 1, 2, 2, 2, 1, 2]);
@@ -46,7 +47,7 @@ console.log(Object.keys(set.buckets));
 set.log();
 
 console.log("\niterate");
-console.log(set.iterate().mapIterator(function (item) {
+console.log(Iterator(set.iterate()).mapIterator(function (item) {
     return item.value;
 }).toArray());
 

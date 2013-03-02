@@ -41,21 +41,6 @@ console.log(g.toArray());
 console.log('generic on array');
 Iterator.prototype.forEach.call([1,2,3], console.log);
 
-console.log('count some');
-console.log(Iterator.count().some(function (n) {
-    return n > 100;
-}));
-
-console.log('count every');
-console.log(Iterator.count().every(function (n) {
-    return n < 100;
-}));
-
-console.log('count all');
-console.log(Iterator.count().all());
-console.log('count any');
-console.log(Iterator.count().any());
-
 console.log('concat');
 Iterator.concat([Iterator.range(3), Iterator.range(3)])
 .forEach(console.log);
@@ -77,12 +62,12 @@ Iterator.range(20).takeWhile(function (n) {
     return n < 10;
 }).forEach(console.log);
 
-// transpose
-console.log("transpose");
-Iterator.transpose([
+// unzip
+console.log("unzip");
+Iterator.unzip([
     Iterator.count(),
     Iterator("abc")
-]).forEach(console.log);
+]).forEach(console.log, console);
 
 // zip
 console.log("zip");
@@ -91,9 +76,9 @@ Iterator.zip(
     Iterator("abc")
 ).forEach(console.log);
 
-// .zip
+// zipIterator short-circuits on shortest in the race
 console.log(".zip");
-Iterator.count().zip("abc")
+Iterator.count().zipIterator("abc").toArray()
 .forEach(console.log);
 
 // filter

@@ -44,12 +44,15 @@ Map.prototype.constructClone = function (values) {
     );
 };
 
-Map.prototype.log = function (charmap, stringify) {
-    stringify = stringify || this.stringify;
-    this.store.log(charmap, stringify);
+Map.prototype.log = function (charmap, logNode, callback, thisp) {
+    logNode = logNode || this.logNode;
+    this.store.log(charmap, function (node, log, logBefore) {
+        logNode(node.value.value, log, logBefore);
+    }, callback, thisp);
 };
 
-Map.prototype.stringify = function (item, leader) {
-    return leader + JSON.stringify(item.key) + ": " + JSON.stringify(item.value);
-}
+Map.prototype.logNode = function (node, log) {
+    log(' key: ' + node.key);
+    log(' value: ' + node.value);
+};
 

@@ -528,8 +528,8 @@ SortedSet.prototype.log = function (charmap, logNode, callback, thisp) {
     }
 };
 
-SortedSet.prototype.logNode = function (node, write, writeBefore) {
-    write(" " + node.value);
+SortedSet.prototype.logNode = function (node, log, logBefore) {
+    log(" " + node.value);
 };
 
 SortedSet.logCharsets = TreeLog;
@@ -628,7 +628,7 @@ Node.prototype.summary = function () {
     ) + ")";
 };
 
-Node.prototype.log = function (charmap, logNode, write, writeAbove) {
+Node.prototype.log = function (charmap, logNode, log, logAbove) {
     var self = this;
 
     var branch;
@@ -642,56 +642,56 @@ Node.prototype.log = function (charmap, logNode, write, writeAbove) {
         branch = charmap.through;
     }
 
-    var writtenAbove;
+    var loggedAbove;
     this.left && this.left.log(
         charmap,
         logNode,
         function innerWrite(line) {
-            if (!writtenAbove) {
-                writtenAbove = true;
+            if (!loggedAbove) {
+                loggedAbove = true;
                 // leader
-                writeAbove(charmap.fromBelow + charmap.through + line);
+                logAbove(charmap.fromBelow + charmap.through + line);
             } else {
                 // below
-                writeAbove(charmap.strafe + " " + line);
+                logAbove(charmap.strafe + " " + line);
             }
         },
         function innerWriteAbove(line) {
             // above
-            writeAbove("  " + line);
+            logAbove("  " + line);
         }
     );
 
-    var writtenOn;
+    var loggedOn;
     logNode(
         this,
         function innerWrite(line) {
-            if (!writtenOn) {
-                writtenOn = true;
-                write(branch + line);
+            if (!loggedOn) {
+                loggedOn = true;
+                log(branch + line);
             } else {
-                write((self.right ? charmap.strafe : " ") + line);
+                log((self.right ? charmap.strafe : " ") + line);
             }
         },
         function innerWriteAbove(line) {
-            writeAbove((self.left ? charmap.strafe : " ") + line);
+            logAbove((self.left ? charmap.strafe : " ") + line);
         }
     );
 
-    var writtenBelow;
+    var loggedBelow;
     this.right && this.right.log(
         charmap,
         logNode,
         function innerWrite(line) {
-            if (!writtenBelow) {
-                writtenBelow = true;
-                write(charmap.fromAbove + charmap.through + line);
+            if (!loggedBelow) {
+                loggedBelow = true;
+                log(charmap.fromAbove + charmap.through + line);
             } else {
-                write("  " + line);
+                log("  " + line);
             }
         },
         function innerWriteAbove(line) {
-            write(charmap.strafe + " " + line);
+            log(charmap.strafe + " " + line);
         }
     );
 };
