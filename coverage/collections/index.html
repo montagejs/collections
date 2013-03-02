@@ -1,0 +1,656 @@
+<!doctype html>
+<html>
+<head>
+    <title>Code coverage report for collections/</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta http-equiv="content-language" content="en-gb">
+    
+        <link rel='stylesheet' href='../prettify.css'>
+    
+    <style type='text/css'>
+        body, html {
+            margin:0; padding: 0;
+        }
+        body {
+            font-family: "Helvetic Neue", Helvetica,Arial;
+            font-size: 10pt;
+        }
+        div.header, div.footer {
+            background: #eee;
+            padding: 1em;
+        }
+        div.header {
+            z-index: 100;
+            position: fixed;
+            top: 0;
+            border-bottom: 1px solid #666;
+            width: 100%;
+        }
+        div.footer {
+            border-top: 1px solid #666;
+        }
+        div.body {
+            margin-top: 10em;
+        }
+        div.meta {
+            font-size: 90%;
+            text-align: center;
+        }
+        h1, h2, h3 {
+            font-weight: normal;
+        }
+        h1 {
+            font-size: 12pt;
+        }
+        h2 {
+            font-size: 10pt;
+        }
+        pre {
+            font-family: consolas, menlo, monaco, monospace;
+            margin: 0;
+            padding: 0;
+            line-height: 14px;
+            font-size: 14px;
+        }
+
+        div.path { font-size: 110%; }
+        div.path a:link, div.path a:visited { color: #000; }
+        table.coverage { border-collapse: collapse; margin:0; padding: 0 }
+
+        table.coverage td {
+            margin: 0;
+            padding: 0;
+            color: #111;
+            vertical-align: top;
+        }
+        table.coverage td.line-count {
+            width: 50px;
+            text-align: right;
+            padding-right: 5px;
+        }
+        table.coverage td.line-coverage {
+            color: #777 !important;
+            text-align: right;
+            border-left: 1px solid #666;
+            border-right: 1px solid #666;
+        }
+
+        table.coverage td.text {
+        }
+
+        table.coverage td span.cline-any {
+            display: inline-block;
+            padding: 0 5px;
+            width: 40px;
+        }
+        table.coverage td span.cline-neutral {
+            background: #eee;
+        }
+        table.coverage td span.cline-yes {
+            background: #b5d592;
+            color: #999;
+        }
+        table.coverage td span.cline-no {
+            background: #fc8c84;
+        }
+
+        .cstat-yes { color: #111; }
+        .cstat-no { background: #fc8c84; color: #111; }
+        .fstat-no { background: #ffc520; color: #111 !important; }
+        .cbranch-no { background:  yellow !important; color: #111; }
+        .missing-if-branch {
+            display: inline-block;
+            margin-right: 10px;
+            position: relative;
+            padding: 0 4px;
+            background: black;
+            color: yellow;
+            xtext-decoration: line-through;
+        }
+        .missing-if-branch .typ {
+            color: inherit !important;
+        }
+
+        .entity, .metric { font-weight: bold; }
+        .metric { display: inline-block; border: 1px solid #333; padding: 0.3em; background: white; }
+        .metric small { font-size: 80%; font-weight: normal; color: #666; }
+
+        div.coverage-summary table { border-collapse: collapse; margin: 3em; font-size: 110%; }
+        div.coverage-summary td, div.coverage-summary table  th { margin: 0; padding: 0.25em 1em; border-top: 1px solid #666; border-bottom: 1px solid #666; }
+        div.coverage-summary th { text-align: left; border: 1px solid #666; background: #eee; font-weight: normal; }
+        div.coverage-summary th.file { border-right: none !important; }
+        div.coverage-summary th.pic { border-left: none !important; text-align: right; }
+        div.coverage-summary th.pct { border-right: none !important; }
+        div.coverage-summary th.abs { border-left: none !important; text-align: right; }
+        div.coverage-summary td.pct { text-align: right; border-left: 1px solid #666; }
+        div.coverage-summary td.abs { text-align: right; font-size: 90%; color: #444; border-right: 1px solid #666; }
+        div.coverage-summary td.file { text-align: right; border-left: 1px solid #666; white-space: nowrap;  }
+        div.coverage-summary td.pic { min-width: 120px !important;  }
+        div.coverage-summary a:link { text-decoration: none; color: #000; }
+        div.coverage-summary a:visited { text-decoration: none; color: #333; }
+        div.coverage-summary a:hover { text-decoration: underline; }
+        div.coverage-summary tfoot td { border-top: 1px solid #666; }
+
+        div.coverage-summary .yui3-datatable-sort-indicator, div.coverage-summary .dummy-sort-indicator {
+            height: 10px;
+            width: 7px;
+            display: inline-block;
+            margin-left: 0.5em;
+        }
+        div.coverage-summary .yui3-datatable-sort-indicator {
+            background: url("http://yui.yahooapis.com/3.6.0/build/datatable-sort/assets/skins/sam/sort-arrow-sprite.png") no-repeat scroll 0 0 transparent;
+        }
+        div.coverage-summary .yui3-datatable-sorted .yui3-datatable-sort-indicator {
+            background-position: 0 -20px;
+        }
+        div.coverage-summary .yui3-datatable-sorted-desc .yui3-datatable-sort-indicator {
+            background-position: 0 -10px;
+        }
+
+        .high { background: #b5d592 !important; }
+        .medium { background: #ffe87c !important; }
+        .low { background: #fc8c84 !important; }
+
+        span.cover-fill, span.cover-empty {
+            display:inline-block;
+            border:1px solid #444;
+            background: white;
+            height: 12px;
+        }
+        span.cover-fill {
+            background: #ccc;
+            border-right: 1px solid #444;
+        }
+        span.cover-empty {
+            background: white;
+            border-left: none;
+        }
+        span.cover-full {
+            border-right: none !important;
+        }
+        pre.prettyprint {
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        .com { color: #999 !important; }
+    </style>
+</head>
+<body>
+<div class='header high'>
+    <h1>Code coverage report for <span class='entity'>collections/</span></h1>
+    <h2>
+        
+        Statements: <span class='metric'>90.33% <small>(2168 / 2400)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        
+        
+        Branches: <span class='metric'>81.17% <small>(789 / 972)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        
+        
+        Functions: <span class='metric'>85.19% <small>(368 / 432)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        
+        
+        Lines: <span class='metric'>90.33% <small>(2167 / 2399)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        
+    </h2>
+    <div class="path"><a href="../index.html">All files</a> &#187; collections/</div>
+</div>
+<div class='body'>
+<div class="coverage-summary">
+<table>
+<thead>
+<tr>
+   <th data-col="file" data-fmt="html" data-html="true" class="file">File</th>
+   <th data-col="pic" data-type="number" data-fmt="html" data-html="true" class="pic"></th>
+   <th data-col="statements" data-type="number" data-fmt="pct" class="pct">Statements</th>
+   <th data-col="statements_raw" data-type="number" data-fmt="html" class="abs"></th>
+   <th data-col="branches" data-type="number" data-fmt="pct" class="pct">Branches</th>
+   <th data-col="branches_raw" data-type="number" data-fmt="html" class="abs"></th>
+   <th data-col="functions" data-type="number" data-fmt="pct" class="pct">Functions</th>
+   <th data-col="functions_raw" data-type="number" data-fmt="html" class="abs"></th>
+   <th data-col="lines" data-type="number" data-fmt="pct" class="pct">Lines</th>
+   <th data-col="lines_raw" data-type="number" data-fmt="html" class="abs"></th>
+</tr>
+</thead>
+<tbody><tr>
+	<td class="file high" data-value="dict.js"><a href="dict.js.html">dict.js</a></td>
+	<td data-value="90.28" class="pic high"><span class="cover-fill" style="width: 90px;"></span><span class="cover-empty" style="width:10px;"></span></td>
+	<td data-value="90.28" class="pct high">90.28%</td>
+	<td data-value="72" class="abs high">(65&nbsp;/&nbsp;72)</td>
+	<td data-value="92.86" class="pct high">92.86%</td>
+	<td data-value="14" class="abs high">(13&nbsp;/&nbsp;14)</td>
+	<td data-value="78.57" class="pct medium">78.57%</td>
+	<td data-value="14" class="abs medium">(11&nbsp;/&nbsp;14)</td>
+	<td data-value="90.28" class="pct high">90.28%</td>
+	<td data-value="72" class="abs high">(65&nbsp;/&nbsp;72)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="fast-map.js"><a href="fast-map.js.html">fast-map.js</a></td>
+	<td data-value="90.32" class="pic high"><span class="cover-fill" style="width: 90px;"></span><span class="cover-empty" style="width:10px;"></span></td>
+	<td data-value="90.32" class="pct high">90.32%</td>
+	<td data-value="31" class="abs high">(28&nbsp;/&nbsp;31)</td>
+	<td data-value="80" class="pct high">80%</td>
+	<td data-value="10" class="abs high">(8&nbsp;/&nbsp;10)</td>
+	<td data-value="66.67" class="pct medium">66.67%</td>
+	<td data-value="6" class="abs medium">(4&nbsp;/&nbsp;6)</td>
+	<td data-value="90.32" class="pct high">90.32%</td>
+	<td data-value="31" class="abs high">(28&nbsp;/&nbsp;31)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="fast-set.js"><a href="fast-set.js.html">fast-set.js</a></td>
+	<td data-value="98.28" class="pic high"><span class="cover-fill" style="width: 98px;"></span><span class="cover-empty" style="width:2px;"></span></td>
+	<td data-value="98.28" class="pct high">98.28%</td>
+	<td data-value="116" class="abs high">(114&nbsp;/&nbsp;116)</td>
+	<td data-value="89.47" class="pct high">89.47%</td>
+	<td data-value="38" class="abs high">(34&nbsp;/&nbsp;38)</td>
+	<td data-value="100" class="pct high">100%</td>
+	<td data-value="19" class="abs high">(19&nbsp;/&nbsp;19)</td>
+	<td data-value="98.28" class="pct high">98.28%</td>
+	<td data-value="116" class="abs high">(114&nbsp;/&nbsp;116)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="generic-collection.js"><a href="generic-collection.js.html">generic-collection.js</a></td>
+	<td data-value="98.62" class="pic high"><span class="cover-fill" style="width: 98px;"></span><span class="cover-empty" style="width:2px;"></span></td>
+	<td data-value="98.62" class="pct high">98.62%</td>
+	<td data-value="145" class="abs high">(143&nbsp;/&nbsp;145)</td>
+	<td data-value="86.21" class="pct high">86.21%</td>
+	<td data-value="58" class="abs high">(50&nbsp;/&nbsp;58)</td>
+	<td data-value="95.56" class="pct high">95.56%</td>
+	<td data-value="45" class="abs high">(43&nbsp;/&nbsp;45)</td>
+	<td data-value="98.62" class="pct high">98.62%</td>
+	<td data-value="145" class="abs high">(143&nbsp;/&nbsp;145)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="generic-map.js"><a href="generic-map.js.html">generic-map.js</a></td>
+	<td data-value="96.88" class="pic high"><span class="cover-fill" style="width: 96px;"></span><span class="cover-empty" style="width:4px;"></span></td>
+	<td data-value="96.88" class="pct high">96.88%</td>
+	<td data-value="96" class="abs high">(93&nbsp;/&nbsp;96)</td>
+	<td data-value="95.24" class="pct high">95.24%</td>
+	<td data-value="42" class="abs high">(40&nbsp;/&nbsp;42)</td>
+	<td data-value="88.46" class="pct high">88.46%</td>
+	<td data-value="26" class="abs high">(23&nbsp;/&nbsp;26)</td>
+	<td data-value="96.88" class="pct high">96.88%</td>
+	<td data-value="96" class="abs high">(93&nbsp;/&nbsp;96)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="generic-order.js"><a href="generic-order.js.html">generic-order.js</a></td>
+	<td data-value="89.66" class="pic high"><span class="cover-fill" style="width: 89px;"></span><span class="cover-empty" style="width:11px;"></span></td>
+	<td data-value="89.66" class="pct high">89.66%</td>
+	<td data-value="29" class="abs high">(26&nbsp;/&nbsp;29)</td>
+	<td data-value="90.91" class="pct high">90.91%</td>
+	<td data-value="22" class="abs high">(20&nbsp;/&nbsp;22)</td>
+	<td data-value="80" class="pct high">80%</td>
+	<td data-value="5" class="abs high">(4&nbsp;/&nbsp;5)</td>
+	<td data-value="89.66" class="pct high">89.66%</td>
+	<td data-value="29" class="abs high">(26&nbsp;/&nbsp;29)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="generic-set.js"><a href="generic-set.js.html">generic-set.js</a></td>
+	<td data-value="80" class="pic high"><span class="cover-fill" style="width: 80px;"></span><span class="cover-empty" style="width:20px;"></span></td>
+	<td data-value="80" class="pct high">80%</td>
+	<td data-value="30" class="abs high">(24&nbsp;/&nbsp;30)</td>
+	<td data-value="71.43" class="pct medium">71.43%</td>
+	<td data-value="7" class="abs medium">(5&nbsp;/&nbsp;7)</td>
+	<td data-value="63.64" class="pct medium">63.64%</td>
+	<td data-value="11" class="abs medium">(7&nbsp;/&nbsp;11)</td>
+	<td data-value="80" class="pct high">80%</td>
+	<td data-value="30" class="abs high">(24&nbsp;/&nbsp;30)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="heap.js"><a href="heap.js.html">heap.js</a></td>
+	<td data-value="90.91" class="pic high"><span class="cover-fill" style="width: 90px;"></span><span class="cover-empty" style="width:10px;"></span></td>
+	<td data-value="90.91" class="pct high">90.91%</td>
+	<td data-value="121" class="abs high">(110&nbsp;/&nbsp;121)</td>
+	<td data-value="85.29" class="pct high">85.29%</td>
+	<td data-value="34" class="abs high">(29&nbsp;/&nbsp;34)</td>
+	<td data-value="68.18" class="pct medium">68.18%</td>
+	<td data-value="22" class="abs medium">(15&nbsp;/&nbsp;22)</td>
+	<td data-value="90.91" class="pct high">90.91%</td>
+	<td data-value="121" class="abs high">(110&nbsp;/&nbsp;121)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="iterator.js"><a href="iterator.js.html">iterator.js</a></td>
+	<td data-value="92.89" class="pic high"><span class="cover-fill" style="width: 92px;"></span><span class="cover-empty" style="width:8px;"></span></td>
+	<td data-value="92.89" class="pct high">92.89%</td>
+	<td data-value="211" class="abs high">(196&nbsp;/&nbsp;211)</td>
+	<td data-value="77.38" class="pct medium">77.38%</td>
+	<td data-value="84" class="abs medium">(65&nbsp;/&nbsp;84)</td>
+	<td data-value="100" class="pct high">100%</td>
+	<td data-value="38" class="abs high">(38&nbsp;/&nbsp;38)</td>
+	<td data-value="92.89" class="pct high">92.89%</td>
+	<td data-value="211" class="abs high">(196&nbsp;/&nbsp;211)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="list.js"><a href="list.js.html">list.js</a></td>
+	<td data-value="91.13" class="pic high"><span class="cover-fill" style="width: 91px;"></span><span class="cover-empty" style="width:9px;"></span></td>
+	<td data-value="91.13" class="pct high">91.13%</td>
+	<td data-value="203" class="abs high">(185&nbsp;/&nbsp;203)</td>
+	<td data-value="90.2" class="pct high">90.2%</td>
+	<td data-value="51" class="abs high">(46&nbsp;/&nbsp;51)</td>
+	<td data-value="90" class="pct high">90%</td>
+	<td data-value="30" class="abs high">(27&nbsp;/&nbsp;30)</td>
+	<td data-value="91.13" class="pct high">91.13%</td>
+	<td data-value="203" class="abs high">(185&nbsp;/&nbsp;203)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="lru-map.js"><a href="lru-map.js.html">lru-map.js</a></td>
+	<td data-value="90.32" class="pic high"><span class="cover-fill" style="width: 90px;"></span><span class="cover-empty" style="width:10px;"></span></td>
+	<td data-value="90.32" class="pct high">90.32%</td>
+	<td data-value="31" class="abs high">(28&nbsp;/&nbsp;31)</td>
+	<td data-value="80" class="pct high">80%</td>
+	<td data-value="10" class="abs high">(8&nbsp;/&nbsp;10)</td>
+	<td data-value="66.67" class="pct medium">66.67%</td>
+	<td data-value="6" class="abs medium">(4&nbsp;/&nbsp;6)</td>
+	<td data-value="90.32" class="pct high">90.32%</td>
+	<td data-value="31" class="abs high">(28&nbsp;/&nbsp;31)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="lru-set.js"><a href="lru-set.js.html">lru-set.js</a></td>
+	<td data-value="89.41" class="pic high"><span class="cover-fill" style="width: 89px;"></span><span class="cover-empty" style="width:11px;"></span></td>
+	<td data-value="89.41" class="pct high">89.41%</td>
+	<td data-value="85" class="abs high">(76&nbsp;/&nbsp;85)</td>
+	<td data-value="87.5" class="pct high">87.5%</td>
+	<td data-value="32" class="abs high">(28&nbsp;/&nbsp;32)</td>
+	<td data-value="84.62" class="pct high">84.62%</td>
+	<td data-value="13" class="abs high">(11&nbsp;/&nbsp;13)</td>
+	<td data-value="89.41" class="pct high">89.41%</td>
+	<td data-value="85" class="abs high">(76&nbsp;/&nbsp;85)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="map.js"><a href="map.js.html">map.js</a></td>
+	<td data-value="84.85" class="pic high"><span class="cover-fill" style="width: 84px;"></span><span class="cover-empty" style="width:16px;"></span></td>
+	<td data-value="84.85" class="pct high">84.85%</td>
+	<td data-value="33" class="abs high">(28&nbsp;/&nbsp;33)</td>
+	<td data-value="80" class="pct high">80%</td>
+	<td data-value="10" class="abs high">(8&nbsp;/&nbsp;10)</td>
+	<td data-value="57.14" class="pct medium">57.14%</td>
+	<td data-value="7" class="abs medium">(4&nbsp;/&nbsp;7)</td>
+	<td data-value="84.85" class="pct high">84.85%</td>
+	<td data-value="33" class="abs high">(28&nbsp;/&nbsp;33)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="set.js"><a href="set.js.html">set.js</a></td>
+	<td data-value="89.11" class="pic high"><span class="cover-fill" style="width: 89px;"></span><span class="cover-empty" style="width:11px;"></span></td>
+	<td data-value="89.11" class="pct high">89.11%</td>
+	<td data-value="101" class="abs high">(90&nbsp;/&nbsp;101)</td>
+	<td data-value="78.57" class="pct medium">78.57%</td>
+	<td data-value="28" class="abs medium">(22&nbsp;/&nbsp;28)</td>
+	<td data-value="83.33" class="pct high">83.33%</td>
+	<td data-value="18" class="abs high">(15&nbsp;/&nbsp;18)</td>
+	<td data-value="89.11" class="pct high">89.11%</td>
+	<td data-value="101" class="abs high">(90&nbsp;/&nbsp;101)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="shim-array.js"><a href="shim-array.js.html">shim-array.js</a></td>
+	<td data-value="93.9" class="pic high"><span class="cover-fill" style="width: 93px;"></span><span class="cover-empty" style="width:7px;"></span></td>
+	<td data-value="93.9" class="pct high">93.9%</td>
+	<td data-value="164" class="abs high">(154&nbsp;/&nbsp;164)</td>
+	<td data-value="83.33" class="pct high">83.33%</td>
+	<td data-value="84" class="abs high">(70&nbsp;/&nbsp;84)</td>
+	<td data-value="95" class="pct high">95%</td>
+	<td data-value="20" class="abs high">(19&nbsp;/&nbsp;20)</td>
+	<td data-value="93.9" class="pct high">93.9%</td>
+	<td data-value="164" class="abs high">(154&nbsp;/&nbsp;164)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="shim-function.js"><a href="shim-function.js.html">shim-function.js</a></td>
+	<td data-value="86.67" class="pic high"><span class="cover-fill" style="width: 86px;"></span><span class="cover-empty" style="width:14px;"></span></td>
+	<td data-value="86.67" class="pct high">86.67%</td>
+	<td data-value="15" class="abs high">(13&nbsp;/&nbsp;15)</td>
+	<td data-value="75" class="pct medium">75%</td>
+	<td data-value="4" class="abs medium">(3&nbsp;/&nbsp;4)</td>
+	<td data-value="66.67" class="pct medium">66.67%</td>
+	<td data-value="6" class="abs medium">(4&nbsp;/&nbsp;6)</td>
+	<td data-value="86.67" class="pct high">86.67%</td>
+	<td data-value="15" class="abs high">(13&nbsp;/&nbsp;15)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="shim-object.js"><a href="shim-object.js.html">shim-object.js</a></td>
+	<td data-value="96.43" class="pic high"><span class="cover-fill" style="width: 96px;"></span><span class="cover-empty" style="width:4px;"></span></td>
+	<td data-value="96.43" class="pct high">96.43%</td>
+	<td data-value="140" class="abs high">(135&nbsp;/&nbsp;140)</td>
+	<td data-value="93.62" class="pct high">93.62%</td>
+	<td data-value="94" class="abs high">(88&nbsp;/&nbsp;94)</td>
+	<td data-value="100" class="pct high">100%</td>
+	<td data-value="23" class="abs high">(23&nbsp;/&nbsp;23)</td>
+	<td data-value="96.43" class="pct high">96.43%</td>
+	<td data-value="140" class="abs high">(135&nbsp;/&nbsp;140)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="shim-regexp.js"><a href="shim-regexp.js.html">shim-regexp.js</a></td>
+	<td data-value="100" class="pic high"><span class="cover-fill cover-full" style="width: 100px;"></span><span class="cover-empty" style="width:0px;"></span></td>
+	<td data-value="100" class="pct high">100%</td>
+	<td data-value="4" class="abs high">(4&nbsp;/&nbsp;4)</td>
+	<td data-value="50" class="pct medium">50%</td>
+	<td data-value="2" class="abs medium">(1&nbsp;/&nbsp;2)</td>
+	<td data-value="100" class="pct high">100%</td>
+	<td data-value="1" class="abs high">(1&nbsp;/&nbsp;1)</td>
+	<td data-value="100" class="pct high">100%</td>
+	<td data-value="4" class="abs high">(4&nbsp;/&nbsp;4)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="shim.js"><a href="shim.js.html">shim.js</a></td>
+	<td data-value="100" class="pic high"><span class="cover-fill cover-full" style="width: 100px;"></span><span class="cover-empty" style="width:0px;"></span></td>
+	<td data-value="100" class="pct high">100%</td>
+	<td data-value="4" class="abs high">(4&nbsp;/&nbsp;4)</td>
+	<td data-value="100" class="pct high">100%</td>
+	<td data-value="0" class="abs high">(0&nbsp;/&nbsp;0)</td>
+	<td data-value="100" class="pct high">100%</td>
+	<td data-value="0" class="abs high">(0&nbsp;/&nbsp;0)</td>
+	<td data-value="100" class="pct high">100%</td>
+	<td data-value="4" class="abs high">(4&nbsp;/&nbsp;4)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="sorted-array-map.js"><a href="sorted-array-map.js.html">sorted-array-map.js</a></td>
+	<td data-value="100" class="pic high"><span class="cover-fill cover-full" style="width: 100px;"></span><span class="cover-empty" style="width:0px;"></span></td>
+	<td data-value="100" class="pct high">100%</td>
+	<td data-value="26" class="abs high">(26&nbsp;/&nbsp;26)</td>
+	<td data-value="100" class="pct high">100%</td>
+	<td data-value="8" class="abs high">(8&nbsp;/&nbsp;8)</td>
+	<td data-value="100" class="pct high">100%</td>
+	<td data-value="4" class="abs high">(4&nbsp;/&nbsp;4)</td>
+	<td data-value="100" class="pct high">100%</td>
+	<td data-value="26" class="abs high">(26&nbsp;/&nbsp;26)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="sorted-array-set.js"><a href="sorted-array-set.js.html">sorted-array-set.js</a></td>
+	<td data-value="86.21" class="pic high"><span class="cover-fill" style="width: 86px;"></span><span class="cover-empty" style="width:14px;"></span></td>
+	<td data-value="86.21" class="pct high">86.21%</td>
+	<td data-value="29" class="abs high">(25&nbsp;/&nbsp;29)</td>
+	<td data-value="100" class="pct high">100%</td>
+	<td data-value="4" class="abs high">(4&nbsp;/&nbsp;4)</td>
+	<td data-value="66.67" class="pct medium">66.67%</td>
+	<td data-value="6" class="abs medium">(4&nbsp;/&nbsp;6)</td>
+	<td data-value="86.21" class="pct high">86.21%</td>
+	<td data-value="29" class="abs high">(25&nbsp;/&nbsp;29)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="sorted-array.js"><a href="sorted-array.js.html">sorted-array.js</a></td>
+	<td data-value="89.17" class="pic high"><span class="cover-fill" style="width: 89px;"></span><span class="cover-empty" style="width:11px;"></span></td>
+	<td data-value="89.17" class="pct high">89.17%</td>
+	<td data-value="157" class="abs high">(140&nbsp;/&nbsp;157)</td>
+	<td data-value="80.3" class="pct high">80.3%</td>
+	<td data-value="66" class="abs high">(53&nbsp;/&nbsp;66)</td>
+	<td data-value="87.5" class="pct high">87.5%</td>
+	<td data-value="32" class="abs high">(28&nbsp;/&nbsp;32)</td>
+	<td data-value="89.17" class="pct high">89.17%</td>
+	<td data-value="157" class="abs high">(140&nbsp;/&nbsp;157)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="sorted-map.js"><a href="sorted-map.js.html">sorted-map.js</a></td>
+	<td data-value="81.82" class="pic high"><span class="cover-fill" style="width: 81px;"></span><span class="cover-empty" style="width:19px;"></span></td>
+	<td data-value="81.82" class="pct high">81.82%</td>
+	<td data-value="33" class="abs high">(27&nbsp;/&nbsp;33)</td>
+	<td data-value="80" class="pct high">80%</td>
+	<td data-value="10" class="abs high">(8&nbsp;/&nbsp;10)</td>
+	<td data-value="42.86" class="pct low">42.86%</td>
+	<td data-value="7" class="abs low">(3&nbsp;/&nbsp;7)</td>
+	<td data-value="81.82" class="pct high">81.82%</td>
+	<td data-value="33" class="abs high">(27&nbsp;/&nbsp;33)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="sorted-set.js"><a href="sorted-set.js.html">sorted-set.js</a></td>
+	<td data-value="86.96" class="pic high"><span class="cover-fill" style="width: 86px;"></span><span class="cover-empty" style="width:14px;"></span></td>
+	<td data-value="86.96" class="pct high">86.96%</td>
+	<td data-value="414" class="abs high">(360&nbsp;/&nbsp;414)</td>
+	<td data-value="72.77" class="pct medium">72.77%</td>
+	<td data-value="224" class="abs medium">(163&nbsp;/&nbsp;224)</td>
+	<td data-value="84" class="pct high">84%</td>
+	<td data-value="50" class="abs high">(42&nbsp;/&nbsp;50)</td>
+	<td data-value="86.96" class="pct high">86.96%</td>
+	<td data-value="414" class="abs high">(360&nbsp;/&nbsp;414)</td>
+	</tr>
+
+<tr>
+	<td class="file high" data-value="tree-log.js"><a href="tree-log.js.html">tree-log.js</a></td>
+	<td data-value="100" class="pic high"><span class="cover-fill cover-full" style="width: 100px;"></span><span class="cover-empty" style="width:0px;"></span></td>
+	<td data-value="100" class="pct high">100%</td>
+	<td data-value="6" class="abs high">(6&nbsp;/&nbsp;6)</td>
+	<td data-value="100" class="pct high">100%</td>
+	<td data-value="0" class="abs high">(0&nbsp;/&nbsp;0)</td>
+	<td data-value="0" class="pct low">0%</td>
+	<td data-value="1" class="abs low">(0&nbsp;/&nbsp;1)</td>
+	<td data-value="100" class="pct high">100%</td>
+	<td data-value="6" class="abs high">(6&nbsp;/&nbsp;6)</td>
+	</tr>
+
+<tr>
+	<td class="file medium" data-value="weak-map.js"><a href="weak-map.js.html">weak-map.js</a></td>
+	<td data-value="65.38" class="pic medium"><span class="cover-fill" style="width: 65px;"></span><span class="cover-empty" style="width:35px;"></span></td>
+	<td data-value="65.38" class="pct medium">65.38%</td>
+	<td data-value="104" class="abs medium">(68&nbsp;/&nbsp;104)</td>
+	<td data-value="41.67" class="pct low">41.67%</td>
+	<td data-value="36" class="abs low">(15&nbsp;/&nbsp;36)</td>
+	<td data-value="68.18" class="pct medium">68.18%</td>
+	<td data-value="22" class="abs medium">(15&nbsp;/&nbsp;22)</td>
+	<td data-value="65.05" class="pct medium">65.05%</td>
+	<td data-value="103" class="abs medium">(67&nbsp;/&nbsp;103)</td>
+	</tr>
+
+</tbody>
+</table>
+</div>
+</div>
+<div class='footer'>
+    <div class='meta'>Generated by <a href='http://istanbul-js.org' target='_blank'>istanbul</a> at Sat Mar 02 2013 09:49:19 GMT-0800 (PST)</div>
+</div>
+</body>
+
+<script src="../prettify.js"></script>
+
+<script src="http://yui.yahooapis.com/3.6.0/build/yui/yui-min.js"></script>
+<script>
+
+    YUI().use('datatable', function (Y) {
+
+        var formatters = {
+          pct: function (o) {
+              o.className += o.record.get('classes')[o.column.key];
+              try {
+                  return o.value.toFixed(2) + '%';
+              } catch (ex) { return o.value + '%'; }
+          },
+          html: function (o) {
+              o.className += o.record.get('classes')[o.column.key];
+              return o.record.get(o.column.key + '_html');
+          }
+        },
+          defaultFormatter = function (o) {
+              o.className += o.record.get('classes')[o.column.key];
+              return o.value;
+          };
+
+        function getColumns(theadNode) {
+            var colNodes = theadNode.all('tr th'),
+                cols = [],
+                col;
+            colNodes.each(function (colNode) {
+                col = {
+                    key: colNode.getAttribute('data-col'),
+                    label: colNode.get('innerHTML') || ' ',
+                    sortable: !colNode.getAttribute('data-nosort'),
+                    className: colNode.getAttribute('class'),
+                    type: colNode.getAttribute('data-type'),
+                    allowHTML: colNode.getAttribute('data-html') === 'true' || colNode.getAttribute('data-fmt') === 'html'
+                };
+                col.formatter = formatters[colNode.getAttribute('data-fmt')] || defaultFormatter;
+                cols.push(col);
+            });
+            return cols;
+        }
+
+        function getRowData(trNode, cols) {
+            var tdNodes = trNode.all('td'),
+                    i,
+                    row = { classes: {} },
+                    node,
+                    name;
+            for (i = 0; i < cols.length; i += 1) {
+                name = cols[i].key;
+                node = tdNodes.item(i);
+                row[name] = node.getAttribute('data-value') || node.get('innerHTML');
+                row[name + '_html'] = node.get('innerHTML');
+                row.classes[name] = node.getAttribute('class');
+                //Y.log('Name: ' + name + '; Value: ' + row[name]);
+                if (cols[i].type === 'number') { row[name] = row[name] * 1; }
+            }
+            //Y.log(row);
+            return row;
+        }
+
+        function getData(tbodyNode, cols) {
+            var data = [];
+            tbodyNode.all('tr').each(function (trNode) {
+                data.push(getRowData(trNode, cols));
+            });
+            return data;
+        }
+
+        function replaceTable(node) {
+            if (!node) { return; }
+            var cols = getColumns(node.one('thead')),
+                data = getData(node.one('tbody'), cols),
+                table,
+                parent = node.get('parentNode');
+
+            table = new Y.DataTable({
+                columns: cols,
+                data: data,
+                sortBy: 'file'
+            });
+            parent.set('innerHTML', '');
+            table.render(parent);
+        }
+
+        Y.on('domready', function () {
+            replaceTable(Y.one('div.coverage-summary table'));
+            if (typeof prettyPrint === 'function') {
+                prettyPrint();
+            }
+        });
+    });
+</script>
+</html>
