@@ -191,6 +191,10 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
         return;
     }
 
+    if (!Object.isExtensible(this, key)) {
+        throw new Error("Can't make property " + JSON.stringify(key) + " observable on " + this + " because object is not extensible");
+    }
+
     var state;
     if (typeof this.__state__ === "object") {
         state = this.__state__;
