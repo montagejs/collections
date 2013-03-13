@@ -370,6 +370,8 @@ Object.equals = function (a, b, equals) {
     if (a === b)
         // 0 === -0, but they are not equal
         return a !== 0 || 1 / a === 1 / b;
+    if (a === null || b === null)
+        return a === b;
     if (Object.can(a, "equals"))
         return a.equals(b, equals);
     // commutative
