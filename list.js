@@ -6,6 +6,7 @@ var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
 var GenericOrder = require("./generic-order");
 var PropertyChanges = require("./listen/property-changes");
+var RangeChanges = require("./listen/range-changes");
 
 function List(values, equals, getDefault) {
     if (!(this instanceof List)) {
@@ -23,6 +24,7 @@ function List(values, equals, getDefault) {
 Object.addEach(List.prototype, GenericCollection.prototype);
 Object.addEach(List.prototype, GenericOrder.prototype);
 Object.addEach(List.prototype, PropertyChanges.prototype);
+Object.addEach(List.prototype, RangeChanges.prototype);
 
 List.prototype.constructClone = function (values) {
     return new this.constructor(values, this.contentEquals, this.getDefault);
