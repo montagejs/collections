@@ -1,4 +1,3 @@
-
 var SortedSet = require("../sorted-set");
 var SortedArraySet = require("../sorted-array-set");
 
@@ -29,7 +28,7 @@ var size = 10000;
 
     function hrtime() {
         var hrtime = process.hrtime();
-        return hrtime[0] * 1000 + hrtime[1] / Math.pow(2, 32);
+        return hrtime[0] * 1e3 + hrtime[1] / 1e6;
     }
 
     function time(callback) {
