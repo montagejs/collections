@@ -93,6 +93,7 @@ module.exports = typeof WeakMap !== "undefined" ? WeakMap : ((function () {
   var hop = Object.prototype.hasOwnProperty;
   var gopn = Object.getOwnPropertyNames;
   var defProp = Object.defineProperty;
+  var isExtensible = Object.isExtensible;
 
   /**
    * Holds the orginal static properties of the Object constructor,
@@ -235,7 +236,7 @@ module.exports = typeof WeakMap !== "undefined" ? WeakMap : ((function () {
     }
     var hiddenRecord = key[HIDDEN_NAME];
     if (hiddenRecord && hiddenRecord.key === key) { return hiddenRecord; }
-    if (!originalProps.isExtensible(key)) {
+    if (!isExtensible(key)) {
       // Weak map must brute force, as explained in doc-comment above.
       return void 0;
     }
