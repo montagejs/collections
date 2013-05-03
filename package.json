@@ -2,8 +2,8 @@
   "name": "collections",
   "version": "0.1.17",
   "description": "data structures with idiomatic JavaScript collection interfaces",
-  "homepage": "http://github.com/kriskowal/collections",
-  "author": "Kris Kowal <kris@cixar.com> (http://github.com/kriskowal/collections)",
+  "homepage": "http://github.com/montagejs/collections",
+  "author": "Kris Kowal <kris@cixar.com> (http://github.com/kriskowal)",
   "keywords": [
     "collections",
     "data structures",
@@ -15,17 +15,17 @@
   ],
   "bugs": {
     "mail": "kris@cixar.com",
-    "url": "http://github.com/kriskowal/collections/issues"
+    "url": "http://github.com/montagejs/collections/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "http://github.com/kriskowal/collections/raw/master/LICENSE"
+      "url": "https://raw.github.com/montagejs/collections/master/LICENSE.md"
     }
   ],
   "repository": {
     "type": "git",
-    "url": "http://github.com/kriskowal/collections.git"
+    "url": "http://github.com/montagejs/collections.git"
   },
   "dependencies": {},
   "devDependencies": {
