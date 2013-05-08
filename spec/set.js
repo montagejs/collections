@@ -2,7 +2,7 @@
 var Iterator = require("../iterator");
 
 module.exports = describeSet;
-function describeSet(Set) {
+function describeSet(Set, sorted) {
 
     describe("uniqueness", function () {
         var set = Set([1, 2, 3, 1, 2, 3]);
@@ -49,19 +49,21 @@ function describeSet(Set) {
         expect(set.has(object)).toBe(false);
     });
 
-    it("can add and delete objects from the same bucket", function () {
-        var a = {id: 0}, b = {id: 1};
-        var set = new Set();
-        set.add(a);
-        expect(set.has(a)).toBe(true);
-        set.add(b);
-        expect(set.has(b)).toBe(true);
-        set.delete(b);
-        expect(set.has(b)).toBe(false);
-        expect(set.has(a)).toBe(true);
-        set.delete(a);
-        expect(set.has(a)).toBe(false);
-    });
+    if (!sorted) {
+        it("can add and delete objects from the same bucket", function () {
+            var a = {id: 0}, b = {id: 1};
+            var set = new Set();
+            set.add(a);
+            expect(set.has(a)).toBe(true);
+            set.add(b);
+            expect(set.has(b)).toBe(true);
+            set.delete(b);
+            expect(set.has(b)).toBe(false);
+            expect(set.has(a)).toBe(true);
+            set.delete(a);
+            expect(set.has(a)).toBe(false);
+        });
+    }
 
     it("can readd a deleted object", function () {
         var set = new Set();

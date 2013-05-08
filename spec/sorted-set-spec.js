@@ -40,7 +40,7 @@ describe("SortedSet", function () {
         // positions rather than the ends.
         describeDequeue(SortedSet);
 
-        describeSet(SortedSet);
+        describeSet(SortedSet, "sorted");
 
     });
 
