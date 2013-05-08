@@ -57,6 +57,10 @@ Object.
     splay tree.  The `equals` and `compare` functions can be overridden
     to provide alternate definitions of "unique".
 
+    The `compare` method *must* provide a total order of all unique
+    values.  That is, if `compare(a, b) === 0`, it *must* follow that
+    `equals(a, b)`.
+
 -   **SortedMap(map, equals, compare, getDefault)**
 
     A collection of key value pairs stored in sorted order.  `SortedMap`
