@@ -59,10 +59,14 @@ SortedSet.prototype.add = function (value) {
     if (this.root) {
         this.splay(value);
         if (!this.contentEquals(value, this.root.value)) {
+            var comparison = this.contentCompare(value, this.root.value);
+            if (comparison === 0) {
+                throw new Error("SortedSet cannot contain incomparable but inequal values: " + value + " and " + this.root.value);
+            }
             if (this.dispatchesRangeChanges) {
                 this.dispatchBeforeRangeChange([value], [], this.root.index);
             }
-            if (this.contentCompare(value, this.root.value) < 0) {
+            if (comparison < 0) {
                 // rotate right
                 //   R        N
                 //  / \  ->  / \
