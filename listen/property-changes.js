@@ -12,6 +12,7 @@
     necessary for any collection with observable content.
 */
 
+require("../shim");
 var WeakMap = require("../weak-map");
 
 var object_owns = Object.prototype.hasOwnProperty;
