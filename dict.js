@@ -56,13 +56,25 @@ Dict.prototype.get = function (key, defaultValue) {
 Dict.prototype.set = function (key, value) {
     this.assertString(key);
     var mangled = mangle(key);
-    if (!(mangled in this.store)) {
+    if (mangled in this.store) { // update
+        if (this.dispatchesBeforeMapChanges) {
+            this.dispatchBeforeMapChange(key, this.store[mangled]);
+        }
+        this.store[mangled] = value;
+        if (this.dispatchesMapChanges) {
+            this.dispatchMapChange(key, undefined);
+        }
+        return false;
+    } else { // create
+        if (this.dispatchesMapChanges) {
+            this.dispatchBeforeMapChange(key, undefined);
+        }
         this.length++;
         this.store[mangled] = value;
+        if (this.dispatchesMapChanges) {
+            this.dispatchMapChange(key, value);
+        }
         return true;
-    } else {
-        this.store[mangled] = value;
-        return false;
     }
 };
 
@@ -76,8 +88,14 @@ Dict.prototype["delete"] = function (key) {
     this.assertString(key);
     var mangled = mangle(key);
     if (mangled in this.store) {
+        if (this.dispatchesMapChanges) {
+            this.dispatchBeforeMapChange(key, this.store[mangled]);
+        }
         delete this.store[mangle(key)];
         this.length--;
+        if (this.dispatchesMapChanges) {
+            this.dispatchMapChange(key, undefined);
+        }
         return true;
     }
     return false;
@@ -85,7 +103,13 @@ Dict.prototype["delete"] = function (key) {
 
 Dict.prototype.clear = function () {
     for (var mangled in this.store) {
+        if (this.dispatchesMapChanges) {
+            this.dispatchBeforeMapChange(key, this.store[mangled]);
+        }
         delete this.store[mangled];
+        if (this.dispatchesMapChanges) {
+            this.dispatchMapChange(key, undefined);
+        }
     }
     this.length = 0;
 };
