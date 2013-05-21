@@ -102,8 +102,18 @@ GenericMap.prototype['delete'] = function (key) {
 };
 
 GenericMap.prototype.clear = function () {
+    if (this.dispatchesMapChanges) {
+        this.forEach(function (value, key) {
+            this.dispatchBeforeMapChange(key, value);
+        }, this);
+    }
     this.store.clear();
     this.length = 0;
+    if (this.dispatchesMapChanges) {
+        this.forEach(function (value, key) {
+            this.dispatchMapChange(key, value);
+        }, this);
+    }
 };
 
 GenericMap.prototype.reduce = function (callback, basis, thisp) {
