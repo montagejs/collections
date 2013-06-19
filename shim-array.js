@@ -140,6 +140,9 @@ define("findLast", function (value, equals) {
 define("swap", function (index, length, plus) {
     var args = Array.prototype.slice.call(arguments, 0, 2);
     if (plus) {
+        if (!Array.isArray(plus)) {
+            plus = Array.prototype.slice.call(plus);
+        }
         args.push.apply(args, plus);
     }
     return this.splice.apply(this, args);
