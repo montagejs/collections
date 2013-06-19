@@ -263,7 +263,7 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
 
     // TODO reflect current value on a displayed property
 
-    var newDescriptor;
+    var propertyListener;
     // in both of these new descriptor variants, we reuse the overridden
     // descriptor to either store the current value or apply getters
     // and setters.  this is handy since we can reuse the overridden
@@ -271,7 +271,7 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
     // assignment semantics, where we get the value from up the
     // prototype chain, and set as an owned property.
     if ('value' in overriddenDescriptor) {
-        newDescriptor = {
+        propertyListener = {
             get: function () {
                 return overriddenDescriptor.value
             },
@@ -289,7 +289,7 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
             configurable: true
         };
     } else { // 'get' or 'set', but not necessarily both
-        newDescriptor = {
+        propertyListener = {
             get: function () {
                 if (overriddenDescriptor.get) {
                     return overriddenDescriptor.get.apply(this, arguments);
@@ -328,7 +328,7 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
         };
     }
 
-    Object.defineProperty(this, key, newDescriptor);
+    Object.defineProperty(this, key, propertyListener);
 };
 
 PropertyChanges.prototype.makePropertyUnobservable = function (key) {
