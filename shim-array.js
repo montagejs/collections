@@ -215,9 +215,12 @@ define("equals", function (that, equals) {
     } else {
         for (; i < length; ++i) {
             if (i in this) {
+                if (!(i in that)) {
+                    return false;
+                }
                 left = this[i];
                 right = that[i];
-                if (left !== right && (left && right && !equals(left, right))) {
+                if (!equals(left, right)) {
                     return false;
                 }
             } else {
