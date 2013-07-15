@@ -28,5 +28,13 @@ describe("Set", function () {
         expect(set.shift()).toBe(a);
     });
 
+    it("should dispatch range change on clear", function () {
+        var set = Set([1, 2, 3]);
+        var spy = jasmine.createSpy();
+        set.addRangeChangeListener(spy);
+        set.clear();
+        expect(spy).toHaveBeenCalledWith([], [1, 2, 3], 0, set, undefined);
+    });
+
 });
 

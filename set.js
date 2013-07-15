@@ -124,9 +124,17 @@ Set.prototype.one = function () {
 };
 
 Set.prototype.clear = function () {
+    var clearing;
+    if (this.dispatchesRangeChanges) {
+        clearing = this.toArray();
+        this.dispatchBeforeRangeChange([], clearing, 0);
+    }
     this.store.clear();
     this.order.clear();
     this.length = 0;
+    if (this.dispatchesRangeChanges) {
+        this.dispatchRangeChange([], clearing, 0);
+    }
 };
 
 Set.prototype.reduce = function (callback, basis /*, thisp*/) {
