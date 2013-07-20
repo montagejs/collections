@@ -29,7 +29,7 @@ Object.
 
 -   **Map(map, equals, hash, getDefault)**
 
-    A collection of key and value items with unique keys.  Keys may be
+    A collection of key and value entries with unique keys.  Keys may be
     objects.  The collection iterates in the order of insertion.  `Map`
     is backed by `Set`.
 
@@ -76,7 +76,7 @@ Object.
 
 -   **LruMap(map, maxLength, equals, hash, getDefault)**
 
-    A cache of items backed by an `LruSet`.
+    A cache of entries backed by an `LruSet`.
 
 -   **SortedArray(values, equals, compare, getDefault)**
 
@@ -106,7 +106,7 @@ Object.
 
 -   **FastMap(map, equals, hash, getDefault)**
 
-    A collection of key and value items with unique keys, backed by a
+    A collection of key and value entries with unique keys, backed by a
     set.  Keys may be objects.  `FastMap` is backed by `FastSet` and the
     `GenericMap` mixin.
 
@@ -275,7 +275,7 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
     **addEach(mapping)**
 
-    Copies items from another collection to this map.  If the mapping
+    Copies entries from another collection to this map.  If the mapping
     implements `keys` (indicating that it is a mapping) and `forEach`,
     all of the key value pairs are copied.  If the mapping only
     implements `forEach`, it is assumed to contain `[key, value]` arrays
@@ -546,9 +546,9 @@ SortedArrayMap, FastSet, FastMap, Dict)
     (Object+, Map, MultiMap, SortedMap, LruMap, SortedArrayMap, FastMap,
     Dict)
 
--   **items()**
+-   **entries()**
 
-    Returns an array of `[key, value]` pairs for each item
+    Returns an array of `[key, value]` pairs for each entry.
 
     (Object+, Map, MultiMap, SortedMap, LruMap, SortedArrayMap, FastMap,
     Dict)
@@ -918,7 +918,7 @@ these methods:
 ### Map Changes
 
 A map change listener receives notifications for the creation, removal,
-or updates for any item in a map data structure.
+or updates for any entry in a map data structure.
 
 With the `listen/array-changes` module required, `Array` can also
 dispatch map changes for the values at each index.
@@ -1026,12 +1026,12 @@ structure of the bucket list in an NPM-style.
 ### Sorted Set and Sorted Map
 
 A binary splay tree is a balanced binary tree that rotates the most
-frequently used items toward the root such that they can be accessed the
+frequently used entries toward the root such that they can be accessed the
 most quickly.  `sorted-set` and `sorted-map` are backed by a splay tree.
 
 All map implementations use an underlying set implementation.  Any map
 can be implemented trivially atop a set by wrapping `compare`, `equals`,
-or `hash` to operate on the key of an item.
+or `hash` to operate on the key of an entry.
 
 The sorted set has a `root` node.  Each node has a `left` and `right`
 property, which may be null.  Nodes are returned by all of the "find"
@@ -1099,9 +1099,9 @@ implements that method.
 on its prototype chain.  An owned function property does not qualify as
 a method, to aid in distinguishing "static" functions.
 
-`Object.concat(...maps)` and `Object.from(items)` construct an object
-by adding the items of other objects in order.  The maps can be other
-objects, arrays of items, or map alike collections.
+`Object.concat(...maps)` and `Object.from(entries)` construct an object
+by adding the entries of other objects in order.  The maps can be other
+objects, arrays of entries, or map alike collections.
 
 `Function.noop` is returns undefined.
 

@@ -13,10 +13,10 @@ describe("Array", function () {
     describeCollection(Array.from, [{id: 0}, {id: 1}, {id: 2}, {id: 3}]);
     describeOrder(Array.from);
 
-    function mapAlike(items) {
+    function mapAlike(entries) {
         var array = [];
-        if (items) {
-            items.forEach(function (pair) {
+        if (entries) {
+            entries.forEach(function (pair) {
                 array.set(pair[0], pair[1]);
             });
         }

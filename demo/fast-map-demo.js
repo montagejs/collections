@@ -22,12 +22,12 @@ map.delete(a);
 console.log(map.values());
 
 console.log('\nclone');
-console.log(map.clone().items());
+console.log(map.clone().entries());
 
-console.log(new Map().items());
-console.log(new Map({a: 10, b: 20}).items());
-console.log(new Map(['a', 'b', 'c']).items());
-console.log(new Map(new Map({a: 10, b: 20})).items());
+console.log(new Map().entries());
+console.log(new Map({a: 10, b: 20}).entries());
+console.log(new Map(['a', 'b', 'c']).entries());
+console.log(new Map(new Map({a: 10, b: 20})).entries());
 
 console.log(new Map({a: 10, b: 20}).concat({c: 30, d: 40}).toObject());
 

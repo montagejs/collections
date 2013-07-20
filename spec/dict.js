@@ -3,7 +3,7 @@
 module.exports = describeDict;
 function describeDict(Dict) {
 
-    it("should be constructable from item duples", function () {
+    it("should be constructable from entry duples", function () {
         var dict = Dict([['a', 10], ['b', 20]]);
         shouldHaveTheUsualContent(dict);
     });
@@ -61,7 +61,7 @@ function shouldHaveTheUsualContent(dict) {
 
     expect(dict.keys()).toEqual(['a', 'b']);
     expect(dict.values()).toEqual([10, 20]);
-    expect(dict.items()).toEqual([['a', 10], ['b', 20]]);
+    expect(dict.entries()).toEqual([['a', 10], ['b', 20]]);
     expect(dict.reduce(function (basis, value, key) {
         return basis + value;
     }, 0)).toEqual(30);

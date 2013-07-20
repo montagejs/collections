@@ -24,7 +24,7 @@ function describeMap(Map, values) {
         expect(map.length).toBe(2);
         expect(map.keys()).toEqual([a, b]);
         expect(map.values()).toEqual([10, 20]);
-        expect(map.items()).toEqual([[a, 10], [b, 20]]);
+        expect(map.entries()).toEqual([[a, 10], [b, 20]]);
         expect(map.reduce(function (basis, value, key) {
             basis.push([this, key, value]);
             return basis;
@@ -34,7 +34,7 @@ function describeMap(Map, values) {
         ]);;
     }
 
-    it("should be constructable from item duples with object keys", function () {
+    it("should be constructable from entry duples with object keys", function () {
         var map = Map([[a, 10], [b, 20]]);
         shouldHaveTheUsualContent(map);
     });
@@ -50,7 +50,7 @@ function describeMap(Map, values) {
     });
 
     describe("delete", function () {
-        it("should remove one item", function () {
+        it("should remove one entry", function () {
             var map = Map([[a, 10], [b, 20], [c, 30]]);
             expect(map.delete(c)).toBe(true);
             shouldHaveTheUsualContent(map);
@@ -64,7 +64,7 @@ function describeMap(Map, values) {
             expect(map.length).toBe(0);
             expect(map.keys()).toEqual([]);
             expect(map.values()).toEqual([]);
-            expect(map.items()).toEqual([]);
+            expect(map.entries()).toEqual([]);
         });
     });
 

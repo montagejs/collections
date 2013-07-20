@@ -140,10 +140,15 @@ GenericMap.prototype.values = function () {
     return this.map(Function.identity);
 };
 
-GenericMap.prototype.items = function () {
+GenericMap.prototype.entries = function () {
     return this.map(function (value, key) {
         return [key, value];
     });
+};
+
+// XXX deprecated
+GenericMap.prototype.items = function () {
+    return this.entries();
 };
 
 GenericMap.prototype.equals = function (that, equals) {

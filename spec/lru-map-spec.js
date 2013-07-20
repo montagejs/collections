@@ -8,7 +8,7 @@ describe("LruMap", function () {
     describeDict(LruMap);
     describeMap(LruMap);
 
-    it("should remove stale items", function () {
+    it("should remove stale entries", function () {
         var map = LruMap({a: 10, b: 20, c: 30}, 3);
         map.get("b");
         map.set("d", 40);
