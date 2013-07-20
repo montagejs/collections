@@ -102,16 +102,18 @@ GenericMap.prototype['delete'] = function (key) {
 };
 
 GenericMap.prototype.clear = function () {
+    var keys;
     if (this.dispatchesMapChanges) {
         this.forEach(function (value, key) {
             this.dispatchBeforeMapChange(key, value);
         }, this);
+        keys = this.keys();
     }
     this.store.clear();
     this.length = 0;
     if (this.dispatchesMapChanges) {
-        this.forEach(function (value, key) {
-            this.dispatchMapChange(key, value);
+        keys.forEach(function (key) {
+            this.dispatchMapChange(key);
         }, this);
     }
 };
