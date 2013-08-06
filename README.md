@@ -6,7 +6,27 @@ This package contains JavaScript implementations of common data
 structures with idiomatic iterfaces, including extensions for Array and
 Object.
 
+You can use these Node Packaged Modules with Node.js, [Browserify][],
+[Mr][], or any compatible CommonJS module loader.  Using a module loader
+or bundler when using Collections in web browsers has the advantage of
+only incorporating the modules you need.  However, you can just embed
+`<script src="collections/collections.min.js">` and *all* of the
+collections will be introduced as globals.  :warning:
+`require("collections")` is not supported.
+
+```
+npm install collections --save
+```
+
+[Browserify]: https://github.com/substack/node-browserify
+[Mr]: https://github.com/montagejs/mr
+
+
 -   **List(values, equals, getDefault)**
+
+    ```javascript
+    var List = require("collections/list");
+    ```
 
     An ordered collection of values with fast insertion and deletion and
     forward and backward traversal, backed by a cyclic doubly linked
@@ -20,6 +40,10 @@ Object.
 
 -   **Set(values, equals, hash, getDefault)**
 
+    ```javascript
+    var Set = require("collections/set");
+    ```
+
     A collection of unique values.  The set can be iterated in the order
     of insertion.  With a good hash function for the stored values,
     insertion and removal are fast regardless of the size of the
@@ -29,11 +53,19 @@ Object.
 
 -   **Map(map, equals, hash, getDefault)**
 
+    ```javascript
+    var Map = require("collections/map");
+    ```
+
     A collection of key and value entries with unique keys.  Keys may be
     objects.  The collection iterates in the order of insertion.  `Map`
     is backed by `Set`.
 
 -   **MultiMap(map, getDefault, equals, hash)**
+
+    ```javascript
+    var MultiMap = require("collections/multi-map");
+    ```
 
     A collection of keys mapped to collections of values.  The default
     `getDefault` collection is an `Array`, but it can be a `List` or any
@@ -41,6 +73,10 @@ Object.
     the `getDefault(key)` provider.
 
 -   **WeakMap()**
+
+    ```javascript
+    var WeakMap = require("collections/weak-map");
+    ```
 
     A non-iterable collection of key value pairs.  Keys must objects and
     do not benefit from `hash` functions.  Some engines already
@@ -53,6 +89,10 @@ Object.
 
 -   **SortedSet(values, equals, compare, getDefault)**
 
+    ```javascript
+    var SortedSet = require("collections/sorted-set");
+    ```
+
     A collection of unique values stored in stored order, backed by a
     splay tree.  The `equals` and `compare` functions can be overridden
     to provide alternate definitions of "unique".
@@ -63,10 +103,18 @@ Object.
 
 -   **SortedMap(map, equals, compare, getDefault)**
 
+    ```javascript
+    var SortedMap = require("collections/sorted-map");
+    ```
+
     A collection of key value pairs stored in sorted order.  `SortedMap`
     is backed by `SortedSet` and the `GenericMap` mixin.
 
 -   **LruSet(values, maxLength, equals, hash, getDefault)**
+
+    ```javascript
+    var LruSet = require("collections/lru-set");
+    ```
 
     A cache with the Least-Recently-Used strategy for truncating its
     content when it’s length exceeds `maxLength`.  `LruSet` is backed by
@@ -76,14 +124,26 @@ Object.
 
 -   **LruMap(map, maxLength, equals, hash, getDefault)**
 
+    ```javascript
+    var LruMap = require("collections/lru-map");
+    ```
+
     A cache of entries backed by an `LruSet`.
 
 -   **SortedArray(values, equals, compare, getDefault)**
+
+    ```javascript
+    var SortedArray = require("collections/sorted-array");
+    ```
 
     A collection of values stored in a stable sorted order, backed by an
     array.
 
 -   **SortedArraySet(values, equals, compare, getDefault)**
+
+    ```javascript
+    var SortedArraySet = require("collections/sorted-array-set");
+    ```
 
     A collection of unique values stored in sorted order, backed by a
     plain array.  If the given values are an actual array, the sorted
@@ -93,10 +153,18 @@ Object.
 
 -   **SortedArrayMap(values, equals, compare, getDefault)**
 
+    ```javascript
+    var SortedArrayMap = require("collections/sorted-array-map");
+    ```
+
     A collection of key value pairs stored in sorted order, backed by a
     sorted array set.
 
 -   **FastSet(values, equals, hash, getDefault)**
+
+    ```javascript
+    var FastSet = require("collections/fast-set");
+    ```
 
     A collection of unique values stored like a hash table.  The
     underlying storage is a `Dict` that maps hashes to lists of values
@@ -106,17 +174,29 @@ Object.
 
 -   **FastMap(map, equals, hash, getDefault)**
 
+    ```javascript
+    var FastMap = require("collections/fast-map");
+    ```
+
     A collection of key and value entries with unique keys, backed by a
     set.  Keys may be objects.  `FastMap` is backed by `FastSet` and the
     `GenericMap` mixin.
 
 -   **Dict(values, getDefault)**
 
+    ```javascript
+    var Dict = require("collections/dict");
+    ```
+
     A collection of string to value mappings backed by a plain
     JavaScript object.  The keys are mangled to prevent collisions with
     JavaScript properties.
 
 -   **Heap(values, equals, compare)**
+
+    ```javascript
+    var Heap = require("collections/heap");
+    ```
 
     A collection that can always quickly (constant time) report its
     largest value, with reasonable performance for incremental changes
@@ -125,18 +205,30 @@ Object.
 
 -   **Iterator(iterable)**
 
+    ```javascript
+    var Iterator = require("collections/iterator");
+    ```
+
     A wrapper for any iterable that implements `iterate` or iterator the
     implements `next`, providing a rich lazy traversal interface.
 
 -   **Array**
 
+    ```javascript
+    require("collections/shim-array");
+    ```
+
     An ordered collection of values with fast random access, push, and
     pop, but slow splice. The `array` module provides extensions so it
-    hosts all the expressiveness of other collections.  The `array-shim`
+    hosts all the expressiveness of other collections.  The `shim-array`
     module shims EcmaScript 5 methods onto the array prototype if they
     are not natively implemented.
 
 -   **Object**
+
+    ```javascript
+    require("collections/shim-object");
+    ```
 
     Can be used as a mapping of owned string keys to arbitrary values.
     The `object` module provides extensions for the `Object` constructor
