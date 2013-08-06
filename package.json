@@ -27,7 +27,9 @@
     "type": "git",
     "url": "http://github.com/montagejs/collections.git"
   },
-  "dependencies": {},
+  "dependencies": {
+    "weak-map": "1.0.0"
+  },
   "devDependencies": {
     "jasmine-node": "*",
     "istanbul": "*",

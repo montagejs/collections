@@ -13,7 +13,7 @@
 */
 
 require("../shim");
-var WeakMap = require("../weak-map");
+var WeakMap = require("weak-map");
 
 var object_owns = Object.prototype.hasOwnProperty;
 

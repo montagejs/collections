@@ -14,7 +14,7 @@
 
 require("../shim");
 var List = require("../list");
-var WeakMap = require("../weak-map");
+var WeakMap = require("weak-map");
 var PropertyChanges = require("./property-changes");
 var RangeChanges = require("./range-changes");
 var MapChanges = require("./map-changes");
