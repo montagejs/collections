@@ -895,7 +895,7 @@ SortedArrayMap, FastSet, FastMap, Dict)
     node joins the tree, and each subsequent line.  The `writeAbove` function
     can write lines before the branch.
 
-    `log` and `loger` default to `console.log` and `console`.  To write
+    `log` and `logger` default to `console.log` and `console`.  To write
     the representation to an array instead, they can be `array.push` and
     `array`.
 
