@@ -62,7 +62,7 @@ Dict.prototype.set = function (key, value) {
         }
         this.store[mangled] = value;
         if (this.dispatchesMapChanges) {
-            this.dispatchMapChange(key, undefined);
+            this.dispatchMapChange(key, value);
         }
         return false;
     } else { // create
