@@ -45,6 +45,15 @@ function describeDict(Dict) {
         expect(dict.delete("__proto__")).toBe(false);
     });
 
+    it("should send a value for MapChange events", function () {
+        var dict = Dict({a: 1});
+
+        var listener = function(value, key) {
+            expect(value).toBe(2);
+        };
+        dict.addMapChangeListener(listener);
+        dict.set('a', 2);
+    })
 }
 
 function shouldHaveTheUsualContent(dict) {
