@@ -95,7 +95,7 @@ LruSet.prototype["delete"] = function (value) {
         this.store["delete"](value);
         this.length--;
         if (this.dispatchesRangeChanges) {
-            this.dispatcheRangeChange([], [value], 0);
+            this.dispatchRangeChange([], [value], 0);
         }
     }
     return found;
