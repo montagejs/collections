@@ -66,7 +66,7 @@ LruSet.prototype.add = function (value) {
         length--;
     }
     // before change
-    if (!found && this.dispachesRangeChanges) {
+    if (!found && this.dispatchesRangeChanges) {
         this.dispatchBeforeRangeChange([value], [], 0);
     }
     this.store.add(value);
