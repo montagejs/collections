@@ -60,30 +60,43 @@ LruSet.prototype.add = function (value) {
     var found = this.store.has(value);
     // if the value already exists, we delete it and add it back again so it
     // appears at the end of the list of values to truncate
-    var length = this.length;
+    var drc = this.dispatchesRangeChanges;
+    // temporarily disable reporting changes in store.add and .delete
+    // instead, calmly report the complete update as one change.
+    this.dispatchesRangeChanges = false;
+    var plus = [], minus = [], eldest;
     if (found) {
         this.store["delete"](value);
-        length--;
+    } else if (this.maxLength > 0) {
+        plus.push(value);
+        if (this.length >= this.maxLength) {
+            eldest = this.store.order.head.next;
+            minus.push(eldest.value);
+        }
+    } else {
+        // curious case where maxLength < 1
+        this.dispatchesRangeChanges = drc;
+        return false;
     }
     // before change
-    if (!found && this.dispachesRangeChanges) {
-        this.dispatchBeforeRangeChange([value], [], 0);
+    if (!found && drc) {
+        this.dispatchBeforeRangeChange(plus, minus, 0);
     }
+    // change
     this.store.add(value);
-    length++;
+    if (minus.length > 0) {
+        this.store['delete'](eldest.value);
+    }
     // only assign to length once to avoid jitter on length observers
-    this.length = length;
+    this.length = this.length + plus.length - minus.length;
     // after change
-    if (!found && this.dispatchesRangeChanges) {
-        this.dispatchRangeChange([value], [], 0);
+    if (!found && drc) {
+        this.dispatchRangeChange(plus, minus, 0);
     }
-    // truncate if necessary
-    if (this.store.length > this.maxLength) {
-        var eldest = this.store.order.head.next;
-        this["delete"](eldest.value);
-        return false; // did not grow
-    }
-    return !found; // whether it grew
+    // restore change reporting
+    this.dispatchesRangeChanges = drc;
+    // whether it grew
+    return plus.length !== minus.length;
 };
 
 LruSet.prototype["delete"] = function (value) {
