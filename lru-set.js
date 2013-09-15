@@ -58,42 +58,34 @@ LruSet.prototype.get = function (value) {
 
 LruSet.prototype.add = function (value) {
     var found = this.store.has(value);
-    // temporarily disable reporting range changes as we merge add and delete
-    var drc = this.dispatchesRangeChanges;
-    this.dispatchesRangeChanges = false;
     var plus = [], minus = [], eldest;
     // if the value already exists, we delete it and add it back again so it
     // appears at the end of the list of values to truncate
-    if (found) {
+    if (found) {    // update
         this.store["delete"](value);
-    } else if (this.maxLength > 0) {
+        this.store.add(value);
+    } else if (this.maxLength > 0) {    // add
+        // because minus is constructed before adding value, we must ensure the
+        // set has positive length. hence the maxLength check.
         plus.push(value);
         if (this.length >= this.maxLength) {
             eldest = this.store.order.head.next;
             minus.push(eldest.value);
         }
-    } else {
-        // curious case where maxLength < 1
-        this.dispatchesRangeChanges = drc;
-        return false;
+        if (this.dispatchesRangeChanges) {
+            this.dispatchBeforeRangeChange(plus, minus, 0);
+        }
+        this.store.add(value);
+        if (minus.length > 0) {
+            this.store['delete'](eldest.value);
+        }
+        // only assign to length once to avoid jitter on length observers
+        this.length = this.length + plus.length - minus.length;
+        // after change
+        if (this.dispatchesRangeChanges) {
+            this.dispatchRangeChange(plus, minus, 0);
+        }
     }
-    // before change
-    if (!found && drc) {
-        this.dispatchBeforeRangeChange(plus, minus, 0);
-    }
-    // change
-    this.store.add(value);
-    if (minus.length > 0) {
-        this.store['delete'](eldest.value);
-    }
-    // only assign to length once to avoid jitter on length observers
-    this.length = this.length + plus.length - minus.length;
-    // after change
-    if (!found && drc) {
-        this.dispatchRangeChange(plus, minus, 0);
-    }
-    // restore change reporting
-    this.dispatchesRangeChanges = drc;
     // whether it grew
     return plus.length !== minus.length;
 };
