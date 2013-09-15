@@ -16,5 +16,27 @@ describe("LruSet", function () {
         describeSet(LruSet);
     });
 
+    
+    describe("least recently used", function () {
+        it("should prune the least recently used element", function () {
+            var a = 1, b = 2, c = 3, d = 4;
+            var lruset = LruSet([d, c, a, b, c], 3);
+            expect(lruset.length).toBe(3);
+            lruset.add(c);
+            expect(lruset.toArray()).toEqual([a, b, c]);
+            lruset.add(d);
+            expect(lruset.toArray()).toEqual([b, c, d]);
+        });
+        
+        it("should notify of changes both changes at once", function () {
+            var a = 1, b = 2, c = 3, d = 4;
+            var lruset = LruSet([d, c, a, b, c], 3);
+            lruset.addRangeChangeListener(function(plus, minus) {
+                expect(plus).toEqual([d]);
+                expect(minus).toEqual([a]);
+            });
+            expect(lruset.add(d)).toBe(false);
+        });
+    });
 });
 

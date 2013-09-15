@@ -58,13 +58,12 @@ LruSet.prototype.get = function (value) {
 
 LruSet.prototype.add = function (value) {
     var found = this.store.has(value);
-    // if the value already exists, we delete it and add it back again so it
-    // appears at the end of the list of values to truncate
+    // temporarily disable reporting range changes as we merge add and delete
     var drc = this.dispatchesRangeChanges;
-    // temporarily disable reporting changes in store.add and .delete
-    // instead, calmly report the complete update as one change.
     this.dispatchesRangeChanges = false;
     var plus = [], minus = [], eldest;
+    // if the value already exists, we delete it and add it back again so it
+    // appears at the end of the list of values to truncate
     if (found) {
         this.store["delete"](value);
     } else if (this.maxLength > 0) {
