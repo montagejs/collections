@@ -28,6 +28,17 @@ function LruMap(values, maxLength, equals, hash, getDefault) {
             return hash(item.key);
         }
     );
+    var self = this;
+    this.store.addBeforeRangeChangeListener(function(plus, minus) {
+        if (self.dispatchesMapChanges && plus.length && minus.length) {
+            self.dispatchBeforeMapChange(minus[0].key, undefined);
+        }
+    });
+    this.store.addRangeChangeListener(function(plus, minus) {
+        if (self.dispatchesMapChanges && plus.length && minus.length) {
+            self.dispatchMapChange(minus[0].key, undefined);
+        }
+    });
     this.length = 0;
     this.addEach(values);
 }
