@@ -63,7 +63,6 @@ LruSet.prototype.add = function (value) {
     // appears at the end of the list of values to truncate
     if (found) {    // update
         this.store["delete"](value);
-<<<<<<< HEAD
         this.store.add(value);
     } else if (this.maxLength > 0) {    // add
         // because minus is constructed before adding value, we must ensure the
@@ -86,27 +85,6 @@ LruSet.prototype.add = function (value) {
         if (this.dispatchesRangeChanges) {
             this.dispatchRangeChange(plus, minus, 0);
         }
-=======
-        length--;
-    }
-    // before change
-    if (!found && this.dispatchesRangeChanges) {
-        this.dispatchBeforeRangeChange([value], [], 0);
-    }
-    this.store.add(value);
-    length++;
-    // only assign to length once to avoid jitter on length observers
-    this.length = length;
-    // after change
-    if (!found && this.dispatchesRangeChanges) {
-        this.dispatchRangeChange([value], [], 0);
-    }
-    // truncate if necessary
-    if (this.store.length > this.maxLength) {
-        var eldest = this.store.order.head.next;
-        this["delete"](eldest.value);
-        return false; // did not grow
->>>>>>> upstream/master
     }
     // whether it grew
     return plus.length !== minus.length;

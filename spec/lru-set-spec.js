@@ -28,7 +28,7 @@ describe("LruSet", function () {
             expect(lruset.toArray()).toEqual([b, c, d]);
         });
         
-        it("should notify of changes both changes at once", function () {
+        it("should emit LRU changes as singleton operation", function () {
             var a = 1, b = 2, c = 3, d = 4;
             var lruset = LruSet([d, c, a, b, c], 3);
             lruset.addRangeChangeListener(function(plus, minus) {
