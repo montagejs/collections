@@ -53,5 +53,25 @@ LruMap.prototype.log = function (charmap, stringify) {
 
 LruMap.prototype.stringify = function (item, leader) {
     return leader + JSON.stringify(item.key) + ": " + JSON.stringify(item.value);
-}
+};
+
+LruMap.prototype.addMapChangeListener = function () {
+    if (!this.dispatchesMapChanges) {
+        // Detect LRU deletions in the LruSet and emit as MapChanges.
+        // Array and Heap have no store.
+        // Dict and FastMap define no listeners on their store.
+        var self = this;
+        this.store.addBeforeRangeChangeListener(function(plus, minus) {
+            if (plus.length && minus.length) {  // LRU item pruned
+                self.dispatchBeforeMapChange(minus[0].key, undefined);
+            }
+        });
+        this.store.addRangeChangeListener(function(plus, minus) {
+            if (plus.length && minus.length) {
+                self.dispatchMapChange(minus[0].key, undefined);
+            }
+        });
+    }
+    GenericMap.prototype.addMapChangeListener.apply(this, arguments);
+};
 

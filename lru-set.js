@@ -58,32 +58,36 @@ LruSet.prototype.get = function (value) {
 
 LruSet.prototype.add = function (value) {
     var found = this.store.has(value);
+    var plus = [], minus = [], eldest;
     // if the value already exists, we delete it and add it back again so it
     // appears at the end of the list of values to truncate
-    var length = this.length;
-    if (found) {
+    if (found) {    // update
         this.store["delete"](value);
-        length--;
+        this.store.add(value);
+    } else if (this.maxLength > 0) {    // add
+        // because minus is constructed before adding value, we must ensure the
+        // set has positive length. hence the maxLength check.
+        plus.push(value);
+        if (this.length >= this.maxLength) {
+            eldest = this.store.order.head.next;
+            minus.push(eldest.value);
+        }
+        if (this.dispatchesRangeChanges) {
+            this.dispatchBeforeRangeChange(plus, minus, 0);
+        }
+        this.store.add(value);
+        if (minus.length > 0) {
+            this.store['delete'](eldest.value);
+        }
+        // only assign to length once to avoid jitter on length observers
+        this.length = this.length + plus.length - minus.length;
+        // after change
+        if (this.dispatchesRangeChanges) {
+            this.dispatchRangeChange(plus, minus, 0);
+        }
     }
-    // before change
-    if (!found && this.dispatchesRangeChanges) {
-        this.dispatchBeforeRangeChange([value], [], 0);
-    }
-    this.store.add(value);
-    length++;
-    // only assign to length once to avoid jitter on length observers
-    this.length = length;
-    // after change
-    if (!found && this.dispatchesRangeChanges) {
-        this.dispatchRangeChange([value], [], 0);
-    }
-    // truncate if necessary
-    if (this.store.length > this.maxLength) {
-        var eldest = this.store.order.head.next;
-        this["delete"](eldest.value);
-        return false; // did not grow
-    }
-    return !found; // whether it grew
+    // whether it grew
+    return plus.length !== minus.length;
 };
 
 LruSet.prototype["delete"] = function (value) {
