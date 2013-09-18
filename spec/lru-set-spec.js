@@ -17,26 +17,43 @@ describe("LruSet", function () {
     });
 
     
-    describe("least recently used", function () {
-        it("should prune the least recently used element", function () {
-            var a = 1, b = 2, c = 3, d = 4;
-            var lruset = LruSet([d, c, a, b, c], 3);
-            expect(lruset.length).toBe(3);
-            lruset.add(c);
-            expect(lruset.toArray()).toEqual([a, b, c]);
-            lruset.add(d);
-            expect(lruset.toArray()).toEqual([b, c, d]);
-        });
-        
-        it("should emit LRU changes as singleton operation", function () {
-            var a = 1, b = 2, c = 3, d = 4;
-            var lruset = LruSet([d, c, a, b, c], 3);
-            lruset.addRangeChangeListener(function(plus, minus) {
-                expect(plus).toEqual([d]);
-                expect(minus).toEqual([a]);
-            });
-            expect(lruset.add(d)).toBe(false);
-        });
+    it("should remove stale entries", function () {
+        var set = LruSet([4, 3, 1, 2, 3], 3);
+        expect(set.length).toBe(3);
+        set.add(3);
+        expect(set.toArray()).toEqual([1, 2, 3]);
+        set.add(4);
+        expect(set.toArray()).toEqual([2, 3, 4]);
     });
+    
+    it("should emit LRU changes as singleton operation", function () {
+        var a = 1, b = 2, c = 3, d = 4;
+        var lruset = LruSet([d, c, a, b, c], 3);
+        lruset.addRangeChangeListener(function(plus, minus) {
+            expect(plus).toEqual([d]);
+            expect(minus).toEqual([a]);
+        });
+        expect(lruset.add(d)).toBe(false);
+    });
+
+    it("should dispatch LRU changes as singleton operation", function () {
+        var set = LruSet([4, 3, 1, 2, 3], 3);
+        var spy = jasmine.createSpy();
+        set.addBeforeRangeChangeListener(function (plus, minus) {
+            spy('before-plus', plus);
+            spy('before-minus', minus);
+        });
+        set.addRangeChangeListener(function (plus, minus) {
+            spy('after-plus', plus);
+            spy('after-minus', minus);
+        });
+        expect(set.add(4)).toBe(false);
+        expect(spy.argsForCall).toEqual([
+            ['before-plus', [4]],
+            ['before-minus', [1]],
+            ['after-plus', [4]],
+            ['after-minus', [1]]
+        ]);
+    })
 });
 
