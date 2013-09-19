@@ -125,7 +125,7 @@ LruSet.prototype.reduce = function (callback, basis /*, thisp*/) {
     }, basis, this);
 };
 
-LruSet.prototype.reduceRight = function () {
+LruSet.prototype.reduceRight = function (callback, basis /*, thisp*/) {
     var thisp = arguments[2];
     var set = this.store;
     var index = this.length - 1;
