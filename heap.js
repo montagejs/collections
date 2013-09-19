@@ -201,7 +201,7 @@ Heap.prototype.reduce = function (callback, basis /*, thisp*/) {
     }, basis, this);
 };
 
-Heap.prototype.reduceRight = function () {
+Heap.prototype.reduceRight = function (callback, basis /*, thisp*/) {
     var thisp = arguments[2];
     return this.content.reduceRight(function (basis, value, key) {
         return callback.call(thisp, basis, value, key, this);
