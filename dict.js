@@ -102,7 +102,9 @@ Dict.prototype["delete"] = function (key) {
 };
 
 Dict.prototype.clear = function () {
-    for (var mangled in this.store) {
+    var key, mangled;
+    for (mangled in this.store) {
+        key = unmangle(mangled);
         if (this.dispatchesMapChanges) {
             this.dispatchBeforeMapChange(key, this.store[mangled]);
         }
@@ -131,7 +133,7 @@ Dict.prototype.reduceRight = function (callback, basis, thisp) {
 
 Dict.prototype.one = function () {
     var key;
-    for (var key in this.store) {
+    for (key in this.store) {
         return this.store[key];
     }
 };
