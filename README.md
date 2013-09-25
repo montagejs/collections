@@ -311,14 +311,16 @@ These are all of the collections:
 SortedSet, SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict)
 
-### has(key)
+### has
+
+#### has(key)
 
 Whether a value for the given key exists.
 
 (Object+, Map, MultiMap, SortedMap, LruMap, SortedArrayMap, FastMap,
 Dict)
 
-**has(value, opt_equals)**
+#### has(value, opt_equals)
 
 Whether a value exists in this collection.  This is slow for list
 (linear), but fast (logarithmic) for SortedSet and SortedArraySet,
@@ -327,14 +329,16 @@ and very fast (constant) for Set.
 (Array+, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
 FastSet)
 
-### get(key or index)
+### get
+
+#### get(key or index)
 
 The value for a key.  If a Map or SortedMap lacks a key, returns
 `getDefault(key)`.
 
 (Array+, Map, SortedMap, SortedArrayMap, WeakMap, Object+)
 
-**get(value)**
+#### get(value)
 
 Gets the equivalent value, or falls back to `getDefault(value)`.
 
@@ -347,7 +351,9 @@ Sets the value for a key.
 (Map, MultiMap, WeakMap, SortedMap, LruMap, SortedArrayMap, FastMap,
 Dict)
 
-### add(value)
+### add
+
+#### add(value)
 
 Adds a value.  Ignores the operation and returns false if an
 equivalent value already exists.
@@ -355,19 +361,21 @@ equivalent value already exists.
 (Array+, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
 FastSet, Heap)
 
-**add(value, key)**
+#### add(value, key)
 
 Aliases `set(key, value)`, to assist generic methods used for maps,
 sets, and other collections.
 
-### addEach(values)
+### addEach
+
+#### addEach(values)
 
 Copies values from another collection to this one.
 
 (Array+, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
 FastSet, Heap)
 
-**addEach(mapping)**
+#### addEach(mapping)
 
 Copies entries from another collection to this map.  If the mapping
 implements `keys` (indicating that it is a mapping) and `forEach`,
@@ -378,7 +386,9 @@ which are copied instead.
 (Object+, Map, MultiMap, SortedMap, LruMap, SortedArrayMap, FastMap,
 Dict)
 
-### delete(key)
+### delete
+
+#### delete(key)
 
 Deletes the value for a given key.  Returns whether the key was
 found.
@@ -386,13 +396,13 @@ found.
 (Map, MultiMap, WeakMap, SortedMap, LruMap, SortedArrayMap, FastMap,
 Dict)
 
-**delete(value)**
+#### delete(value)
 
 Deletes a value.  Returns whether the value was found.
 
 (Set, SortedSet, LruSet, SortedArray, SortedArraySet, FastSet, Heap)
 
-**delete(value, equals)**
+#### delete(value, equals)
 
 Deletes the equivalent value.  Returns whether the value was found.
 
@@ -473,13 +483,15 @@ This is fast (logarithmic) but does cause rotations.
 
 (SortedSet)
 
-### push(...values)
+### push
+
+#### push(...values)
 
 Adds values to the end of a collection.
 
 (Array, List)
 
-**push(...values)** for non-dequeues
+#### push(...values) for non-dequeues
 
 Adds values to their proper places in a collection.
 This method exists only to have the same interface as other
@@ -487,13 +499,15 @@ collections.
 
 (Set, SortedSet, LruSet, SortedArray, SortedArraySet, FastSet, Heap)
 
-### unshift(...values)
+### unshift
+
+#### unshift(...values)
 
 Adds values to the beginning of a collection.
 
 (Array, List)
 
-**unshift(...values)** for non-dequeues
+#### unshift(...values) for non-dequeues
 
 Adds values to their proper places in a collection.
 This method exists only to have the same interface as other
@@ -844,7 +858,9 @@ FastSet, FastMap, Dict)
 
 (Array+, Object+, List, ~~SortedArray~~, ~~SortedArraySet~~)
 
-### iterate()
+### iterate
+
+#### iterate()
 
 Produces an iterator with a `next` method.  You may elect to get
 richer iterators by wrapping this iterator with an `Iterator` from
@@ -854,7 +870,7 @@ changes to the list.
 (Array+, Iterator, List, Set, SortedSet, LruSet, SortedArray,
 SortedArraySet, FastSet)
 
-**iterate(start, end)**
+#### iterate(start, end)
 
 Returns an iterator for all values at indicies in the half-open
 interval [start, end), that is, greater than start, and less than
@@ -862,7 +878,7 @@ end.
 
 (Array+)
 
-**iterate(start, end)**
+#### iterate(start, end)
 
 Returns an iterator for all values in the half-open interval [start,
 end), that is, greater than start, and less than end.  The iterator
