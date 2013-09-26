@@ -172,6 +172,9 @@ PropertyChanges.prototype.dispatchOwnPropertyChange = function (key, value, befo
                 listener[genericHandlerName] ||
                 listener
             );
+            if (!listener.call) {
+                throw new Error("No event listener for " + specificHandlerName + " or " + genericHandlerName + " or call on " + listener);
+            }
             listener.call(thisp, value, key, this);
         }, this);
     } finally {
