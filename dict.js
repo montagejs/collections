@@ -37,7 +37,7 @@ Dict.prototype.constructClone = function (values) {
 
 Dict.prototype.assertString = function (key) {
     if (typeof key !== "string") {
-        throw new TypeError("key must be a string.");
+        throw new TypeError("key must be a string but Got " + key);
     }
 }
 
