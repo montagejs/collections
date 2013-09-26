@@ -141,6 +141,14 @@ describe("Object", function () {
             expect(Object.has(instance, "toString")).toEqual(false);
         });
 
+        it("should delegate to a set", function () {
+            var Set = require("../set");
+            var set = new Set([1, 2, 3]);
+            expect(Object.has(set, 2)).toEqual(true);
+            expect(Object.has(set, 4)).toEqual(false);
+            expect(Object.has(set, "toString")).toEqual(false);
+        });
+
         it("should not delegate to an owned 'has' method", function () {
             expect(Object.has({has: function () {}}, "has")).toEqual(true);
         });
