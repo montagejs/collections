@@ -1245,6 +1245,8 @@ Goals
 - automate the generation of the method support tables in readme and
   normalize declaration order
 - comprehensive specs and spec coverage tests
+- array set (a set, for fast lookup, backed by an array for meaningful
+  range changes)
 - fast list splicing
 - dict map changes
 - revise map changes to use separate handlers for add/delete
@@ -1253,13 +1255,17 @@ Goals
 - implement on/once/off listeners
 - Make it easier to created a SortedSet with a criterion like
   Function.by(Function.get('name'))
+- evaluate exposing observeProperty, observeRangeChange, and observeMapChange
+  instead of the aEL/rEL inspired API FRB exposes today, to minimize
+  book-keeping and garbage collection
 
 More possible collections
 
-- sorted-order (sorted, can contain duplicates, perhaps backed by splay
+- sorted-list (sorted, can contain duplicates, perhaps backed by splay
   tree with relaxation on the uniqueness invariant)
-- sorted-multi-map (sorted, can contain duplicate entries, backed by
-  sorted-map)
+- sorted-multi-map (sorted, can contain duplicate entries)
+- buffer (backed by a circular array, emits cull events)
+- emit cull events in LRU cache set and map
 - trie-set
 - trie-map
 - immutable-* (mutation functions return new objects that largely share
