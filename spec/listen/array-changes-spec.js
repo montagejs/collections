@@ -1,7 +1,11 @@
 
 require("../../listen/array-changes");
+var describeRangeChanges = require("./range-changes");
 
 describe("Array change dispatch", function () {
+
+    // TODO (make consistent with List)
+    // describeRangeChanges(Array.from);
 
     var array = [1, 2, 3];
     var spy;
@@ -253,14 +257,14 @@ describe("Array change dispatch", function () {
         array.reverse();
         expect(array.slice()).toEqual([30, 20, 10]);
         expect(spy.argsForCall).toEqual([
-            ["before content change at", 0, "to add", [10, 20, 30], "to remove", [10, 20, 30]],
+            ["before content change at", 0, "to add", [30, 20, 10], "to remove", [10, 20, 30]],
             ["change at", 0, "from", 10],
             ["change at", 1, "from", 20],
             ["change at", 2, "from", 30],
             ["change at", 0, "to", 30],
             ["change at", 1, "to", 20],
             ["change at", 2, "to", 10],
-            ["content change at", 0, "added", [30, 20, 10], "removed", [30, 20, 10]],
+            ["content change at", 0, "added", [30, 20, 10], "removed", [10, 20, 30]],
         ]);
     });
 

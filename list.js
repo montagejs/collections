@@ -6,6 +6,7 @@ var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
 var GenericOrder = require("./generic-order");
 var PropertyChanges = require("./listen/property-changes");
+var RangeChanges = require("./listen/range-changes");
 
 function List(values, equals, getDefault) {
     if (!(this instanceof List)) {
@@ -23,6 +24,7 @@ function List(values, equals, getDefault) {
 Object.addEach(List.prototype, GenericCollection.prototype);
 Object.addEach(List.prototype, GenericOrder.prototype);
 Object.addEach(List.prototype, PropertyChanges.prototype);
+Object.addEach(List.prototype, RangeChanges.prototype);
 
 List.prototype.constructClone = function (values) {
     return new this.constructor(values, this.contentEquals, this.getDefault);
@@ -68,43 +70,88 @@ List.prototype.get = function (value, equals) {
 List.prototype['delete'] = function (value, equals) {
     var found = this.findLast(value, equals);
     if (found) {
+        if (this.dispatchesRangeChanges) {
+            var plus = [];
+            var minus = [value];
+            this.dispatchBeforeRangeChange(plus, minus, found.index);
+        }
         found['delete']();
         this.length--;
+        if (this.dispatchesRangeChanges) {
+            this.updateIndexes(found.next, found.index);
+            this.dispatchRangeChange(plus, minus, found.index);
+        }
         return true;
     }
     return false;
 };
 
 List.prototype.clear = function () {
-    var minus;
+    var plus, minus;
+    if (this.dispatchesRangeChanges) {
+        minus = this.toArray();
+        plus = [];
+        this.dispatchBeforeRangeChange(plus, minus, 0);
+    }
     this.head.next = this.head.prev = this.head;
     this.length = 0;
+    if (this.dispatchesRangeChanges) {
+        this.dispatchRangeChange(plus, minus, 0);
+    }
 };
 
 List.prototype.add = function (value) {
-    this.head.addBefore(new this.Node(value));
+    var node = new this.Node(value)
+    if (this.dispatchesRangeChanges) {
+        node.index = this.length;
+        this.dispatchBeforeRangeChange([value], [], node.index);
+    }
+    this.head.addBefore(node);
     this.length++;
+    if (this.dispatchesRangeChanges) {
+        this.dispatchRangeChange([value], [], node.index);
+    }
     return true;
 };
 
 List.prototype.push = function () {
     var head = this.head;
+    if (this.dispatchesRangeChanges) {
+        var plus = Array.prototype.slice.call(arguments);
+        var minus = []
+        var index = this.length;
+        this.dispatchBeforeRangeChange(plus, minus, index);
+        var start = this.head.prev;
+    }
     for (var i = 0; i < arguments.length; i++) {
         var value = arguments[i];
         var node = new this.Node(value);
         head.addBefore(node);
-        this.length++;
+    }
+    this.length += arguments.length;
+    if (this.dispatchesRangeChanges) {
+        this.updateIndexes(start.next, start.index === undefined ? 0 : start.index + 1);
+        this.dispatchRangeChange(plus, minus, index);
     }
 };
 
 List.prototype.unshift = function () {
+    if (this.dispatchesRangeChanges) {
+        var plus = Array.prototype.slice.call(arguments);
+        var minus = [];
+        this.dispatchBeforeRangeChange(plus, minus, 0);
+    }
     var at = this.head;
     for (var i = 0; i < arguments.length; i++) {
         var value = arguments[i];
         var node = new this.Node(value);
         at.addAfter(node);
-        this.length++;
         at = node;
+    }
+    this.length += arguments.length;
+    if (this.dispatchesRangeChanges) {
+        this.updateIndexes(this.head.next, 0);
+        this.dispatchRangeChange(plus, minus, 0);
     }
 };
 
@@ -113,8 +160,17 @@ List.prototype.pop = function () {
     var head = this.head;
     if (head.prev !== head) {
         value = head.prev.value;
+        if (this.dispatchesRangeChanges) {
+            var plus = [];
+            var minus = [value];
+            var index = this.length - 1;
+            this.dispatchBeforeRangeChange(plus, minus, index);
+        }
         head.prev['delete']();
         this.length--;
+        if (this.dispatchesRangeChanges) {
+            this.dispatchRangeChange(plus, minus, index);
+        }
     }
     return value;
 };
@@ -124,8 +180,17 @@ List.prototype.shift = function () {
     var head = this.head;
     if (head.prev !== head) {
         value = head.next.value;
+        if (this.dispatchesRangeChanges) {
+            var plus = [];
+            var minus = [value];
+            this.dispatchBeforeRangeChange(plus, minus, 0);
+        }
         head.next['delete']();
         this.length--;
+        if (this.dispatchesRangeChanges) {
+            this.updateIndexes(this.head.next, 0);
+            this.dispatchRangeChange(plus, minus, 0);
+        }
     }
     return value;
 };
@@ -198,33 +263,73 @@ List.prototype.splice = function (at, length /*...plus*/) {
     return this.swap(at, length, Array.prototype.slice.call(arguments, 2));
 };
 
-List.prototype.swap = function (at, length, plus) {
-    var swapped = [];
-    var initial = at;
-    at = this.scan(at, this.head);
-    if (length === undefined) {
+List.prototype.swap = function (start, length, plus) {
+    var initial = start;
+    // start will be head if start is null or -1 (meaning from the end), but
+    // will be head.next if start is 0 (meaning from the beginning)
+    start = this.scan(start, this.head);
+    if (length == null) {
         length = Infinity;
     }
+    plus = Array.from(plus);
+
+    // collect the minus array
+    var minus = [];
+    var at = start;
     while (length-- && length >= 0 && at !== this.head) {
-        swapped.push(at.value);
-        at['delete']();
+        minus.push(at.value);
         at = at.next;
-        this.length--;
     }
-    if (plus) {
-        if (initial === null && at === this.head) {
-            at = this.head.next;
+
+    // before range change
+    var index, startNode;
+    if (this.dispatchesRangeChanges) {
+        if (start === this.head) {
+            index = this.length;
+        } else if (start.prev === this.head) {
+            index = 0;
+        } else {
+            index = start.index;
         }
-        for (var i = 0; i < plus.length; i++) {
-            var node = new this.Node(plus[i]);
-            at.addBefore(node);
-        }
-        this.length += plus.length;
+        startNode = start.prev;
+        this.dispatchBeforeRangeChange(plus, minus, index);
     }
-    return swapped;
+
+    // delete minus
+    var at = start;
+    for (var i = 0, at = start; i < minus.length; i++, at = at.next) {
+        at["delete"]();
+    }
+    // add plus
+    if (initial == null && at === this.head) {
+        at = this.head.next;
+    }
+    for (var i = 0; i < plus.length; i++) {
+        var node = new this.Node(plus[i]);
+        at.addBefore(node);
+    }
+    // adjust length
+    this.length += plus.length - minus.length;
+
+    // after range change
+    if (this.dispatchesRangeChanges) {
+        if (start === this.head) {
+            this.updateIndexes(this.head.next, 0);
+        } else {
+            this.updateIndexes(startNode.next, startNode.index + 1);
+        }
+        this.dispatchRangeChange(plus, minus, index);
+    }
+
+    return minus;
 };
 
 List.prototype.reverse = function () {
+    if (this.dispatchesRangeChanges) {
+        var minus = this.toArray();
+        var plus = minus.reversed();
+        this.dispatchBeforeRangeChange(plus, minus, 0);
+    }
     var at = this.head;
     do {
         var temp = at.next;
@@ -232,7 +337,14 @@ List.prototype.reverse = function () {
         at.prev = temp;
         at = at.next;
     } while (at !== this.head);
+    if (this.dispatchesRangeChanges) {
+        this.dispatchRangeChange(plus, minus, 0);
+    }
     return this;
+};
+
+List.prototype.sort = function () {
+    this.swap(0, this.length, this.sorted());
 };
 
 // TODO account for missing basis argument
@@ -256,6 +368,19 @@ List.prototype.reduceRight = function (callback, basis /*, thisp*/) {
         at = at.prev;
     }
     return basis;
+};
+
+List.prototype.updateIndexes = function (node, index) {
+    while (node !== this.head) {
+        node.index = index++;
+        node = node.next;
+    }
+};
+
+List.prototype.makeObservable = function () {
+    this.head.index = -1;
+    this.updateIndexes(this.head.next, 0);
+    this.dispatchesRangeChanges = true;
 };
 
 List.prototype.iterate = function () {

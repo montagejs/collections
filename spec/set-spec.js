@@ -36,5 +36,68 @@ describe("Set", function () {
         expect(spy).toHaveBeenCalledWith([], [1, 2, 3], 0, set, undefined);
     });
 
+    it("should dispatch range change on add", function () {
+        var set = Set([1, 3]);
+        var spy = jasmine.createSpy();
+        set.addRangeChangeListener(spy);
+        set.add(2);
+        expect(set.toArray()).toEqual([1, 3, 2]);
+        expect(spy).toHaveBeenCalledWith([2], [], 2, set, undefined);
+    });
+
+    it("should dispatch range change on delete", function () {
+        var set = Set([1, 2, 3]);
+        var spy = jasmine.createSpy();
+        set.addRangeChangeListener(spy);
+        set["delete"](2);
+        expect(set.toArray()).toEqual([1, 3]);
+        expect(spy).toHaveBeenCalledWith([], [2], 1, set, undefined);
+    });
+
+    it("should dispatch range change on pop", function () {
+        var set = Set([1, 3, 2]);
+        var spy = jasmine.createSpy();
+        set.addRangeChangeListener(spy);
+        expect(set.pop()).toEqual(2);
+        expect(set.toArray()).toEqual([1, 3]);
+        expect(spy).toHaveBeenCalledWith([], [2], 2, set, undefined);
+    });
+
+    it("should dispatch range change on shift", function () {
+        var set = Set([1, 3, 2]);
+        var spy = jasmine.createSpy();
+        set.addRangeChangeListener(spy);
+        expect(set.shift()).toEqual(1);
+        expect(set.toArray()).toEqual([3, 2]);
+        expect(spy).toHaveBeenCalledWith([], [1], 0, set, undefined);
+    });
+
+    it("should dispatch range change on shift then pop", function () {
+        var set = Set([1, 3]);
+        set.addRangeChangeListener(function (plus, minus, index) {
+            spy(plus, minus, index); // ignore all others
+        });
+
+        var spy = jasmine.createSpy();
+        expect(set.add(2)).toEqual(true);
+        expect(set.toArray()).toEqual([1, 3, 2]);
+        expect(spy).toHaveBeenCalledWith([2], [], 2);
+
+        var spy = jasmine.createSpy();
+        expect(set.shift()).toEqual(1);
+        expect(set.toArray()).toEqual([3, 2]);
+        expect(spy).toHaveBeenCalledWith([], [1], 0);
+
+        var spy = jasmine.createSpy();
+        expect(set.pop()).toEqual(2);
+        expect(set.toArray()).toEqual([3]);
+        expect(spy).toHaveBeenCalledWith([], [2], 1);
+
+        var spy = jasmine.createSpy();
+        expect(set.delete(3)).toEqual(true);
+        expect(set.toArray()).toEqual([]);
+        expect(spy).toHaveBeenCalledWith([], [3], 0);
+    });
+
 });
 

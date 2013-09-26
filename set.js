@@ -68,15 +68,16 @@ Set.prototype.get = function (value) {
 Set.prototype.add = function (value) {
     var node = new this.order.Node(value);
     if (!this.store.has(node)) {
+        var index = this.length;
         if (this.dispatchesRangeChanges) {
-            this.dispatchBeforeRangeChange([value], [], 0);
+            this.dispatchBeforeRangeChange([value], [], index);
         }
         this.order.add(value);
         node = this.order.head.prev;
         this.store.add(node);
         this.length++;
         if (this.dispatchesRangeChanges) {
-            this.dispatchRangeChange([value], [], 0);
+            this.dispatchRangeChange([value], [], index);
         }
         return true;
     }
@@ -86,15 +87,15 @@ Set.prototype.add = function (value) {
 Set.prototype["delete"] = function (value) {
     var node = new this.order.Node(value);
     if (this.store.has(node)) {
-        if (this.dispatchesRangeChanges) {
-            this.dispatchBeforeRangeChange([], [value], 0);
-        }
         var node = this.store.get(node);
+        if (this.dispatchesRangeChanges) {
+            this.dispatchBeforeRangeChange([], [value], node.index);
+        }
         this.store["delete"](node); // removes from the set
-        node["delete"](); // removes the node from the list in place
+        this.order.splice(node, 1); // removes the node from the list
         this.length--;
         if (this.dispatchesRangeChanges) {
-            this.dispatchRangeChange([], [value], 0);
+            this.dispatchRangeChange([], [value], node.index);
         }
         return true;
     }
@@ -162,5 +163,9 @@ Set.prototype.iterate = function () {
 Set.prototype.log = function () {
     var set = this.store;
     return set.log.apply(set, arguments);
+};
+
+Set.prototype.makeObservable = function () {
+    this.order.makeObservable();
 };
 
