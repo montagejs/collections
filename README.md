@@ -627,6 +627,13 @@ contents in reverse order.
 Returns an array of [index, value] pairs from the source collection,
 starting with the given index.
 
+### join(delimiter="")
+
+Returns a string of all the values in the collection joined.
+
+(Array, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
+FastSet, Heap, Iterator)
+
 ### concat(...iterables)
 
 Produces a new collection of the same type containing all the values
