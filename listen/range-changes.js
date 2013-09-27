@@ -47,7 +47,12 @@ RangeChanges.prototype.addRangeChangeListener = function (listener, token, befor
 
     // even if already registered
     listeners.push(listener);
-    this.dispatchesRangeChanges = true;
+    Object.defineProperty(this, "dispatchesRangeChanges", {
+        value: true,
+        writable: true,
+        configurable: true,
+        enumerable: false
+    });
 
     var self = this;
     return function cancelRangeChangeListener() {
