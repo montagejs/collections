@@ -77,22 +77,9 @@ var observableArrayProperties = {
     reverse: {
         value: function reverse() {
 
-            // dispatch before change events
-            this.dispatchBeforeRangeChange(this, this, 0);
-            for (var i = 0; i < this.length; i++) {
-                PropertyChanges.dispatchBeforeOwnPropertyChange(this, i, this[i]);
-                this.dispatchBeforeMapChange(i, this[i]);
-            }
-
-            // actual work
-            array_reverse.call(this);
-
-            // dispatch after change events
-            for (var i = 0; i < this.length; i++) {
-                PropertyChanges.dispatchOwnPropertyChange(this, i, this[i]);
-                this.dispatchMapChange(i, this[i]);
-            }
-            this.dispatchRangeChange(this, this, 0);
+            var reversed = this.constructClone(this);
+            reversed.reverse();
+            this.swap(0, this.length, reversed);
 
             return this;
         },
