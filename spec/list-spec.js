@@ -2,6 +2,7 @@
 var List = require("../list");
 var describeDequeue = require("./dequeue");
 var describeCollection = require("./collection");
+var describeRangeChanges = require("./listen/range-changes");
 
 describe("List", function () {
     // new List()
@@ -180,6 +181,8 @@ describe("List", function () {
         });
 
     });
+
+    describeRangeChanges(List);
 
 });
 

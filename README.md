@@ -1249,6 +1249,8 @@ property of a given object.
 
 Goals
 
+- make array dispatch length property changes between range changes to
+  be consistent with List.
 - automate the generation of the method support tables in readme and
   normalize declaration order
 - comprehensive specs and spec coverage tests
