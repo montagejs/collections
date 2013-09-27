@@ -57,7 +57,12 @@ MapChanges.prototype.addMapChangeListener = function (listener, token, beforeCha
         listeners = descriptor.changeListeners;
     }
     listeners.push(listener);
-    this.dispatchesMapChanges = true;
+    Object.defineProperty(this, "dispatchesMapChanges", {
+        value: true,
+        writable: true,
+        configurable: true,
+        enumerable: false
+    });
 
     var self = this;
     return function cancelMapChangeListener() {
