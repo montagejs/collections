@@ -31,6 +31,8 @@ function FastMap(values, equals, hash, getDefault) {
     this.addEach(values);
 }
 
+FastMap.FastMap = FastMap; // hack so require("fast-map").FastMap will work in MontageJS
+
 Object.addEach(FastMap.prototype, GenericCollection.prototype);
 Object.addEach(FastMap.prototype, GenericMap.prototype);
 Object.addEach(FastMap.prototype, PropertyChanges.prototype);

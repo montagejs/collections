@@ -21,6 +21,9 @@ function SortedSet(values, equals, compare, getDefault) {
     this.addEach(values);
 }
 
+// hack so require("sorted-set").SortedSet will work in MontageJS
+SortedSet.SortedSet = SortedSet;
+
 Object.addEach(SortedSet.prototype, GenericCollection.prototype);
 Object.addEach(SortedSet.prototype, GenericSet.prototype);
 Object.addEach(SortedSet.prototype, PropertyChanges.prototype);

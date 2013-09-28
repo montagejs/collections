@@ -31,6 +31,9 @@ function SortedMap(values, equals, compare, getDefault) {
     this.addEach(values);
 }
 
+// hack so require("sorted-map").SortedMap will work in MontageJS
+SortedMap.SortedMap = SortedMap;
+
 Object.addEach(SortedMap.prototype, GenericCollection.prototype);
 Object.addEach(SortedMap.prototype, GenericMap.prototype);
 Object.addEach(SortedMap.prototype, PropertyChanges.prototype);

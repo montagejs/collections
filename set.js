@@ -38,6 +38,8 @@ function Set(values, equals, hash, getDefault) {
     this.addEach(values);
 }
 
+Set.Set = Set; // hack so require("set").Set will work in MontageJS
+
 Object.addEach(Set.prototype, GenericCollection.prototype);
 Object.addEach(Set.prototype, GenericSet.prototype);
 Object.addEach(Set.prototype, PropertyChanges.prototype);

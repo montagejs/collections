@@ -15,6 +15,8 @@ function MultiMap(values, bucket, equals, hash) {
     });
 }
 
+MultiMap.MultiMap = MultiMap; // hack so require("multi-map").MultiMap will work in MontageJS
+
 MultiMap.prototype = Object.create(Map.prototype);
 
 MultiMap.prototype.constructor = MultiMap;
