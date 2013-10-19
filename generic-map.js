@@ -14,11 +14,13 @@ Object.addEach(GenericMap.prototype, PropertyChanges.prototype);
 
 // all of these methods depend on the constructor providing a `store` set
 
+GenericMap.prototype.isMap = true;
+
 GenericMap.prototype.addEach = function (values) {
     if (values && Object(values) === values) {
         if (typeof values.forEach === "function") {
             // copy map-alikes
-            if (typeof values.keys === "function") {
+            if (values.isMap === true) {
                 values.forEach(function (value, key) {
                     this.set(key, value);
                 }, this);
