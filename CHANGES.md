@@ -1,3 +1,7 @@
+## v0.2.1
+
+-   Identify Maps with `isMap` property instead of `keys`, as ES6
+    proposes `keys`, `values`, and `entries` methods for arrays.
 
 ## v0.2.0
 
