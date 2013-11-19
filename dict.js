@@ -19,6 +19,8 @@ function Dict(values, getDefault) {
     this.addEach(values);
 }
 
+Dict.Dict = Dict; // hack so require("dict").Dict will work in MontageJS.
+
 function mangle(key) {
     return "~" + key;
 }

@@ -26,6 +26,8 @@ function LruSet(values, maxLength, equals, hash, getDefault) {
     this.addEach(values);
 }
 
+LruSet.LruSet = LruSet; // hack so require("lru-set").LruSet will work in MontageJS
+
 Object.addEach(LruSet.prototype, GenericCollection.prototype);
 Object.addEach(LruSet.prototype, GenericSet.prototype);
 Object.addEach(LruSet.prototype, PropertyChanges.prototype);

@@ -31,6 +31,8 @@ function Map(values, equals, hash, getDefault) {
     this.addEach(values);
 }
 
+Map.Map = Map; // hack so require("map").Map will work in MontageJS
+
 Object.addEach(Map.prototype, GenericCollection.prototype);
 Object.addEach(Map.prototype, GenericMap.prototype); // overrides GenericCollection
 Object.addEach(Map.prototype, PropertyChanges.prototype);

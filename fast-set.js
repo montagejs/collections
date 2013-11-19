@@ -27,6 +27,8 @@ function FastSet(values, equals, hash, getDefault) {
     this.addEach(values);
 }
 
+FastSet.FastSet = FastSet; // hack so require("fast-set").FastSet will work in MontageJS
+
 Object.addEach(FastSet.prototype, GenericCollection.prototype);
 Object.addEach(FastSet.prototype, GenericSet.prototype);
 Object.addEach(FastSet.prototype, PropertyChanges.prototype);

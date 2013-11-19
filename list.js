@@ -21,6 +21,8 @@ function List(values, equals, getDefault) {
     this.addEach(values);
 }
 
+List.List = List; // hack so require("list").List will work in MontageJS
+
 Object.addEach(List.prototype, GenericCollection.prototype);
 Object.addEach(List.prototype, GenericOrder.prototype);
 Object.addEach(List.prototype, PropertyChanges.prototype);
