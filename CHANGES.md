@@ -1,3 +1,14 @@
+
+## v0.2.2
+
+-   `one` now returns a consistent value between changes of a sorted
+    set.
+-   All collections can now be required using the MontageJS style, as
+    well as the Node.js style. I reserve the right to withdraw support
+    for the current MontageJS style if in a future,
+    backward-incompatible release of Montage migrated to the Node.js
+    style.
+
 ## v0.2.1
 
 -   Identify Maps with `isMap` property instead of `keys`, as ES6
