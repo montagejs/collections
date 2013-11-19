@@ -490,9 +490,7 @@ SortedSet.prototype.max = function (at) {
 };
 
 SortedSet.prototype.one = function () {
-    if (this.root) {
-        return this.root.value;
-    }
+    return this.min();
 };
 
 SortedSet.prototype.clear = function () {

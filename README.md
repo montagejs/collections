@@ -774,10 +774,12 @@ FastSet, FastMap, Dict, Heap)
 
 ### one()
 
-Any single value, or throws an exception if there are no values.
-This is very fast (constant) for all collections.  For a sorted set,
-the value is not deterministic and depends on what value was most
-recently accessed.
+Any single value, or throws an exception if there are no values.  This
+is very fast (constant time) for most collections.  For a sorted set,
+`set.root.value` is always very fast to access, but changes whenever you
+*access* a value, including using `has` or `find`.  In the interest of
+being consistent across accesses, and only changing in response to
+mutation, `one` returns the `min` of the set in logarithmic time.
 
 (Array+, List, Set, Map, MultiMap, SortedSet, SortedMap, LruSet,
 LruMap, SortedArray, SortedArray, SortedArraySet, SortedArrayMap,
