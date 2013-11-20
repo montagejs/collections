@@ -397,5 +397,26 @@ describe("Array change dispatch", function () {
         expect(spy).toHaveBeenCalled();
     });
 
+    describe("splice", function () {
+        var array;
+        beforeEach(function () {
+            array = [0, 1, 2];
+            array.makeObservable();
+        });
+
+        it("handles a negative start", function () {
+            var removed = array.splice(-1, 1);
+            expect(removed).toEqual([2]);
+            expect(array).toEqual([0, 1]);
+        });
+
+        it("handles a negative length", function () {
+            var removed = array.splice(1, -1);
+            expect(removed).toEqual([]);
+            expect(array).toEqual([0, 1, 2]);
+        });
+
+    });
+
 });
 
