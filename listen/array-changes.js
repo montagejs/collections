@@ -115,6 +115,9 @@ var observableArrayProperties = {
 
     splice: {
         value: function splice(start, length) {
+            if (start < 0) {
+                start = this.length + start;
+            }
             var minus = array_slice.call(this, start, start + length);
             var plus = array_slice.call(arguments, 2);
             if (!minus.length && !plus.length)
