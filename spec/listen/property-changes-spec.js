@@ -150,5 +150,23 @@ describe("PropertyChanges", function () {
         expect(object.handleFooChange).toHaveBeenCalled();
     });
 
+    it("calls later handlers if earlier ones remove themselves", function () {
+        var object = {
+            foo: true
+        };
+        var listener1 = {
+            handleFooChange: function (value, key, object) {
+                PropertyChanges.removeOwnPropertyChangeListener(object, key, listener1);
+            }
+        };
+        var listener2 = jasmine.createSpyObj("listener2", ["handleFooChange"]);
+
+        PropertyChanges.addOwnPropertyChangeListener(object, "foo", listener1);
+        PropertyChanges.addOwnPropertyChangeListener(object, "foo", listener2);
+
+        object.foo = false;
+        expect(listener2.handleFooChange).toHaveBeenCalled();
+    });
+
 });
 
