@@ -818,7 +818,7 @@ SortedArrayMap, FastSet, FastMap, Dict, Heap)
 SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
-### enumrate(zero)
+### enumerate(zero)
 
 (Array+, Iterator, List, Set, Map, MultiMap, SortedSet, SortedMap,
 LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
