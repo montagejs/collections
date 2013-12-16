@@ -44,7 +44,7 @@ List.prototype.findValue = function (value, equals) {
     }
 };
 
-List.prototype.findLast = function (value, equals) {
+List.prototype.findLastValue = function (value, equals) {
     equals = equals || this.contentEquals;
     var head = this.head;
     var at = head.prev;
@@ -70,7 +70,7 @@ List.prototype.get = function (value, equals) {
 
 // LIFO (delete removes the most recently added equivalent value)
 List.prototype['delete'] = function (value, equals) {
-    var found = this.findLast(value, equals);
+    var found = this.findLastValue(value, equals);
     if (found) {
         if (this.dispatchesRangeChanges) {
             var plus = [];

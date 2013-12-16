@@ -91,10 +91,10 @@ function describeOrder(Collection) {
 
     });
 
-    describe("findLast", function () {
+    describe("findLastValue", function () {
 
         it("should find equivalent values", function () {
-            expect(Collection([10, 10, 10]).findLast(10)).toEqual(2);
+            expect(Collection([10, 10, 10]).findLastValue(10)).toEqual(2);
         });
 
     });

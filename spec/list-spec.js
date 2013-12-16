@@ -13,9 +13,9 @@ describe("List", function () {
     // List(values).findValue(value)
     // List(values, equals).findValue(value)
     // List(values, equals).findValue(value, equals)
-    // List(values).findLast(value)
-    // List(values, equals).findLast(value)
-    // List(values, equals).findLast(value, equals)
+    // List(values).findLastValue(value)
+    // List(values, equals).findLastValue(value)
+    // List(values, equals).findLastValue(value, equals)
     // List(values).has(value)
     // List(values).has(value, equals)
     // List(values).get(value)
@@ -124,24 +124,24 @@ describe("List", function () {
 
     });
 
-    describe("findLast", function () {
+    describe("findLastValue", function () {
 
         it("should find every value in a list", function () {
             var list = List([1, 2, 3, 4]);
-            expect(list.findLast(1)).toBe(list.head.next);
-            expect(list.findLast(2)).toBe(list.head.next.next);
-            expect(list.findLast(3)).toBe(list.head.next.next.next);
-            expect(list.findLast(4)).toBe(list.head.next.next.next.next);
-            expect(list.findLast(4)).toBe(list.head.prev);
-            expect(list.findLast(3)).toBe(list.head.prev.prev);
-            expect(list.findLast(2)).toBe(list.head.prev.prev.prev);
-            expect(list.findLast(1)).toBe(list.head.prev.prev.prev.prev);
+            expect(list.findLastValue(1)).toBe(list.head.next);
+            expect(list.findLastValue(2)).toBe(list.head.next.next);
+            expect(list.findLastValue(3)).toBe(list.head.next.next.next);
+            expect(list.findLastValue(4)).toBe(list.head.next.next.next.next);
+            expect(list.findLastValue(4)).toBe(list.head.prev);
+            expect(list.findLastValue(3)).toBe(list.head.prev.prev);
+            expect(list.findLastValue(2)).toBe(list.head.prev.prev.prev);
+            expect(list.findLastValue(1)).toBe(list.head.prev.prev.prev.prev);
         });
 
         it("should prefer later equivalent values", function () {
             var list = List([0, 1, 1, 0]);
-            expect(list.findLast(0)).toBe(list.head.prev);
-            expect(list.findLast(1)).toBe(list.head.prev.prev);
+            expect(list.findLastValue(0)).toBe(list.head.prev);
+            expect(list.findLastValue(1)).toBe(list.head.prev.prev);
         });
 
     });

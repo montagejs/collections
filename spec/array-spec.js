@@ -86,19 +86,19 @@ describe("Array", function () {
 
     });
 
-    describe("findLast", function () {
+    describe("findLastValue", function () {
 
         it("should find equivalent objects", function () {
-            expect([{a:10}].findLast({a:10})).toEqual(0);
+            expect([{a:10}].findLastValue({a:10})).toEqual(0);
         });
 
         it("should allow equality comparison override", function () {
-            expect([{a:10}].findLast({a:10}, Object.is)).toEqual(-1);
+            expect([{a:10}].findLastValue({a:10}, Object.is)).toEqual(-1);
         });
 
         it("should find the last of equivalent objects", function () {
             var object = {a: 10};
-            expect([object, {a: 10}].findLast(object)).toEqual(1);
+            expect([object, {a: 10}].findLastValue(object)).toEqual(1);
         });
 
     });

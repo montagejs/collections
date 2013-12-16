@@ -125,7 +125,7 @@ define("findValue", function (value, equals) {
     return -1;
 });
 
-define("findLast", function (value, equals) {
+define("findLastValue", function (value, equals) {
     equals = equals || this.contentEquals || Object.equals;
     var index = this.length;
     do {

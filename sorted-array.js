@@ -159,7 +159,7 @@ SortedArray.prototype.findValue = function (value) {
     return searchFirst(this.array, value, this.contentCompare, this.contentEquals);
 };
 
-SortedArray.prototype.findLast = function (value) {
+SortedArray.prototype.findLastValue = function (value) {
     return searchLast(this.array, value, this.contentCompare, this.contentEquals);
 };
 

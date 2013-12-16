@@ -85,7 +85,7 @@ MapChanges.prototype.removeMapChangeListener = function (listener, token, before
         listeners = descriptor.changeListeners;
     }
 
-    var node = listeners.findLast(listener);
+    var node = listeners.findLastValue(listener);
     if (!node) {
         throw new Error("Can't remove listener: does not exist.");
     }
