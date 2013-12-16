@@ -155,7 +155,7 @@ SortedArray.prototype.lastIndexOf = function (value) {
     return searchLast(this.array, value, this.contentCompare, this.contentEquals);
 };
 
-SortedArray.prototype.find = function (value) {
+SortedArray.prototype.findValue = function (value) {
     return searchFirst(this.array, value, this.contentCompare, this.contentEquals);
 };
 

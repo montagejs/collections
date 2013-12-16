@@ -74,14 +74,14 @@ describe("Array", function () {
     // for arrays, like they would for a SortedArray.  These tests would apply
     // to lists as well, but lists do not have indicies.
 
-    describe("find", function () {
+    describe("findValue", function () {
 
         it("should find equivalent objects", function () {
-            expect([{a:10}].find({a:10})).toEqual(0);
+            expect([{a:10}].findValue({a:10})).toEqual(0);
         });
 
         it("should allow equality comparison override", function () {
-            expect([{a:10}].find({a:10}, Object.is)).toEqual(-1);
+            expect([{a:10}].findValue({a:10}, Object.is)).toEqual(-1);
         });
 
     });

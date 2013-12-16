@@ -83,10 +83,10 @@ function describeOrder(Collection) {
 
     });
 
-    describe("find", function () {
+    describe("findValue", function () {
 
         it("should find equivalent values", function () {
-            expect(Collection([10, 10, 10]).find(10)).toEqual(0);
+            expect(Collection([10, 10, 10]).findValue(10)).toEqual(0);
         });
 
     });

@@ -32,7 +32,7 @@ List.prototype.constructClone = function (values) {
     return new this.constructor(values, this.contentEquals, this.getDefault);
 };
 
-List.prototype.find = function (value, equals) {
+List.prototype.findValue = function (value, equals) {
     equals = equals || this.contentEquals;
     var head = this.head;
     var at = head.next;
@@ -57,11 +57,11 @@ List.prototype.findLast = function (value, equals) {
 };
 
 List.prototype.has = function (value, equals) {
-    return !!this.find(value, equals);
+    return !!this.findValue(value, equals);
 };
 
 List.prototype.get = function (value, equals) {
-    var found = this.find(value, equals);
+    var found = this.findValue(value, equals);
     if (found) {
         return found.value;
     }
