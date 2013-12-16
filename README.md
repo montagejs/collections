@@ -435,7 +435,7 @@ not found.  Returns the position of the last of equivalent values.
 
 (Array, ~~List~~, SortedArray, SortedArraySet)
 
-### find(value, opt_equals)
+### findValue(value, opt_equals)
 
 Finds a value.  For List and SortedSet, returns the node at which
 the value was found.  For SortedSet, the optional `equals` argument
@@ -443,7 +443,7 @@ is ignored.
 
 (Array+, List, SortedSet)
 
-### findLast(value, opt_equals)
+### findLastValue(value, opt_equals)
 
 Finds the last equivalent value, returning the node at which the
 value was found.
