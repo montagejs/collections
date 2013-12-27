@@ -418,5 +418,20 @@ describe("Array change dispatch", function () {
 
     });
 
+    describe("swap", function () {
+        var otherArray;
+        beforeEach(function () {
+            array.makeObservable();
+        });
+        it("should work with large arrays", function () {
+            otherArray = new Array(200000);
+            //Should not throw a Maximum call stack size exceeded error.
+            expect(function () {
+                array.swap(0, array.length, otherArray);
+            }).not.toThrow();
+            expect(array.length).toEqual(200000);
+        });
+    });
+
 });
 

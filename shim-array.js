@@ -14,6 +14,9 @@ var WeakMap = require("weak-map");
 
 module.exports = Array;
 
+var array_splice = Array.prototype.splice;
+var array_slice = Array.prototype.slice;
+
 Array.empty = [];
 
 if (Object.freeze) {
@@ -137,15 +140,43 @@ define("findLast", function (value, equals) {
     return -1;
 });
 
-define("swap", function (index, length, plus) {
-    var args = Array.prototype.slice.call(arguments, 0, 2);
-    if (plus) {
+define("swap", function (start, length, plus) {
+    var args, plusLength, i, j, returnValue;
+    if (typeof plus !== "undefined") {
+        args = [start, length];
         if (!Array.isArray(plus)) {
-            plus = Array.prototype.slice.call(plus);
+            plus = array_slice.call(plus);
         }
-        args.push.apply(args, plus);
+        i = 0;
+        plusLength = plus.length;
+        // 1000 is a magic number but there is no way to know the stack size
+        if (plusLength < 1000) {
+            for (i; i < plusLength; i++) {
+                args[i+2] = plus[i];
+            }
+            return array_splice.apply(this, args);
+        } else {
+            // avoid maximum call stack error
+            // first delete the desired entries
+            returnValue = array_splice.apply(this, args);
+            // second batch in 1000s.
+            for (i; i < plusLength;) {
+                args = [start+i, 0];
+                for (j = 2; j < 1002 && i < plusLength; j++, i++) {
+                    args[j] = plus[i];
+                }
+                array_splice.apply(this, args);
+            }
+            return returnValue;
+        }
+    // using call rather than apply to cut down on transient objects
+    } else if (typeof length !== "undefined") {
+        return array_splice.call(this, start, length);
+    }  else if (typeof start !== "undefined") {
+        return array_splice.call(this, start);
+    } else {
+        return [];
     }
-    return this.splice.apply(this, args);
 });
 
 define("one", function () {
