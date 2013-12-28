@@ -220,5 +220,37 @@ describe("Array", function () {
         });
     });
 
+    describe("swap", function () {
+        var array, otherArray;
+        beforeEach(function () {
+            array = [1, 2, 3];
+        });
+        it("should be able to replace content with content of another arraylike", function () {
+            otherArray = { __proto__ : Array.prototype };
+            otherArray[0] = 4;
+            otherArray[1] = 5;
+            otherArray.length = 2;
+            array.swap(0, array.length, otherArray);
+            expect(array).toEqual([4, 5]);
+        });
+        it("should ignore non array like plus value", function () {
+            array.swap(0, array.length, 4);
+            expect(array).toEqual([]);
+
+        });
+        it("should ignore extra arguments", function () {
+            array.swap(0, array.length, 4, 5, 6);
+            expect(array).toEqual([]);
+
+        });
+        it("should work with large arrays", function () {
+            otherArray = new Array(200000);
+            expect(function () {
+                array.swap(0, array.length, otherArray);
+            }).not.toThrow();
+            expect(array.length).toEqual(200000);
+        });
+   });
+
 });
 

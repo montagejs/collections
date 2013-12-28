@@ -23,6 +23,9 @@ var array_splice = Array.prototype.splice;
 var array_slice = Array.prototype.slice;
 var array_reverse = Array.prototype.reverse;
 var array_sort = Array.prototype.sort;
+var array_swap = Array.prototype.swap;
+
+var EMPTY_ARRAY = [];
 
 // use different strategies for making arrays observable between Internet
 // Explorer and other browsers.
@@ -113,15 +116,30 @@ var observableArrayProperties = {
         configurable: true
     },
 
-    splice: {
-        value: function splice(start, length) {
+    swap: {
+        value: function swap(start, length, plus) {
+            if (plus) {
+                if (!Array.isArray(plus)) {
+                    plus = array_slice.call(plus);
+                }
+            } else {
+                plus = EMPTY_ARRAY;
+            }
+
             if (start < 0) {
                 start = this.length + start;
             }
-            var minus = array_slice.call(this, start, start + length);
-            var plus = array_slice.call(arguments, 2);
-            if (!minus.length && !plus.length)
-                return plus; // [], but spare us an instantiation
+            var minus;
+            if (length === 0) {
+                // minus will be empty
+                if (plus.length === 0) {
+                    // at this point if plus is empty there is nothing to do.
+                    return []; // [], but spare us an instantiation
+                }
+                minus = EMPTY_ARRAY;
+            } else {
+                minus = array_slice.call(this, start, start + length);
+            }
             var diff = plus.length - minus.length;
             var oldLength = this.length;
             var newLength = Math.max(this.length + diff, start + plus.length);
@@ -151,7 +169,7 @@ var observableArrayProperties = {
             if (start > oldLength) {
                 this.length = start;
             }
-            var result = array_splice.apply(this, arguments);
+            var result = array_swap.call(this, start, length, plus);
 
             // dispatch after change events
             if (diff === 0) { // substring replacement
@@ -174,6 +192,14 @@ var observableArrayProperties = {
             }
 
             return result;
+        },
+        writable: true,
+        configurable: true
+    },
+
+    splice: {
+        value: function splice(start, length) {
+            return this.swap.call(this, start, length, array_slice.call(arguments, 2));
         },
         writable: true,
         configurable: true
