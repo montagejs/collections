@@ -418,14 +418,15 @@ describe("Array change dispatch", function () {
 
     });
 
-    describe("swap", function () {
+    // Disabled because it takes far too long
+    xdescribe("swap", function () {
         var otherArray;
         beforeEach(function () {
             array.makeObservable();
         });
         it("should work with large arrays", function () {
             otherArray = new Array(200000);
-            //Should not throw a Maximum call stack size exceeded error.
+            // Should not throw a Maximum call stack size exceeded error.
             expect(function () {
                 array.swap(0, array.length, otherArray);
             }).not.toThrow();

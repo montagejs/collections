@@ -149,17 +149,22 @@ define("swap", function (start, length, plus) {
         }
         i = 0;
         plusLength = plus.length;
-        // 1000 is a magic number but there is no way to know the stack size
+        // 1000 is a magic number, presumed to be smaller than the remaining
+        // stack length. For swaps this small, we take the fast path and just
+        // use the underlying Array splice. We could measure the exact size of
+        // the remaining stack using a try/catch around an unbounded recursive
+        // function, but this would defeat the purpose of short-circuiting in
+        // the common case.
         if (plusLength < 1000) {
             for (i; i < plusLength; i++) {
                 args[i+2] = plus[i];
             }
             return array_splice.apply(this, args);
         } else {
-            // avoid maximum call stack error
-            // first delete the desired entries
+            // Avoid maximum call stack error.
+            // First delete the desired entries.
             returnValue = array_splice.apply(this, args);
-            // second batch in 1000s.
+            // Second batch in 1000s.
             for (i; i < plusLength;) {
                 args = [start+i, 0];
                 for (j = 2; j < 1002 && i < plusLength; j++, i++) {
