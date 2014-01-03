@@ -54,11 +54,11 @@ function dispatchPropertyChange(object, name, plus, minus) {
             cancel();
         }
         if (handler[specificHandlerMethodName]) {
-            cancel = handler[specificHandlerMethodName](name, plus, minus, object);
+            cancel = handler[specificHandlerMethodName](plus, minus, name, object);
         } else if (handler.propertyChange) {
-            cancel = handler.propertyChange(name, plus, minus, object);
+            cancel = handler.propertyChange(plus, minus, name, object);
         } else if (typeof handler === "function") {
-            cancel = handler(name, plus, minus, object);
+            cancel = handler(plus, minus, name, object);
         } else {
             throw new Error(
                 "Can't dispatch to " + JSON.stringify(specificHandlerMethodName) +
