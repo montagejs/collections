@@ -22,16 +22,54 @@ exports.observePropertyChange = observePropertyChange;
 function observePropertyChange(object, name, handler, note, capture) {
     makePropertyObservable(object, name);
     var observers = getPropertyChangeObservers(object, name, capture);
+
     var observer;
     if (observerFreeList.length) {
         observer = observerFreeList.pop();
     } else {
         observer = new PropertyChangeObserver();
     }
+
+    observer.object = object;
+    observer.propertyName = name;
+    observer.capture = capture;
     observer.observers = observers;
     observer.handler = handler;
     observer.note = note;
+
+    // Precompute dispatch method names.
+
+    var stringName = "" + name; // Array indicides must be coerced to string.
+    var propertyName = stringName.slice(0, 1).toUpperCase() + stringName.slice(1);
+
+    if (!capture) {
+        var specificChangeMethodName = "handle" + propertyName + "PropertyChange";
+        var genericChangeMethodName = "handlePropertyChange";
+        if (handler[specificChangeMethodName]) {
+            observer.handlerChangeMethodName = specificChangeMethodName;
+        } else if (handler[genericChangeMethodName]) {
+            observer.handlerChangeMethodName = genericChangeMethodName;
+        } else if (handler.call) {
+            observer.handlerChangeMethodName = null;
+        } else {
+            throw new Error("Can't arrange to dispatch " + JSON.stringify(name) + " property changes on " + object);
+        }
+    } else {
+        var specificWillChangeMethodName = "handle" + propertyName + "PropertyWillChange";
+        var genericWillChangeMethodName = "handlePropertyWillChange";
+        if (handler[specificWillChangeMethodName]) {
+            observer.handlerChangeMethodName = specificWillChangeMethodName;
+        } else if (handler[genericWillChangeMethodName]) {
+            observer.handlerChangeMethodName = genericWillChangeMethodName;
+        } else if (handler.call) {
+            observer.handlerChangeMethodName = null;
+        } else {
+            throw new Error("Can't arrange to dispatch " + JSON.stringify(name) + " property changes on " + object);
+        }
+    }
+
     observers.push(observer);
+
     // TODO issue warnings if the number of handler records exceeds some
     // concerning quantity as a harbinger of a memory leak.
     // TODO Note that if this is garbage collected without ever being called,
@@ -49,40 +87,10 @@ function dispatchPropertyChange(object, name, plus, minus, capture) {
     if (!dispatching) {
         return startPropertyChangeDispatchContext(object, name, plus, minus, capture);
     }
-    var phase = capture ? "WillChange" : "Change";
-    var genericHandlerMethodName = "handleProperty" + phase;
-    var propertyName = "" + name; // array indicies must be coerced
-    var specificHandlerMethodName = "handle" + propertyName.slice(0, 1).toUpperCase() + propertyName.slice(1) + "Property" + phase;
     var observers = getPropertyChangeObservers(object, name, capture).slice();
     for (var index = 0; index < observers.length; index++) {
         var observer = observers[index];
-        var handler = observer.handler;
-        // A null handler implies that an observer was canceled during the
-        // dispatch of a change. The handler record is pending addition to the
-        // free list.
-        if (!handler) {
-            continue;
-        }
-        var childObserver = observer.childObserver;
-        observer.childObserver = null;
-        // XXX plan interference hazards calling cancel and handler methods:
-        if (childObserver) {
-            childObserver.cancel();
-        }
-        if (handler[specificHandlerMethodName]) {
-            childObserver = handler[specificHandlerMethodName](plus, minus, name, object);
-        } else if (handler[genericHandlerMethodName]) {
-            childObserver = handler[genericHandlerMethodName](plus, minus, name, object);
-        } else if (handler.call) {
-            childObserver = handler.call(observer, plus, minus, name, object);
-        } else {
-            throw new Error(
-                "Can't dispatch " + JSON.stringify(specificHandlerMethodName) +
-                " or " + JSON.stringify(genericHandlerMethodName) +
-                " on " + object
-            );
-        }
-        observer.childObserver = childObserver;
+        observer.dispatch(plus, minus);
     }
 }
 
@@ -122,15 +130,15 @@ function startPropertyChangeDispatchContext(object, name, plus, minus, capture) 
 exports.getPropertyChangeObservers = getPropertyChangeObservers;
 function getPropertyChangeObservers(object, name, capture) {
     if (!observersByObject.has(object)) {
-        observersByObject.set(object, {});
+        observersByObject.set(object, Object.create(null));
     }
-    var observersByName = observersByObject.get(object);
+    var observersByKey = observersByObject.get(object);
     var phase = capture ? "WillChange" : "Change";
     var key = name + phase;
-    if (!Object.owns(observersByName, key)) {
-        observersByName[key] = [];
+    if (!Object.owns(observersByKey, key)) {
+        observersByKey[key] = [];
     }
-    return observersByName[key];
+    return observersByKey[key];
 }
 
 exports.getPropertyWillChangeObservers = getPropertyWillChangeObservers;
@@ -145,10 +153,14 @@ function PropertyChangeObserver() {
 }
 
 PropertyChangeObserver.prototype.initialize = function () {
+    this.object = null;
+    this.propertyName = null;
     // Peer observers, from which to pluck itself upon cancelation.
     this.observers = null;
     // On which to dispatch property change notifications.
     this.handler = null;
+    // Precomputed handler method name for change dispatch
+    this.handlerChangeMethodName = null;
     // Returned by the last property change notification, which must be
     // canceled before the next change notification, or when this observer is
     // finally canceled.
@@ -157,39 +169,85 @@ PropertyChangeObserver.prototype.initialize = function () {
     // observer has been created, or whether this observer should be
     // serialized.
     this.note = null;
+    // Whether this observer dispatches before a change occurs, or after
+    this.capture = null;
+    // The last known value
+    this.value = null;
 };
 
 PropertyChangeObserver.prototype.cancel = function () {
     var observers = this.observers;
     var index = observers.indexOf(this);
-    if (index >= 0) {
-        var childObserver = this.childObserver;
-        observers.splice(index, 1);
-        this.initialize();
-        // If this observer is canceled while dispatching a change
-        // notification for the same property...
-        // 1. We cannot put the handler record onto the free list because
-        // it may have been captured in the array of records to which
-        // the change notification would be sent. We must mark it as
-        // canceled by nulling out the handler property so the dispatcher
-        // passes over it.
-        // 2. We also cannot put the handler record onto the free list
-        // until all change dispatches have been completed because it could
-        // conceivably be reused, confusing the current dispatcher.
-        if (dispatching) {
-            // All handlers added to this list will be moved over to the
-            // actual free list when there are no longer any property
-            // change dispatchers on the stack.
-            observerToFreeList.push(this);
-        } else {
-            observerFreeList.push(this);
-        }
-        if (childObserver) {
-            // Calling user code on our stack.
-            // Done in tail position to avoid a plan interference hazard.
-            childObserver.cancel();
-        }
+    // Unfortunately, if this observer was reused, this would not be sufficient
+    // to detect a duplicate cancel. Do not cancel more than once.
+    if (index < 0) {
+        throw new Error(
+            "Can't cancel observer for " +
+            JSON.stringify(this.propertyName) + " on " + this.object +
+            " because it has already been canceled"
+        );
     }
+    var childObserver = this.childObserver;
+    observers.splice(index, 1);
+    this.initialize();
+    // If this observer is canceled while dispatching a change
+    // notification for the same property...
+    // 1. We cannot put the handler record onto the free list because
+    // it may have been captured in the array of records to which
+    // the change notification would be sent. We must mark it as
+    // canceled by nulling out the handler property so the dispatcher
+    // passes over it.
+    // 2. We also cannot put the handler record onto the free list
+    // until all change dispatches have been completed because it could
+    // conceivably be reused, confusing the current dispatcher.
+    if (dispatching) {
+        // All handlers added to this list will be moved over to the
+        // actual free list when there are no longer any property
+        // change dispatchers on the stack.
+        observerToFreeList.push(this);
+    } else {
+        observerFreeList.push(this);
+    }
+    if (childObserver) {
+        // Calling user code on our stack.
+        // Done in tail position to avoid a plan interference hazard.
+        childObserver.cancel();
+    }
+};
+
+PropertyChangeObserver.prototype.dispatch = function (plus, minus) {
+    var handler = this.handler;
+    // A null handler implies that an observer was canceled during the dispatch
+    // of a change. The observer is pending addition to the free list.
+    if (!handler) {
+        return;
+    }
+
+    // Retain the last seen value for debugging
+    if (this.capture) {
+        this.value = minus;
+    } else {
+        this.value = plus;
+    }
+
+    var childObserver = this.childObserver;
+    this.childObserver = null;
+    // XXX plan interference hazards calling cancel and handler methods:
+    if (childObserver) {
+        childObserver.cancel();
+    }
+    var changeMethodName = this.handlerChangeMethodName;
+    if (handler[changeMethodName]) {
+        childObserver = handler[changeMethodName](plus, minus, this.propertyName, this.object);
+    } else if (handler.call) {
+        childObserver = handler.call(this, plus, minus, this.propertyName, this.object);
+    } else {
+        throw new Error(
+            "Can't dispatch " + JSON.stringify(changeMethodName) + " property change on " + object
+        );
+    }
+    this.childObserver = childObserver;
+    return this;
 };
 
 exports.makePropertyObservable = makePropertyObservable;
@@ -214,7 +272,7 @@ function makePropertyObservable(object, name) {
     superObjectDescriptors.set(object, superPropertyDescriptors);
     var superPropertyDescriptors = superObjectDescriptors.get(object);
 
-    if (Object.owns.call(superPropertyDescriptors, name)) {
+    if (Object.owns(superPropertyDescriptors, name)) {
         // if we have already recorded an super property descriptor,
         // we have already installed the observer, so short-here
         return;
