@@ -218,7 +218,7 @@ describe("ObservePropertyChanges", function () {
             expect(spy.callCount).toBe(10);
         });
 
-        it("should observer nested observer", function () {
+        it("should observe nested observer", function () {
             var object = {};
             var spy = jasmine.createSpy();
             var innerCancel = jasmine.createSpy();
@@ -259,6 +259,25 @@ describe("ObservePropertyChanges", function () {
             expect(error && error.message).toBe("Property change dispatch possibly corrupted by error: X");
             // it was indeed, thanks for the warning.
             expect(spy).not.toHaveBeenCalled();
+        });
+
+        it("handles manual dispatch", function () {
+            var object = {};
+            var spy = jasmine.createSpy();
+            var observer = observePropertyChange(object, "foo", function (value) {
+                spy.apply(this, arguments);
+                if (value === 2) {
+                    observer.cancel();
+                    observer = null;
+                }
+            });
+            expect(spy.callCount).toBe(0);
+            observer.dispatch(1);
+            expect(spy.callCount).toBe(1);
+            expect(spy).toHaveBeenCalledWith(1, undefined, "foo", object);
+            observer.dispatch(2);
+            expect(spy).toHaveBeenCalledWith(2, 1, "foo", object);
+            expect(observer).toBe(null);
         });
 
     });

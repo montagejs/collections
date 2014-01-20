@@ -24,7 +24,7 @@ function observePropertyChange(object, name, handler, note, capture) {
     var observers = getPropertyChangeObservers(object, name, capture);
 
     var observer;
-    if (observerFreeList.length) {
+    if (observerFreeList.length) { // TODO && !debug?
         observer = observerFreeList.pop();
     } else {
         observer = new PropertyChangeObserver();
@@ -36,6 +36,7 @@ function observePropertyChange(object, name, handler, note, capture) {
     observer.observers = observers;
     observer.handler = handler;
     observer.note = note;
+    observer.value = object[name];
 
     // Precompute dispatch method names.
 
@@ -215,7 +216,7 @@ PropertyChangeObserver.prototype.cancel = function () {
     }
 };
 
-PropertyChangeObserver.prototype.dispatch = function (plus, minus) {
+PropertyChangeObserver.prototype.dispatch = function (plus) {
     var handler = this.handler;
     // A null handler implies that an observer was canceled during the dispatch
     // of a change. The observer is pending addition to the free list.
@@ -224,11 +225,8 @@ PropertyChangeObserver.prototype.dispatch = function (plus, minus) {
     }
 
     // Retain the last seen value for debugging
-    if (this.capture) {
-        this.value = minus;
-    } else {
-        this.value = plus;
-    }
+    var minus = this.value;
+    this.value = plus;
 
     var childObserver = this.childObserver;
     this.childObserver = null;
@@ -240,7 +238,7 @@ PropertyChangeObserver.prototype.dispatch = function (plus, minus) {
     if (handler[changeMethodName]) {
         childObserver = handler[changeMethodName](plus, minus, this.propertyName, this.object);
     } else if (handler.call) {
-        childObserver = handler.call(this, plus, minus, this.propertyName, this.object);
+        childObserver = handler.call(void 0, plus, minus, this.propertyName, this.object);
     } else {
         throw new Error(
             "Can't dispatch " + JSON.stringify(changeMethodName) + " property change on " + object
