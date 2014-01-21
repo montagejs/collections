@@ -15,7 +15,7 @@ var WeakMap = require("weak-map");
 var observersByObject = new WeakMap();
 var observerFreeList = [];
 var observerToFreeList = [];
-var superObjectDescriptors = new WeakMap();
+var wrappedObjectDescriptors = new WeakMap();
 var dispatching = false;
 
 exports.observePropertyChange = observePropertyChange;
@@ -84,26 +84,26 @@ function observePropertyWillChange(object, name, handler, note) {
 }
 
 exports.dispatchPropertyChange = dispatchPropertyChange;
-function dispatchPropertyChange(object, name, plus, minus, capture) {
+function dispatchPropertyChange(object, name, plus, capture) {
     if (!dispatching) {
-        return startPropertyChangeDispatchContext(object, name, plus, minus, capture);
+        return startPropertyChangeDispatchContext(object, name, plus, capture);
     }
     var observers = getPropertyChangeObservers(object, name, capture).slice();
     for (var index = 0; index < observers.length; index++) {
         var observer = observers[index];
-        observer.dispatch(plus, minus);
+        observer.dispatch(plus);
     }
 }
 
 exports.dispatchPropertyWillChange = dispatchPropertyWillChange;
-function dispatchPropertyWillChange(object, name, plus, minus) {
-    dispatchPropertyChange(object, name, plus, minus, true);
+function dispatchPropertyWillChange(object, name, plus) {
+    dispatchPropertyChange(object, name, plus, true);
 }
 
-function startPropertyChangeDispatchContext(object, name, plus, minus, capture) {
+function startPropertyChangeDispatchContext(object, name, plus, capture) {
     dispatching = true;
     try {
-        dispatchPropertyChange(object, name, plus, minus, capture);
+        dispatchPropertyChange(object, name, plus, capture);
     } catch (error) {
         if (typeof error === "object" && typeof error.message === "string") {
             error.message = "Property change dispatch possibly corrupted by error: " + error.message;
@@ -149,11 +149,11 @@ function getPropertyWillChangeObservers(object, name) {
 
 exports.PropertyChangeObserver = PropertyChangeObserver;
 function PropertyChangeObserver() {
-    this.initialize();
+    this.init();
     // Object.seal(this); // Maybe one day, this won't deoptimize.
 }
 
-PropertyChangeObserver.prototype.initialize = function () {
+PropertyChangeObserver.prototype.init = function () {
     this.object = null;
     this.propertyName = null;
     // Peer observers, from which to pluck itself upon cancelation.
@@ -190,7 +190,7 @@ PropertyChangeObserver.prototype.cancel = function () {
     }
     var childObserver = this.childObserver;
     observers.splice(index, 1);
-    this.initialize();
+    this.init();
     // If this observer is canceled while dispatching a change
     // notification for the same property...
     // 1. We cannot put the handler record onto the free list because
@@ -224,7 +224,6 @@ PropertyChangeObserver.prototype.dispatch = function (plus) {
         return;
     }
 
-    // Retain the last seen value for debugging
     var minus = this.value;
     this.value = plus;
 
@@ -250,9 +249,9 @@ PropertyChangeObserver.prototype.dispatch = function (plus) {
 
 exports.makePropertyObservable = makePropertyObservable;
 function makePropertyObservable(object, name) {
-    // arrays are special.  we do not support direct setting of properties
-    // on an array.  instead, call .set(index, value).  this is observable.
-    // 'length' property is observable for all mutating methods because
+    // Arrays are special. We do not support direct setting of properties
+    // on an array. instead, call .set(index, value). This is observable.
+    // "length" property is observable for all mutating methods because
     // our overrides explicitly dispatch that change.
     if (Array.isArray(object)) {
         return;
@@ -262,167 +261,194 @@ function makePropertyObservable(object, name) {
         return;
     }
 
-    if (superObjectDescriptors.has(object)) {
+    var wrappedDescriptor = getPropertyDescriptor(object, name);
+    var wrappedPrototype = wrappedDescriptor.prototype;
+
+    var existingWrappedDescriptors = wrappedObjectDescriptors.get(wrappedPrototype);
+    if (existingWrappedDescriptors && Object.owns(existingWrappedDescriptors, name)) {
         return;
     }
 
-    superPropertyDescriptors = {};
-    superObjectDescriptors.set(object, superPropertyDescriptors);
-    var superPropertyDescriptors = superObjectDescriptors.get(object);
+    if (!wrappedObjectDescriptors.has(object)) {
+        wrappedPropertyDescriptors = {};
+        wrappedObjectDescriptors.set(object, wrappedPropertyDescriptors);
+    }
 
-    if (Object.owns(superPropertyDescriptors, name)) {
-        // if we have already recorded an super property descriptor,
-        // we have already installed the observer, so short-here
+    var wrappedPropertyDescriptors = wrappedObjectDescriptors.get(object);
+
+    if (Object.owns(wrappedPropertyDescriptors, name)) {
+        // If we have already recorded a wrapped property descriptor,
+        // we have already installed the observer, so short-here.
         return;
     }
 
-    var superDescriptor = getSuperPropertyDescriptor(object, name);
-
-    if (!superDescriptor.configurable) {
+    if (!wrappedDescriptor.configurable) {
         return;
     }
 
-    // memoize the descriptor so we know not to install another layer.  we
+    // Memoize the descriptor so we know not to install another layer. We
     // could use it to uninstall the observer, but we do not to avoid GC
     // thrashing.
-    superPropertyDescriptors[name] = superDescriptor;
+    wrappedPropertyDescriptors[name] = wrappedDescriptor;
 
-    // give up *after* storing the super property descriptor so it
-    // can be restored by uninstall.  Unwritable properties are
-    // silently not overriden.  Since success is indistinguishable from
+    // Give up *after* storing the wrapped property descriptor so it
+    // can be restored by uninstall. Unwritable properties are
+    // silently not overriden. Since success is indistinguishable from
     // failure, we let it pass but don't waste time on intercepting
     // get/set.
-    if (!superDescriptor.writable && !superDescriptor.set) {
+    if (!wrappedDescriptor.writable && !wrappedDescriptor.set) {
+        return;
+    }
+    // If there is no setter, it is not mutable, and observing is moot.
+    // Manual dispatch may still apply.
+    if (wrappedDescriptor.get && !wrappedDescriptor.set) {
         return;
     }
 
-    // we put a __state__ property on every object where we're intercepting
-    // changes, so that folks can easily see the present value in their
-    // run-time inspector
-    var state;
-    if (typeof object.__state__ === "object") {
-        state = object.__state__;
-    } else {
-        state = {};
-        if (Object.isExtensible(object, "__state__")) {
-            Object.defineProperty(object, "__state__", {
-                value: state,
-                writable: true,
-                enumerable: false
-            });
-        }
-    }
-    state[name] = object[name];
-
     var thunk;
-    // in both of these new descriptor variants, we reuse the super
+    // in both of these new descriptor variants, we reuse the wrapped
     // descriptor to either store the current value or apply getters
-    // and setters.  this is handy since we can reuse the super
-    // descriptor if we uninstall the observer.  We even preserve the
+    // and setters. this is handy since we can reuse the wrapped
+    // descriptor if we uninstall the observer. We even preserve the
     // assignment semantics, where we get the value from up the
     // prototype chain, and set as an owned property.
-    if ('value' in superDescriptor) {
-        thunk = makeValuePropertyThunk(name, state, superDescriptor);
-    } else { // 'get' or 'set', but not necessarily both
-        thunk = makeGetSetPropertyThunk(name, state, superDescriptor);
+    if ("value" in wrappedDescriptor) {
+        thunk = makeValuePropertyThunk(name, wrappedDescriptor);
+    } else { // "get" or "set", but not necessarily both
+        thunk = makeGetSetPropertyThunk(name, wrappedDescriptor);
     }
 
     Object.defineProperty(object, name, thunk);
 }
 
-function getSuperPropertyDescriptor(object, name) {
-    // walk up the prototype chain to find a property descriptor for
-    // the property name
-    var superDescriptor;
-    var superObject = object;
+function getPropertyDescriptor(object, name) {
+    // walk up the prototype chain to find a property descriptor for the
+    // property name.
+    var descriptor;
+    var prototype = object;
     do {
-        superDescriptor = Object.getOwnPropertyDescriptor(superObject, name);
-        if (superDescriptor) {
+        descriptor = Object.getOwnPropertyDescriptor(prototype, name);
+        if (descriptor) {
             break;
         }
-        superObject = Object.getPrototypeOf(superObject);
-    } while (superObject);
-    // or default to an undefined value
-    return superDescriptor || {
-        value: undefined,
-        enumerable: true,
-        writable: true,
-        configurable: true
-    };
+        prototype = Object.getPrototypeOf(prototype);
+    } while (prototype);
+    if (descriptor) {
+        descriptor.prototype = prototype;
+        return descriptor;
+    } else {
+        // or default to an undefined value
+        return {
+            prototype: object,
+            value: undefined,
+            enumerable: true,
+            writable: true,
+            configurable: true
+        };
+    }
 }
 
-function makeValuePropertyThunk(name, state, superDescriptor) {
+function makeValuePropertyThunk(name, wrappedDescriptor) {
     return {
         get: function () {
-            return superDescriptor.value;
+            // Uses __this__ to quickly distinguish __state__ properties from
+            // upward in the prototype chain.
+            if (this.__state__ === void 0 || this.__state__.__this__ !== this) {
+                initState(this);
+                // Get the initial value from up the prototype chain
+                this.__state__[name] = wrappedDescriptor.value;
+            }
+            var state = this.__state__;
+
+            return state[name];
         },
         set: function (plus) {
-            if (plus === superDescriptor.value) {
+            // Uses __this__ to quickly distinguish __state__ properties from
+            // upward in the prototype chain.
+            if (this.__state__ === void 0 || this.__state__.__this__ !== this) {
+                initState(this);
+                this.__state__[name] = this[name];
+            }
+            var state = this.__state__;
+
+            if (plus === state[name]) {
                 return plus;
             }
-            var minus = superDescriptor.value;
 
             // XXX plan interference hazard:
-            dispatchPropertyWillChange(this, name, plus, minus);
+            dispatchPropertyWillChange(this, name, plus);
 
-            superDescriptor.value = plus;
+            wrappedDescriptor.value = plus;
             state[name] = plus;
 
             // XXX plan interference hazard:
-            dispatchPropertyChange(this, name, plus, minus);
+            dispatchPropertyChange(this, name, plus);
 
             return plus;
         },
-        enumerable: superDescriptor.enumerable,
+        enumerable: wrappedDescriptor.enumerable,
         configurable: true
     };
 }
 
-function makeGetSetPropertyThunk(name, state, superDescriptor) {
+function makeGetSetPropertyThunk(name, wrappedDescriptor) {
     return {
         get: function () {
-            if (superDescriptor.get) {
-                return superDescriptor.get.apply(this, arguments);
+            if (wrappedDescriptor.get) {
+                return wrappedDescriptor.get.apply(this, arguments);
             }
         },
         set: function (plus) {
-            var minus;
+            // Uses __this__ to quickly distinguish __state__ properties from
+            // upward in the prototype chain.
+            if (this.__state__ === void 0 || this.__state__.__this__ !== this) {
+                initState(this);
+                this.__state__[name] = this[name];
+            }
+            var state = this.__state__;
 
-            // get the actual former value if possible
-            if (superDescriptor.get) {
-                minus = superDescriptor.get.apply(this, arguments);
+            if (state[name] === plus) {
+                return plus;
             }
 
             // XXX plan interference hazard:
-            dispatchPropertyWillChange(this, name, plus, minus);
+            dispatchPropertyWillChange(this, name, plus);
 
             // call through to actual setter
-            if (superDescriptor.set) {
-                superDescriptor.set.apply(this, arguments);
-            }
-
-            // use getter, if possible, to discover whether the set
-            // was successful
-            if (superDescriptor.get) {
-                plus = superDescriptor.get.apply(this, arguments);
+            if (wrappedDescriptor.set) {
+                wrappedDescriptor.set.apply(this, arguments);
                 state[name] = plus;
             }
 
-            // if it has not changed, suppress a notification
-            if (plus === minus) {
-                return plus;
+            // use getter, if possible, to adjust the plus value if the setter
+            // adjusted it, for example a setter for an array property that
+            // retains the original array and replaces its content, or a setter
+            // that coerces the value to an expected type.
+            if (wrappedDescriptor.get) {
+                plus = wrappedDescriptor.get.apply(this, arguments);
             }
 
             // dispatch the new value: the given value if there is
             // no getter, or the actual value if there is one
             // TODO spec
             // XXX plan interference hazard:
-            dispatchPropertyChange(this, name, plus, minus);
+            dispatchPropertyChange(this, name, plus);
 
             return plus;
         },
-        enumerable: superDescriptor.enumerable,
+        enumerable: wrappedDescriptor.enumerable,
         configurable: true
     };
+}
+
+function initState(object) {
+    Object.defineProperty(object, "__state__", {
+        value: {
+            __this__: object
+        },
+        writable: true,
+        enumerable: false,
+        configurable: true
+    });
 }
 

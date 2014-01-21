@@ -11,6 +11,7 @@
 
 var ObservePropertyChanges = require("../observe-property-changes");
 var observePropertyChange = ObservePropertyChanges.observePropertyChange;
+var makePropertyObservable = ObservePropertyChanges.makePropertyObservable;
 
 describe("ObservePropertyChanges", function () {
 
@@ -278,6 +279,104 @@ describe("ObservePropertyChanges", function () {
             observer.dispatch(2);
             expect(spy).toHaveBeenCalledWith(2, 1, "foo", object);
             expect(observer).toBe(null);
+        });
+
+        it("operates on objects with getters and setters in the prototype", function () {
+            function Foo() {
+                this._foo = 0;
+            }
+            Object.defineProperty(Foo.prototype, "foo", {
+                get: function () {
+                    return this._foo;
+                },
+                set: function (foo) {
+                    this._foo = +foo;
+                },
+                configurable: true,
+                enumerable: true
+            });
+            var object = new Foo();
+            expect(object.foo).toBe(0);
+
+            var spy = jasmine.createSpy();
+            var observer = observePropertyChange(object, "foo", function (plus, minus, name, object) {
+                spy(plus, minus);
+            });
+            expect(spy.callCount).toBe(0);
+
+            object.foo = "10";
+            expect(spy.callCount).toBe(1);
+            expect(spy).toHaveBeenCalledWith(10, 0);
+        });
+
+        it("operates on objects with merely a setter in the prototype", function () {
+            function Foo() {
+                this._foo = 0;
+            }
+            Object.defineProperty(Foo.prototype, "foo", {
+                set: function (foo) {
+                    this._foo = +foo;
+                },
+                configurable: true,
+                enumerable: true
+            });
+            var object = new Foo();
+            expect(object._foo).toBe(0);
+
+            var spy = jasmine.createSpy();
+            var observer = observePropertyChange(object, "foo", function (plus, minus, name, object) {
+                spy(plus, minus);
+            });
+            expect(spy.callCount).toBe(0);
+
+            object.foo = "10";
+            expect(spy.callCount).toBe(1);
+            expect(spy).toHaveBeenCalledWith("10", undefined);
+            expect(object._foo).toBe(10);
+
+            object.foo = "20";
+            expect(spy.callCount).toBe(2);
+            expect(spy).toHaveBeenCalledWith("20", "10");
+            expect(object._foo).toBe(20);
+        });
+
+        it("observes changes to different properties", function () {
+            var object = {};
+            var fooSpy = jasmine.createSpy();
+            var fooObserver = observePropertyChange(object, "foo", fooSpy);
+            var barSpy = jasmine.createSpy();
+            var barObserver = observePropertyChange(object, "bar", barSpy);
+
+            object.foo = 10;
+            expect(fooSpy).toHaveBeenCalledWith(10, undefined, "foo", object);
+            expect(barSpy).not.toHaveBeenCalled();
+
+            object.bar = "a";
+            expect(barSpy).toHaveBeenCalledWith("a", undefined, "bar", object);
+            expect(fooSpy.callCount).toBe(1);
+        });
+
+        it("observes changes when a property is made observable on the prototype", function () {
+            function Foo() {
+                this.foo = 10;
+            }
+            makePropertyObservable(Foo.prototype, "foo");
+            var object = new Foo();
+            expect(object.foo).toBe(10);
+
+            var observer = observePropertyChange(object, "foo", spy);
+
+            object.foo = 20;
+            expect(object.hasOwnProperty("foo")).toBe(false);
+            expect(object.foo).toBe(20);
+            expect(spy).toHaveBeenCalledWith(20, 10, "foo", object);
+
+            // non-interference
+            var other = new Foo();
+            other.foo = 30;
+            expect(object.foo).toBe(20);
+            expect(spy.callCount).toBe(1);
+
         });
 
     });
