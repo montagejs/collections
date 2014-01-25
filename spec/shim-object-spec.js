@@ -339,6 +339,9 @@ describe("Object", function () {
             },
             {
                 'now': new Date()
+            },
+            {
+                'NaN': NaN
             }
         ];
 

@@ -352,6 +352,15 @@ Object.equals = function (a, b, equals) {
     // commutative
     if (typeof b.equals === "function")
         return b.equals(a, equals);
+    // NaN !== NaN, but they are equal.
+    // NaNs are the only non-reflexive value, i.e., if x !== x,
+    // then x is a NaN.
+    // isNaN is broken: it converts its argument to number, so
+    // isNaN("foo") => true
+    // We have established that a !== b, but if a !== a && b !== b, they are
+    // both NaN.
+    if (a !== a && b !== b)
+        return true;
     if (typeof a !== "object" || typeof b !== "object")
         return a === b;
     if (Object.getPrototypeOf(a) === Object.prototype && Object.getPrototypeOf(b) === Object.prototype) {
@@ -367,14 +376,7 @@ Object.equals = function (a, b, equals) {
         }
         return true;
     }
-    // NaN !== NaN, but they are equal.
-    // NaNs are the only non-reflexive value, i.e., if x !== x,
-    // then x is a NaN.
-    // isNaN is broken: it converts its argument to number, so
-    // isNaN("foo") => true
-    // We have established that a !== b, but if a !== a && b !== b, they are
-    // both NaN.
-    return a !== a && b !== b;
+    return false;
 };
 
 // Because a return value of 0 from a `compare` function  may mean either
