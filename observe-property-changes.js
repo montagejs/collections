@@ -249,6 +249,40 @@ PropertyChangeObserver.prototype.dispatch = function (plus) {
 
 exports.makePropertyObservable = makePropertyObservable;
 function makePropertyObservable(object, name) {
+    var wrappedDescriptor = wrapPropertyDescriptor(object, name);
+
+    if (!wrappedDescriptor) {
+        return;
+    }
+
+    var thunk;
+    // in both of these new descriptor variants, we reuse the wrapped
+    // descriptor to either store the current value or apply getters
+    // and setters. this is handy since we can reuse the wrapped
+    // descriptor if we uninstall the observer. We even preserve the
+    // assignment semantics, where we get the value from up the
+    // prototype chain, and set as an owned property.
+    if ("value" in wrappedDescriptor) {
+        thunk = makeValuePropertyThunk(name, wrappedDescriptor);
+    } else { // "get" or "set", but not necessarily both
+        thunk = makeGetSetPropertyThunk(name, wrappedDescriptor);
+    }
+
+    Object.defineProperty(object, name, thunk);
+}
+
+/**
+ * Prevents a thunk from being installed on a property, assuming that the
+ * underlying type will dispatch the change manually, or intends the property
+ * to stick on all instances.
+ */
+exports.preventPropertyObserver = preventPropertyObserver;
+function preventPropertyObserver(object, name) {
+    var wrappedDescriptor = wrapPropertyDescriptor(object, name);
+    Object.defineProperty(object, name, wrappedDescriptor);
+}
+
+function wrapPropertyDescriptor(object, name) {
     // Arrays are special. We do not support direct setting of properties
     // on an array. instead, call .set(index, value). This is observable.
     // "length" property is observable for all mutating methods because
@@ -299,26 +333,14 @@ function makePropertyObservable(object, name) {
     if (!wrappedDescriptor.writable && !wrappedDescriptor.set) {
         return;
     }
+
     // If there is no setter, it is not mutable, and observing is moot.
     // Manual dispatch may still apply.
     if (wrappedDescriptor.get && !wrappedDescriptor.set) {
         return;
     }
 
-    var thunk;
-    // in both of these new descriptor variants, we reuse the wrapped
-    // descriptor to either store the current value or apply getters
-    // and setters. this is handy since we can reuse the wrapped
-    // descriptor if we uninstall the observer. We even preserve the
-    // assignment semantics, where we get the value from up the
-    // prototype chain, and set as an owned property.
-    if ("value" in wrappedDescriptor) {
-        thunk = makeValuePropertyThunk(name, wrappedDescriptor);
-    } else { // "get" or "set", but not necessarily both
-        thunk = makeGetSetPropertyThunk(name, wrappedDescriptor);
-    }
-
-    Object.defineProperty(object, name, thunk);
+    return wrappedDescriptor;
 }
 
 function getPropertyDescriptor(object, name) {
@@ -341,7 +363,7 @@ function getPropertyDescriptor(object, name) {
         return {
             prototype: object,
             value: undefined,
-            enumerable: true,
+            enumerable: false,
             writable: true,
             configurable: true
         };

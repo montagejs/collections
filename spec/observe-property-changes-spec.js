@@ -12,6 +12,8 @@
 var ObservePropertyChanges = require("../observe-property-changes");
 var observePropertyChange = ObservePropertyChanges.observePropertyChange;
 var makePropertyObservable = ObservePropertyChanges.makePropertyObservable;
+var preventPropertyObserver = ObservePropertyChanges.preventPropertyObserver;
+var dispatchPropertyChange = ObservePropertyChanges.dispatchPropertyChange;
 
 describe("ObservePropertyChanges", function () {
 
@@ -377,6 +379,40 @@ describe("ObservePropertyChanges", function () {
             expect(object.foo).toBe(20);
             expect(spy.callCount).toBe(1);
 
+        });
+
+        it("should not alter a property marked as observable", function () {
+            var object = {};
+            preventPropertyObserver(object, "foo");
+            expect(Object.getOwnPropertyDescriptor(object, "foo")).toEqual({
+                value: undefined,
+                writable: true,
+                enumerable: false,
+                configurable: true
+            });
+            var spy = jasmine.createSpy();
+            var observer = observePropertyChange(object, "foo", spy);
+            object.foo = 10;
+            expect(spy).not.toHaveBeenCalled();
+            dispatchPropertyChange(object, "foo", 10);
+            expect(spy).toHaveBeenCalledWith(10, undefined, "foo", object);
+        });
+
+        it("should not alter a property marked as observable on the prototype", function () {
+            function Foo() {
+            }
+            preventPropertyObserver(Foo.prototype, "foo");
+            var object = new Foo();
+            expect(object.hasOwnProperty("foo")).toBe(false);
+            var spy = jasmine.createSpy();
+            var observer = observePropertyChange(object, "foo", spy);
+            expect(object.hasOwnProperty("foo")).toBe(false);
+            expect(object.foo).toBe(undefined);
+            expect(Object.getOwnPropertyDescriptor(object, "foo")).toBe(undefined);
+            object.foo = 10;
+            expect(spy).not.toHaveBeenCalled();
+            dispatchPropertyChange(object, "foo", 10);
+            expect(spy).toHaveBeenCalledWith(10, undefined, "foo", object);
         });
 
     });
