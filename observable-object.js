@@ -18,9 +18,115 @@ var observerToFreeList = [];
 var wrappedObjectDescriptors = new WeakMap();
 var dispatching = false;
 
-exports.observePropertyChange = observePropertyChange;
+module.exports = ObservableObject;
+function ObservableObject() {
+    throw new Error("Can't construct. ObservableObject is a mixin.");
+}
+
+ObservableObject.prototype.observePropertyChange = function (name, handler, note, capture) {
+    return observePropertyChange(this, name, handler, note, capture);
+};
+
+ObservableObject.prototype.observePropertyWillChange = function (name, handler, note) {
+    return observePropertyWillChange(this, name, handler, note);
+};
+
+ObservableObject.prototype.dispatchPropertyChange = function (name, plus, minus, capture) {
+    return dispatchPropertyChange(this, name, plus, minus, capture);
+};
+
+ObservableObject.prototype.dispatchPropertyWillChange = function (name, plus, minus) {
+    return dispatchPropertyWillChange(this, name, plus, minus);
+};
+
+ObservableObject.prototype.getPropertyChangeObservers = function (name, capture) {
+    return getPropertyChangeObservers(this, name, capture);
+};
+
+ObservableObject.prototype.getPropertyWillChangeObservers = function (name) {
+    return getPropertyWillChangeObservers(this, name);
+};
+
+ObservableObject.prototype.makePropertyObservable = function (name) {
+    return makePropertyObservable(this, name);
+};
+
+ObservableObject.prototype.preventPropertyObserver = function (name) {
+    return preventPropertyObserver(this, name);
+};
+
+ObservableObject.prototype.PropertyChangeObserver = PropertyChangeObserver;
+
+// Constructor interface with polymorphic delegation if available
+
+ObservableObject.observePropertyChange = function (object, name, handler, note, capture) {
+    if (object.observePropertyChange) {
+        return object.observePropertyChange(name, handler, note, capture);
+    } else {
+        return observePropertyChange(object, name, handler, note, capture);
+    }
+};
+
+ObservableObject.observePropertyWillChange = function (object, name, handler, note) {
+    if (object.observePropertyWillChange) {
+        return object.observePropertyWillChange(name, handler, note);
+    } else {
+        return observePropertyWillChange(object, name, handler, note);
+    }
+};
+
+ObservableObject.dispatchPropertyChange = function (object, name, plus, minus, capture) {
+    if (object.dispatchPropertyChange) {
+        return object.dispatchPropertyChange(name, plus, minus, capture);
+    } else {
+        return dispatchPropertyChange(object, name, plus, minus, capture);
+    }
+};
+
+ObservableObject.dispatchPropertyWillChange = function (object, name, plus, minus) {
+    if (object.dispatchPropertyWillChange) {
+        return object.dispatchPropertyWillChange(name, plus, minus);
+    } else {
+        return dispatchPropertyWillChange(object, name, plus, minus);
+    }
+};
+
+ObservableObject.getPropertyChangeObservers = function (object, name, capture) {
+    if (object.getPropertyChangeObservers) {
+        return object.getPropertyChangeObservers(name, capture);
+    } else {
+        return getPropertyChangeObservers(object, name, capture);
+    }
+};
+
+ObservableObject.getPropertyWillChangeObservers = function (object, name) {
+    if (object.getPropertyWillChangeObservers) {
+        return object.getPropertyWillChangeObservers(name);
+    } else {
+        return getPropertyWillChangeObservers(object, name);
+    }
+};
+
+ObservableObject.makePropertyObservable = function (object, name) {
+    if (object.makePropertyObservable) {
+        return object.makePropertyObservable(name);
+    } else {
+        return makePropertyObservable(object, name);
+    }
+};
+
+ObservableObject.preventPropertyObserver = function (object, name) {
+    if (object.preventPropertyObserver) {
+        return object.preventPropertyObserver(name);
+    } else {
+        return preventPropertyObserver(object, name);
+    }
+};
+
+// Implementation
+
 function observePropertyChange(object, name, handler, note, capture) {
-    makePropertyObservable(object, name);
+    ObservableObject.makePropertyObservable(object, name);
     var observers = getPropertyChangeObservers(object, name, capture);
 
     var observer;
@@ -47,11 +153,11 @@ function observePropertyChange(object, name, handler, note, capture) {
         var specificChangeMethodName = "handle" + propertyName + "PropertyChange";
         var genericChangeMethodName = "handlePropertyChange";
         if (handler[specificChangeMethodName]) {
-            observer.handlerChangeMethodName = specificChangeMethodName;
+            observer.handlerMethodName = specificChangeMethodName;
         } else if (handler[genericChangeMethodName]) {
-            observer.handlerChangeMethodName = genericChangeMethodName;
+            observer.handlerMethodName = genericChangeMethodName;
         } else if (handler.call) {
-            observer.handlerChangeMethodName = null;
+            observer.handlerMethodName = null;
         } else {
             throw new Error("Can't arrange to dispatch " + JSON.stringify(name) + " property changes on " + object);
         }
@@ -59,11 +165,11 @@ function observePropertyChange(object, name, handler, note, capture) {
         var specificWillChangeMethodName = "handle" + propertyName + "PropertyWillChange";
         var genericWillChangeMethodName = "handlePropertyWillChange";
         if (handler[specificWillChangeMethodName]) {
-            observer.handlerChangeMethodName = specificWillChangeMethodName;
+            observer.handlerMethodName = specificWillChangeMethodName;
         } else if (handler[genericWillChangeMethodName]) {
-            observer.handlerChangeMethodName = genericWillChangeMethodName;
+            observer.handlerMethodName = genericWillChangeMethodName;
         } else if (handler.call) {
-            observer.handlerChangeMethodName = null;
+            observer.handlerMethodName = null;
         } else {
             throw new Error("Can't arrange to dispatch " + JSON.stringify(name) + " property changes on " + object);
         }
@@ -78,32 +184,29 @@ function observePropertyChange(object, name, handler, note, capture) {
     return observer;
 }
 
-exports.observePropertyWillChange = observePropertyWillChange;
 function observePropertyWillChange(object, name, handler, note) {
     return observePropertyChange(object, name, handler, note, true);
 }
 
-exports.dispatchPropertyChange = dispatchPropertyChange;
-function dispatchPropertyChange(object, name, plus, capture) {
-    if (!dispatching) {
-        return startPropertyChangeDispatchContext(object, name, plus, capture);
+function dispatchPropertyChange(object, name, plus, minus, capture) {
+    if (!dispatching) { // TODO && !debug?
+        return startPropertyChangeDispatchContext(object, name, plus, minus, capture);
     }
     var observers = getPropertyChangeObservers(object, name, capture).slice();
     for (var index = 0; index < observers.length; index++) {
         var observer = observers[index];
-        observer.dispatch(plus);
+        observer.dispatch(plus, minus);
     }
 }
 
-exports.dispatchPropertyWillChange = dispatchPropertyWillChange;
-function dispatchPropertyWillChange(object, name, plus) {
-    dispatchPropertyChange(object, name, plus, true);
+function dispatchPropertyWillChange(object, name, plus, minus) {
+    dispatchPropertyChange(object, name, plus, minus, true);
 }
 
-function startPropertyChangeDispatchContext(object, name, plus, capture) {
+function startPropertyChangeDispatchContext(object, name, plus, minus, capture) {
     dispatching = true;
     try {
-        dispatchPropertyChange(object, name, plus, capture);
+        dispatchPropertyChange(object, name, plus, minus, capture);
     } catch (error) {
         if (typeof error === "object" && typeof error.message === "string") {
             error.message = "Property change dispatch possibly corrupted by error: " + error.message;
@@ -128,7 +231,6 @@ function startPropertyChangeDispatchContext(object, name, plus, capture) {
     }
 }
 
-exports.getPropertyChangeObservers = getPropertyChangeObservers;
 function getPropertyChangeObservers(object, name, capture) {
     if (!observersByObject.has(object)) {
         observersByObject.set(object, Object.create(null));
@@ -142,12 +244,10 @@ function getPropertyChangeObservers(object, name, capture) {
     return observersByKey[key];
 }
 
-exports.getPropertyWillChangeObservers = getPropertyWillChangeObservers;
 function getPropertyWillChangeObservers(object, name) {
     return getPropertyChangeObservers(object, name, true);
 }
 
-exports.PropertyChangeObserver = PropertyChangeObserver;
 function PropertyChangeObserver() {
     this.init();
     // Object.seal(this); // Maybe one day, this won't deoptimize.
@@ -161,7 +261,7 @@ PropertyChangeObserver.prototype.init = function () {
     // On which to dispatch property change notifications.
     this.handler = null;
     // Precomputed handler method name for change dispatch
-    this.handlerChangeMethodName = null;
+    this.handlerMethodName = null;
     // Returned by the last property change notification, which must be
     // canceled before the next change notification, or when this observer is
     // finally canceled.
@@ -216,7 +316,7 @@ PropertyChangeObserver.prototype.cancel = function () {
     }
 };
 
-PropertyChangeObserver.prototype.dispatch = function (plus) {
+PropertyChangeObserver.prototype.dispatch = function (plus, minus) {
     var handler = this.handler;
     // A null handler implies that an observer was canceled during the dispatch
     // of a change. The observer is pending addition to the free list.
@@ -224,7 +324,9 @@ PropertyChangeObserver.prototype.dispatch = function (plus) {
         return;
     }
 
-    var minus = this.value;
+    if (minus === void 0) {
+        minus = this.value;
+    }
     this.value = plus;
 
     var childObserver = this.childObserver;
@@ -233,21 +335,22 @@ PropertyChangeObserver.prototype.dispatch = function (plus) {
     if (childObserver) {
         childObserver.cancel();
     }
-    var changeMethodName = this.handlerChangeMethodName;
-    if (handler[changeMethodName]) {
-        childObserver = handler[changeMethodName](plus, minus, this.propertyName, this.object);
+    var handlerMethodName = this.handlerMethodName;
+    if (handlerMethodName && typeof handler[handlerMethodName] === "function") {
+        childObserver = handler[handlerMethodName](plus, minus, this.propertyName, this.object);
     } else if (handler.call) {
         childObserver = handler.call(void 0, plus, minus, this.propertyName, this.object);
     } else {
         throw new Error(
-            "Can't dispatch " + JSON.stringify(changeMethodName) + " property change on " + object
+            "Can't dispatch " + JSON.stringify(handlerMethodName) + " property change on " + object +
+            " because there is no handler method"
         );
     }
+
     this.childObserver = childObserver;
     return this;
 };
 
-exports.makePropertyObservable = makePropertyObservable;
 function makePropertyObservable(object, name) {
     var wrappedDescriptor = wrapPropertyDescriptor(object, name);
 
@@ -276,7 +379,6 @@ function makePropertyObservable(object, name) {
  * underlying type will dispatch the change manually, or intends the property
  * to stick on all instances.
  */
-exports.preventPropertyObserver = preventPropertyObserver;
 function preventPropertyObserver(object, name) {
     var wrappedDescriptor = wrapPropertyDescriptor(object, name);
     Object.defineProperty(object, name, wrappedDescriptor);

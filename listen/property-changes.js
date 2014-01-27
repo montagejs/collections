@@ -1,9 +1,9 @@
 
 var WeakMap = require("weak-map");
-var ObservePropertyChanges = require("../observe-property-changes");
-var makePropertyObservable = ObservePropertyChanges.makePropertyObservable;
-var observePropertyChange = ObservePropertyChanges.observePropertyChange;
-var dispatchPropertyChange = ObservePropertyChanges.dispatchPropertyChange;
+var ObservableObject = require("../observable-object");
+var makePropertyObservable = ObservableObject.makePropertyObservable;
+var observePropertyChange = ObservableObject.observePropertyChange;
+var dispatchPropertyChange = ObservableObject.dispatchPropertyChange;
 
 var object_owns = Object.prototype.hasOwnProperty;
 
@@ -117,7 +117,7 @@ PropertyChanges.prototype.removeBeforeOwnPropertyChangeListener = function (name
     return PropertyChanges.removeOwnPropertyChangeListener(this, name, listener, true);
 };
 
-PropertyChanges.prototype.dispatchOwnPropertyChange = function (key, value, beforeChange) {
+PropertyChanges.prototype.dispatchOwnPropertyChange = function (name, value, capture) {
     dispatchPropertyChange(this, name, value, this[name], capture);
 };
 

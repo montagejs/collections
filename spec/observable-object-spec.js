@@ -9,13 +9,13 @@
 // TODO observePropertyWillChange
 // TODO access observer notes
 
-var ObservePropertyChanges = require("../observe-property-changes");
-var observePropertyChange = ObservePropertyChanges.observePropertyChange;
-var makePropertyObservable = ObservePropertyChanges.makePropertyObservable;
-var preventPropertyObserver = ObservePropertyChanges.preventPropertyObserver;
-var dispatchPropertyChange = ObservePropertyChanges.dispatchPropertyChange;
+var ObservableObject = require("../observable-object");
+var observePropertyChange = ObservableObject.observePropertyChange;
+var makePropertyObservable = ObservableObject.makePropertyObservable;
+var preventPropertyObserver = ObservableObject.preventPropertyObserver;
+var dispatchPropertyChange = ObservableObject.dispatchPropertyChange;
 
-describe("ObservePropertyChanges", function () {
+describe("ObservableObject", function () {
 
     describe("observePropertyChange", function () {
 

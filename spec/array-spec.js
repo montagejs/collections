@@ -5,25 +5,12 @@ var GenericCollection = require("../generic-collection");
 var describeDequeue = require("./dequeue");
 var describeCollection = require("./collection");
 var describeOrder = require("./order");
-var describeMapChanges = require("./listen/map-changes");
 
 describe("Array", function () {
     describeDequeue(Array.from);
     describeCollection(Array.from, [1, 2, 3, 4]);
     describeCollection(Array.from, [{id: 0}, {id: 1}, {id: 2}, {id: 3}]);
     describeOrder(Array.from);
-
-    function mapAlike(entries) {
-        var array = [];
-        if (entries) {
-            entries.forEach(function (pair) {
-                array.set(pair[0], pair[1]);
-            });
-        }
-        return array;
-    }
-
-    describeMapChanges(mapAlike);
 
     /*
         The following tests are from Montage.

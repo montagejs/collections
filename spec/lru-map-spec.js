@@ -63,18 +63,13 @@ describe("LruMap", function () {
     it("should dispatch deletion for stale entries", function () {
         var map = LruMap({a: 10, b: 20, c: 30}, 3);
         var spy = jasmine.createSpy();
-        map.addBeforeMapChangeListener(function (value, key) {
-            spy('before', key, value);
-        });
-        map.addMapChangeListener(function (value, key) {
-            spy('after', key, value);
+        map.observeMapChange(function (plus, minus, key, type) {
+            spy(plus, minus, key, type);
         });
         map.set('d', 40);
         expect(spy.argsForCall).toEqual([
-            ['before', 'd', undefined], // d will be added
-            ['before', 'a', undefined], // then a is pruned (stale)
-            ['after', 'a', undefined],  // afterwards a is still pruned
-            ['after', 'd', 40]          // and now d has a value
+            [undefined, 10, "a", "delete"], // a pruned
+            [40, undefined, "d", "create"] // d added
         ]);
     });
 });

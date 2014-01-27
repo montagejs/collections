@@ -5,8 +5,8 @@ module.exports = List;
 var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
 var GenericOrder = require("./generic-order");
-var PropertyChanges = require("./listen/property-changes");
-var RangeChanges = require("./listen/range-changes");
+var ObservableObject = require("./observable-object");
+var ObservableRange = require("./observable-range");
 
 function List(values, equals, getDefault) {
     if (!(this instanceof List)) {
@@ -25,8 +25,8 @@ List.List = List; // hack so require("list").List will work in MontageJS
 
 Object.addEach(List.prototype, GenericCollection.prototype);
 Object.addEach(List.prototype, GenericOrder.prototype);
-Object.addEach(List.prototype, PropertyChanges.prototype);
-Object.addEach(List.prototype, RangeChanges.prototype);
+Object.addEach(List.prototype, ObservableObject.prototype);
+Object.addEach(List.prototype, ObservableRange.prototype);
 
 List.prototype.constructClone = function (values) {
     return new this.constructor(values, this.contentEquals, this.getDefault);
@@ -75,7 +75,7 @@ List.prototype['delete'] = function (value, equals) {
         if (this.dispatchesRangeChanges) {
             var plus = [];
             var minus = [value];
-            this.dispatchBeforeRangeChange(plus, minus, found.index);
+            this.dispatchRangeWillChange(plus, minus, found.index);
         }
         found['delete']();
         this.length--;
@@ -93,7 +93,7 @@ List.prototype.clear = function () {
     if (this.dispatchesRangeChanges) {
         minus = this.toArray();
         plus = [];
-        this.dispatchBeforeRangeChange(plus, minus, 0);
+        this.dispatchRangeWillChange(plus, minus, 0);
     }
     this.head.next = this.head.prev = this.head;
     this.length = 0;
@@ -106,7 +106,7 @@ List.prototype.add = function (value) {
     var node = new this.Node(value)
     if (this.dispatchesRangeChanges) {
         node.index = this.length;
-        this.dispatchBeforeRangeChange([value], [], node.index);
+        this.dispatchRangeWillChange([value], [], node.index);
     }
     this.head.addBefore(node);
     this.length++;
@@ -122,7 +122,7 @@ List.prototype.push = function () {
         var plus = Array.prototype.slice.call(arguments);
         var minus = []
         var index = this.length;
-        this.dispatchBeforeRangeChange(plus, minus, index);
+        this.dispatchRangeWillChange(plus, minus, index);
         var start = this.head.prev;
     }
     for (var i = 0; i < arguments.length; i++) {
@@ -141,7 +141,7 @@ List.prototype.unshift = function () {
     if (this.dispatchesRangeChanges) {
         var plus = Array.prototype.slice.call(arguments);
         var minus = [];
-        this.dispatchBeforeRangeChange(plus, minus, 0);
+        this.dispatchRangeWillChange(plus, minus, 0);
     }
     var at = this.head;
     for (var i = 0; i < arguments.length; i++) {
@@ -166,7 +166,7 @@ List.prototype.pop = function () {
             var plus = [];
             var minus = [value];
             var index = this.length - 1;
-            this.dispatchBeforeRangeChange(plus, minus, index);
+            this.dispatchRangeWillChange(plus, minus, index);
         }
         head.prev['delete']();
         this.length--;
@@ -185,7 +185,7 @@ List.prototype.shift = function () {
         if (this.dispatchesRangeChanges) {
             var plus = [];
             var minus = [value];
-            this.dispatchBeforeRangeChange(plus, minus, 0);
+            this.dispatchRangeWillChange(plus, minus, 0);
         }
         head.next['delete']();
         this.length--;
@@ -294,7 +294,7 @@ List.prototype.swap = function (start, length, plus) {
             index = start.index;
         }
         startNode = start.prev;
-        this.dispatchBeforeRangeChange(plus, minus, index);
+        this.dispatchRangeWillChange(plus, minus, index);
     }
 
     // delete minus
@@ -330,7 +330,7 @@ List.prototype.reverse = function () {
     if (this.dispatchesRangeChanges) {
         var minus = this.toArray();
         var plus = minus.reversed();
-        this.dispatchBeforeRangeChange(plus, minus, 0);
+        this.dispatchRangeWillChange(plus, minus, 0);
     }
     var at = this.head;
     do {

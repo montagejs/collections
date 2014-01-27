@@ -58,23 +58,25 @@ Dict.prototype.get = function (key, defaultValue) {
 Dict.prototype.set = function (key, value) {
     this.assertString(key);
     var mangled = mangle(key);
+    var from;
     if (mangled in this.store) { // update
-        if (this.dispatchesBeforeMapChanges) {
-            this.dispatchBeforeMapChange(key, this.store[mangled]);
+        if (this.dispatchesMapChanges) {
+            from = this.store[mangled];
+            this.dispatchMapWillChange("update", key, value, from);
         }
         this.store[mangled] = value;
         if (this.dispatchesMapChanges) {
-            this.dispatchMapChange(key, value);
+            this.dispatchMapChange("update", key, value, from);
         }
         return false;
     } else { // create
         if (this.dispatchesMapChanges) {
-            this.dispatchBeforeMapChange(key, undefined);
+            this.dispatchMapWillChange("create", key, value);
         }
         this.length++;
         this.store[mangled] = value;
         if (this.dispatchesMapChanges) {
-            this.dispatchMapChange(key, value);
+            this.dispatchMapChange("create", key, value);
         }
         return true;
     }

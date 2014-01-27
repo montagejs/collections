@@ -1,12 +1,10 @@
 // Tests that are equally applicable to Map, unbounded LruMap, FastMap.
 // These do not apply to SortedMap since keys are not comparable.
 
-var describeMapChanges = require("./listen/map-changes");
+var describeObservableMap = require("./observable-map");
 
 module.exports = describeMap;
 function describeMap(Map, values) {
-
-    describeMapChanges(Map);
 
     values = values || [];
     var a = values[0] || {};
@@ -84,6 +82,8 @@ function describeMap(Map, values) {
         expect(map).toNotBe(clone);
         expect(map.equals(clone)).toBe(true);
     });
+
+    describeObservableMap(Map);
 
 }
 
