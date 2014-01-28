@@ -1,12 +1,16 @@
 "use strict";
 
+require("./shim-object");
 var GenericCollection = require("./generic-collection");
+var RangeChanges = require("./listen/range-changes");
 
 // by Petka Antonov
 // Queue specifically uses
 // http://en.wikipedia.org/wiki/Circular_buffer#Use_a_Fill_Count
 // 1. Incrementally maintained length
 // 2. Modulus avoided by using only powers of two for the capacity
+
+// TODO variadic push
 
 module.exports = Queue;
 function Queue(values, capacity) {
@@ -20,6 +24,8 @@ function Queue(values, capacity) {
     this.addEach(values);
 }
 
+Object.addEach(Queue.prototype, RangeChanges.prototype);
+
 Queue.prototype.addEach = GenericCollection.prototype.addEach;
 
 Queue.prototype.add = function (value) {
@@ -27,6 +33,9 @@ Queue.prototype.add = function (value) {
 };
 
 Queue.prototype.push = function (value) {
+    if (this.dispatchesRangeChanges) {
+        this.dispatchBeforeRangeChange([value], [], this.length);
+    }
     var length = this.length;
     if (this.capacity <= length) {
         this.grow(this.snap(this.capacity * this.growFactor));
@@ -34,6 +43,9 @@ Queue.prototype.push = function (value) {
     var index = (this.front + length) & (this.capacity - 1);
     this[index] = value;
     this.length = length + 1;
+    if (this.dispatchesRangeChanges) {
+        this.dispatchRangeChange([value], [], this.length - 1);
+    }
 };
 
 Queue.prototype.shift = function () {
@@ -41,9 +53,18 @@ Queue.prototype.shift = function () {
         var front = this.front;
         var result = this[front];
 
+        if (this.dispatchesRangeChanges) {
+            this.dispatchBeforeRangeChange([], [result], 0);
+        }
+
         this[front] = void 0;
         this.front = (front + 1) & (this.capacity - 1);
         this.length--;
+
+        if (this.dispatchesRangeChanges) {
+            this.dispatchRangeChange([], [result], 0);
+        }
+
         return result;
     }
 };

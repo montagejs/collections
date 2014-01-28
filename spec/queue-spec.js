@@ -53,5 +53,24 @@ describe("Queue", function () {
         expect(queue.shift()).toBe(4);
     });
 
+    it("dispatches range changes", function () {
+        var spy = jasmine.createSpy();
+        var handler = function (plus, minus, value) {
+            spy(plus, minus, value); // ignore last arg
+        };
+        var queue = Queue();
+        queue.addRangeChangeListener(handler);
+        queue.push(1);
+        queue.push(2);
+        queue.shift();
+        queue.removeRangeChangeListener(handler);
+        queue.shift();
+        expect(spy.argsForCall).toEqual([
+            [[1], [], 0],
+            [[2], [], 1],
+            [[], [1], 0]
+        ]);
+    });
+
 });
 
