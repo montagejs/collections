@@ -149,10 +149,6 @@ describe("Object", function () {
             expect(Object.has(set, "toString")).toEqual(false);
         });
 
-        it("should not delegate to an owned 'has' method", function () {
-            expect(Object.has({has: function () {}}, "has")).toEqual(true);
-        });
-
     });
 
     describe("get", function () {
@@ -192,14 +188,6 @@ describe("Object", function () {
 
         it("should set a property", function () {
             var object = {};
-            Object.set(object, "set", 10);
-            expect(Object.get(object, "set")).toEqual(10);
-        });
-
-        it("should not confuse a property method and content", function () {
-            var object = {};
-            Object.set(object, "set", function () {
-            });
             Object.set(object, "set", 10);
             expect(Object.get(object, "set")).toEqual(10);
         });
@@ -316,12 +304,12 @@ describe("Object", function () {
     });
 
     describe("equals", function () {
-        var fakeNumber = Object.create({
+        var fakeNumber = {
             valueOf: function () {
                 return 10;
             }
-        });
-        var equatable = Object.create({
+        };
+        var equatable = {
             value: 10,
             clone: function () {
                 return this;
@@ -329,12 +317,7 @@ describe("Object", function () {
             equals: function (n) {
                 return n === 10 || typeof n === "object" && n.value === 10;
             }
-        });
-
-        var fakeArrayType = Object.create(Object.prototype, {
-        });
-
-        var fakeArray = Object.create(fakeArrayType);
+        };
 
         var equivalenceClasses = [
             {
@@ -356,6 +339,9 @@ describe("Object", function () {
             },
             {
                 'now': new Date()
+            },
+            {
+                'NaN': NaN
             }
         ];
 
@@ -364,13 +350,13 @@ describe("Object", function () {
         // its equivalence class
         equivalenceClasses.forEach(function (equivalenceClass) {
             Object.forEach(equivalenceClass, function (a, ai) {
-                equivalenceClass["cloned " + ai] = Object.clone(a);
+                equivalenceClass[ai + " clone"] = Object.clone(a);
             });
             // within each pair of class, test exhaustive combinations to cover
             // the commutative property
             Object.forEach(equivalenceClass, function (a, ai) {
                 Object.forEach(equivalenceClass, function (b, bi) {
-                    it(ai + " equals " + bi, function () {
+                    it(": " + ai + " equals " + bi, function () {
                         expect(Object.equals(a, b)).toBe(true);
                     });
                 });

@@ -58,7 +58,7 @@ Object.isObject = function (object) {
     the value through
 */
 Object.getValueOf = function (value) {
-    if (Object.can(value, "valueOf")) {
+    if (value && typeof value.valueOf === "function") {
         value = value.valueOf();
     }
     return value;
@@ -66,7 +66,7 @@ Object.getValueOf = function (value) {
 
 var hashMap = new WeakMap();
 Object.hash = function (object) {
-    if (Object.can(object, "hash")) {
+    if (object && typeof object.hash === "function") {
         return "" + object.hash();
     } else if (Object(object) === object) {
         if (!hashMap.has(object)) {
@@ -92,32 +92,6 @@ Object.hash = function (object) {
 var owns = Object.prototype.hasOwnProperty;
 Object.owns = function (object, key) {
     return owns.call(object, key);
-};
-
-/**
-    Returns whether a value implements a particular duck-type method.
-
-    <p>To qualify as a duck-type method, the value in question must have a
-    method by the given name on the prototype chain.  To distinguish it from
-    a property of an object literal, the property must not be owned by the
-    object directly.
-
-    <p>A value that implements a method is not necessarily an object, for
-    example, numbers implement <code>valueOf</code>, so this is function
-    does not imply <code>Object.isObject</code> of the same value.
-
-    @function external:Object.can
-    @param {Any} value a value
-    @param {String} name a method name
-    @returns {Boolean} whether the given value implements the given method
-
-*/
-Object.can = function (object, name) {
-    return (
-        object != null && // false only for null *and* undefined
-        typeof object[name] === "function" &&
-        !owns.call(object, name)
-    );
 };
 
 /**
@@ -147,7 +121,7 @@ Object.has = function (object, key) {
         throw new Error("Object.has can't accept non-object: " + typeof object);
     }
     // forward to mapped collections that implement "has"
-    if (Object.can(object, "has")) {
+    if (object && typeof object.has === "function") {
         return object.has(key);
     // otherwise report whether the key is on the prototype chain,
     // as long as it is not one of the methods on object.prototype
@@ -186,7 +160,7 @@ Object.get = function (object, key, value) {
         throw new Error("Object.get can't accept non-object: " + typeof object);
     }
     // forward to mapped collections that implement "get"
-    if (Object.can(object, "get")) {
+    if (object && typeof object.get === "function") {
         return object.get(key, value);
     } else if (Object.has(object, key)) {
         return object[key];
@@ -210,7 +184,7 @@ Object.get = function (object, key, value) {
     @function external:Object.set
 */
 Object.set = function (object, key, value) {
-    if (Object.can(object, "set")) {
+    if (object && typeof object.set === "function") {
         object.set(key, value);
     } else {
         object[key] = value;
@@ -219,7 +193,7 @@ Object.set = function (object, key, value) {
 
 Object.addEach = function (target, source) {
     if (!source) {
-    } else if (Object.can(source, "forEach")) {
+    } else if (typeof source.forEach === "function" && !source.hasOwnProperty("forEach")) {
         // copy map-alikes
         if (typeof source.keys === "function") {
             source.forEach(function (value, key) {
@@ -373,39 +347,36 @@ Object.equals = function (a, b, equals) {
         return a !== 0 || 1 / a === 1 / b;
     if (a === null || b === null)
         return a === b;
-    if (Object.can(a, "equals"))
+    if (typeof a.equals === "function")
         return a.equals(b, equals);
     // commutative
-    if (Object.can(b, "equals"))
+    if (typeof b.equals === "function")
         return b.equals(a, equals);
-    if (typeof a === "object" && typeof b === "object") {
-        var aPrototype = Object.getPrototypeOf(a);
-        var bPrototype = Object.getPrototypeOf(b);
-        if (
-            aPrototype === bPrototype && (
-                aPrototype === Object.prototype ||
-                aPrototype === null
-            )
-        ) {
-            for (var key in a) {
-                if (!equals(a[key], b[key])) {
-                    return false;
-                }
-            }
-            for (var key in b) {
-                if (!equals(a[key], b[key])) {
-                    return false;
-                }
-            }
-            return true;
-        }
-    }
     // NaN !== NaN, but they are equal.
     // NaNs are the only non-reflexive value, i.e., if x !== x,
     // then x is a NaN.
     // isNaN is broken: it converts its argument to number, so
     // isNaN("foo") => true
-    return a !== a && b !== b;
+    // We have established that a !== b, but if a !== a && b !== b, they are
+    // both NaN.
+    if (a !== a && b !== b)
+        return true;
+    if (typeof a !== "object" || typeof b !== "object")
+        return a === b;
+    if (Object.getPrototypeOf(a) === Object.prototype && Object.getPrototypeOf(b) === Object.prototype) {
+        for (var name in a) {
+            if (!equals(a[name], b[name])) {
+                return false;
+            }
+        }
+        for (var name in b) {
+            if (!(name in a)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
 };
 
 // Because a return value of 0 from a `compare` function  may mean either
@@ -449,21 +420,23 @@ Object.compare = function (a, b) {
     // mercifully handles the Date case
     a = Object.getValueOf(a);
     b = Object.getValueOf(b);
-    var aType = typeof a;
-    var bType = typeof b;
     if (a === b)
         return 0;
+    var aType = typeof a;
+    var bType = typeof b;
     if (aType !== bType)
         return 0;
+    if (a == null)
+        return b == null ? 0 : -1;
     if (aType === "number")
         return a - b;
     if (aType === "string")
         return a < b ? -1 : 1;
         // the possibility of equality elimiated above
-    if (Object.can(a, "compare"))
+    if (typeof a.compare === "function")
         return a.compare(b);
     // not commutative, the relationship is reversed
-    if (Object.can(b, "compare"))
+    if (typeof b.compare === "function")
         return -b.compare(a);
     return 0;
 };
@@ -495,7 +468,7 @@ Object.clone = function (value, depth, memo) {
     }
     if (Object.isObject(value)) {
         if (!memo.has(value)) {
-            if (Object.can(value, "clone")) {
+            if (value && typeof value.clone === "function") {
                 memo.set(value, value.clone(depth, memo));
             } else {
                 var prototype = Object.getPrototypeOf(value);
@@ -523,7 +496,7 @@ Object.clone = function (value, depth, memo) {
     @returns this
 */
 Object.clear = function (object) {
-    if (Object.can(object, "clear")) {
+    if (object && typeof object.clear === "function") {
         object.clear();
     } else {
         var keys = Object.keys(object),
