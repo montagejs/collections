@@ -4,7 +4,7 @@ var Shim = require("./shim");
 var LruSet = require("./lru-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
-var PropertyChanges = require("./listen/property-changes");
+var ObservableObject = require("./observable-object");
 
 module.exports = LruMap;
 
@@ -36,7 +36,7 @@ LruMap.LruMap = LruMap; // hack so require("lru-map").LruMap will work in Montag
 
 Object.addEach(LruMap.prototype, GenericCollection.prototype);
 Object.addEach(LruMap.prototype, GenericMap.prototype);
-Object.addEach(LruMap.prototype, PropertyChanges.prototype);
+Object.addEach(LruMap.prototype, ObservableObject.prototype);
 
 LruMap.prototype.constructClone = function (values) {
     return new this.constructor(

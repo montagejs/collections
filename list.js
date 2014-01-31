@@ -379,10 +379,10 @@ List.prototype.updateIndexes = function (node, index) {
     }
 };
 
-List.prototype.makeObservable = function () {
+List.prototype.makeRangeChangesObservable = function () {
     this.head.index = -1;
     this.updateIndexes(this.head.next, 0);
-    this.dispatchesRangeChanges = true;
+    ObservableRange.prototype.makeRangeChangesObservable.call(this);
 };
 
 List.prototype.iterate = function () {

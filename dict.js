@@ -3,7 +3,7 @@
 var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
-var PropertyChanges = require("./listen/property-changes");
+var ObservableObject = require("./observable-object");
 
 // Burgled from https://github.com/domenic/dict
 
@@ -31,7 +31,7 @@ function unmangle(mangled) {
 
 Object.addEach(Dict.prototype, GenericCollection.prototype);
 Object.addEach(Dict.prototype, GenericMap.prototype);
-Object.addEach(Dict.prototype, PropertyChanges.prototype);
+Object.addEach(Dict.prototype, ObservableObject.prototype);
 
 Dict.prototype.constructClone = function (values) {
     return new this.constructor(values, this.mangle, this.getDefault);

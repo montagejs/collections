@@ -1,6 +1,6 @@
 
 require("../shim");
-require("../listen/array-changes");
+require("../observable-array");
 var GenericCollection = require("../generic-collection");
 var describeDequeue = require("./dequeue");
 var describeCollection = require("./collection");

@@ -5,8 +5,8 @@ var List = require("./list");
 var FastSet = require("./fast-set");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
-var PropertyChanges = require("./listen/property-changes");
-var RangeChanges = require("./listen/range-changes");
+var ObservableObject = require("./observable-object");
+var ObservableRange = require("./observable-range");
 
 module.exports = Set;
 
@@ -42,8 +42,8 @@ Set.Set = Set; // hack so require("set").Set will work in MontageJS
 
 Object.addEach(Set.prototype, GenericCollection.prototype);
 Object.addEach(Set.prototype, GenericSet.prototype);
-Object.addEach(Set.prototype, PropertyChanges.prototype);
-Object.addEach(Set.prototype, RangeChanges.prototype);
+Object.addEach(Set.prototype, ObservableObject.prototype);
+Object.addEach(Set.prototype, ObservableRange.prototype);
 
 Set.prototype.Order = List;
 Set.prototype.Store = FastSet;
@@ -72,7 +72,7 @@ Set.prototype.add = function (value) {
     if (!this.store.has(node)) {
         var index = this.length;
         if (this.dispatchesRangeChanges) {
-            this.dispatchBeforeRangeChange([value], [], index);
+            this.dispatchRangeWillChange([value], [], index);
         }
         this.order.add(value);
         node = this.order.head.prev;
@@ -91,7 +91,7 @@ Set.prototype["delete"] = function (value) {
     if (this.store.has(node)) {
         var node = this.store.get(node);
         if (this.dispatchesRangeChanges) {
-            this.dispatchBeforeRangeChange([], [value], node.index);
+            this.dispatchRangeWillChange([], [value], node.index);
         }
         this.store["delete"](node); // removes from the set
         this.order.splice(node, 1); // removes the node from the list
@@ -130,7 +130,7 @@ Set.prototype.clear = function () {
     var clearing;
     if (this.dispatchesRangeChanges) {
         clearing = this.toArray();
-        this.dispatchBeforeRangeChange([], clearing, 0);
+        this.dispatchRangeWillChange([], clearing, 0);
     }
     this.store.clear();
     this.order.clear();
@@ -167,7 +167,8 @@ Set.prototype.log = function () {
     return set.log.apply(set, arguments);
 };
 
-Set.prototype.makeObservable = function () {
-    this.order.makeObservable();
+Set.prototype.makeRangeChangesObservable = function () {
+    this.order.makeRangeChangesObservable();
+    ObservableRange.prototype.makeRangeChangesObservable.call(this);
 };
 

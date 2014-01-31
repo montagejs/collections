@@ -5,8 +5,8 @@ module.exports = SortedSet;
 var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
-var PropertyChanges = require("./listen/property-changes");
-var RangeChanges = require("./listen/range-changes");
+var ObservableObject = require("./observable-object");
+var ObservableRange = require("./observable-range");
 var TreeLog = require("./tree-log");
 
 function SortedSet(values, equals, compare, getDefault) {
@@ -26,8 +26,8 @@ SortedSet.SortedSet = SortedSet;
 
 Object.addEach(SortedSet.prototype, GenericCollection.prototype);
 Object.addEach(SortedSet.prototype, GenericSet.prototype);
-Object.addEach(SortedSet.prototype, PropertyChanges.prototype);
-Object.addEach(SortedSet.prototype, RangeChanges.prototype);
+Object.addEach(SortedSet.prototype, ObservableObject.prototype);
+Object.addEach(SortedSet.prototype, ObservableRange.prototype);
 
 SortedSet.prototype.constructClone = function (values) {
     return new this.constructor(
@@ -67,7 +67,7 @@ SortedSet.prototype.add = function (value) {
                 throw new Error("SortedSet cannot contain incomparable but inequal values: " + value + " and " + this.root.value);
             }
             if (this.dispatchesRangeChanges) {
-                this.dispatchBeforeRangeChange([value], [], this.root.index);
+                this.dispatchRangeWillChange([value], [], this.root.index);
             }
             if (comparison < 0) {
                 // rotate right
@@ -104,7 +104,7 @@ SortedSet.prototype.add = function (value) {
         }
     } else {
         if (this.dispatchesRangeChanges) {
-            this.dispatchBeforeRangeChange([value], [], 0);
+            this.dispatchRangeWillChange([value], [], 0);
         }
         this.root = node;
         this.length++;
@@ -122,7 +122,7 @@ SortedSet.prototype['delete'] = function (value) {
         if (this.contentEquals(value, this.root.value)) {
             var index = this.root.index;
             if (this.dispatchesRangeChanges) {
-                this.dispatchBeforeRangeChange([], [value], index);
+                this.dispatchRangeWillChange([], [value], index);
             }
             if (!this.root.left) {
                 this.root = this.root.right;
@@ -497,7 +497,7 @@ SortedSet.prototype.clear = function () {
     var minus;
     if (this.dispatchesRangeChanges) {
         minus = this.toArray();
-        this.dispatchBeforeRangeChange([], minus, 0);
+        this.dispatchRangeWillChange([], minus, 0);
     }
     this.root = null;
     this.length = 0;
