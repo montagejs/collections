@@ -132,10 +132,6 @@ PropertyChanges.prototype.removeOwnPropertyChangeListener = function (key, liste
         throw new Error("Can't remove property change listener: does not exist: property name" + JSON.stringify(key));
     }
     listeners.splice(index, 1);
-
-    if (descriptor.changeListeners.length + descriptor.willChangeListeners.length === 0) {
-        PropertyChanges.makePropertyUnobservable(this, key);
-    }
 };
 
 PropertyChanges.prototype.removeBeforeOwnPropertyChangeListener = function (key, listener) {
