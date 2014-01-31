@@ -129,7 +129,7 @@ PropertyChanges.prototype.removeOwnPropertyChangeListener = function (key, liste
 
     var index = listeners.lastIndexOf(listener);
     if (index === -1) {
-        throw new Error("Can't remove listener: does not exist.");
+        throw new Error("Can't remove property change listener: does not exist: property name" + JSON.stringify(key));
     }
     listeners.splice(index, 1);
 
