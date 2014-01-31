@@ -77,7 +77,7 @@ RangeChanges.prototype.removeRangeChangeListener = function (listener, token, be
 
     var index = listeners.lastIndexOf(listener);
     if (index === -1) {
-        throw new Error("Can't remove listener: does not exist.");
+        throw new Error("Can't remove range change listener: does not exist: token " + JSON.stringify(token));
     }
     listeners.splice(index, 1);
 };
@@ -110,7 +110,10 @@ RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, befor
 
         // dispatch each listener
         try {
-            listeners.forEach(function (listener) {
+            listeners.slice().forEach(function (listener) {
+                if (listeners.indexOf(listener) < 0) {
+                    return;
+                }
                 if (listener[tokenName]) {
                     listener[tokenName](plus, minus, index, this, beforeChange);
                 } else if (listener.call) {

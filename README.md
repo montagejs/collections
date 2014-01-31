@@ -1265,10 +1265,9 @@ Goals
 More possible collections
 
 - sorted-list (sorted, can contain duplicates, perhaps backed by splay
-  tree with relaxation on the uniqueness invariant)
+  tree with relaxation on the uniqueness invariant, or a skip list)
 - sorted-multi-map (sorted, can contain duplicate entries)
 - buffer (backed by a circular array, emits cull events)
-- emit cull events in LRU cache set and map
 - trie-set
 - trie-map
 - immutable-* (mutation functions return new objects that largely share

@@ -87,7 +87,7 @@ MapChanges.prototype.removeMapChangeListener = function (listener, token, before
 
     var node = listeners.findLast(listener);
     if (!node) {
-        throw new Error("Can't remove listener: does not exist.");
+        throw new Error("Can't remove map change listener: does not exist: token " + JSON.stringify(token));
     }
     node["delete"]();
 };

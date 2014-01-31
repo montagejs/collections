@@ -160,7 +160,7 @@ GenericMap.prototype.equals = function (that, equals) {
     equals = equals || Object.equals;
     if (this === that) {
         return true;
-    } else if (Object.can(that, "every")) {
+    } else if (that && typeof that.every === "function") {
         return that.length === this.length && that.every(function (value, key) {
             return equals(this.get(key), value);
         }, this);

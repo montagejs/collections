@@ -31,7 +31,7 @@ GenericSet.prototype.symmetricDifference = function (that) {
 GenericSet.prototype.equals = function (that, equals) {
     var self = this;
     return (
-        Object.can(that, "reduce") &&
+        that && typeof that.reduce === "function" &&
         this.length === that.length &&
         that.reduce(function (equal, value) {
             return equal && self.has(value, equals);
