@@ -166,6 +166,9 @@ PropertyChanges.prototype.dispatchOwnPropertyChange = function (key, value, befo
     try {
         // dispatch to each listener
         listeners.slice().forEach(function (listener) {
+            if (listeners.indexOf(listener) < 0) {
+                return;
+            }
             var thisp = listener;
             listener = (
                 listener[specificHandlerName] ||

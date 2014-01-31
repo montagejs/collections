@@ -110,7 +110,10 @@ RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, befor
 
         // dispatch each listener
         try {
-            listeners.forEach(function (listener) {
+            listeners.slice().forEach(function (listener) {
+                if (listeners.indexOf(listener) < 0) {
+                    return;
+                }
                 if (listener[tokenName]) {
                     listener[tokenName](plus, minus, index, this, beforeChange);
                 } else if (listener.call) {
