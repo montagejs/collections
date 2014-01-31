@@ -273,17 +273,19 @@ define("equals", function (that, equals) {
 });
 
 define("clone", function (depth, memo) {
-    if (depth === undefined) {
+    if (depth == null) {
         depth = Infinity;
     } else if (depth === 0) {
         return this;
     }
     memo = memo || new WeakMap();
-    var clone = [];
+    if (memo.has(this)) {
+        return memo.get(this);
+    }
+    var clone = new Array(this.length);
+    memo.set(this, clone);
     for (var i in this) {
-        if (Object.owns(this, i)) {
-            clone[i] = Object.clone(this[i], depth - 1, memo);
-        }
+        clone[i] = Object.clone(this[i], depth - 1, memo);
     };
     return clone;
 });
