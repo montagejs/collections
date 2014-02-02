@@ -2,7 +2,7 @@
 require("../shim-array");
 var SortedSet = require("../sorted-set");
 var TreeLog = require("../tree-log");
-var describeDequeue = require("./dequeue");
+var describeDeque = require("./deque");
 var describeCollection = require("./collection");
 var describeSet = require("./set");
 var Fuzz = require("./fuzz");
@@ -12,6 +12,8 @@ describe("SortedSet", function () {
     function newSortedSet(values) {
         return new SortedSet(values);
     }
+
+    newSortedSet.prototype.isSorted = true;
 
     [SortedSet, newSortedSet].forEach(function (SortedSet) {
 
@@ -34,11 +36,11 @@ describe("SortedSet", function () {
         var values = [a, b, c, d];
         describeCollection(SortedSet, values, true);
 
-        // Happens to qualify as a dequeue, since the tests keep the content in
+        // Happens to qualify as a deque, since the tests keep the content in
         // sorted order.  SortedSet has meaningful pop and shift operations, but
         // push and unshift just add the arguments into their proper sorted
         // positions rather than the ends.
-        describeDequeue(SortedSet);
+        describeDeque(SortedSet);
 
         describeSet(SortedSet, "sorted");
 

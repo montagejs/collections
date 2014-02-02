@@ -1,6 +1,6 @@
 
 var SortedArraySet = require("../sorted-array-set");
-var describeDequeue = require("./dequeue");
+var describeDeque = require("./deque");
 var describeCollection = require("./collection");
 var describeSet = require("./set");
 
@@ -10,8 +10,10 @@ describe("SortedArraySet", function () {
         return new SortedArraySet(values);
     }
 
+    newSortedArraySet.prototype.isSorted = true;
+
     [SortedArraySet, newSortedArraySet].forEach(function (SortedArraySet) {
-        describeDequeue(SortedArraySet);
+        describeDeque(SortedArraySet);
         describeCollection(SortedArraySet, [1, 2, 3, 4]);
         describeSet(SortedArraySet);
     });

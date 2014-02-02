@@ -4,6 +4,8 @@ function GenericSet() {
     throw new Error("Can't construct. GenericSet is a mixin.");
 }
 
+GenericSet.prototype.isSet = true;
+
 GenericSet.prototype.union = function (that) {
     var union =  this.constructClone(this);
     union.addEach(that);

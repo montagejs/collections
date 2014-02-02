@@ -215,6 +215,14 @@ List.prototype.one = function () {
     return this.peek();
 };
 
+// TODO
+// List.prototype.indexOf = function (value) {
+// };
+
+// TODO
+// List.prototype.lastIndexOf = function (value) {
+// };
+
 // an internal utility for coercing index offsets to nodes
 List.prototype.scan = function (at, fallback) {
     var head = this.head;

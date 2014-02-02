@@ -26,16 +26,16 @@ function describeOrder(Collection) {
 
     describe("equals", function () {
 
-        it("should equal itself", function () {
+        it("identifies itself", function () {
             var collection = Collection([1, 2]);
             expect(collection.equals(collection)).toBe(true);
         });
 
-        it("should be able to distinguish incomparable objects", function () {
+        it("distinguishes incomparable objects", function () {
             expect(Collection([]).equals(null)).toEqual(false);
         });
 
-        it("should compare itself to an array-like collection", function () {
+        it("compares itself to an array-like collection", function () {
             expect(Collection([10, 20, 30]).equals(fakeArray)).toEqual(true);
         });
 
@@ -43,7 +43,7 @@ function describeOrder(Collection) {
 
     describe("compare", function () {
 
-        it("should compare to itself", function () {
+        it("compares to itself", function () {
             var collection = Collection([1, 2]);
             expect(collection.compare(collection)).toBe(0);
         });
@@ -83,9 +83,77 @@ function describeOrder(Collection) {
 
     });
 
+    describe("indexOf", function () {
+        if (!Collection.prototype.indexOf)
+            return;
+
+        it("finds first value", function () {
+            var collection = Collection([1, 2, 3]);
+            expect(collection.indexOf(2)).toBe(1);
+        });
+
+        it("finds first identical value", function () {
+            if (Collection.prototype.isSet)
+                return;
+            var collection = Collection([1, 1, 2, 2, 3, 3]);
+            expect(collection.indexOf(2)).toBe(2);
+        });
+
+        it("finds first value after index", function () {
+            if (Collection.prototype.isSet || Collection.prototype.isSorted)
+                return;
+            var collection = Collection([1, 2, 3, 1, 2, 3]);
+            expect(collection.indexOf(2, 3)).toBe(4);
+        });
+
+        it("finds first value after negative index", function () {
+            if (Collection.prototype.isSet || Collection.prototype.isSorted)
+                return;
+            var collection = Collection([1, 2, 3, 1, 2, 3]);
+            expect(collection.indexOf(2, -3)).toBe(4);
+        });
+
+    });
+
+    describe("lastIndexOf", function () {
+        if (!Collection.prototype.lastIndexOf)
+            return;
+
+        it("finds last value", function () {
+            var collection = Collection([1, 2, 3]);
+            expect(collection.lastIndexOf(2)).toBe(1);
+        });
+
+        it("finds last identical value", function () {
+            if (Collection.prototype.isSet)
+                return;
+            var collection = Collection([1, 1, 2, 2, 3, 3]);
+            expect(collection.lastIndexOf(2)).toBe(3);
+        });
+
+        it("finds the last value before index", function () {
+            if (Collection.prototype.isSet || Collection.prototype.isSorted)
+                return;
+            var collection = Collection([1, 2, 3, 1, 2, 3]);
+            expect(collection.lastIndexOf(2, 3)).toBe(1);
+        });
+
+        it("finds the last value before negative index", function () {
+            if (Collection.prototype.isSet || Collection.prototype.isSorted)
+                return;
+            var collection = Collection([1, 2, 3, 1, 2, 3]);
+            expect(collection.lastIndexOf(2, -3)).toBe(1);
+        });
+
+    });
+
     describe("find", function () {
 
-        it("should find equivalent values", function () {
+        it("finds equivalent values", function () {
+            expect(Collection([10, 10, 10]).find(10)).toEqual(0);
+        });
+
+        it("finds equivalent values", function () {
             expect(Collection([10, 10, 10]).find(10)).toEqual(0);
         });
 
@@ -93,7 +161,7 @@ function describeOrder(Collection) {
 
     describe("findLast", function () {
 
-        it("should find equivalent values", function () {
+        it("finds equivalent values", function () {
             expect(Collection([10, 10, 10]).findLast(10)).toEqual(2);
         });
 
@@ -101,15 +169,38 @@ function describeOrder(Collection) {
 
     describe("has", function () {
 
-        it("should find equivalent values", function () {
+        it("finds equivalent values", function () {
             expect(Collection([10]).has(10)).toBe(true);
         });
 
-        it("should not find non-contained values", function () {
+        it("does not find absent values", function () {
             expect(Collection([]).has(-1)).toBe(false);
         });
 
     });
+
+    describe("has", function () {
+
+        it("finds a value", function () {
+            var collection = Collection([1, 2, 3]);
+            expect(collection.has(2)).toBe(true);
+        });
+
+        it("does not find an absent value", function () {
+            var collection = Collection([1, 2, 3]);
+            expect(collection.has(4)).toBe(false);
+        });
+
+        // TODO
+        // it("makes use of equality override", function () {
+        //     var collection = Collection([1, 2, 3]);
+        //     expect(collection.has(4, function (a, b) {
+        //         return a - 1 === b;
+        //     })).toBe(true);
+        // });
+
+    });
+
 
     describe("any", function () {
 
@@ -154,7 +245,7 @@ function describeOrder(Collection) {
 
     describe("min", function () {
 
-        it("should find the minimum of numeric values", function () {
+        it("finds the minimum of numeric values", function () {
             expect(Collection([1, 2, 3]).min()).toEqual(1);
         });
 
@@ -162,7 +253,7 @@ function describeOrder(Collection) {
 
     describe("max", function () {
 
-        it("should find the maximum of numeric values", function () {
+        it("finds the maximum of numeric values", function () {
             expect(Collection([1, 2, 3]).max()).toEqual(3);
         });
 
@@ -170,7 +261,7 @@ function describeOrder(Collection) {
 
     describe("sum", function () {
 
-        it("should compute the sum of numeric values", function () {
+        it("computes the sum of numeric values", function () {
             expect(Collection([1, 2, 3]).sum()).toEqual(6);
         });
 
@@ -181,7 +272,7 @@ function describeOrder(Collection) {
 
     describe("average", function () {
 
-        it("should compute the arithmetic mean of values", function () {
+        it("computes the arithmetic mean of values", function () {
             expect(Collection([1, 2, 3]).average()).toEqual(2);
         });
 
@@ -189,7 +280,7 @@ function describeOrder(Collection) {
 
     describe("flatten", function () {
 
-        it("should flatten an array one level", function () {
+        it("flattens an array one level", function () {
             var collection = Collection([
                 [[1, 2, 3], [4, 5, 6]],
                 Collection([[7, 8, 9], [10, 11, 12]])
@@ -206,11 +297,11 @@ function describeOrder(Collection) {
 
     describe("one", function () {
 
-        it("should get the first value", function () {
+        it("gets the first value", function () {
             expect(Collection([0]).one()).toEqual(0);
         });
 
-        it("should throw if empty", function () {
+        it("throws if empty", function () {
             expect(Collection([]).one()).toBe(undefined);
         });
 
@@ -218,15 +309,15 @@ function describeOrder(Collection) {
 
     describe("only", function () {
 
-        it("should get the first value", function () {
+        it("gets the first value", function () {
             expect(Collection([0]).only()).toEqual(0);
         });
 
-        it("should be undefined if empty", function () {
+        it("is undefined if empty", function () {
             expect(Collection([]).only()).toBeUndefined();
         });
 
-        it("should be undefined if more than one value", function () {
+        it("is undefined if more than one value", function () {
             expect(Collection([1, 2]).only()).toBeUndefined();
         });
 
