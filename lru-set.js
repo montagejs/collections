@@ -47,7 +47,10 @@ LruSet.prototype.has = function (value) {
     return this.store.has(value);
 };
 
-LruSet.prototype.get = function (value) {
+LruSet.prototype.get = function (value, equals) {
+    if (equals) {
+        throw new Error("LruSet#get does not support second argument: equals");
+    }
     value = this.store.get(value);
     if (value !== undefined) {
         this.store["delete"](value);
@@ -92,7 +95,10 @@ LruSet.prototype.add = function (value) {
     return plus.length !== minus.length;
 };
 
-LruSet.prototype["delete"] = function (value) {
+LruSet.prototype["delete"] = function (value, equals) {
+    if (equals) {
+        throw new Error("LruSet#delete does not support second argument: equals");
+    }
     var found = this.store.has(value);
     if (found) {
         if (this.dispatchesRangeChanges) {

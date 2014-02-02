@@ -50,7 +50,10 @@ FastSet.prototype.has = function (value) {
     return this.buckets.get(hash).has(value);
 };
 
-FastSet.prototype.get = function (value) {
+FastSet.prototype.get = function (value, equals) {
+    if (equals) {
+        throw new Error("FastSet#get does not support second argument: equals");
+    }
     var hash = this.contentHash(value);
     var buckets = this.buckets;
     if (buckets.has(hash)) {
@@ -60,7 +63,10 @@ FastSet.prototype.get = function (value) {
     }
 };
 
-FastSet.prototype['delete'] = function (value) {
+FastSet.prototype["delete"] = function (value, equals) {
+    if (equals) {
+        throw new Error("FastSet#delete does not support second argument: equals");
+    }
     var hash = this.contentHash(value);
     var buckets = this.buckets;
     if (buckets.has(hash)) {

@@ -57,7 +57,10 @@ Set.prototype.has = function (value) {
     return this.store.has(node);
 };
 
-Set.prototype.get = function (value) {
+Set.prototype.get = function (value, equals) {
+    if (equals) {
+        throw new Error("Set#get does not support second argument: equals");
+    }
     var node = new this.order.Node(value);
     node = this.store.get(node);
     if (node) {
@@ -86,7 +89,10 @@ Set.prototype.add = function (value) {
     return false;
 };
 
-Set.prototype["delete"] = function (value) {
+Set.prototype["delete"] = function (value, equals) {
+    if (equals) {
+        throw new Error("Set#delete does not support second argument: equals");
+    }
     var node = new this.order.Node(value);
     if (this.store.has(node)) {
         var node = this.store.get(node);
