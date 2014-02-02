@@ -1,6 +1,6 @@
 
 var List = require("../list");
-var describeDequeue = require("./dequeue");
+var describeDeque = require("./deque");
 var describeCollection = require("./collection");
 var describeRangeChanges = require("./listen/range-changes");
 
@@ -60,11 +60,14 @@ describe("List", function () {
     //      splice
     //      swap
 
+    newList.prototype = List;
+
     // push, pop, shift, unshift, slice, splice with numeric indicies
-    describeDequeue(List);
-    describeDequeue(function (values) {
+    describeDeque(List);
+    describeDeque(newList);
+    function newList(values) {
         return new List(values);
-    });
+    }
 
     // construction, has, add, get, delete
     function newList(values) {

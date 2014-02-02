@@ -29,6 +29,8 @@ Object.addEach(SortedSet.prototype, GenericSet.prototype);
 Object.addEach(SortedSet.prototype, PropertyChanges.prototype);
 Object.addEach(SortedSet.prototype, RangeChanges.prototype);
 
+SortedSet.prototype.isSorted = true;
+
 SortedSet.prototype.constructClone = function (values) {
     return new this.constructor(
         values,

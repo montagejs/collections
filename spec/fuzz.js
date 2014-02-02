@@ -1,4 +1,9 @@
 
+// TODO rename set-fuzz
+
+var makeRandom = require("./prng");
+exports.makeRandom = makeRandom;
+
 exports.make = makeFuzz;
 function makeFuzz(length, seed, max) {
     var random = makeRandom(seed);
@@ -70,13 +75,5 @@ function executeFuzz(set, operations, log) {
             });
         }
     });
-}
-
-exports.makeRandom = makeRandom;
-function makeRandom(seed) {
-    return function () {
-        seed = ((seed * 60271) + 70451) % 99991;
-        return seed / 99991;
-    }
 }
 
