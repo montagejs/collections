@@ -184,6 +184,28 @@ define("swap", function (start, length, plus) {
     }
 });
 
+define("peek", function () {
+    return this[0];
+});
+
+define("poke", function (value) {
+    if (this.length > 0) {
+        this[0] = value;
+    }
+});
+
+define("peekBack", function () {
+    if (this.length > 0) {
+        return this[this.length - 1];
+    }
+});
+
+define("pokeBack", function (value) {
+    if (this.length > 0) {
+        this[this.length - 1] = value;
+    }
+});
+
 define("one", function () {
     for (var i in this) {
         if (Object.owns(this, i)) {
