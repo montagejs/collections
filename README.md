@@ -214,6 +214,7 @@ var Iterator = require("collections/iterator");
 A wrapper for any iterable that implements `iterate` or iterator the
 implements `next`, providing a rich lazy traversal interface.
 
+
 ### Array
 
 ```javascript
@@ -927,61 +928,152 @@ the representation to an array instead, they can be `array.push` and
 (SortedSet)
 
 
-### Iterator
+### Iterator(iterable, start, stop, step)
+
+*Redesigned in version 2.*
+
+Creates an iterator from an iterable. Iterables include:
+
+-   instances of Iterator, in which case the “iterable” will be simply returned
+    instead of a new iterator.
+-   objects with an `iterate(start, stop, step)` method, in which case the
+    optional `start`, `stop`, and `step` arguments are forwarded. Collections
+    implement this iterface, including Array.
+-   objects with a `next()` method, which is to say existing iterators,
+    though this iterator will only depend on the `next()` method and provide
+    the much richer Iterator interface using it.
+-   `next()` functions.
+
+Iterators are defined by the upcoming version of ECMAScript. The `next()` method
+returns what I am calling an “iteration”, an object that has a `value` property
+and an optional `done` flag. When `done` is true, the iteration signals the end
+of the iterator and may be accompanied by a “return value” instead of a “yield
+value”.
+
+In addition, Iterator produces iterations with an optional `index` property. The
+indexes produced by an array are the positions of each value, which are
+non-contiguous for sparse arrays.
+
+*In version 1, iterators followed the old, Pythonic protocol established in
+Mozilla’s SpiderMonkey, where iterators yielded values directly and threw
+`StopIteration` to terminate.*
 
 #### dropWhile(callback(value, index, iterator), thisp)
 
+Returns an iterator that begins with the first iteration from this iterator to
+fail the given test.
+
 #### takeWhile(callback(value, index, iterator), thisp)
 
-#### mapIterator(callback(value, index, iterator))
+Returns an iterator that ends before the first iteration from this iterator to
+fail the given test.
+
+#### iterateMap(callback(value, index, iterator))
+
+*Renamed in version 2 from `mapIterator` in version 1.*
 
 Returns an iterator for a mapping on the source values.  Values are
 consumed on demand.
 
-#### filterIterator(callback(value, index, iterator))
+#### iterateFilter(callback(value, index, iterator))
+
+*Renamed in version 2 from `filterIterator` in version 1.*
 
 Returns an iterator for those values from the source that pass the
 given guard.  Values are consumed on demand.
 
-#### zipIterator(...iterables)
+#### iterateZip(...iterables)
+
+*Introduced in version 2*
 
 Returns an iterator that incrementally combines the respective
-values of the given iterations.
+values of the given iterations, first including itself.
 
-#### enumerateIterator(start = 0)
+#### iterateUnzip()
+
+*Introduced in version 2*
+
+Assuming that this is an iterator that produces iterables, produces an iteration
+of the reslective values from each iterable.
+
+#### iterateConcat(...iterables)
+
+*Renamed in version 2 from `concat` in version 1.*
+
+Creates an iteration that first produces all the values from this iteration,
+then from each subsequent iterable in order.
+
+#### iterateFlatten()
+
+*Renamed in version 2 from `flattenIterator` in version 1.*
+
+Assuming that this is an iterator that produces iterables, creates an iterator
+that yields all of the values from each of those iterables in order.
+
+#### iterateEnumerate(start = 0)
+
+*Renamed in version 2 from `enumerateIterator` in version 1.*
 
 Returns an iterator that provides [index, value] pairs from the
 source iteration.
 
+#### recount(start=0)
+
+*Introduced in version 2.*
+
+Produces a new version of this iteration where the indexes are recounted. The
+indexes for sparse arrays are not contiguous, as well as the iterators produced
+by `filter`, `cycle`, `flatten`, and `concat` that pass iterations through
+without alteration from various sources. `recount` smoothes out the sequence.
+
 
 ### Iterator utilities
 
-#### cycle(iterable, times)
+#### cycle(iterable, times=Infinity)
 
-#### concat(iterables)
+Produces an iterator that will cycle through the values from a given iterable
+some number of times, indefinitely by default. The given iterable must be able
+to produce the sequence of values each time it is iterated, which is to say, not
+an iterator, but any collection would do.
 
-#### transpose(iterables)
+#### unzip(iterables)
+
+Transposes a two dimensional iterable, which is to say, produces an iterator
+that will yield a tuple of the respective values from each of the given
+iterables.
 
 #### zip(...iterables)
 
-Variadic transpose.
+Transposes a two dimensional iterable, which is to say, produces an iterator
+that will yield a tuple of the respective values from each of the given
+iterables. `zip` differs from `unzip` only in that the arguments are variadic.
 
-#### chain(...iterables)
+#### flatten(iterables)
 
-Variadic concat.
+Returns an iterator that will produce all the values from each of the given
+iterators in order.
 
-#### range(start, stop, step)
+#### concat(...iterables)
 
-Iterates from start to stop by step.
+Returns an iterator that will produce all the values from each of the given
+iterators in order. Differs from `flatten` only in that the arguments are
+variadic.
+
+#### range(length)
+
+Iterates `length` numbers starting from 0.
+
+#### range(start, stop, step=1)
+
+Iterates numbers from start to stop by step.
 
 #### count(start, step)
 
-Iterates from start by step, indefinitely.
+Iterates numbers from start by step, indefinitely.
 
 #### repeat(value, times)
 
 Repeats the given value either finite times or indefinitely.
-
 
 ## Change Listeners
 
