@@ -33,6 +33,8 @@ Object.addEach(SortedArray.prototype, GenericCollection.prototype);
 Object.addEach(SortedArray.prototype, ObservableObject.prototype);
 Object.addEach(SortedArray.prototype, ObservableRange.prototype);
 
+SortedArray.prototype.isSorted = true;
+
 function search(array, value, compare) {
     var first = 0;
     var last = array.length - 1;

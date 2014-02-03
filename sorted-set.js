@@ -30,6 +30,8 @@ Object.addEach(SortedSet.prototype, GenericSet.prototype);
 Object.addEach(SortedSet.prototype, ObservableObject.prototype);
 Object.addEach(SortedSet.prototype, ObservableRange.prototype);
 
+SortedSet.prototype.isSorted = true;
+
 SortedSet.prototype.constructClone = function (values) {
     return new this.constructor(
         values,

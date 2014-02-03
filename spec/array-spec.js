@@ -2,12 +2,12 @@
 require("../shim");
 require("../observable-array");
 var GenericCollection = require("../generic-collection");
-var describeDequeue = require("./dequeue");
+var describeDeque = require("./deque");
 var describeCollection = require("./collection");
 var describeOrder = require("./order");
 
 describe("Array", function () {
-    describeDequeue(Array.from);
+    describeDeque(Array.from);
     describeCollection(Array.from, [1, 2, 3, 4]);
     describeCollection(Array.from, [{id: 0}, {id: 1}, {id: 2}, {id: 3}]);
     describeOrder(Array.from);
