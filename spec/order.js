@@ -147,22 +147,22 @@ function describeOrder(Collection) {
 
     });
 
-    describe("find", function () {
+    describe("findValue", function () {
 
         it("finds equivalent values", function () {
-            expect(Collection([10, 10, 10]).find(10)).toEqual(0);
+            expect(Collection([10, 10, 10]).findValue(10)).toEqual(0);
         });
 
         it("finds equivalent values", function () {
-            expect(Collection([10, 10, 10]).find(10)).toEqual(0);
+            expect(Collection([10, 10, 10]).findValue(10)).toEqual(0);
         });
 
     });
 
-    describe("findLast", function () {
+    describe("findLastValue", function () {
 
         it("finds equivalent values", function () {
-            expect(Collection([10, 10, 10]).findLast(10)).toEqual(2);
+            expect(Collection([10, 10, 10]).findLastValue(10)).toEqual(2);
         });
 
     });

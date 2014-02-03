@@ -87,7 +87,7 @@ define("constructClone", function (values) {
 });
 
 define("has", function (value, equals) {
-    return this.find(value, equals) !== -1;
+    return this.findValue(value, equals) !== -1;
 });
 
 define("get", function (index, defaultValue) {
@@ -111,7 +111,7 @@ define("add", function (value) {
 });
 
 define("delete", function (value, equals) {
-    var index = this.find(value, equals);
+    var index = this.findValue(value, equals);
     if (index !== -1) {
         this.splice(index, 1);
         return true;
@@ -119,7 +119,7 @@ define("delete", function (value, equals) {
     return false;
 });
 
-define("find", function (value, equals) {
+define("findValue", function (value, equals) {
     equals = equals || this.contentEquals || Object.equals;
     for (var index = 0; index < this.length; index++) {
         if (index in this && equals(this[index], value)) {
@@ -129,7 +129,7 @@ define("find", function (value, equals) {
     return -1;
 });
 
-define("findLast", function (value, equals) {
+define("findLastValue", function (value, equals) {
     equals = equals || this.contentEquals || Object.equals;
     var index = this.length;
     do {

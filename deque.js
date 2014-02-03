@@ -341,8 +341,7 @@ Deque.prototype.lastIndexOf = function (value, index) {
     return -1;
 }
 
-// TODO rename findValue
-Deque.prototype.find = function (value, equals, index) {
+Deque.prototype.findValue = function (value, equals, index) {
     equals = equals || Object.equals;
     // Default start index at beginning
     if (index == null) {
@@ -363,8 +362,7 @@ Deque.prototype.find = function (value, equals, index) {
     return -1;
 };
 
-// TODO rename findLastValue
-Deque.prototype.findLast = function (value, equals, index) {
+Deque.prototype.findLastValue = function (value, equals, index) {
     equals = equals || Object.equals;
     // Default start position at the end
     if (index == null) {

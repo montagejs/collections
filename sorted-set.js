@@ -163,7 +163,7 @@ SortedSet.prototype.indexOf = function (value) {
     return -1;
 };
 
-SortedSet.prototype.find = function (value) {
+SortedSet.prototype.findValue = function (value) {
     if (this.root) {
         this.splay(value);
         if (this.contentEquals(value, this.root.value)) {
