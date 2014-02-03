@@ -7,6 +7,7 @@ var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
 var PropertyChanges = require("./listen/property-changes");
 var RangeChanges = require("./listen/range-changes");
+var Iterator = require("./iterator");
 var TreeLog = require("./tree-log");
 
 function SortedSet(values, equals, compare, getDefault) {
@@ -507,10 +508,10 @@ SortedSet.prototype.clear = function () {
 };
 
 SortedSet.prototype.iterate = function (start, end) {
-    return new this.Iterator(this, start, end);
+    return new Iterator(new this.Iterator(this, start, end));
 };
 
-SortedSet.prototype.Iterator = Iterator;
+SortedSet.prototype.Iterator = SortedSetIterator;
 
 SortedSet.prototype.summary = function () {
     if (this.root) {
@@ -701,7 +702,7 @@ Node.prototype.log = function (charmap, logNode, log, logAbove) {
     );
 };
 
-function Iterator(set, start, end) {
+function SortedSetIterator(set, start, end) {
     this.set = set;
     this.prev = null;
     this.end = end;
@@ -714,7 +715,7 @@ function Iterator(set, start, end) {
     }
 }
 
-Iterator.prototype.next = function () {
+SortedSetIterator.prototype.next = function () {
     var next;
     if (this.prev) {
         next = this.set.findLeastGreaterThan(this.prev.value);
@@ -722,15 +723,15 @@ Iterator.prototype.next = function () {
         next = this.set.findLeast();
     }
     if (!next) {
-        throw StopIteration;
+        return Iterator.done;
     }
     if (
         this.end !== undefined &&
         this.set.contentCompare(next.value, this.end) >= 0
     ) {
-        throw StopIteration;
+        return Iterator.done;
     }
     this.prev = next;
-    return next.value;
+    return next;
 };
 
