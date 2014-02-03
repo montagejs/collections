@@ -126,14 +126,45 @@ function describeIterator(Iterator) {
 
     describe("iterateFilter", function () {
 
-        it("maps an iterator", function () {
-            var iterator = Iterator([1, 2, 3]).iterateMap(function (n, i) {
+        it("filters an iterator", function () {
+            var iterator = Iterator([1, 2, 3]).iterateFilter(function (n, i) {
                 expect(i).toBe(n - 1);
-                return n * 2;
+                return n % 2 === 0;
             });
+            expect(iterator.next()).toEqual({value: 2, index: 1, done: false});
+            expect(iterator.next()).toEqual({value: undefined, index: undefined, done: true});
+            expect(iterator.next()).toEqual({value: undefined, index: undefined, done: true});
+        });
+
+    });
+
+    describe("recount", function () {
+
+        it("recounts a filtered iterator", function () {
+            var iterator = Iterator([1, 2, 3, 4]).iterateFilter(function (n, i) {
+                expect(i).toBe(n - 1);
+                return n % 2 === 0;
+            }).recount();
             expect(iterator.next()).toEqual({value: 2, index: 0, done: false});
             expect(iterator.next()).toEqual({value: 4, index: 1, done: false});
-            expect(iterator.next()).toEqual({value: 6, index: 2, done: false});
+            expect(iterator.next()).toEqual({value: undefined, index: undefined, done: true});
+            expect(iterator.next()).toEqual({value: undefined, index: undefined, done: true});
+        });
+
+        it("recounts a sparse array iterator", function () {
+            var iterator = Iterator([1,, 2,, 3]).recount();
+            expect(iterator.next()).toEqual({value: 1, index: 0, done: false});
+            expect(iterator.next()).toEqual({value: 2, index: 1, done: false});
+            expect(iterator.next()).toEqual({value: 3, index: 2, done: false});
+            expect(iterator.next()).toEqual({value: undefined, index: undefined, done: true});
+            expect(iterator.next()).toEqual({value: undefined, index: undefined, done: true});
+        });
+
+        it("recounts from one", function () {
+            var iterator = Iterator([1,, 2,, 3]).recount(1);
+            expect(iterator.next()).toEqual({value: 1, index: 1, done: false});
+            expect(iterator.next()).toEqual({value: 2, index: 2, done: false});
+            expect(iterator.next()).toEqual({value: 3, index: 3, done: false});
             expect(iterator.next()).toEqual({value: undefined, index: undefined, done: true});
             expect(iterator.next()).toEqual({value: undefined, index: undefined, done: true});
         });
