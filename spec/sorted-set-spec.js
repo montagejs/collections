@@ -195,7 +195,7 @@ describe("SortedSet", function () {
         }
     });
 
-    describe("addRangeChangeListener", function () {
+    describe("observeRangeChange", function () {
         // fuzz cases
         for (var seed = 0; seed < 20; seed++) {
             (function (seed) {
@@ -207,7 +207,7 @@ describe("SortedSet", function () {
                 it("should bind content changes to an array for " + numbers.join(", "), function () {
                     var mirror = [];
                     var set = SortedSet();
-                    set.addRangeChangeListener(function (plus, minus, index) {
+                    set.observeRangeChange(function (plus, minus, index) {
                         mirror.swap(index, minus.length, plus);
                     });
                     set.addEach(numbers);

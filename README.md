@@ -1259,14 +1259,8 @@ Goals
 - array set (a set, for fast lookup, backed by an array for meaningful
   range changes)
 - fast list splicing
-- revise map changes to use separate handlers for add/delete
-- revise tokens for range and map changes to specify complete alternate
-  delegate methods, particularly for forwarding directly to dispatch
 - Make it easier to created a SortedSet with a criterion like
   Function.by(Function.get('name'))
-- evaluate exposing observeProperty, observeRangeChange, and observeMapChange
-  instead of the aEL/rEL inspired API FRB exposes today, to minimize
-  book-keeping and garbage collection
 
 More possible collections
 

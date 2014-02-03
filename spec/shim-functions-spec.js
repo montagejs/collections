@@ -1,5 +1,6 @@
 
 require("../shim-object");
+require("../shim-function");
 
 describe("Function", function () {
 

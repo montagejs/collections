@@ -3,7 +3,7 @@
 var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
-var PropertyChanges = require("./listen/property-changes");
+var ObservableObject = require("./observable-object");
 
 // Burgled from https://github.com/domenic/dict
 
@@ -31,7 +31,7 @@ function unmangle(mangled) {
 
 Object.addEach(Dict.prototype, GenericCollection.prototype);
 Object.addEach(Dict.prototype, GenericMap.prototype);
-Object.addEach(Dict.prototype, PropertyChanges.prototype);
+Object.addEach(Dict.prototype, ObservableObject.prototype);
 
 Dict.prototype.constructClone = function (values) {
     return new this.constructor(values, this.mangle, this.getDefault);
@@ -58,23 +58,25 @@ Dict.prototype.get = function (key, defaultValue) {
 Dict.prototype.set = function (key, value) {
     this.assertString(key);
     var mangled = mangle(key);
+    var from;
     if (mangled in this.store) { // update
-        if (this.dispatchesBeforeMapChanges) {
-            this.dispatchBeforeMapChange(key, this.store[mangled]);
+        if (this.dispatchesMapChanges) {
+            from = this.store[mangled];
+            this.dispatchMapWillChange("update", key, value, from);
         }
         this.store[mangled] = value;
         if (this.dispatchesMapChanges) {
-            this.dispatchMapChange(key, value);
+            this.dispatchMapChange("update", key, value, from);
         }
         return false;
     } else { // create
         if (this.dispatchesMapChanges) {
-            this.dispatchBeforeMapChange(key, undefined);
+            this.dispatchMapWillChange("create", key, value);
         }
         this.length++;
         this.store[mangled] = value;
         if (this.dispatchesMapChanges) {
-            this.dispatchMapChange(key, value);
+            this.dispatchMapChange("create", key, value);
         }
         return true;
     }
