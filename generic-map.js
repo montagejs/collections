@@ -1,16 +1,16 @@
 "use strict";
 
 var Object = require("./shim-object");
-var MapChanges = require("./listen/map-changes");
-var PropertyChanges = require("./listen/property-changes");
+var ObservableMap = require("./observable-map");
+var ObservableObject = require("./observable-object");
 
 module.exports = GenericMap;
 function GenericMap() {
     throw new Error("Can't construct. GenericMap is a mixin.");
 }
 
-Object.addEach(GenericMap.prototype, MapChanges.prototype);
-Object.addEach(GenericMap.prototype, PropertyChanges.prototype);
+Object.addEach(GenericMap.prototype, ObservableMap.prototype);
+Object.addEach(GenericMap.prototype, ObservableObject.prototype);
 
 // all of these methods depend on the constructor providing a `store` set
 
@@ -56,23 +56,25 @@ GenericMap.prototype.set = function (key, value) {
     var found = this.store.get(item);
     var grew = false;
     if (found) { // update
+        var from;
         if (this.dispatchesMapChanges) {
-            this.dispatchBeforeMapChange(key, found.value);
+            from = found.value;
+            this.dispatchMapWillChange("update", key, value, from);
         }
         found.value = value;
         if (this.dispatchesMapChanges) {
-            this.dispatchMapChange(key, value);
+            this.dispatchMapChange("update", key, value, from);
         }
     } else { // create
         if (this.dispatchesMapChanges) {
-            this.dispatchBeforeMapChange(key, undefined);
+            this.dispatchMapWillChange("create", key, value);
         }
         if (this.store.add(item)) {
             this.length++;
             grew = true;
         }
         if (this.dispatchesMapChanges) {
-            this.dispatchMapChange(key, value);
+            this.dispatchMapChange("create", key, value);
         }
     }
     return grew;
@@ -89,14 +91,15 @@ GenericMap.prototype.has = function (key) {
 GenericMap.prototype['delete'] = function (key) {
     var item = new this.Item(key);
     if (this.store.has(item)) {
-        var from = this.store.get(item).value;
+        var from;
         if (this.dispatchesMapChanges) {
-            this.dispatchBeforeMapChange(key, from);
+            from = this.store.get(item).value;
+            this.dispatchMapWillChange("delete", key, undefined, from);
         }
         this.store["delete"](item);
         this.length--;
         if (this.dispatchesMapChanges) {
-            this.dispatchMapChange(key, undefined);
+            this.dispatchMapChange("delete", key, undefined, from);
         }
         return true;
     }

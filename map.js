@@ -4,7 +4,7 @@ var Shim = require("./shim");
 var Set = require("./set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
-var PropertyChanges = require("./listen/property-changes");
+var ObservableObject = require("./observable-object");
 
 module.exports = Map;
 
@@ -35,7 +35,7 @@ Map.Map = Map; // hack so require("map").Map will work in MontageJS
 
 Object.addEach(Map.prototype, GenericCollection.prototype);
 Object.addEach(Map.prototype, GenericMap.prototype); // overrides GenericCollection
-Object.addEach(Map.prototype, PropertyChanges.prototype);
+Object.addEach(Map.prototype, ObservableObject.prototype);
 
 Map.prototype.constructClone = function (values) {
     return new this.constructor(

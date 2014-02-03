@@ -31,51 +31,69 @@ describe("Set", function () {
     it("should dispatch range change on clear", function () {
         var set = Set([1, 2, 3]);
         var spy = jasmine.createSpy();
-        set.addRangeChangeListener(spy);
+        set.observeRangeChange(function (plus, minus, index, _set) {
+            spy(plus, minus, index);
+            expect(_set).toBe(set);
+        });
         set.clear();
-        expect(spy).toHaveBeenCalledWith([], [1, 2, 3], 0, set, undefined);
+        expect(spy).toHaveBeenCalledWith([], [1, 2, 3], 0);
     });
 
     it("should dispatch range change on add", function () {
         var set = Set([1, 3]);
         var spy = jasmine.createSpy();
-        set.addRangeChangeListener(spy);
+        set.observeRangeChange(function (plus, minus, index, _set) {
+            spy(plus, minus, index);
+            expect(_set).toBe(set);
+        });
         set.add(2);
         expect(set.toArray()).toEqual([1, 3, 2]);
-        expect(spy).toHaveBeenCalledWith([2], [], 2, set, undefined);
+        expect(spy).toHaveBeenCalledWith([2], [], 2);
     });
 
     it("should dispatch range change on delete", function () {
         var set = Set([1, 2, 3]);
         var spy = jasmine.createSpy();
-        set.addRangeChangeListener(spy);
+        set.observeRangeChange(function (plus, minus, index, _set) {
+            spy(plus, minus, index);
+            expect(_set).toBe(set);
+        });
         set["delete"](2);
         expect(set.toArray()).toEqual([1, 3]);
-        expect(spy).toHaveBeenCalledWith([], [2], 1, set, undefined);
+        expect(spy).toHaveBeenCalledWith([], [2], 1);
     });
 
     it("should dispatch range change on pop", function () {
         var set = Set([1, 3, 2]);
         var spy = jasmine.createSpy();
-        set.addRangeChangeListener(spy);
+        set.observeRangeChange(function (plus, minus, index, _set) {
+            spy(plus, minus, index);
+            expect(_set).toBe(set);
+        });
         expect(set.pop()).toEqual(2);
         expect(set.toArray()).toEqual([1, 3]);
-        expect(spy).toHaveBeenCalledWith([], [2], 2, set, undefined);
+        expect(spy).toHaveBeenCalledWith([], [2], 2);
     });
 
     it("should dispatch range change on shift", function () {
         var set = Set([1, 3, 2]);
         var spy = jasmine.createSpy();
-        set.addRangeChangeListener(spy);
+        set.observeRangeChange(function (plus, minus, index, _set) {
+            spy(plus, minus, index);
+            expect(_set).toBe(set);
+        });
         expect(set.shift()).toEqual(1);
         expect(set.toArray()).toEqual([3, 2]);
-        expect(spy).toHaveBeenCalledWith([], [1], 0, set, undefined);
+        expect(spy).toHaveBeenCalledWith([], [1], 0);
     });
 
+    // Need to reevaluate whether sets fully support range changes, or whether
+    // they support merely set changes (no index).
     it("should dispatch range change on shift then pop", function () {
         var set = Set([1, 3]);
-        set.addRangeChangeListener(function (plus, minus, index) {
-            spy(plus, minus, index); // ignore all others
+        set.observeRangeChange(function (plus, minus, index, _set) {
+            spy(plus, minus, index);
+            expect(_set).toBe(set);
         });
 
         var spy = jasmine.createSpy();

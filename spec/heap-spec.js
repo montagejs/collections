@@ -53,9 +53,9 @@ describe("Heap", function () {
 
         var heap = new Heap([1,2,3,4,5]);
         var top;
-        heap.addMapChangeListener(function (value, key) {
+        heap.observeMapChange(function (plus, minus, key, type) {
             if (key === 0) {
-                top = value;
+                top = plus;
             }
         });
 
