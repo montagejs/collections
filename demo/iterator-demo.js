@@ -6,7 +6,7 @@ Iterator.range(10).forEach(function (n) {
     console.log(n);
 });
 
-Iterator.iterate([1,2,3]).forEach(function (n) {
+Iterator([1,2,3]).forEach(function (n) {
     console.log(n);
 });
 
@@ -41,15 +41,15 @@ console.log(g.toArray());
 console.log('generic on array');
 Iterator.prototype.forEach.call([1,2,3], console.log);
 
+console.log('flatten');
+Iterator.flatten([Iterator.range(3), Iterator.range(3)])
+.forEach(console.log);
+
+Iterator.range(3).iterateConcat(Iterator.range(3))
+.forEach(console.log);
+
 console.log('concat');
-Iterator.concat([Iterator.range(3), Iterator.range(3)])
-.forEach(console.log);
-
-Iterator.range(3).concat(Iterator.range(3))
-.forEach(console.log);
-
-console.log('chain');
-Iterator.chain(Iterator.range(3), Iterator.range(3))
+Iterator.concat(Iterator.range(3), Iterator.range(3))
 .forEach(console.log);
 
 console.log("drop while");
@@ -76,14 +76,14 @@ Iterator.zip(
     Iterator("abc")
 ).forEach(console.log);
 
-// zipIterator short-circuits on shortest in the race
+// iterateZip short-circuits on shortest in the race
 console.log(".zip");
-Iterator.count().zipIterator("abc").toArray()
+Iterator.count().iterateZip("abc").toArray()
 .forEach(console.log);
 
 // filter
 console.log(".filter")
-Iterator.range(10).filterIterator(function (n) {
+Iterator.range(10).iterateFilter(function (n) {
     return n & 1;
 })
 .forEach(console.log);
@@ -95,18 +95,16 @@ console.log(Iterator("abc").enumerate(1).toArray());
 console.log(Iterator("abc").enumerate(1, 'i', 'x').toArray());
 
 var iterator = new Iterator([1, 2, 3, 4, 5]);
-iterator.mapIterator(function (n) {
+iterator.iterateMap(function (n) {
     console.log('producing', n * 2);
     return n * 2;
-})
-.filterIterator(function (n) {
+}).iterateFilter(function (n) {
     if (n % 3) {
         return n;
     } else {
         console.log('filtering', n);
     }
-})
-.forEach(function (n) {
+}).forEach(function (n) {
     console.log('consuming', n);
 });
 

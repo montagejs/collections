@@ -1003,7 +1003,7 @@ values of the given iterations, first including itself.
 
 #### iterateUnzip()
 
-*Introduced in version 2*
+*Introduced in version 2.*
 
 Assuming that this is an iterator that produces iterables, produces an iteration
 of the reslective values from each iterable.
@@ -1017,7 +1017,7 @@ then from each subsequent iterable in order.
 
 #### iterateFlatten()
 
-*Renamed in version 2 from `flattenIterator` in version 1.*
+*Introduced in version 2.*
 
 Assuming that this is an iterator that produces iterables, creates an iterator
 that yields all of the values from each of those iterables in order.
@@ -1062,10 +1062,14 @@ iterables. `zip` differs from `unzip` only in that the arguments are variadic.
 
 #### flatten(iterables)
 
+*Renamed in Version 2 from `concat` in Version 1.*
+
 Returns an iterator that will produce all the values from each of the given
 iterators in order.
 
 #### concat(...iterables)
+
+*Renamed in Version 2 from `chain` in Version 1.*
 
 Returns an iterator that will produce all the values from each of the given
 iterators in order. Differs from `flatten` only in that the arguments are
