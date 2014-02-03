@@ -112,27 +112,20 @@ function FilterIterator(iterator, callback, thisp) {
     this.iterator = iterator;
     this.callback = callback;
     this.thisp = thisp;
-    this.index = 0;
 }
 
 FilterIterator.prototype.next = function () {
     var iteration;
     while (true) {
         iteration = this.iterator.next();
-        if (iteration.done) {
-            return iteration;
-        }  else if (this.callback.call(
+        if (iteration.done || this.callback.call(
             this.thisp,
             iteration.value,
             iteration.index,
             this.iteration
         )) {
-            return new Iteration(
-                iteration.value,
-                this.index++
-            );
+            return iteration;
         }
-
     }
 };
 
@@ -254,6 +247,27 @@ Iterator.prototype.iterateConcat = function () {
 
 Iterator.prototype.iterateFlatten = function () {
     return Iterator.flatten(this);
+};
+
+Iterator.prototype.recount = function (start) {
+    return new Iterator(new RecountIterator(this, start));
+};
+
+function RecountIterator(iterator, start) {
+    this.iterator = iterator;
+    this.index = start || 0;
+}
+
+RecountIterator.prototype.next = function () {
+    var iteration = this.iterator.next();
+    if (iteration.done) {
+        return iteration;
+    } else {
+        return new Iteration(
+            iteration.value,
+            this.index++
+        );
+    }
 };
 
 // creates an iterator for Array and String
