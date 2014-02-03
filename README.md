@@ -996,8 +996,315 @@ Iterates from start by step, indefinitely.
 
 Repeats the given value either finite times or indefinitely.
 
+## Change Observers
+
+*Introduced in Version 2.*
+
+All collections support change observers. There are three types of changes.
+Property changes, range changes, and map changes. Whether a collection supports
+a kind of change can be inferred by the existence of an `observe*` method
+appropriate to the kind of change, `observeRangeChange` for example.
+
+#### Observers
+
+The `observe*` methods all return “observer” objects with some overlapping
+interface. Most importantly, an “observer” has a `cancel()` method that will
+remove the observer from the queue of observers for its corresponding object and
+property name. To reduce garbage collection churn, the observer may be reused,
+but if the observer is canceled during change dispatch, it will not be recycled
+until all changes have been handled. Also, if an observer is cancelled during
+change dispatch, it will be passed over. If an observer is created during change
+dispatch, it will also be passed over, to be informed of any subsequent changes.
+
+The observer will have a `handlerMethodName` property, based on a convention
+that take into account all the parameters of the change observer and what
+methods are available on the handler, such as `handleFooPropertyWillChange` or
+simply null if the handler is a function. This method name can be overridden if
+you need to break from convention.
+
+The observer will also have a `dispatch` method that you can use to manually
+force a change notification.
+
+The observer will have a `note` property, as provided as an argument to the
+observe method. This value is not used by the change observer system, but is
+left for the user, for example to provide helpful information for inspecting why
+the observer exists and what systems it participates in.
+
+The observer will have a `childObserver` property. Handlers have the option of
+returning an observer, if that observer needs to be canceled when this observer
+notices a change. This facility allows observers to “stack”.
+
+All kinds of changes have a `get*ChangeObservers` method that will return an
+array of change observers. This function will consistently return the same array
+for the same arguments, and the content of the array is itself observable.
+
+#### Handlers
+
+A handler may be an object with a handler method or a function. Either way, the
+change observer will dispatch an argument pattern to the observer including both
+the new and old values associated with the change and other parameters that
+allow generic handlers to multiplex changes from multiple sources. See the
+specific change observer documentation for details about the argument pattern
+and handler method name convention.
+
+Again, a handler has the option of returning an observer. This observer will be
+canceled if there is a subsequent change. So for example, if you are observing
+the "children" property of the "root" property of a tree, you would be able to
+stack the "children" property observer on top of the "root" property observer,
+ensuring that the children property observer does not linger on old roots.
+
+If a handler throws an exception, it will not corrupt the state of the change
+notification system, but it may corrupt the state of the observed object and the
+assuptions of the rest of the program. Such errors are annotated by the change
+dispatch system to increase awareness that all such errors are irrecoverable
+programmer errors.
+
+#### Capture
+
+All observers support “change” and “will change” (“capture”) phases. Both phases
+receive both the old and new values, but in the capture phase, the direct
+interrogation of the object being observed will show that the change has not
+taken effect, though change observers do not provide a facility for preventing a
+change and throwing exceptions can corrupt the state of involved collections.
+All “will change” methods exist to increase the readability of the program but
+simply forward a true “capture” argument to the corresponding “change” method.
+For example, `map.observeMapWillChange(handler)` just calls
+`map.observeMapChange(handler, null, null, true)`, eliding the `name` and `note`
+arguments not provided.
+
+### Property Changes
+
+The `observable-object` module provides facilities for observing changes to
+properties on arbitrary objects, as well as a mix-in prototype that allows any
+collection to support the property change observer interface directly. The
+`observable-array` module alters the `Array` in this context to support the
+property observer interface for its `"length"` property and indexed properties
+by number, as long as those properties are altered by a method of the array
+(which is to say, *caveat emptor: direct assignment to a property of an array is
+not observable*). This shim does not introduce any overhead to arrays that are
+not observed.
+
+```javascript
+var ObservableObject = require("collections/observable-object");
+ObservableObject.observePropertyChange(object, name, handler, note, capture);
+ObservableObject.observePropertyWillChange(object, name, handler, note, capture);
+ObservableObject.dispatchPropertyChange(object, plus, minus);
+ObservableObject.dispatchPropertyWillChange(object, plus, minus);
+ObservableObject.getPropertyChangeObservers(object, name, capture)
+ObservableObject.getPropertyWillChangeObservers(object, name, capture)
+ObservableObject.makePropertyObservable(object, name);
+ObservableObject.preventPropertyObserver(object, name);
+```
+
+All of these methods delegate to methods of the same name on an object if one
+exists, making it possible to use these on arbitrary objects as well as objects
+with custom property observer behavior. The property change observer interface
+can be imbued on arbitrary objects.
+
+```javascript
+Object.addEach(Constructor.prototype, ObservableObject.prototype);
+var object = new Constructor();
+
+object.observePropertyChange(name, handler, note, capture);
+object.observePropertyWillChange(name, handler, note);
+object.dispatchPropertyChange(plus, minus, capture);
+object.dispatchPropertyWillChange(plus, minus);
+object.getPropertyChangeObservers(name, capture)
+object.getPropertyWillChangeObservers(name)
+object.makePropertyObservable(name);
+object.preventPropertyObserver(name);
+```
+
+`observePropertyChange` and `observePropertyWillChange` accept a property
+`name` and a `handler` and returns an `observer`.
+
+#### Handlers
+
+The arguments to a property change handler are:
+
+-   `plus`: the new value
+-   `minus`: the old value
+-   `name` (`observer.propertyName`, the `name` argument to
+    `observePropertyChange`)
+-   `object` (`observer.object`, the `object` given to `observePropertyChange`)
+-   `this` is the `handler` or undefined if the handler is a callable.
+
+The prefereed handler method name for a property change observer is composed:
+
+-   `"handle"`
+-   `name`, with the first character capitalized
+-   `"Property"`
+-   `"Will"` if `capture`
+-   `"Change"`
+
+*The specific handler method name differs from those constructed by Version 1,
+in that it includes the term, `"Property"`. Thus, all observer handler method
+names now receive a complete description of the kind of change, at the expense
+of some verbosity.*
+
+If this method does not exist, the method name falls back to the generic without
+the property name:
+
+-   `"handle"`
+-   `"Property"`
+-   `"Will"` if `capture`
+-   `"Change"`
+
+Otherwise, the handler must be callable, implementing `handler.call(this, plus,
+minus, name, object)`, but not necessarily a function.
+
+#### Observers
+
+A property change observer has properties in addition to those common to all
+observers.
+
+-   `propertyName`
+-   `value` the last value dispatched. This will be used if `minus` is not given
+    when a change is dispatched and is otherwise is useful for inspecting
+    observers.
+
+#### Observability
+
+Property change observers use various means to make properties observable. In
+general, they install a “thunk” property on the object that intercepts `get` and
+`set` calls. A thunk will never be installed over an existing thunk.
+
+Observers take great care to do what makes sense with the underlying property
+descriptor. For example, different kinds of thunks are installed for descriptors
+with `get` and `set` methods than those with a simple `value`. If a property is
+read-only, either indicated by `writable` being false or `get` being provided
+without a matching `set`, no thunk is installed at all.
+
+If a property is ostensibly immutable, for lack of a `set` method, but the value
+returned by `get` does in fact change in response to exogenous changes, those
+changes may be rigged to dispatch a property change manually, using one of the
+above `dispatch` methods.
+
+To avoid installing a thunk on every instance of particular constructor,
+`makePropertyObservable` can be applied to a property of a prototype. To avoid
+installing a thunk on a property at all, `preventPropertyObserver` can be
+applied to either an instance or a prototype.
+
+Properties of an `Array` cannot be observed with thunks, so the
+`observable-array` module adds methods to the Array prototype that allow it to
+be transformed into an observed array on demand. The transformation involves
+replacing all the methods that modify the content of the array with versions
+that report the changes. The observable array interface is installed either by
+subverting the prototype of the instance, or by redefining these methods
+directly onto the instance if the prototype is not mutable.
+
+### Range Changes
+
+Many collections represent a contiguous range of values in a fixed order. For
+these collections, range change observation is available.
+
+-   `Array` with `require("collections/observable-array")`
+-   `List`&dagger;
+-   `Deque`
+-   `Set`&dagger;
+-   `SortedSet`
+-   `SortedArray`
+-   `SortedArraySet`
+-   `Heap`
+
+*&dagger;Note that with `List` and `Set`, observing range changes often
+nullifies any performance improvment that might be gained using them instead of
+an array, deque, or array-backed set.*
+
+`SortedSet` can grow to absurd proportions and still quickly dispatch range
+change notifications at any position, owing to an algorithim that can
+incrementally track the index of each node in time proportional to the logarithm
+of the size of the collection.
+
+The `observe-range-changes` module exports a **mixin** that provides the range
+change interface for a collection.
+
+```javascript
+collection.observeRangeChange(handler, name, note, capture)
+collection.observeRangeWillChange(handler, name, note)
+collection.dispatchRangeChange(plus, minus, index, capture)
+collection.dispatchRangeWillChange(plus, minus, index)
+collection.getRangeChangeObservers(capture)
+collection.getRangeWillChangeObservers()
+collection.makeRangeChangeObservable()
+```
+
+The `name` is optional and only affects the handler method name computation.
+The convention for the name of a range change handler method name is:
+
+-   `"handle"`
+-   `name` with the first character capitalized, if given, and only if the
+    resulting method name is available on the handler.
+-   `"Range"`
+-   `"Will"` if `capture`
+-   `"Change"`
+
+The arguments of a range change are:
+
+-   `plus`: values added at `index`
+-   `minus`: values removed at `index` before `plus` was added
+-   `index`
+-   `collection`
+
+The `makeRangeChangeObservable` method is overridable if a collection needs to
+perform some operations apart from setting `dispatchesRangeChanges` in order to
+become observable. For example, a `Set` has to establish observers on its own
+`order` storage list.
+
+### Map Changes
+
+*Note: map change observers are very different than Version 1 map change
+listeners.*
+
+Many collections represent a mapping from keys to values, irrespective of order.
+For most of these collections, map change observation is available.
+
+-   `Array` with `require("collections/observable-array")`
+-   `Map`
+-   `FastMap`
+-   `LruMap`
+-   `SortedMap`
+-   `SortedArrayMap`
+-   `Dict`
+-   `Heap` only for key 0
+
+```javascript
+collection.observeMapChange(handler, name, note, capture)
+collection.observeMapWillChange(handler, name, note)
+collection.dispatchMapChange(plus, minus, index, capture)
+collection.dispatchMapWillChange(plus, minus, index)
+collection.getMapChangeObservers(capture)
+collection.getMapWillChangeObservers()
+collection.makeMapChangeObservable()
+```
+
+The `name` is optional and only affects the handler method name computation.
+The convention for the name of a range change handler method name is:
+
+-   `"handle"`
+-   `name` with the first character capitalized, if given, and only if the
+    resulting method name is available on the handler.
+-   `"Map"`
+-   `"Will"` if `capture`
+-   `"Change"`
+
+The arguments of a range change are:
+
+-   `plus`: the new value
+-   `minus`: the old value
+-   `key`
+-   `type`: one of `"create"`, `"update"`, or `"delete"`
+-   `collection`
+
+The `makeMapChangeObservable` method is overridable if a collection needs to
+perform some operations apart from setting `dispatchesMapChanges` in order to
+become observable.
+
 
 ## Change Listeners
+
+*The change listener interface exists in Version 1, but has been replaced with
+Change Observers in Version 2.*
 
 All collections support change listeners.  There are three types of
 changes.  Property changes, map changes, and range changes.
