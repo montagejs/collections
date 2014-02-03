@@ -61,13 +61,13 @@ describe("Deque", function () {
             spy(plus, minus, value); // ignore last arg
         };
         var deque = Deque();
-        deque.addRangeChangeListener(handler);
+        var observer = deque.observeRangeChange(handler);
         deque.push(1);
         deque.push(2, 3);
         deque.pop();
         deque.shift();
         deque.unshift(4, 5);
-        deque.removeRangeChangeListener(handler);
+        observer.cancel();
         deque.shift();
         expect(spy.argsForCall).toEqual([
             [[1], [], 0],

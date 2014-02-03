@@ -4,7 +4,8 @@ require("./shim-object");
 var GenericCollection = require("./generic-collection");
 var GenericOrder = require("./generic-order");
 var GenericOrder = require("./generic-order");
-var RangeChanges = require("./listen/range-changes");
+var ObservableRange = require("./observable-range");
+var ObservableObject = require("./observable-object");
 
 // by Petka Antonov
 // https://github.com/petkaantonov/deque/blob/master/js/deque.js
@@ -27,7 +28,8 @@ function Deque(values, capacity) {
 
 Object.addEach(Deque.prototype, GenericCollection.prototype);
 Object.addEach(Deque.prototype, GenericOrder.prototype);
-Object.addEach(Deque.prototype, RangeChanges.prototype);
+Object.addEach(Deque.prototype, ObservableRange.prototype);
+Object.addEach(Deque.prototype, ObservableObject.prototype);
 
 Deque.prototype.maxCapacity = (1 << 30) | 0;
 Deque.prototype.minCapacity = 16;
@@ -47,7 +49,7 @@ Deque.prototype.push = function (value /* or ...values */) {
     if (this.dispatchesRangeChanges) {
         var plus = Array.prototype.slice.call(arguments);
         var minus = [];
-        this.dispatchBeforeRangeChange(plus, minus, length);
+        this.dispatchRangeWillChange(plus, minus, length);
     }
 
     if (argsLength > 1) {
@@ -93,7 +95,7 @@ Deque.prototype.pop = function () {
     var result = this[index];
 
     if (this.dispatchesRangeChanges) {
-        this.dispatchBeforeRangeChange([], [result], length - 1);
+        this.dispatchRangeWillChange([], [result], length - 1);
     }
 
     this[index] = void 0;
@@ -112,7 +114,7 @@ Deque.prototype.shift = function () {
         var result = this[front];
 
         if (this.dispatchesRangeChanges) {
-            this.dispatchBeforeRangeChange([], [result], 0);
+            this.dispatchRangeWillChange([], [result], 0);
         }
 
         this[front] = void 0;
@@ -134,7 +136,7 @@ Deque.prototype.unshift = function (value /*, ...values */) {
     if (this.dispatchesRangeChanges) {
         var plus = Array.prototype.slice.call(arguments);
         var minus = [];
-        this.dispatchBeforeRangeChange(plus, minus, 0);
+        this.dispatchRangeWillChange(plus, minus, 0);
     }
 
     if (argsLength > 1) {
