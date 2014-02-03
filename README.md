@@ -6,13 +6,10 @@ This package contains JavaScript implementations of common data
 structures with idiomatic iterfaces, including extensions for Array and
 Object.
 
-You can use these Node Packaged Modules with Node.js, [Browserify][],
-[Mr][], or any compatible CommonJS module loader.  Using a module loader
-or bundler when using Collections in web browsers has the advantage of
-only incorporating the modules you need.  However, you can just embed
-`<script src="collections/collections.min.js">` and *all* of the
-collections will be introduced as globals.  :warning:
-`require("collections")` is not supported.
+You can use these Node Packaged Modules with Node.js, [Browserify][], [Mr][],
+[Mop][], or any compatible CommonJS module loader.  Using a module loader or
+bundler when using Collections in web browsers has the advantage of only
+incorporating the modules you need.
 
 ```
 npm install collections --save
@@ -20,6 +17,7 @@ npm install collections --save
 
 [Browserify]: https://github.com/substack/node-browserify
 [Mr]: https://github.com/montagejs/mr
+[Mop]: https://github.com/montagejs/mop
 
 
 ## Collections
