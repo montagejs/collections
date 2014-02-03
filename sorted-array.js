@@ -6,6 +6,7 @@ var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
 var ObservableObject = require("./observable-object");
 var ObservableRange = require("./observable-range");
+var Iterator = require("./iterator");
 
 function SortedArray(values, equals, compare, getDefault) {
     if (!(this instanceof SortedArray)) {
@@ -261,9 +262,9 @@ SortedArray.prototype.compare = function (that, compare) {
     return this.array.compare(that, compare);
 };
 
-SortedArray.prototype.iterate = function (start, end) {
-    return new this.Iterator(this.array, start, end);
+SortedArray.prototype.iterate = function (start, stop, step) {
+    return new this.Iterator(this.array, start, stop, step);
 };
 
-SortedArray.prototype.Iterator = Array.prototype.Iterator;
+SortedArray.prototype.Iterator = Iterator;
 

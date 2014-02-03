@@ -10,6 +10,7 @@
 var Function = require("./shim-function");
 var GenericCollection = require("./generic-collection");
 var GenericOrder = require("./generic-order");
+var Iterator = require("./iterator");
 var WeakMap = require("weak-map");
 
 module.exports = Array;
@@ -288,23 +289,7 @@ define("clone", function (depth, memo) {
     return clone;
 });
 
-define("iterate", function (start, end) {
-    return new ArrayIterator(this, start, end);
+define("iterate", function (start, stop, step) {
+    return new Iterator(this, start, stop, step);
 });
-
-define("Iterator", ArrayIterator);
-
-function ArrayIterator(array, start, end) {
-    this.array = array;
-    this.start = start == null ? 0 : start;
-    this.end = end;
-};
-
-ArrayIterator.prototype.next = function () {
-    if (this.start === (this.end == null ? this.array.length : this.end)) {
-        throw StopIteration;
-    } else {
-        return this.array[this.start++];
-    }
-};
 

@@ -7,6 +7,7 @@ var GenericCollection = require("./generic-collection");
 var GenericOrder = require("./generic-order");
 var ObservableObject = require("./observable-object");
 var ObservableRange = require("./observable-range");
+var Iterator = require("./iterator");
 
 function List(values, equals, getDefault) {
     if (!(this instanceof List)) {
@@ -386,7 +387,7 @@ List.prototype.makeRangeChangesObservable = function () {
 };
 
 List.prototype.iterate = function () {
-    return new ListIterator(this.head);
+    return new Iterator(new ListIterator(this.head));
 };
 
 function ListIterator(head) {
@@ -396,11 +397,11 @@ function ListIterator(head) {
 
 ListIterator.prototype.next = function () {
     if (this.at === this.head) {
-        throw StopIteration;
+        return Iterator.done;
     } else {
-        var value = this.at.value;
+        var at = this.at;
         this.at = this.at.next;
-        return value;
+        return at;
     }
 };
 
