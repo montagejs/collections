@@ -1672,9 +1672,10 @@ Goals
   be consistent with List.
 - automate the generation of the method support tables in readme and
   normalize declaration order
+- rearchitect ordered collections in terms of iteration instead of reduction,
+  at least for methods that short circuit like some and every
+- eliminate any/all
 - comprehensive specs and spec coverage tests
-- array set (a set, for fast lookup, backed by an array for meaningful
-  range changes)
 - fast list splicing
 - Make it easier to created a SortedSet with a criterion like
   Function.by(Function.get('name'))
@@ -1690,4 +1691,6 @@ More possible collections
 - immutable-* (mutation functions return new objects that largely share
   the previous version's internal state, some perhaps backed by a hash
   trie)
+- array-set (a set, for fast lookup, backed by an array for meaningful
+  range changes)
 
