@@ -47,7 +47,10 @@ Deque.prototype.push = function (value /* or ...values */) {
     var length = this.length;
 
     if (this.dispatchesRangeChanges) {
-        var plus = Array.prototype.slice.call(arguments);
+        var plus = new Array(argsLength);
+        for (var argIndex = 0; argIndex < argsLength; ++argIndex) {
+            plus[argIndex] = arguments[argIndex];
+        }
         var minus = [];
         this.dispatchRangeWillChange(plus, minus, length);
     }
@@ -55,18 +58,18 @@ Deque.prototype.push = function (value /* or ...values */) {
     if (argsLength > 1) {
         var capacity = this.capacity;
         if (length + argsLength > capacity) {
-            for (var argsIndex = 0; argsIndex < argsLength; ++argsIndex) {
+            for (var argIndex = 0; argIndex < argsLength; ++argIndex) {
                 this.ensureCapacity(length + 1);
                 var j = (this.front + length) & (this.capacity - 1);
-                this[j] = arguments[argsIndex];
+                this[j] = arguments[argIndex];
                 length++;
                 this.length = length;
             }
         }
         else {
             var j = this.front;
-            for (var argsIndex = 0; argsIndex < argsLength; ++argsIndex) {
-                this[(j + length) & (capacity - 1)] = arguments[argsIndex];
+            for (var argIndex = 0; argIndex < argsLength; ++argIndex) {
+                this[(j + length) & (capacity - 1)] = arguments[argIndex];
                 j++;
             }
             this.length = length + argsLength;
@@ -129,12 +132,15 @@ Deque.prototype.shift = function () {
     }
 };
 
-Deque.prototype.unshift = function (value /*, ...values */) {
+Deque.prototype.unshift = function (value /* or ...values */) {
     var length = this.length;
     var argsLength = arguments.length;
 
     if (this.dispatchesRangeChanges) {
-        var plus = Array.prototype.slice.call(arguments);
+        var plus = new Array(argsLength);
+        for (var argIndex = 0; argIndex < argsLength; ++argIndex) {
+            plus[argIndex] = arguments[argIndex];
+        }
         var minus = [];
         this.dispatchRangeWillChange(plus, minus, 0);
     }
