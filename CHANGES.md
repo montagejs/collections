@@ -1,4 +1,32 @@
 
+-   Fixes the cases where a change listener is added or removed during
+    change dispatch. Neither listener will be informed until the next
+    change.
+-   Fixes `Object.equals` for comparing NaN to itself, which should
+    report `true` such that collections that use `Object.equals` to
+    identify values are able to find `NaN`. Previously, `NaN` could
+    get stuck in a collection permanently.
+-   In abstract, Collections previously identified duck types by
+    looking only at the prototype chain, ignoring owned properties.
+    Thus, an object could distinguish a property name that was being
+    used as a key of a record, from the same property name that was
+    being used as a method name. To improve performance and to face
+    the reality that oftentimes an owned property is in fact a method,
+    Collections no longer observe this distinction. That is, if an
+    object has a function by the appropriate name, either by ownership
+    or inheritance, it will be recognized as a method of a duck type.
+    This particularly affects `Object.equals`, which should be much
+    faster now.
+-   Fixes `Object.equals` such that property for property comparison
+    between objects only happens if they both descend directly from
+    `Object.prototype`. Previously, objects would be thus compared if
+    they both descended from the same prototype.
+-   Accommodate *very* large arrays with the `swap` shim. Previously,
+    the size of an array swap was limited by the size of the
+    JavaScript run-time stack. (@francoisfrisch)
+-   Fixes `splice` on an array when given a negative start index.
+    (@stuk)
+
 ## v0.2.2
 
 -   `one` now returns a consistent value between changes of a sorted
