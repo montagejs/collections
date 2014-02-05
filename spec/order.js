@@ -220,7 +220,7 @@ function describeOrder(Collection) {
 
         tests.forEach(function (test) {
             it(JSON.stringify(test[0]) + ".any() should be " + test[1], function () {
-                expect(Collection(test[0]).any()).toEqual(test[1]);
+                expect(Collection(test[0]).some(Boolean)).toEqual(test[1]);
             });
         });
 
@@ -238,7 +238,7 @@ function describeOrder(Collection) {
 
         tests.forEach(function (test) {
             it(JSON.stringify(test[0]) + ".all() should be " + test[1], function () {
-                expect(Collection(test[0]).all()).toEqual(test[1]);
+                expect(Collection(test[0]).every(Boolean)).toEqual(test[1]);
             });
         });
 

@@ -755,6 +755,9 @@ the first failure.
 SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
+*The method `all` from Version 1 was removed in Version 2 in favor of
+the idiom `every(Boolean)`.*
+
 ### some(callback(value, key, object, depth), thisp)
 
 Whether there is a value that passes a given guard.  Stops
@@ -764,6 +767,9 @@ consuming after the first success.
 (Array, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
 SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
+
+*The method `any` from Version 1 was removed in Version 2 in favor of
+the idiom `some(Boolean)`.*
 
 ### min()
 

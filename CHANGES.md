@@ -1,4 +1,7 @@
 
+-   Removes support for `any` and `all`. Use `some(Boolean)` or
+    `every(Boolean)`.
+
 ## v0.2.2
 
 -   `one` now returns a consistent value between changes of a sorted

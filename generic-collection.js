@@ -136,14 +136,6 @@ GenericCollection.prototype.some = function (callback /*, thisp*/) {
     }
 };
 
-GenericCollection.prototype.all = function () {
-    return this.every(Boolean);
-};
-
-GenericCollection.prototype.any = function () {
-    return this.some(Boolean);
-};
-
 GenericCollection.prototype.min = function (compare) {
     compare = compare || this.contentCompare || Object.compare;
     var first = true;

@@ -66,8 +66,6 @@ define("addEach", GenericCollection.prototype.addEach);
 define("deleteEach", GenericCollection.prototype.deleteEach);
 define("toArray", GenericCollection.prototype.toArray);
 define("toObject", GenericCollection.prototype.toObject);
-define("all", GenericCollection.prototype.all);
-define("any", GenericCollection.prototype.any);
 define("min", GenericCollection.prototype.min);
 define("max", GenericCollection.prototype.max);
 define("sum", GenericCollection.prototype.sum);
