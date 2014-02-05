@@ -81,7 +81,10 @@ Heap.prototype.indexOf = function (value) {
     return -1;
 };
 
-Heap.prototype.delete = function (value) {
+Heap.prototype["delete"] = function (value, equals) {
+    if (equals) {
+        throw new Error("Heap#delete does not support second argument: equals");
+    }
     var index = this.indexOf(value);
     if (index === -1)
         return false;

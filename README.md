@@ -323,8 +323,11 @@ Dict)
 #### has(value, opt_equals)
 
 Whether a value exists in this collection.  This is slow for list
-(linear), but fast (logarithmic) for SortedSet and SortedArraySet,
-and very fast (constant) for Set.
+(linear), but fast (logarithmic) for SortedSet and SortedArraySet, and
+very fast (constant) for Set. However, SortedSet, SortedArray, and
+SortedArraySet have an inherent `contentEquals` function and do not
+support override, and as such will throw an exception if provided the
+`equals` argument.
 
 (Array+, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
 FastSet)
@@ -338,9 +341,12 @@ The value for a key.  If a Map or SortedMap lacks a key, returns
 
 (Array+, Map, SortedMap, SortedArrayMap, WeakMap, Object+)
 
-#### get(value)
+#### get(value, opt_equals)
 
 Gets the equivalent value, or falls back to `getDefault(value)`.
+Sorted collections and sets have an interinsic `contentEquals`, so
+they do not accept an `equals` override and will throw an error if
+provided one.
 
 (List, Set, SortedSet, LruSet, SortedArray, SortedArraySet, FastSet)
 
@@ -398,19 +404,24 @@ Dict)
 
 #### delete(value)
 
-Deletes a value.  Returns whether the value was found.
+Deletes a value. Returns whether the value was found. Throws an error
+if a second argument, `equals`, is provided because these collections
+have an intrinsic order and `contentEquals` function.
 
 (Set, SortedSet, LruSet, SortedArray, SortedArraySet, FastSet, Heap)
 
-#### delete(value, equals)
+#### delete(value, opt_equals)
 
 Deletes the equivalent value.  Returns whether the value was found.
 
 (Array+, List)
 
-### deleteEach(values or keys)
+### deleteEach(values or keys, opt_equals)
 
-Deletes every value or every value for each key.
+Deletes every value or every value for each key. If provided an
+`equals` argument, it will be forwarded to the underlying `delete`
+implementation, which may or may not be appropriate depending on the
+collection.
 
 (Array+, List, Set, Map, MultiMap, SortedSet, SortedMap,
 LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap,
@@ -435,18 +446,24 @@ not found.  Returns the position of the last of equivalent values.
 
 (Array, ~~List~~, SortedArray, SortedArraySet)
 
-### find(value, opt_equals)
+### find(value, opt_equals, opt_startIndex)
 
-Finds a value.  For List and SortedSet, returns the node at which
-the value was found.  For SortedSet, the optional `equals` argument
-is ignored.
+Finds a value.  For List and SortedSet, returns the node at which the
+value was found. SortedSet, SortedArray, and SortedArraySet do  not
+support overriding their inherent `equals` or `startIndex` and will
+throw an exception if provided either. A meaningful implementation
+using `startIndex` or `startNode` could possibly be implemented in a
+future release.
 
-(Array+, List, SortedSet)
+(Array+, List, SortedSet, SortedArray, SortedArraySet)
 
-### findLast(value, opt_equals)
+### findLast(value, opt_equals, opt_endIndex)
 
-Finds the last equivalent value, returning the node at which the
-value was found.
+Finds the last equivalent value, returning the node at which the value
+was found. SortedArrayn and SortedArraySet do not support overriding
+its inherent `equals` or `startIndex` and will throw an exception if
+provided either. A meaningful implementation using `startIndex` or
+`startNode` could possibly be implemented in a future release.
 
 (Array+, List, SortedArray, SortedArraySet)
 

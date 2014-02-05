@@ -103,12 +103,18 @@ SortedArray.prototype.constructClone = function (values) {
     );
 };
 
-SortedArray.prototype.has = function (value) {
+SortedArray.prototype.has = function (value, equals) {
+    if (equals) {
+        throw new Error("SortedSet#has does not support second argument: equals");
+    }
     var index = search(this.array, value, this.contentCompare);
     return index >= 0 && this.contentEquals(this.array[index], value);
 };
 
-SortedArray.prototype.get = function (value) {
+SortedArray.prototype.get = function (value, equals) {
+    if (equals) {
+        throw new Error("SortedArray#get does not support second argument: equals");
+    }
     var index = searchFirst(this.array, value, this.contentCompare, this.contentEquals);
     if (index !== -1) {
         return this.array[index];
@@ -130,7 +136,10 @@ SortedArray.prototype.add = function (value) {
     return true;
 };
 
-SortedArray.prototype["delete"] = function (value) {
+SortedArray.prototype["delete"] = function (value, equals) {
+    if (equals) {
+        throw new Error("SortedArray#delete does not support second argument: equals");
+    }
     var index = searchFirst(this.array, value, this.contentCompare, this.contentEquals);
     if (index !== -1) {
         if (this.dispatchesRangeChanges) {
@@ -155,11 +164,23 @@ SortedArray.prototype.lastIndexOf = function (value) {
     return searchLast(this.array, value, this.contentCompare, this.contentEquals);
 };
 
-SortedArray.prototype.find = function (value) {
+SortedArray.prototype.find = function (value, equals, index) {
+    if (equals) {
+        throw new Error("SortedArray#find does not support second argument: equals");
+    }
+    if (index) {
+        throw new Error("SortedArray#find does not support third argument: index");
+    }
     return searchFirst(this.array, value, this.contentCompare, this.contentEquals);
 };
 
-SortedArray.prototype.findLast = function (value) {
+SortedArray.prototype.findLast = function (value, equals, index) {
+    if (equals) {
+        throw new Error("SortedArray#findLast does not support second argument: equals");
+    }
+    if (index) {
+        throw new Error("SortedArray#findLast does not support third argument: index");
+    }
     return searchLast(this.array, value, this.contentCompare, this.contentEquals);
 };
 
