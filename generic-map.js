@@ -3,6 +3,7 @@
 var Object = require("./shim-object");
 var ObservableMap = require("./observable-map");
 var ObservableObject = require("./observable-object");
+var Iterator = require("./iterator");
 
 module.exports = GenericMap;
 function GenericMap() {
@@ -123,6 +124,10 @@ GenericMap.prototype.clear = function () {
     }
 };
 
+GenericMap.prototype.iterate = function () {
+    return new Iterator(new GenericMapIterator(this));
+};
+
 GenericMap.prototype.reduce = function (callback, basis, thisp) {
     return this.store.reduce(function (basis, item) {
         return callback.call(thisp, basis, item.value, item.key, this);
@@ -185,5 +190,22 @@ Item.prototype.equals = function (that) {
 
 Item.prototype.compare = function (that) {
     return Object.compare(this.key, that.key);
+};
+
+function GenericMapIterator(map) {
+    this.map = map;
+    this.iterator = map.store.iterate();
+}
+
+GenericMapIterator.prototype.next = function () {
+    var iteration = this.iterator.next();
+    if (iteration.done) {
+        return iteration;
+    } else {
+        return new Iterator.Iteration(
+            iteration.value[1],
+            iteration.value[0]
+        );
+    }
 };
 

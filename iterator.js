@@ -10,7 +10,7 @@ function Iterator(iterable, start, stop, step) {
     if (iterable instanceof Iterator) {
         return iterable;
     } else if (!(this instanceof Iterator)) {
-        return new Iterator(iterable);
+        return new Iterator(iterable, start, stop, step);
     } else if (Array.isArray(iterable) || typeof iterable === "string") {
         iterators.set(this, new IndexIterator(iterable, start, stop, step));
         return;
@@ -304,7 +304,8 @@ IndexIterator.prototype.next = function () {
                 this.start += this.step;
             }
         }
-    } else if (this.start >= this.stop) { // end of string
+    }
+    if (this.start >= this.stop) { // end of string
         return Iterator.done;
     }
     var iteration = new Iteration(

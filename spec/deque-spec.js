@@ -1,5 +1,6 @@
 
 var Deque = require("../deque");
+var describeCollection = require("./collection");
 var describeDeque = require("./deque");
 var describeOrder = require("./order");
 
@@ -114,6 +115,7 @@ describe("Deque", function () {
 
     describeDeque(Deque);
     describeOrder(Deque);
+    describeCollection(Deque, [1, 2, 3, 4]);
 
 });
 

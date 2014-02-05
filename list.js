@@ -401,6 +401,7 @@ List.prototype.iterate = function () {
 function ListIterator(head) {
     this.head = head;
     this.at = head.next;
+    this.index = 0;
 };
 
 ListIterator.prototype.next = function () {
@@ -409,7 +410,10 @@ ListIterator.prototype.next = function () {
     } else {
         var at = this.at;
         this.at = this.at.next;
-        return at;
+        return new Iterator.Iteration(
+            at.value,
+            this.index++
+        );
     }
 };
 

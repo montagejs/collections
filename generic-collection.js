@@ -112,16 +112,28 @@ GenericCollection.prototype.filter = function (callback /*, thisp*/) {
 
 GenericCollection.prototype.every = function (callback /*, thisp*/) {
     var thisp = arguments[1];
-    return this.reduce(function (result, value, key, object, depth) {
-        return result && callback.call(thisp, value, key, object, depth);
-    }, true);
+    var iterator = this.iterate();
+    while (true) {
+        var iteration = iterator.next();
+        if (iteration.done) {
+            return true;
+        } else if (!callback.call(thisp, iteration.value, iteration.index, this)) {
+            return false;
+        }
+    }
 };
 
 GenericCollection.prototype.some = function (callback /*, thisp*/) {
     var thisp = arguments[1];
-    return this.reduce(function (result, value, key, object, depth) {
-        return result || callback.call(thisp, value, key, object, depth);
-    }, false);
+    var iterator = this.iterate();
+    while (true) {
+        var iteration = iterator.next();
+        if (iteration.done) {
+            return false;
+        } else if (callback.call(thisp, iteration.value, iteration.index, this)) {
+            return true;
+        }
+    }
 };
 
 GenericCollection.prototype.all = function () {

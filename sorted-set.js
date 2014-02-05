@@ -715,6 +715,7 @@ function SortedSetIterator(set, start, end) {
             this.prev = next.getPrevious();
         }
     }
+    this.index = 0;
 }
 
 SortedSetIterator.prototype.next = function () {
@@ -734,6 +735,9 @@ SortedSetIterator.prototype.next = function () {
         return Iterator.done;
     }
     this.prev = next;
-    return next;
+    return new Iterator.Iteration(
+        next.value,
+        this.index++
+    );
 };
 

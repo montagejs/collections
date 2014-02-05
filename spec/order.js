@@ -1,5 +1,6 @@
 
 var GenericCollection = require("../generic-collection");
+var Iterator = require("../iterator");
 
 module.exports = describeOrder;
 function describeOrder(Collection) {
@@ -352,6 +353,23 @@ function describeOrder(Collection) {
             expect(collection.clone(2).one()).toEqual(collection.one());
         });
 
+    });
+
+    describe("iterate", function () {
+        it("iterates a slice", function () {
+            var collection = Collection([1, 2, 3, 4]);
+            expect(collection.toArray()).toEqual([1, 2, 3, 4]);
+            var iterator = collection.iterate(1, 3);
+
+            for (var index = 1; index < 3; index++) {
+                var iteration = iterator.next();
+                expect(iteration.value).toBe(index + 1);
+                expect(iteration.index).toBe(index);
+                expect(iteration.done).toBe(false);
+            }
+            expect(iterator.next()).toEqual(Iterator.done);
+            expect(iterator.next()).toEqual(Iterator.done);
+        });
     });
 
 }

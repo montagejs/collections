@@ -4,6 +4,7 @@
 // SortedSet, all of these tests maintain the sorted order of the collection.
 
 var fuzzDeque = require("./deque-fuzz").fuzzDeque;
+var Iterator = require("../iterator");
 
 module.exports = describeDeque;
 function describeDeque(Deque) {
@@ -327,9 +328,30 @@ function describeDeque(Deque) {
 
     describe("clear", function () {
         it("should clear the deque", function() {
-            var a = new Deque([1,2,3,4]);
+            var a = Deque([1,2,3,4]);
             a.clear();
             expect(a.length).toBe(0);
+        });
+    });
+
+    describe("iterate", function () {
+        it("iterates", function () {
+            var deque = Deque();
+            deque.push(3, 4, 5);
+            deque.unshift(0, 1, 2);
+            deque.pop();
+            deque.shift();
+            expect(deque.toArray()).toEqual([1, 2, 3, 4]);
+            var iterator = deque.iterate();
+
+            for (var index = 0; index < 4; index++) {
+                var iteration = iterator.next();
+                expect(iteration.value).toBe(index + 1);
+                expect(iteration.index).toBe(index);
+                expect(iteration.done).toBe(false);
+            }
+            expect(iterator.next()).toEqual(Iterator.done);
+            expect(iterator.next()).toEqual(Iterator.done);
         });
     });
 

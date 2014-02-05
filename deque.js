@@ -6,6 +6,7 @@ var GenericOrder = require("./generic-order");
 var GenericOrder = require("./generic-order");
 var ObservableRange = require("./observable-range");
 var ObservableObject = require("./observable-object");
+var Iterator = require("./iterator");
 
 // by Petka Antonov
 // https://github.com/petkaantonov/deque/blob/master/js/deque.js
@@ -40,6 +41,7 @@ Deque.prototype.constructClone = function (values) {
 
 Deque.prototype.add = function (value) {
     this.push(value);
+    return true;
 };
 
 Deque.prototype.push = function (value /* or ...values */) {
@@ -240,7 +242,7 @@ Deque.prototype.grow = function (capacity) {
 
 Deque.prototype.init = function () {
     for (var index = 0; index < this.capacity; ++index) {
-        this[index] = "nil"; // TODO void 0
+        this[index] = void 0;
     }
 };
 
@@ -422,6 +424,49 @@ Deque.prototype.reduceRight = function (callback, basis /*, thisp*/) {
         basis = callback.call(thisp, basis, this[offset], index, this);
     }
     return basis;
+};
+
+Deque.prototype.iterate = function (start, stop, step) {
+    if (step == null) {
+        step = 1;
+    }
+    if (stop == null) {
+        stop = start;
+        start = 0;
+    }
+    if (start == null) {
+        start = 0;
+    }
+    if (step == null) {
+        step = 1;
+    }
+    if (stop == null) {
+        stop = this.length;
+    }
+    return new Iterator(new DequeIterator(this, start, stop, step));
+};
+
+function DequeIterator(deque, start, stop, step) {
+    this.deque = deque;
+    this.start = start;
+    this.stop = stop;
+    this.step = step;
+}
+
+DequeIterator.prototype.next = function () {
+    if (this.start < this.stop) {
+        var deque = this.deque;
+        var mask = deque.capacity - 1;
+        var offset = (deque.front + this.start) & mask;
+        var iteration = new Iterator.Iteration(
+            deque[offset],
+            this.start
+        );
+        this.start += this.step;
+        return iteration;
+    } else {
+        return Iterator.done;
+    }
 };
 
 function copy(source, sourceIndex, target, targetIndex, length) {
