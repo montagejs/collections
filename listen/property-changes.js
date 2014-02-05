@@ -199,7 +199,7 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
     }
 
     if (!Object.isExtensible(this, key)) {
-        throw new Error("Can't make property " + JSON.stringify(key) + " observable on " + this + " because object is not extensible");
+        return;
     }
 
     var state;
@@ -251,7 +251,7 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
     };
 
     if (!overriddenDescriptor.configurable) {
-        throw new Error("Can't observe non-configurable properties");
+        return;
     }
 
     // memoize the descriptor so we know not to install another layer,
