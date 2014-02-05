@@ -253,9 +253,5 @@ GenericCollection.prototype.only = function () {
     }
 };
 
-GenericCollection.prototype.iterator = function () {
-    return this.iterate.apply(this, arguments);
-};
-
 require("./shim-array");
 
