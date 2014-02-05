@@ -72,7 +72,7 @@ Iterator.prototype.next = function () {
 Iterator.prototype.iterateMap = function (callback /*, thisp*/) {
     var self = Iterator(this),
         thisp = arguments[1];
-    return new Iterator(new MapIterator(self, callback, thisp));
+    return new MapIterator(self, callback, thisp);
 };
 
 function MapIterator(iterator, callback, thisp) {
@@ -80,6 +80,9 @@ function MapIterator(iterator, callback, thisp) {
     this.callback = callback;
     this.thisp = thisp;
 }
+
+MapIterator.prototype = Object.create(Iterator.prototype);
+MapIterator.prototype.constructor = MapIterator;
 
 MapIterator.prototype.next = function () {
     var iteration = this.iterator.next();
@@ -103,7 +106,7 @@ Iterator.prototype.iterateFilter = function (callback /*, thisp*/) {
         thisp = arguments[1],
         index = 0;
 
-    return new Iterator(new FilterIterator(self, callback, thisp));
+    return new FilterIterator(self, callback, thisp);
 };
 
 function FilterIterator(iterator, callback, thisp) {
@@ -111,6 +114,9 @@ function FilterIterator(iterator, callback, thisp) {
     this.callback = callback;
     this.thisp = thisp;
 }
+
+FilterIterator.prototype = Object.create(Iterator.prototype);
+FilterIterator.prototype.constructor = FilterIterator;
 
 FilterIterator.prototype.next = function () {
     var iteration;
@@ -180,29 +186,34 @@ Iterator.prototype.dropWhile = function (callback /*, thisp */) {
         if (iteration.done) {
             return Iterator.empty;
         } else if (!callback.call(thisp, iteration.value, iteration.index, self)) {
-            var iterator = new Iterator(new DropWhileIterator(iteration, self));
-            iterators.get(iterator).parent = iterator;
-            return iterator;
+            return new DropWhileIterator(iteration, self);
         }
     }
 };
 
-function DropWhileIterator(iteration, nextIterator) {
+function DropWhileIterator(iteration, iterator) {
     this.iteration = iteration;
-    this.nextIterator = nextIterator;
+    this.iterator = iterator;
     this.parent = null;
 }
 
+DropWhileIterator.prototype = Object.create(Iterator.prototype);
+DropWhileIterator.prototype.constructor = DropWhileIterator;
+
 DropWhileIterator.prototype.next = function () {
     var result = this.iteration;
-    iterators.set(this.parent, this.nextIterator);
-    return result;
+    if (result) {
+        this.iteration = null;
+        return result;
+    } else {
+        return this.iterator.next();
+    }
 };
 
 Iterator.prototype.takeWhile = function (callback /*, thisp*/) {
     var self = Iterator(this),
         thisp = arguments[1];
-    return new Iterator(new TakeWhileIterator(self, callback, thisp));
+    return new TakeWhileIterator(self, callback, thisp);
 };
 
 function TakeWhileIterator(iterator, callback, thisp) {
@@ -210,6 +221,9 @@ function TakeWhileIterator(iterator, callback, thisp) {
     this.callback = callback;
     this.thisp = thisp;
 }
+
+TakeWhileIterator.prototype = Object.create(Iterator.prototype);
+TakeWhileIterator.prototype.constructor = TakeWhileIterator;
 
 TakeWhileIterator.prototype.next = function () {
     var iteration = this.iterator.next();
@@ -248,13 +262,16 @@ Iterator.prototype.iterateFlatten = function () {
 };
 
 Iterator.prototype.recount = function (start) {
-    return new Iterator(new RecountIterator(this, start));
+    return new RecountIterator(this, start);
 };
 
 function RecountIterator(iterator, start) {
     this.iterator = iterator;
     this.index = start || 0;
 }
+
+RecountIterator.prototype = Object.create(Iterator.prototype);
+RecountIterator.prototype.constructor = RecountIterator;
 
 RecountIterator.prototype.next = function () {
     var iteration = this.iterator.next();
@@ -318,7 +335,7 @@ Iterator.cycle = function (cycle, times) {
     if (arguments.length < 2) {
         times = Infinity;
     }
-    return new Iterator(new CycleIterator(cycle, times));
+    return new CycleIterator(cycle, times);
 };
 
 function CycleIterator(cycle, times) {
@@ -326,6 +343,9 @@ function CycleIterator(cycle, times) {
     this.times = times;
     this.iterator = Iterator.empty;
 }
+
+CycleIterator.prototype = Object.create(Iterator.prototype);
+CycleIterator.prototype.constructor = CycleIterator;
 
 CycleIterator.prototype.next = function () {
     var iteration = this.iterator.next();
@@ -348,13 +368,16 @@ Iterator.concat = function (/* ...iterators */) {
 
 Iterator.flatten = function (iterators) {
     iterators = Iterator(iterators);
-    return new Iterator(new ChainIterator(iterators));
+    return new ChainIterator(iterators);
 };
 
 function ChainIterator(iterators) {
     this.iterators = iterators;
     this.iterator = Iterator.empty;
 }
+
+ChainIterator.prototype = Object.create(Iterator.prototype);
+ChainIterator.prototype.constructor = ChainIterator;
 
 ChainIterator.prototype.next = function () {
     var iteration = this.iterator.next();
@@ -375,13 +398,16 @@ Iterator.unzip = function (iterators) {
     iterators = Iterator(iterators).map(Iterator);
     if (iterators.length === 0)
         return new Iterator.empty;
-    return new Iterator(new UnzipIterator(iterators));
+    return new UnzipIterator(iterators);
 };
 
 function UnzipIterator(iterators) {
     this.iterators = iterators;
     this.index = 0;
 }
+
+UnzipIterator.prototype = Object.create(Iterator.prototype);
+UnzipIterator.prototype.constructor = UnzipIterator;
 
 UnzipIterator.prototype.next = function () {
     var done = false
@@ -414,7 +440,7 @@ Iterator.range = function (start, stop, step) {
     }
     start = start || 0;
     step = step || 1;
-    return new Iterator(new RangeIterator(start, stop, step));
+    return new RangeIterator(start, stop, step);
 };
 
 Iterator.count = function (start, step) {
@@ -427,6 +453,9 @@ function RangeIterator(start, stop, step) {
     this.step = step;
     this.index = 0;
 }
+
+RangeIterator.prototype = Object.create(Iterator.prototype);
+RangeIterator.prototype.constructor = RangeIterator;
 
 RangeIterator.prototype.next = function () {
     if (this.start >= this.stop) {
@@ -442,7 +471,7 @@ Iterator.repeat = function (value, times) {
     if (times == null) {
         times = Infinity;
     }
-    return new Iterator(new RepeatIterator(value, times));
+    return new RepeatIterator(value, times);
 };
 
 function RepeatIterator(value, times) {
@@ -450,6 +479,9 @@ function RepeatIterator(value, times) {
     this.times = times;
     this.index = 0;
 }
+
+RepeatIterator.prototype = Object.create(Iterator.prototype);
+RepeatIterator.prototype.constructor = RepeatIterator;
 
 RepeatIterator.prototype.next = function () {
     if (this.index < this.times) {
@@ -465,11 +497,14 @@ Iterator.enumerate = function (values, start) {
 
 function EmptyIterator() {}
 
+EmptyIterator.prototype = Object.create(Iterator.prototype);
+EmptyIterator.prototype.constructor = EmptyIterator;
+
 EmptyIterator.prototype.next = function () {
     return Iterator.done;
 };
 
-Iterator.empty = new Iterator(new EmptyIterator());
+Iterator.empty = new EmptyIterator();
 
 // Iteration and DoneIteration exist here only to encourage hidden classes.
 // Otherwise, iterations are merely duck-types.

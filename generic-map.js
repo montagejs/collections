@@ -125,7 +125,7 @@ GenericMap.prototype.clear = function () {
 };
 
 GenericMap.prototype.iterate = function () {
-    return new Iterator(new GenericMapIterator(this));
+    return new GenericMapIterator(this);
 };
 
 GenericMap.prototype.reduce = function (callback, basis, thisp) {
@@ -196,6 +196,9 @@ function GenericMapIterator(map) {
     this.map = map;
     this.iterator = map.store.iterate();
 }
+
+GenericMapIterator.prototype = Object.create(Iterator.prototype);
+GenericMapIterator.prototype.constructor = GenericMapIterator;
 
 GenericMapIterator.prototype.next = function () {
     var iteration = this.iterator.next();

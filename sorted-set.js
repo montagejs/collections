@@ -510,7 +510,7 @@ SortedSet.prototype.clear = function () {
 };
 
 SortedSet.prototype.iterate = function (start, end) {
-    return new Iterator(new this.Iterator(this, start, end));
+    return new this.Iterator(this, start, end);
 };
 
 SortedSet.prototype.Iterator = SortedSetIterator;
@@ -717,6 +717,9 @@ function SortedSetIterator(set, start, end) {
     }
     this.index = 0;
 }
+
+SortedSetIterator.prototype = Object.create(SortedSetIterator.prototype);
+SortedSetIterator.prototype.constructor = SortedSetIterator;
 
 SortedSetIterator.prototype.next = function () {
     var next;

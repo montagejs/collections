@@ -443,7 +443,7 @@ Deque.prototype.iterate = function (start, stop, step) {
     if (stop == null) {
         stop = this.length;
     }
-    return new Iterator(new DequeIterator(this, start, stop, step));
+    return new DequeIterator(this, start, stop, step);
 };
 
 function DequeIterator(deque, start, stop, step) {
@@ -452,6 +452,9 @@ function DequeIterator(deque, start, stop, step) {
     this.stop = stop;
     this.step = step;
 }
+
+DequeIterator.prototype = Object.create(Iterator.prototype);
+DequeIterator.prototype.constructor = DequeIterator;
 
 DequeIterator.prototype.next = function () {
     if (this.start < this.stop) {

@@ -395,7 +395,7 @@ List.prototype.makeRangeChangesObservable = function () {
 };
 
 List.prototype.iterate = function () {
-    return new Iterator(new ListIterator(this.head));
+    return new ListIterator(this.head);
 };
 
 function ListIterator(head) {
@@ -403,6 +403,9 @@ function ListIterator(head) {
     this.at = head.next;
     this.index = 0;
 };
+
+ListIterator.prototype = Object.create(Iterator.prototype);
+ListIterator.prototype.constructor = ListIterator;
 
 ListIterator.prototype.next = function () {
     if (this.at === this.head) {
