@@ -755,7 +755,7 @@ the first failure.
 SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
-*The method `all` from Version 1 was removed in Version 2 in favor of
+*The method `all` from version 1 was removed in version 2 in favor of
 the idiom `every(Boolean)`.*
 
 ### some(callback(value, key, object, depth), thisp)
@@ -768,7 +768,7 @@ consuming after the first success.
 SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
-*The method `any` from Version 1 was removed in Version 2 in favor of
+*The method `any` from version 1 was removed in version 2 in favor of
 the idiom `some(Boolean)`.*
 
 ### min()
@@ -1002,7 +1002,7 @@ given guard.  Values are consumed on demand.
 
 #### iterateZip(...iterables)
 
-*Introduced in version 2*
+*Introduced in version 2.*
 
 Returns an iterator that incrementally combines the respective
 values of the given iterations, first including itself.
@@ -1068,14 +1068,14 @@ iterables. `zip` differs from `unzip` only in that the arguments are variadic.
 
 #### flatten(iterables)
 
-*Renamed in Version 2 from `concat` in Version 1.*
+*Renamed in version 2 from `concat` in version 1.*
 
 Returns an iterator that will produce all the values from each of the given
 iterators in order.
 
 #### concat(...iterables)
 
-*Renamed in Version 2 from `chain` in Version 1.*
+*Renamed in version 2 from `chain` in version 1.*
 
 Returns an iterator that will produce all the values from each of the given
 iterators in order. Differs from `flatten` only in that the arguments are
@@ -1100,7 +1100,7 @@ Repeats the given value either finite times or indefinitely.
 
 ## Change Observers
 
-*Introduced in Version 2.*
+*Introduced in version 2.*
 
 All collections support change observers. There are three types of changes.
 Property changes, range changes, and map changes. Whether a collection supports
@@ -1239,7 +1239,7 @@ The prefereed handler method name for a property change observer is composed:
 -   `"Will"` if `capture`
 -   `"Change"`
 
-*The specific handler method name differs from those constructed by Version 1,
+*The specific handler method name differs from those constructed by version 1,
 in that it includes the term, `"Property"`. Thus, all observer handler method
 names now receive a complete description of the kind of change, at the expense
 of some verbosity.*
@@ -1355,7 +1355,7 @@ become observable. For example, a `Set` has to establish observers on its own
 
 ### Map Changes
 
-*Note: map change observers are very different than Version 1 map change
+*Note: map change observers are very different than version 1 map change
 listeners.*
 
 Many collections represent a mapping from keys to values, irrespective of order.
@@ -1405,8 +1405,8 @@ become observable.
 
 ## Change Listeners
 
-*The change listener interface exists in Version 1, but has been replaced with
-Change Observers in Version 2.*
+*The change listener interface exists in version 1, but has been replaced with
+Change Observers in version 2.*
 
 All collections support change listeners.  There are three types of
 changes.  Property changes, map changes, and range changes.
