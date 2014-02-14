@@ -19,8 +19,10 @@ describe("SortedArray", function () {
     });
 
     describe("non-uniqueness", function () {
-        var array = SortedArray([1, 2, 3, 1, 2, 3]);
-        expect(array.slice()).toEqual([1, 1, 2, 2, 3, 3]);
+        it("should sort non-unique values", function () {
+            var array = SortedArray([1, 2, 3, 1, 2, 3]);
+            expect(array.slice()).toEqual([1, 1, 2, 2, 3, 3]);
+        });
     });
 
     // TODO test stability

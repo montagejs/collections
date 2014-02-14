@@ -9,6 +9,8 @@
 // TODO observePropertyWillChange
 // TODO access observer notes
 
+var sinon = require("sinon");
+var extendSpyExpectation = require("./spy-expectation");
 var ObservableObject = require("../observable-object");
 var observePropertyChange = ObservableObject.observePropertyChange;
 var makePropertyObservable = ObservableObject.makePropertyObservable;
@@ -17,11 +19,13 @@ var dispatchPropertyChange = ObservableObject.dispatchPropertyChange;
 
 describe("ObservableObject", function () {
 
+    extendSpyExpectation();
+
     describe("observePropertyChange", function () {
 
         it("property change", function () {
             var object = {};
-            var spy = jasmine.createSpy();
+            var spy = sinon.spy();
             var observer = observePropertyChange(object, "foo", function (plus, minus, name, object) {
                 spy(plus, minus, name, object);
             });
@@ -31,7 +35,7 @@ describe("ObservableObject", function () {
 
         it("property non-change", function () {
             var object = {foo: 10};
-            var spy = jasmine.createSpy();
+            var spy = sinon.spy();
             var observer = observePropertyChange(object, "foo", function (plus, minus, name, object) {
                 spy(plus, minus, name, object);
             });
@@ -41,28 +45,28 @@ describe("ObservableObject", function () {
 
         it("property change, property non-change", function () {
             var object = {};
-            var spy = jasmine.createSpy();
+            var spy = sinon.spy();
             var observer = observePropertyChange(object, "foo", function (plus, minus, name, object) {
                 spy(plus, minus, name, object);
             });
             object.foo = 10;
             expect(spy).toHaveBeenCalledWith(10, undefined, "foo", object);
 
-            spy = jasmine.createSpy();
+            spy = sinon.spy();
             object.foo = 10;
             expect(spy).not.toHaveBeenCalled();
         });
 
         it("property change, observer", function () {
             var object = {};
-            var spy = jasmine.createSpy();
+            var spy = sinon.spy();
             var observer = observePropertyChange(object, "foo", function (plus, minus, name, object) {
                 spy(plus, minus, name, object);
             });
             object.foo = 10;
 
             observer.cancel();
-            spy = jasmine.createSpy();
+            spy = sinon.spy();
             object.foo = 20;
             expect(spy).not.toHaveBeenCalled();
         });
@@ -74,18 +78,18 @@ describe("ObservableObject", function () {
             });
 
             observer.cancel();
-            spy = jasmine.createSpy();
+            spy = sinon.spy();
             object.foo = 20;
             expect(spy).not.toHaveBeenCalled();
         });
 
         it("multiple observers", function () {
             var object = {};
-            var spy1 = jasmine.createSpy();
+            var spy1 = sinon.spy();
             var observer1 = observePropertyChange(object, "foo", function (plus, minus, name, object) {
                 spy1(plus, minus, name, object);
             });
-            var spy2 = jasmine.createSpy();
+            var spy2 = sinon.spy();
             var observer2 = observePropertyChange(object, "foo", function (plus, minus, name, object) {
                 spy2(plus, minus, name, object);
             });
@@ -96,11 +100,11 @@ describe("ObservableObject", function () {
 
         it("multiple observers, one observered", function () {
             var object = {};
-            var spy1 = jasmine.createSpy();
+            var spy1 = sinon.spy();
             var observer1 = observePropertyChange(object, "foo", function (plus, minus, name, object) {
                 spy1(plus, minus, name, object);
             });
-            var spy2 = jasmine.createSpy();
+            var spy2 = sinon.spy();
             var observer2 = observePropertyChange(object, "foo", function (plus, minus, name, object) {
                 spy2(plus, minus, name, object);
             });
@@ -112,11 +116,11 @@ describe("ObservableObject", function () {
 
         it("multiple observers, other observered", function () {
             var object = {};
-            var spy1 = jasmine.createSpy();
+            var spy1 = sinon.spy();
             var observer1 = observePropertyChange(object, "foo", function (plus, minus, name, object) {
                 spy1(plus, minus, name, object);
             });
-            var spy2 = jasmine.createSpy();
+            var spy2 = sinon.spy();
             var observer2 = observePropertyChange(object, "foo", function (plus, minus, name, object) {
                 spy2(plus, minus, name, object);
             });
@@ -128,11 +132,11 @@ describe("ObservableObject", function () {
 
         it("multiple observers, both observered", function () {
             var object = {};
-            var spy1 = jasmine.createSpy();
+            var spy1 = sinon.spy();
             var observer1 = observePropertyChange(object, "foo", function (plus, minus, name, object) {
                 spy1(plus, minus, name, object);
             });
-            var spy2 = jasmine.createSpy();
+            var spy2 = sinon.spy();
             var observer2 = observePropertyChange(object, "foo", function (plus, minus, name, object) {
                 spy2(plus, minus, name, object);
             });
@@ -145,12 +149,12 @@ describe("ObservableObject", function () {
 
         it("observe, observer, observe", function () {
             var object = {};
-            var spy1 = jasmine.createSpy();
+            var spy1 = sinon.spy();
             var observer1 = observePropertyChange(object, "foo", function (plus, minus, name, object) {
                 spy1(plus, minus, name, object);
             });
             observer1.cancel();
-            var spy2 = jasmine.createSpy();
+            var spy2 = sinon.spy();
             var observer2 = observePropertyChange(object, "foo", function (plus, minus, name, object) {
                 spy2(plus, minus, name, object);
             });
@@ -167,7 +171,7 @@ describe("ObservableObject", function () {
                 }
             };
             var observer = observePropertyChange(object, "foo", object);
-            var spy = jasmine.createSpy();
+            var spy = sinon.spy();
             object.foo = 20;
             expect(spy).toHaveBeenCalledWith(20, 10, "foo", object);
         });
@@ -180,23 +184,23 @@ describe("ObservableObject", function () {
                 }
             };
             var observer = observePropertyChange(object, "foo", object);
-            var spy = jasmine.createSpy();
+            var spy = sinon.spy();
             object.foo = 20;
             expect(spy).toHaveBeenCalledWith(20, 10, "foo", object);
         });
 
         it("is robust against observeration of an intermediate observer", function () {
             var object = {foo: 10};
-            var spy1 = jasmine.createSpy();
+            var spy1 = sinon.spy();
             var observer1 = observePropertyChange(object, "foo", function (plus, minus, name, object) {
                 spy1(plus, minus, name, object);
                 if (observer2) observer2.cancel();
             });
-            var spy2 = jasmine.createSpy();
+            var spy2 = sinon.spy();
             var observer2 = observePropertyChange(object, "foo", spy2);
-            var spy3 = jasmine.createSpy();
+            var spy3 = sinon.spy();
             var observer3 = observePropertyChange(object, "foo", spy3);
-            var spy4 = jasmine.createSpy();
+            var spy4 = sinon.spy();
             var observer4 = observePropertyChange(object, "foo", spy4);
             expect(spy1.callCount).toBe(0);
             expect(spy2.callCount).toBe(0);
@@ -209,7 +213,7 @@ describe("ObservableObject", function () {
 
         it("is robust against property changes during dispatch of a property change", function () {
             var object = {};
-            var spy = jasmine.createSpy();
+            var spy = sinon.spy();
             var observer = observePropertyChange(object, "foo", function (plus, minus, name, object) {
                 if (object.foo >= 10) {
                     return observer.cancel();
@@ -223,8 +227,8 @@ describe("ObservableObject", function () {
 
         it("should observe nested observer", function () {
             var object = {};
-            var spy = jasmine.createSpy();
-            var innerCancel = jasmine.createSpy();
+            var spy = sinon.spy();
+            var innerCancel = sinon.spy();
             var observer = observePropertyChange(object, "foo", function () {
                 spy();
                 return {cancel: innerCancel};
@@ -251,7 +255,7 @@ describe("ObservableObject", function () {
             var observer = observePropertyChange(object, "foo", function (child) {
                 throw new Error("X");
             });
-            var spy = jasmine.createSpy();
+            var spy = sinon.spy();
             observePropertyChange(object, "foo", spy);
             var error;
             try {
@@ -266,7 +270,7 @@ describe("ObservableObject", function () {
 
         it("handles manual dispatch", function () {
             var object = {};
-            var spy = jasmine.createSpy();
+            var spy = sinon.spy();
             var observer = observePropertyChange(object, "foo", function (value) {
                 spy.apply(this, arguments);
                 if (value === 2) {
@@ -300,7 +304,7 @@ describe("ObservableObject", function () {
             var object = new Foo();
             expect(object.foo).toBe(0);
 
-            var spy = jasmine.createSpy();
+            var spy = sinon.spy();
             var observer = observePropertyChange(object, "foo", function (plus, minus, name, object) {
                 spy(plus, minus);
             });
@@ -325,7 +329,7 @@ describe("ObservableObject", function () {
             var object = new Foo();
             expect(object._foo).toBe(0);
 
-            var spy = jasmine.createSpy();
+            var spy = sinon.spy();
             var observer = observePropertyChange(object, "foo", function (plus, minus, name, object) {
                 spy(plus, minus);
             });
@@ -344,9 +348,9 @@ describe("ObservableObject", function () {
 
         it("observes changes to different properties", function () {
             var object = {};
-            var fooSpy = jasmine.createSpy();
+            var fooSpy = sinon.spy();
             var fooObserver = observePropertyChange(object, "foo", fooSpy);
-            var barSpy = jasmine.createSpy();
+            var barSpy = sinon.spy();
             var barObserver = observePropertyChange(object, "bar", barSpy);
 
             object.foo = 10;
@@ -390,7 +394,7 @@ describe("ObservableObject", function () {
                 enumerable: false,
                 configurable: true
             });
-            var spy = jasmine.createSpy();
+            var spy = sinon.spy();
             var observer = observePropertyChange(object, "foo", spy);
             object.foo = 10;
             expect(spy).not.toHaveBeenCalled();
@@ -404,7 +408,7 @@ describe("ObservableObject", function () {
             preventPropertyObserver(Foo.prototype, "foo");
             var object = new Foo();
             expect(object.hasOwnProperty("foo")).toBe(false);
-            var spy = jasmine.createSpy();
+            var spy = sinon.spy();
             var observer = observePropertyChange(object, "foo", spy);
             expect(object.hasOwnProperty("foo")).toBe(false);
             expect(object.foo).toBe(undefined);

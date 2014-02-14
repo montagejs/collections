@@ -68,7 +68,7 @@ var hashMap = new WeakMap();
 Object.hash = function (object) {
     if (object && typeof object.hash === "function") {
         return "" + object.hash();
-    } else if (Object(object) === object) {
+    } else if (Object.isObject(object)) {
         if (!hashMap.has(object)) {
             hashMap.set(object, Math.random().toString(36).slice(2));
         }
@@ -337,21 +337,42 @@ Object.is = function (x, y) {
     @returns {Boolean} whether the values are deeply equivalent
     @function external:Object.equals
 */
-Object.equals = function (a, b, equals) {
+Object.equals = function (a, b, equals, memo) {
     equals = equals || Object.equals;
     // unbox objects, but do not confuse object literals
     a = Object.getValueOf(a);
     b = Object.getValueOf(b);
     if (a === b)
-        // 0 === -0, but they are not equal
-        return a !== 0 || 1 / a === 1 / b;
-    if (a == null || b == null)
-        return a === b;
-    if (typeof a.equals === "function")
-        return a.equals(b, equals);
+        return true;
+    if (Object.isObject(a)) {
+        memo = memo || new WeakMap();
+        if (memo.has(a)) {
+            return memo.get(a) === b;
+        }
+        memo.set(a, b);
+    }
+    if (Object.isObject(a) && typeof a.equals === "function") {
+        return a.equals(b, equals, memo);
+    }
     // commutative
-    if (typeof b.equals === "function")
-        return b.equals(a, equals);
+    if (Object.isObject(b) && typeof b.equals === "function") {
+        return b.equals(a, equals, memo);
+    }
+    if (Object.isObject(a) && Object.isObject(b)) {
+        if (Object.getPrototypeOf(a) === Object.prototype && Object.getPrototypeOf(b) === Object.prototype) {
+            for (var name in a) {
+                if (!equals(a[name], b[name], equals, memo)) {
+                    return false;
+                }
+            }
+            for (var name in b) {
+                if (!(name in a) || !equals(b[name], a[name], equals, memo)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
     // NaN !== NaN, but they are equal.
     // NaNs are the only non-reflexive value, i.e., if x !== x,
     // then x is a NaN.
@@ -361,21 +382,8 @@ Object.equals = function (a, b, equals) {
     // both NaN.
     if (a !== a && b !== b)
         return true;
-    if (typeof a !== "object" || typeof b !== "object")
+    if (!a || !b)
         return a === b;
-    if (Object.getPrototypeOf(a) === Object.prototype && Object.getPrototypeOf(b) === Object.prototype) {
-        for (var name in a) {
-            if (!equals(a[name], b[name])) {
-                return false;
-            }
-        }
-        for (var name in b) {
-            if (!(name in a)) {
-                return false;
-            }
-        }
-        return true;
-    }
     return false;
 };
 

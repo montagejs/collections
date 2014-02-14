@@ -256,7 +256,7 @@ define("compare", function (that, compare) {
     return this.length - that.length;
 });
 
-define("equals", function (that, equals) {
+define("equals", function (that, equals, memo) {
     equals = equals || Object.equals;
     var i = 0;
     var length = this.length;
@@ -280,7 +280,7 @@ define("equals", function (that, equals) {
                 }
                 left = this[i];
                 right = that[i];
-                if (!equals(left, right)) {
+                if (!equals(left, right, equals, memo)) {
                     return false;
                 }
             } else {

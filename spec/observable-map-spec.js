@@ -1,8 +1,12 @@
 "use strict";
 
+var sinon = require("sinon");
+var extendSpyExpectation = require("./spy-expectation");
 var ObservableMap = require("../observable-map");
 
 describe("ObservableMap", function () {
+
+    extendSpyExpectation();
 
     describe("observeMapChange", function () {
         it("observe, dispatch", function () {
@@ -14,7 +18,7 @@ describe("ObservableMap", function () {
                 spy(plus, minus, key, type, object);
             });
 
-            spy = jasmine.createSpy();
+            spy = sinon.spy();
             map.dispatchMapChange("create", "foo", 10, undefined);
             expect(spy).toHaveBeenCalledWith(10, undefined, "foo", "create", map);
 
@@ -29,7 +33,7 @@ describe("ObservableMap", function () {
                 spy(plus, minus, key, type, object);
             });
 
-            spy = jasmine.createSpy();
+            spy = sinon.spy();
             observer.cancel();
             map.dispatchMapChange("create", "foo", 10, undefined);
             expect(spy).not.toHaveBeenCalled();
@@ -45,12 +49,12 @@ describe("ObservableMap", function () {
                 spy(plus, minus, key, type, object);
             });
 
-            spy = jasmine.createSpy();
+            spy = sinon.spy();
             map.dispatchMapChange("create", "foo", 10, undefined);
             expect(spy).toHaveBeenCalledWith(10, undefined, "foo", "create", map);
 
             observer.cancel();
-            spy = jasmine.createSpy();
+            spy = sinon.spy();
             map.dispatchMapChange("create", "foo", 10, undefined);
             expect(spy).not.toHaveBeenCalled();
         });

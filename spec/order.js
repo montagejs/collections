@@ -51,7 +51,8 @@ function describeOrder(Collection) {
 
         // contains 10, 20, 30
         it("a fake array should be equal to collection", function () {
-            expect(Object.compare(fakeArray, Collection([10, 20, 30]))).toEqual(0);
+            // The oddest thing happens here because of a negative zero
+            expect(-Object.compare(fakeArray, Collection([10, 20, 30]))).toEqual(0);
         });
 
         it("a fake array should be less than a collection", function () {

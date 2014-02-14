@@ -67,20 +67,24 @@ function describeMap(Map, values) {
     });
 
     describe("equals", function () {
-        var map = Map({a: 10, b: 20});
-        expect(Object.equals(map, map)).toBe(true);
-        expect(map.equals(map)).toBe(true);
-        expect(Map({a: 10, b: 20}).equals({b: 20, a: 10})).toBe(true);
-        expect(Object.equals({a: 10, b: 20}, Map({b: 20, a: 10}))).toBe(true);
-        expect(Object.equals(Map({b: 20, a: 10}), {a: 10, b: 20})).toBe(true);
-        expect(Object.equals(Map({b: 20, a: 10}), Map({a: 10, b: 20}))).toBe(true);
+        it("should compare maps", function () {
+            var map = Map({a: 10, b: 20});
+            expect(Object.equals(map, map)).toBe(true);
+            expect(map.equals(map)).toBe(true);
+            expect(Map({a: 10, b: 20}).equals({b: 20, a: 10})).toBe(true);
+            expect(Object.equals({a: 10, b: 20}, Map({b: 20, a: 10}))).toBe(true);
+            expect(Object.equals(Map({b: 20, a: 10}), {a: 10, b: 20})).toBe(true);
+            expect(Object.equals(Map({b: 20, a: 10}), Map({a: 10, b: 20}))).toBe(true);
+        });
     });
 
     describe("clone", function () {
-        var map = Map({a: 10, b: 20});
-        var clone = Object.clone(map);
-        expect(map).toNotBe(clone);
-        expect(map.equals(clone)).toBe(true);
+        it("clones a map", function () {
+            var map = Map({a: 10, b: 20});
+            var clone = Object.clone(map);
+            expect(map).toNotBe(clone);
+            expect(map.equals(clone)).toBe(true);
+        });
     });
 
     describeObservableMap(Map);

@@ -1,4 +1,6 @@
 
+var sinon = require("sinon");
+var extendSpyExpectation = require("./spy-expectation");
 require("../observable-array");
 // TODO var describeObservableRange = require("./observable-range");
 // TODO make Array.from consistent with List
@@ -55,9 +57,9 @@ describe("Array change dispatch with map observers", function () {
     });
 
     it("push", function () {
-        spy = jasmine.createSpy();
+        spy = sinon.spy();
         array.push(1, 2, 3);
-        expect(spy.argsForCall).toEqual([
+        expect(spy.args).toEqual([
             ["length will change from", 0, "to", 3],
             ["range will change from", [], "to", [1, 2, 3], "at", 0],
             ["map will", "create", 0, "from", undefined, "to", 1],
@@ -73,10 +75,10 @@ describe("Array change dispatch with map observers", function () {
     });
 
     it("clear", function () {
-        spy = jasmine.createSpy();
+        spy = sinon.spy();
         array.clear();
         expect(array).toEqual([]);
-        expect(spy.argsForCall).toEqual([
+        expect(spy.args).toEqual([
             ["length will change from", 3, "to", 0],
             ["range will change from", [1, 2, 3], "to", [], "at", 0],
             ["map will", "delete", 0, "from", 1, "to", undefined],
@@ -92,9 +94,9 @@ describe("Array change dispatch with map observers", function () {
 
     it("pop one value from an array", function () {
         array.push(1, 2, 3);
-        spy = jasmine.createSpy();
+        spy = sinon.spy();
         array.pop();
-        expect(spy.argsForCall).toEqual([
+        expect(spy.args).toEqual([
             ["length will change from", 3, "to", 2],
             ["range will change from", [3], "to", [], "at", 2],
             ["map will", "delete", 2, "from", 3, "to", undefined],
@@ -106,9 +108,9 @@ describe("Array change dispatch with map observers", function () {
 
     it("shift one value off an array", function () {
         array.push(1, 2, 3);
-        spy = jasmine.createSpy();
+        spy = sinon.spy();
         array.shift();
-        expect(spy.argsForCall).toEqual([
+        expect(spy.args).toEqual([
             ["length will change from", 3, "to", 2],
             ["range will change from", [1], "to", [], "at", 0],
             ["map will", "update", 0, "from", 1, "to", 2],
@@ -124,9 +126,9 @@ describe("Array change dispatch with map observers", function () {
 
     it("replaces values into the midst of an array", function () {
         array.push(1, 3, 2, 4);
-        spy = jasmine.createSpy();
+        spy = sinon.spy();
         array.splice(1, 2, 2, 3);
-        expect(spy.argsForCall).toEqual([
+        expect(spy.args).toEqual([
             ["range will change from", [3, 2], "to", [2, 3], "at", 1],
             ["map will", "update", 1, "from", 3, "to", 2],
             ["map will", "update", 2, "from", 2, "to", 3],
@@ -138,9 +140,9 @@ describe("Array change dispatch with map observers", function () {
 
     it("replaces values into the midst of an array, from a negative index", function () {
         array.push(1, 3, 2, 4);
-        spy = jasmine.createSpy();
+        spy = sinon.spy();
         array.splice(-3, 2, 2, 3);
-        expect(spy.argsForCall).toEqual([
+        expect(spy.args).toEqual([
             ["range will change from", [3, 2], "to", [2, 3], "at", 1],
             ["map will", "update", 1, "from", 3, "to", 2],
             ["map will", "update", 2, "from", 2, "to", 3],
@@ -152,9 +154,9 @@ describe("Array change dispatch with map observers", function () {
 
     it("splices values into the midst of an array", function () {
         array.push(1, 4);
-        spy = jasmine.createSpy();
+        spy = sinon.spy();
         array.splice(1, 0, 2, 3);
-        expect(spy.argsForCall).toEqual([
+        expect(spy.args).toEqual([
             ["length will change from", 2, "to", 4],
             ["range will change from", [], "to", [2, 3], "at", 1],
             ["map will", "update", 1, "from", 4, "to", 2],
@@ -170,9 +172,9 @@ describe("Array change dispatch with map observers", function () {
 
     it("splices values into the midst of an array, with a negative length", function () {
         array.push(1, 4);
-        spy = jasmine.createSpy();
+        spy = sinon.spy();
         array.splice(1, -1, 2, 3);
-        expect(spy.argsForCall).toEqual([
+        expect(spy.args).toEqual([
             ["length will change from", 2, "to", 4],
             ["range will change from", [], "to", [2, 3], "at", 1],
             ["map will", "update", 1, "from", 4, "to", 2],
@@ -188,9 +190,9 @@ describe("Array change dispatch with map observers", function () {
 
     it("set at end", function () {
         array.push(1, 2, 3);
-        spy = jasmine.createSpy();
+        spy = sinon.spy();
         array.set(3, 4);
-        expect(spy.argsForCall).toEqual([
+        expect(spy.args).toEqual([
             ["length will change from", 3, "to", 4],
             ["range will change from", [], "to", [4], "at", 3],
             ["map will", "create", 3, "from", undefined, "to", 4],
@@ -202,9 +204,9 @@ describe("Array change dispatch with map observers", function () {
 
     it("set at beginning", function () {
         array.push(1, 2, 3);
-        spy = jasmine.createSpy();
+        spy = sinon.spy();
         array.set(0, 3);
-        expect(spy.argsForCall).toEqual([
+        expect(spy.args).toEqual([
             ["range will change from", [1], "to", [3], "at", 0],
             ["map will", "update", 0, "from", 1, "to", 3],
             ["map", "update", 0, "from", 1, "to", 3],
@@ -214,9 +216,9 @@ describe("Array change dispatch with map observers", function () {
 
     it("unshifts", function () {
         array.push(3, 4);
-        spy = jasmine.createSpy();
+        spy = sinon.spy();
         array.unshift(1, 2);
-        expect(spy.argsForCall).toEqual([
+        expect(spy.args).toEqual([
             ["length will change from", 2, "to", 4],
             ["range will change from", [], "to", [1, 2], "at", 0],
             ["map will", "update", 0, "from", 3, "to", 1],
@@ -234,9 +236,9 @@ describe("Array change dispatch with map observers", function () {
 
     it("reverses in place", function () {
         array.push(10, 20, 30);
-        spy = jasmine.createSpy();
+        spy = sinon.spy();
         array.reverse();
-        expect(spy.argsForCall).toEqual([
+        expect(spy.args).toEqual([
             ["range will change from", [10, 20, 30], "to", [30, 20, 10], "at", 0],
             ["map will", "update", 0, "from", 10, "to", 30],
             ["map will", "update", 2, "from", 30, "to", 10],
@@ -248,9 +250,9 @@ describe("Array change dispatch with map observers", function () {
 
     it("sorts in place", function () {
         array.push(30, 20, 10);
-        spy = jasmine.createSpy();
+        spy = sinon.spy();
         array.sort();
-        expect(spy.argsForCall).toEqual([
+        expect(spy.args).toEqual([
             ["range will change from", [30, 20, 10], "to", [10, 20, 30], "at", 0],
             ["map will", "update", 0, "from", 30, "to", 10],
             ["map will", "update", 2, "from", 10, "to", 30],
@@ -266,9 +268,11 @@ describe("Array change dispatch with map observers", function () {
 
 describe("Array changes", function () {
 
+    extendSpyExpectation();
+
     it("observes range changes on arrays that are not otherwised observed", function () {
         var array = [1, 2, 3];
-        var spy = jasmine.createSpy();
+        var spy = sinon.spy();
         array.observeRangeChange(spy);
         array.push(4);
         expect(spy).toHaveBeenCalledWith([4], [], 3, array);
@@ -276,7 +280,7 @@ describe("Array changes", function () {
 
     it("observes length changes on arrays that are not otherwised observed", function () {
         var array = [1, 2, 3];
-        var spy = jasmine.createSpy();
+        var spy = sinon.spy();
         array.observePropertyChange("length", spy);
         array.push(4);
         expect(spy).toHaveBeenCalledWith(4, 3, "length", array);
@@ -284,7 +288,7 @@ describe("Array changes", function () {
 
     it("observes map changes on arrays that are not otherwised observed", function () {
         var array = [1, 2, 3];
-        var spy = jasmine.createSpy();
+        var spy = sinon.spy();
         array.observeMapChange(spy);
         array.push(4);
         expect(spy).toHaveBeenCalledWith(4, undefined, 3, "create", array);
@@ -292,7 +296,7 @@ describe("Array changes", function () {
 
     it("observes index changes on arrays that are not otherwised observed", function () {
         var array = [1, 2, 3];
-        var spy = jasmine.createSpy();
+        var spy = sinon.spy();
         array.observePropertyChange(3, spy);
         array.push(4);
         expect(spy).toHaveBeenCalledWith(4, undefined, 3, array);

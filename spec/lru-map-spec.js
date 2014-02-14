@@ -1,4 +1,5 @@
 
+var sinon = require("sinon");
 var LruMap = require("../lru-map");
 var describeDict = require("./dict");
 var describeMap = require("./map");
@@ -62,12 +63,12 @@ describe("LruMap", function () {
 
     it("should dispatch deletion for stale entries", function () {
         var map = LruMap({a: 10, b: 20, c: 30}, 3);
-        var spy = jasmine.createSpy();
+        var spy = sinon.spy();
         map.observeMapChange(function (plus, minus, key, type) {
             spy(plus, minus, key, type);
         });
         map.set('d', 40);
-        expect(spy.argsForCall).toEqual([
+        expect(spy.args).toEqual([
             [undefined, 10, "a", "delete"], // a pruned
             [40, undefined, "d", "create"] // d added
         ]);

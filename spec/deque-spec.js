@@ -1,4 +1,5 @@
 
+var sinon = require("sinon");
 var Deque = require("../deque");
 var describeCollection = require("./collection");
 var describeDeque = require("./deque");
@@ -57,7 +58,7 @@ describe("Deque", function () {
     });
 
     it("dispatches range changes", function () {
-        var spy = jasmine.createSpy();
+        var spy = sinon.spy();
         var handler = function (plus, minus, value) {
             spy(plus, minus, value); // ignore last arg
         };
@@ -70,7 +71,7 @@ describe("Deque", function () {
         deque.unshift(4, 5);
         observer.cancel();
         deque.shift();
-        expect(spy.argsForCall).toEqual([
+        expect(spy.args).toEqual([
             [[1], [], 0],
             [[2, 3], [], 1],
             [[], [3], 2],

@@ -18,9 +18,11 @@ describe("SortedArraySet", function () {
         describeSet(SortedArraySet);
     });
 
-    describe("uniqueness", function () {
-        var set = SortedArraySet([1, 2, 3, 1, 2, 3]);
-        expect(set.slice()).toEqual([1, 2, 3]);
+    describe("constructor", function () {
+        it("only allows unique values", function () {
+            var set = SortedArraySet([1, 2, 3, 1, 2, 3]);
+            expect(set.slice()).toEqual([1, 2, 3]);
+        });
     });
 
 });

@@ -4,9 +4,11 @@ var Iterator = require("../iterator");
 module.exports = describeSet;
 function describeSet(Set, sorted) {
 
-    describe("uniqueness", function () {
-        var set = Set([1, 2, 3, 1, 2, 3]);
-        expect(set.toArray().sort()).toEqual([1, 2, 3]);
+    describe("Set constructor", function () {
+        it("should establish uniqueness of values", function () {
+            var set = Set([1, 2, 3, 1, 2, 3]);
+            expect(set.toArray().sort()).toEqual([1, 2, 3]);
+        });
     });
 
     describe("forEach", function () {

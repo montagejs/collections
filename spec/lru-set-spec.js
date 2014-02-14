@@ -1,4 +1,5 @@
 
+var sinon = require("sinon");
 var LruSet = require("../lru-set");
 var describeCollection = require("./collection");
 var describeSet = require("./set");
@@ -38,7 +39,7 @@ describe("LruSet", function () {
 
     it("should dispatch LRU changes as singleton operation", function () {
         var set = LruSet([4, 3, 1, 2, 3], 3);
-        var spy = jasmine.createSpy();
+        var spy = sinon.spy();
         set.observeRangeWillChange(function (plus, minus) {
             spy('before-plus', plus);
             spy('before-minus', minus);
@@ -48,7 +49,7 @@ describe("LruSet", function () {
             spy('after-minus', minus);
         });
         expect(set.add(4)).toBe(false);
-        expect(spy.argsForCall).toEqual([
+        expect(spy.args).toEqual([
             ['before-plus', [4]],
             ['before-minus', [1]],
             ['after-plus', [4]],

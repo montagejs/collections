@@ -516,6 +516,16 @@ function Iteration(value, index) {
 
 Iteration.prototype.done = false;
 
+Iteration.prototype.equals = function (that, equals, memo) {
+    if (!that) return false;
+    return (
+        equals(this.value, that.value, equals, memo) &&
+        this.index === that.index &&
+        this.done === that.done
+    );
+
+};
+
 function DoneIteration(value) {
     Iteration.call(this, value);
     this.done = true; // reflected on the instance to make it more obvious
