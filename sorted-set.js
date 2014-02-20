@@ -38,7 +38,10 @@ SortedSet.prototype.constructClone = function (values) {
     );
 };
 
-SortedSet.prototype.has = function (value) {
+SortedSet.prototype.has = function (value, equals) {
+    if (equals) {
+        throw new Error("SortedSet#has does not support second argument: equals");
+    }
     if (this.root) {
         this.splay(value);
         return this.contentEquals(value, this.root.value);
@@ -47,7 +50,10 @@ SortedSet.prototype.has = function (value) {
     }
 };
 
-SortedSet.prototype.get = function (value) {
+SortedSet.prototype.get = function (value, equals) {
+    if (equals) {
+        throw new Error("SortedSet#get does not support second argument: equals");
+    }
     if (this.root) {
         this.splay(value);
         if (this.contentEquals(value, this.root.value)) {
@@ -116,7 +122,10 @@ SortedSet.prototype.add = function (value) {
     return false;
 };
 
-SortedSet.prototype['delete'] = function (value) {
+SortedSet.prototype['delete'] = function (value, equals) {
+    if (equals) {
+        throw new Error("SortedSet#delete does not support second argument: equals");
+    }
     if (this.root) {
         this.splay(value);
         if (this.contentEquals(value, this.root.value)) {
@@ -150,7 +159,10 @@ SortedSet.prototype['delete'] = function (value) {
     return false;
 };
 
-SortedSet.prototype.indexOf = function (value) {
+SortedSet.prototype.indexOf = function (value, index) {
+    if (index) {
+        throw new Error("SortedSet#indexOf does not support second argument: startIndex");
+    }
     if (this.root) {
         this.splay(value);
         if (this.contentEquals(value, this.root.value)) {
@@ -160,7 +172,15 @@ SortedSet.prototype.indexOf = function (value) {
     return -1;
 };
 
-SortedSet.prototype.find = function (value) {
+SortedSet.prototype.find = function (value, equals, index) {
+    if (equals) {
+        throw new Error("SortedSet#find does not support second argument: equals");
+    }
+    if (index) {
+        // TODO contemplate using splayIndex to isolate a subtree in
+        // which to search.
+        throw new Error("SortedSet#find does not support third argument: index");
+    }
     if (this.root) {
         this.splay(value);
         if (this.contentEquals(value, this.root.value)) {
