@@ -122,6 +122,16 @@ describe("List", function () {
             expect(list.find(1)).toBe(list.head.next.next);
         });
 
+        it("should find values before startIndex", function () {
+            var list = List([2, 3, 2, 3]);
+            expect(list.find(2, null, 1)).toBe(list.head.next.next.next);
+        });
+
+        it("should use startIndex inclusively", function () {
+            var list = List([2, 3, 2, 3]);
+            expect(list.find(3, null, 1)).toBe(list.head.next.next);
+        });
+
     });
 
     describe("findLast", function () {
@@ -142,6 +152,16 @@ describe("List", function () {
             var list = List([0, 1, 1, 0]);
             expect(list.findLast(0)).toBe(list.head.prev);
             expect(list.findLast(1)).toBe(list.head.prev.prev);
+        });
+
+        it("should find values before endIndex", function () {
+            var list = List([2, 3, 2, 3]);
+            expect(list.findLast(2, null, 1)).toBe(list.head.next);
+        });
+
+        it("should use endIndex inclusively", function () {
+            var list = List([2, 3, 2, 3]);
+            expect(list.findLast(3, null, 1)).toBe(list.head.next.next);
         });
 
     });
