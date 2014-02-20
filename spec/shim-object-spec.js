@@ -342,6 +342,12 @@ describe("Object", function () {
             },
             {
                 'NaN': NaN
+            },
+            {
+                'undefined': undefined
+            },
+            {
+                'null': null
             }
         ];
 
