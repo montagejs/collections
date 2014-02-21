@@ -1,7 +1,17 @@
 
+## v1.0.0 :cake:
+
+-   Adds a Deque type based on a circular buffer of exponential
+    capacity.  (@petkaantonov)
+-   Implements `peek`, `peekBack`, `poke`, and `pokeBack` on array
+    shim for Deque “isomorphism”.
 -   Fixes the cases where a change listener is added or removed during
     change dispatch. Neither listener will be informed until the next
-    change.
+    change. (@asolove)
+-   The property change listener system has been altered such that
+    once a thunk has been installed on an object, it will not be
+    removed, in order to avoid churn. Once a property has been
+    observed, it is likely to be observed again.
 -   Fixes `Object.equals` for comparing NaN to itself, which should
     report `true` such that collections that use `Object.equals` to
     identify values are able to find `NaN`. Previously, `NaN` could
@@ -26,6 +36,12 @@
     JavaScript run-time stack. (@francoisfrisch)
 -   Fixes `splice` on an array when given a negative start index.
     (@stuk)
+-   Some methods accept an optional `equals` or `index` argument
+    that may or may not be supported by certain collections, like
+    `find` on a `SortedSet` versus a `List`. Collections that do not
+    support this argument will now throw an error instead of silently
+    ignoring the argument.
+-   Fixes `Array#clone` cycle detection.
 
 ## v0.2.2
 
