@@ -24,6 +24,8 @@ SortedArraySet.prototype.constructor = SortedArraySet;
 Object.addEach(SortedArraySet.prototype, GenericSet.prototype);
 Object.addEach(SortedArraySet.prototype, PropertyChanges.prototype);
 
+SortedArraySet.prototype.isSorted = true;
+
 SortedArraySet.prototype.add = function (value) {
     if (!this.has(value)) {
         SortedArray.prototype.add.call(this, value);
