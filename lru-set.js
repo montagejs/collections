@@ -9,11 +9,11 @@ var RangeChanges = require("./listen/range-changes");
 
 module.exports = LruSet;
 
-function LruSet(values, maxLength, equals, hash, getDefault) {
+function LruSet(values, capacity, equals, hash, getDefault) {
     if (!(this instanceof LruSet)) {
-        return new LruSet(values, maxLength, equals, hash, getDefault);
+        return new LruSet(values, capacity, equals, hash, getDefault);
     }
-    maxLength = maxLength || Infinity;
+    capacity = capacity || Infinity;
     equals = equals || Object.equals;
     hash = hash || Object.hash;
     getDefault = getDefault || Function.noop;
@@ -21,7 +21,7 @@ function LruSet(values, maxLength, equals, hash, getDefault) {
     this.contentEquals = equals;
     this.contentHash = hash;
     this.getDefault = getDefault;
-    this.maxLength = maxLength;
+    this.capacity = capacity;
     this.length = 0;
     this.addEach(values);
 }
@@ -36,7 +36,7 @@ Object.addEach(LruSet.prototype, RangeChanges.prototype);
 LruSet.prototype.constructClone = function (values) {
     return new this.constructor(
         values,
-        this.maxLength,
+        this.capacity,
         this.contentEquals,
         this.contentHash,
         this.getDefault
@@ -69,11 +69,11 @@ LruSet.prototype.add = function (value) {
     if (found) {    // update
         this.store["delete"](value);
         this.store.add(value);
-    } else if (this.maxLength > 0) {    // add
+    } else if (this.capacity > 0) {    // add
         // because minus is constructed before adding value, we must ensure the
-        // set has positive length. hence the maxLength check.
+        // set has positive length. hence the capacity check.
         plus.push(value);
-        if (this.length >= this.maxLength) {
+        if (this.length >= this.capacity) {
             eldest = this.store.order.head.next;
             minus.push(eldest.value);
         }
