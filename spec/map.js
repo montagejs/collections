@@ -49,6 +49,16 @@ function describeMap(Map, values) {
         shouldHaveTheUsualContent(map);
     });
 
+    it("should support filter", function () {
+        var map = Map({a: 10, b: 20, c: 30});
+        expect(map.filter(function (value, key) {
+            return key === "a" || value === 30;
+        }).entries()).toEqual([
+            ["a", 10],
+            ["c", 30]
+        ]);
+    });
+
     describe("delete", function () {
         it("should remove one entry", function () {
             var map = Map([[a, 10], [b, 20], [c, 30]]);
