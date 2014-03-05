@@ -1,4 +1,8 @@
 
+## v1.0.1
+
+-   Bug fix for filter on map-like collections.
+
 ## v1.0.0 :cake:
 
 -   Adds a Deque type based on a circular buffer of exponential
