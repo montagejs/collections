@@ -104,7 +104,7 @@ GenericCollection.prototype.filter = function (callback /*, thisp*/) {
     var result = this.constructClone();
     this.reduce(function (undefined, value, key, object, depth) {
         if (callback.call(thisp, value, key, object, depth)) {
-            result.add(value);
+            result.add(value, key);
         }
     }, undefined);
     return result;
