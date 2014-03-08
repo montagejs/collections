@@ -329,7 +329,7 @@ SortedArrayMap, FastSet, FastMap, Dict)
 
 Whether a value for the given key exists.
 
-(Object+, Map, MultiMap, SortedMap, LruMap, SortedArrayMap, FastMap,
+Collections: (Object+, Map, MultiMap, SortedMap, LruMap, SortedArrayMap, FastMap,
 Dict)
 
 #### has(value, opt_equals)
@@ -341,7 +341,7 @@ SortedArraySet have an inherent `contentEquals` function and do not
 support override, and as such will throw an exception if provided the
 `equals` argument.
 
-(Array+, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
+Collections: (Array+, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
 FastSet)
 
 ### get
@@ -351,7 +351,7 @@ FastSet)
 The value for a key.  If a Map or SortedMap lacks a key, returns
 `getDefault(key)`.
 
-(Array+, Map, SortedMap, SortedArrayMap, WeakMap, Object+)
+Collections: (Array+, Map, SortedMap, SortedArrayMap, WeakMap, Object+)
 
 #### get(value, opt_equals)
 
@@ -360,14 +360,14 @@ Sorted collections and sets have an interinsic `contentEquals`, so
 they do not accept an `equals` override and will throw an error if
 provided one.
 
-(List, Deque, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
+Collections: (List, Deque, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
 FastSet)
 
 ### set(key or index, value)
 
 Sets the value for a key.
 
-(Map, MultiMap, WeakMap, SortedMap, LruMap, SortedArrayMap, FastMap,
+Collections: (Map, MultiMap, WeakMap, SortedMap, LruMap, SortedArrayMap, FastMap,
 Dict)
 
 ### add
@@ -377,7 +377,7 @@ Dict)
 Adds a value.  Ignores the operation and returns false if an
 equivalent value already exists.
 
-(Array+, List, Deque, Set, SortedSet, LruSet, SortedArray,
+Collections: (Array+, List, Deque, Set, SortedSet, LruSet, SortedArray,
 SortedArraySet, FastSet, Heap)
 
 #### add(value, key)
@@ -391,7 +391,7 @@ sets, and other collections.
 
 Copies values from another collection to this one.
 
-(Array+, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
+Collections: (Array+, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
 FastSet, Heap)
 
 #### addEach(mapping)
@@ -402,7 +402,7 @@ all of the key value pairs are copied.  If the mapping only
 implements `forEach`, it is assumed to contain `[key, value]` arrays
 which are copied instead.
 
-(Object+, Map, MultiMap, SortedMap, LruMap, SortedArrayMap, FastMap,
+Collections: (Object+, Map, MultiMap, SortedMap, LruMap, SortedArrayMap, FastMap,
 Dict)
 
 ### delete
@@ -412,7 +412,7 @@ Dict)
 Deletes the value for a given key.  Returns whether the key was
 found.
 
-(Map, MultiMap, WeakMap, SortedMap, LruMap, SortedArrayMap, FastMap,
+Collections: (Map, MultiMap, WeakMap, SortedMap, LruMap, SortedArrayMap, FastMap,
 Dict)
 
 #### delete(value)
@@ -421,13 +421,13 @@ Deletes a value. Returns whether the value was found. Throws an error
 if a second argument, `equals`, is provided because these collections
 have an intrinsic order and `contentEquals` function.
 
-(Set, SortedSet, LruSet, SortedArray, SortedArraySet, FastSet, Heap)
+Collections: (Set, SortedSet, LruSet, SortedArray, SortedArraySet, FastSet, Heap)
 
 #### delete(value, opt_equals)
 
 Deletes the equivalent value.  Returns whether the value was found.
 
-(Array+, List, Deque)
+Collections: (Array+, List, Deque)
 
 ### deleteEach(values or keys, opt_equals)
 
@@ -436,7 +436,7 @@ Deletes every value or every value for each key. If provided an
 implementation, which may or may not be appropriate depending on the
 collection.
 
-(Array+, List, Deque, Set, Map, MultiMap, SortedSet, SortedMap,
+Collections: (Array+, List, Deque, Set, Map, MultiMap, SortedSet, SortedMap,
 LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap, FastSet,
 FastMap, Dict, Heap)
 
@@ -450,14 +450,14 @@ search.  For a SortedSet, this takes ammortized logarithmic time
 since it incrementally updates the number of nodes under each
 subtree as it rotates.
 
-(Array, ~~List~~, Deque, SortedSet, SortedArray, SortedArraySet)
+Collections: (Array, ~~List~~, Deque, SortedSet, SortedArray, SortedArraySet)
 
 ### lastIndexOf(value)
 
 Returns the position in the collection of a value, or `-1` if it is
 not found.  Returns the position of the last of equivalent values.
 
-(Array, ~~List~~, Deque, SortedArray, SortedArraySet)
+Collections: (Array, ~~List~~, Deque, SortedArray, SortedArraySet)
 
 ### find(value, opt_equals, opt_startIndex)
 
@@ -468,7 +468,7 @@ throw an exception if provided either. A meaningful implementation
 using `startIndex` or `startNode` could possibly be implemented in a
 future release.
 
-(Array+, List, Deque, SortedSet, SortedArray, SortedArraySet)
+Collections: (Array+, List, Deque, SortedSet, SortedArray, SortedArraySet)
 
 ### findLast(value, opt_equals, opt_endIndex)
 
@@ -478,40 +478,40 @@ its inherent `equals` or `startIndex` and will throw an exception if
 provided either. A meaningful implementation using `startIndex` or
 `startNode` could possibly be implemented in a future release.
 
-(Array+, List, Deque, SortedArray, SortedArraySet)
+Collections: (Array+, List, Deque, SortedArray, SortedArraySet)
 
 ### findLeast()
 
 Finds the smallest value, returning the node at which it was found,
 or undefined.  This is fast (logarithmic) and performs no rotations.
 
-(SortedSet)
+Collections: (SortedSet)
 
 ### findLeastGreaterThan(value)
 
 Finds the smallest value greater than the given value.  This is fast
 (logarithic) but does cause rotations.
 
-(SortedSet)
+Collections: (SortedSet)
 
 ### findLeastGreaterThanOrEqual(value)
 
 Finds the smallest value greater than or equal to the given value.
 This is fast (logarithmic) but does cause rotations.
 
-(SortedSet)
+Collections: (SortedSet)
 
 ### findGreatest()
 
-(SortedSet)
+Collections: (SortedSet)
 
 ### findGreatestLessThan(value)
 
-(SortedSet)
+Collections: (SortedSet)
 
 ### findGreatestLessThanOrEqual(value)
 
-(SortedSet)
+Collections: (SortedSet)
 
 ### push
 
@@ -519,7 +519,7 @@ This is fast (logarithmic) but does cause rotations.
 
 Adds values to the end of a collection.
 
-(Array, List, Deque)
+Collections: (Array, List, Deque)
 
 #### push(...values) for non-deques
 
@@ -527,7 +527,7 @@ Adds values to their proper places in a collection.
 This method exists only to have the same interface as other
 collections.
 
-(Set, SortedSet, LruSet, SortedArray, SortedArraySet, FastSet, Heap)
+Collections: (Set, SortedSet, LruSet, SortedArray, SortedArraySet, FastSet, Heap)
 
 ### unshift
 
@@ -535,7 +535,7 @@ collections.
 
 Adds values to the beginning of a collection.
 
-(Array, List, Deque)
+Collections: (Array, List, Deque)
 
 #### unshift(...values) for non-deques
 
@@ -543,7 +543,7 @@ Adds values to their proper places in a collection.
 This method exists only to have the same interface as other
 collections.
 
-(Set, SortedSet, LruSet, SortedArray, SortedArraySet, FastSet)
+Collections: (Set, SortedSet, LruSet, SortedArray, SortedArraySet, FastSet)
 
 ### pop()
 
@@ -551,14 +551,14 @@ Removes and returns the value at the end of a collection.  For a
 Heap, this means the greatest contained value, as defined by the
 comparator.
 
-(Array, List, Deque, Set, SortedSet, LruSet, SortedArray,
+Collections: (Array, List, Deque, Set, SortedSet, LruSet, SortedArray,
 SortedArraySet, Heap)
 
 ### shift()
 
 Removes and returns the value at the beginning of a collection.
 
-(Array, List, Deque, Set, SortedSet, LruSet, SortedArray,
+Collections: (Array, List, Deque, Set, SortedSet, LruSet, SortedArray,
 SortedArraySet)
 
 ### peek()
@@ -566,28 +566,28 @@ SortedArraySet)
 Returns the next value in an deque, as would be returned by the next
 `shift`.
 
-(Array, List, Deque)
+Collections: (Array, List, Deque)
 
 ### poke(value)
 
 Replaces the next value in an ordered collection, such that it will be
 returned by `shift` instead of what was there.
 
-(Array, List, Deque)
+Collections: (Array, List, Deque)
 
 ### peekBack()
 
 Returns the last value in an deque, as would be returned by the next
 `pop`.
 
-(Array, List, Deque)
+Collections: (Array, List, Deque)
 
 ### pokeBack(value)
 
 Replaces the last value in an ordered collection, such that it will be
 returned by `pop` instead of what was there.
 
-(Array, List, Deque)
+Collections: (Array, List, Deque)
 
 ### slice(start, end)
 
@@ -597,26 +597,26 @@ excluding the end.  For lists and arrays, both terms may be numeric
 positive or negative indicies.  For a list, either term may be a
 node.
 
-(Array, List, SortedSet, SortedArray, SortedArraySet)
+Collections: (Array, List, SortedSet, SortedArray, SortedArraySet)
 
 ### splice(start, length, ...values)
 
 Works as with an array, but for a list, the start may be an index or
 a node.
 
-(Array, List, SortedArray, SortedSet, SortedArraySet)
+Collections: (Array, List, SortedArray, SortedSet, SortedArraySet)
 
 ### swap(start, length, values)
 
 Performs a splice without variadic arguments.
 
-(Array+, List, SortedArray, SortedSet, SortedArraySet)
+Collections: (Array+, List, SortedArray, SortedSet, SortedArraySet)
 
 ### clear()
 
 Deletes the all values.
 
-(Array+, Object+, List, Deque, Set, Map, MultiMap, SortedSet,
+Collections: (Array+, Object+, List, Deque, Set, Map, MultiMap, SortedSet,
 SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
@@ -626,7 +626,7 @@ Sorts a collection in place.  The comparator by only be a function.
 The default comparator coerces unlike types rather than fail to
 compare.
 
-(Array)
+Collections: (Array)
 
 ### sorted(compare, by, order)
 
@@ -642,7 +642,7 @@ with `compare` and `by` functions.  The default `compare` value is
 The `by` function must be a function that accepts a value from the
 collection and returns a representative value on which to sort.
 
-(Array+, List, Deque, Set, Map, SortedSet, LruSet, SortedArray,
+Collections: (Array+, List, Deque, Set, Map, SortedSet, LruSet, SortedArray,
 SortedArraySet, FastSet, Heap)
 
 ### group(callback, thisp, equals)
@@ -652,7 +652,7 @@ element from the collection is placed into an equivalence class
 if they have the same corresponding return value from the given
 callback.
 
-(Array+, Object+, List, Deque, Set, Map, MultiMap, SortedSet,
+Collections: (Array+, Object+, List, Deque, Set, Map, MultiMap, SortedSet,
 SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap, Iterator)
 
@@ -660,14 +660,14 @@ SortedArrayMap, FastSet, FastMap, Dict, Heap, Iterator)
 
 Reverses a collection in place.
 
-(Array, List)
+Collections: (Array, List)
 
 ### reversed()
 
 Returns a collection of the same type with this collection's
 contents in reverse order.
 
-(Array, List)
+Collections: (Array, List)
 
 ### enumerate(start=0)
 
@@ -678,7 +678,7 @@ starting with the given index.
 
 Returns a string of all the values in the collection joined.
 
-(Array, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
+Collections: (Array, List, Set, SortedSet, LruSet, SortedArray, SortedArraySet,
 FastSet, Heap, Iterator)
 
 ### concat(...iterables)
@@ -690,7 +690,7 @@ iterables are treated as map-like objects and each successively
 updates the result.  Array is like a map from index to value.  List,
 Set, and SortedSet are like maps from nodes to values.
 
-(Array, ~~Object+~~, Iterator, List, Set, Map, MultiMap,
+Collections: (Array, ~~Object+~~, Iterator, List, Set, Map, MultiMap,
 SortedSet, SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
@@ -698,32 +698,32 @@ SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 Returns an array of the keys.
 
-(Object, Map, MultiMap, SortedMap, LruMap, SortedArrayMap, FastMap,
+Collections: (Object, Map, MultiMap, SortedMap, LruMap, SortedArrayMap, FastMap,
 Dict)
 
 ### values()
 
 Returns an array of the values
 
-(Object+, Map, MultiMap, SortedMap, LruMap, SortedArrayMap, FastMap,
+Collections: (Object+, Map, MultiMap, SortedMap, LruMap, SortedArrayMap, FastMap,
 Dict)
 
 ### entries()
 
 Returns an array of `[key, value]` pairs for each entry.
 
-(Object+, Map, MultiMap, SortedMap, LruMap, SortedArrayMap, FastMap,
+Collections: (Object+, Map, MultiMap, SortedMap, LruMap, SortedArrayMap, FastMap,
 Dict)
 
 ### reduce(callback(result, value, key, object, depth), basis, thisp)
 
-(Array, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
+Collections: (Array, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
 SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### reduceRight(callback(result, value, key, object, depth), basis, thisp)
 
-(Array, List, Deque, SortedSet, ~~SortedMap~~, SortedArray,
+Collections: (Array, List, Deque, SortedSet, ~~SortedMap~~, SortedArray,
 SortedArraySet, ~~SortedArrayMap~~, Heap)
 
 ### forEach(callback(value, key, object, depth), thisp)
@@ -733,19 +733,19 @@ of lists is resilient to changes to the list.  Particularly, nodes
 added after the current node will be visited and nodes added before
 the current node will be ignored, and no node will be visited twice.
 
-(Array, Object+, Iterator, List, Deque, Set, Map, MultiMap, WeakMap,
+Collections: (Array, Object+, Iterator, List, Deque, Set, Map, MultiMap, WeakMap,
 SortedSet, SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### map(callback(value, key, object, depth), thisp)
 
-(Array, Object+, Iterator, List, Deque, Set, Map, MultiMap, WeakMap,
+Collections: (Array, Object+, Iterator, List, Deque, Set, Map, MultiMap, WeakMap,
 SortedSet, SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### toArray()
 
-(Array+, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
+Collections: (Array+, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
 SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
@@ -754,12 +754,12 @@ SortedArrayMap, FastSet, FastMap, Dict, Heap)
 Converts any collection to an object, treating this collection as a
 map-like object.  Array is like a map from index to value.
 
-(Array+ Iterator, List, Deque, Map, MultiMap, SortedMap, LruMap,
+Collections: (Array+ Iterator, List, Deque, Map, MultiMap, SortedMap, LruMap,
 SortedArrayMap, FastMap, Dict, Heap)
 
 ### filter(callback(value, key, object, depth), thisp)
 
-(Array, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
+Collections: (Array, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
 SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
@@ -769,7 +769,7 @@ Whether every value passes a given guard.  Stops evaluating the
 guard after the first failure.  Iterators stop consuming after the
 the first failure.
 
-(Array, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
+Collections: (Array, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
 SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
@@ -779,7 +779,7 @@ Whether there is a value that passes a given guard.  Stops
 evaluating the guard after the first success.  Iterators stop
 consuming after the first success.
 
-(Array, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
+Collections: (Array, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
 SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
@@ -789,7 +789,7 @@ The smallest value.  This is fast for sorted collections (logarithic
 for SortedSet, constant for SortedArray, SortedArraySet, and
 SortedArrayMap), but slow for everything else (linear).
 
-(Array+, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
+Collections: (Array+, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
 SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict)
 
@@ -799,7 +799,7 @@ The largest value.  This is fast for sorted collections (logarithic
 for SortedSet, constant for SortedArray, SortedArraySet, and
 SortedArrayMap), but slow for everything else (linear).
 
-(Array+, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
+Collections: (Array+, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
 SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
@@ -812,7 +812,7 @@ is very fast (constant time) for most collections.  For a sorted set,
 being consistent across accesses, and only changing in response to
 mutation, `one` returns the `min` of the set in logarithmic time.
 
-(Array+, List, Deque, Set, Map, MultiMap, SortedSet, SortedMap,
+Collections: (Array+, List, Deque, Set, Map, MultiMap, SortedSet, SortedMap,
 LruSet, LruMap, SortedArray, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
@@ -821,37 +821,37 @@ SortedArrayMap, FastSet, FastMap, Dict, Heap)
 The one and only value, or throws an exception if there are no
 values or more than one value.
 
-(Array+, List, Deque, Set, Map, MultiMap, SortedSet, SortedMap,
+Collections: (Array+, List, Deque, Set, Map, MultiMap, SortedSet, SortedMap,
 LruSet, LruMap, SortedArray, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### sum()
 
-(Array+, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
+Collections: (Array+, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
 SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict)
 
 ### average()
 
-(Array+, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
+Collections: (Array+, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
 SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict)
 
 ### flatten()
 
-(Array+, Iterator, List, Set, Map, MultiMap, SortedSet,
+Collections: (Array+, Iterator, List, Set, Map, MultiMap, SortedSet,
 SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### zip(...collections)
 
-(Array+, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
+Collections: (Array+, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
 SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### enumerate(zero)
 
-(Array+, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
+Collections: (Array+, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
 SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
@@ -872,7 +872,7 @@ The `clone` method on any other objects is not intended to be used
 directly since they do not necessarily supply a default depth and
 memo.
 
-(Array+, Object+, List, Deque, Set, Map, MultiMap, SortedSet,
+Collections: (Array+, Object+, List, Deque, Set, Map, MultiMap, SortedSet,
 SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
@@ -884,19 +884,19 @@ same options (`equals`, `compare`, `hash` options), but it leaves
 the job of deeply cloning the values to the more general `clone`
 method.
 
-(Array+, Object+, List, Deque, Set, Map, MultiMap, SortedSet,
+Collections: (Array+, Object+, List, Deque, Set, Map, MultiMap, SortedSet,
 SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### equals(that, equals)
 
-(Array+, Object+, List, Deque, Set, Map, MultiMap, SortedSet,
+Collections: (Array+, Object+, List, Deque, Set, Map, MultiMap, SortedSet,
 SortedMap, LruSet, LruMap, ~~SortedArray~~, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict)
 
 ### compare(that)
 
-(Array+, Object+, List, Deque, ~~SortedArray~~, ~~SortedArraySet~~)
+Collections: (Array+, Object+, List, Deque, ~~SortedArray~~, ~~SortedArraySet~~)
 
 ### iterate
 
@@ -907,7 +907,7 @@ richer iterators by wrapping this iterator with an `Iterator` from
 the `iterator` module.  Iteration order of lists is resilient to
 changes to the list.
 
-(Array+, Iterator, List, ~~Deque~~, Set, SortedSet, LruSet,
+Collections: (Array+, Iterator, List, ~~Deque~~, Set, SortedSet, LruSet,
 SortedArray, SortedArraySet, FastSet)
 
 #### iterate(start, end)
@@ -916,7 +916,7 @@ Returns an iterator for all values at indicies in the half-open
 interval [start, end), that is, greater than start, and less than
 end.
 
-(Array+)
+Collections: (Array+)
 
 #### iterate(start, end)
 
@@ -924,7 +924,7 @@ Returns an iterator for all values in the half-open interval [start,
 end), that is, greater than start, and less than end.  The iterator
 is resilient against changes to the data.
 
-(SortedSet)
+Collections: (SortedSet)
 
 ### log(charmap, callback(node, write, writeAbove), log, logger)
 
@@ -955,7 +955,7 @@ can write lines before the branch.
 the representation to an array instead, they can be `array.push` and
 `array`.
 
-(SortedSet)
+Collections: (SortedSet)
 
 
 ### Iterator
