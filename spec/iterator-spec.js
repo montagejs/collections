@@ -21,6 +21,21 @@ function expectCommonIterator(iterator) {
 
 function describeIterator(Iterator) {
 
+    it("iterates undefined (empty) iteration", function () {
+        var iterator = Iterator();
+        expect(iterator.next()).toEqual({value: undefined, done: true});
+    });
+
+    it("iterates null (empty) iteration", function () {
+        var iterator = Iterator(null);
+        expect(iterator.next()).toEqual({value: undefined, done: true});
+    });
+
+    it("iterates empty array iteration", function () {
+        var iterator = Iterator([]);
+        expect(iterator.next()).toEqual({value: undefined, done: true});
+    });
+
     it("iterates an array", function () {
         var iterator = Iterator([1, 2, 3]);
         expectCommonIterator(iterator);
@@ -42,18 +57,6 @@ function describeIterator(Iterator) {
         expect(Object.equals(iterator.next(), {value: "c", index: 2, done: false})).toBe(true);
         expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
         expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-    });
-
-    it("fails to iterate null", function () {
-        expect(function () {
-            Iterator(null);
-        }).toThrow();
-    });
-
-    it("fails to iterate undefined", function () {
-        expect(function () {
-            Iterator();
-        }).toThrow();
     });
 
     it("fails to iterate a number", function () {

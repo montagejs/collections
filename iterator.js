@@ -7,7 +7,9 @@ var GenericCollection = require("./generic-collection");
 
 // upgrades an iterable to a Iterator
 function Iterator(iterable, start, stop, step) {
-    if (iterable instanceof Iterator) {
+    if (!iterable) {
+        return Iterator.empty;
+    } else if (iterable instanceof Iterator) {
         return iterable;
     } else if (!(this instanceof Iterator)) {
         return new Iterator(iterable, start, stop, step);
