@@ -8,19 +8,20 @@ var ObservableObject = require("./observable-object");
 
 module.exports = LruMap;
 
-function LruMap(values, maxLength, equals, hash, getDefault) {
+function LruMap(values, capacity, equals, hash, getDefault) {
     if (!(this instanceof LruMap)) {
-        return new LruMap(values, maxLength, equals, hash, getDefault);
+        return new LruMap(values, capacity, equals, hash, getDefault);
     }
     equals = equals || Object.equals;
     hash = hash || Object.hash;
     getDefault = getDefault || Function.noop;
+    this.capacity = capacity || Infinity;
     this.contentEquals = equals;
     this.contentHash = hash;
     this.getDefault = getDefault;
     this.store = new LruSet(
         undefined,
-        maxLength,
+        capacity,
         function keysEqual(a, b) {
             return equals(a.key, b.key);
         },
@@ -41,7 +42,7 @@ Object.addEach(LruMap.prototype, ObservableObject.prototype);
 LruMap.prototype.constructClone = function (values) {
     return new this.constructor(
         values,
-        this.maxLength,
+        this.capacity,
         this.contentEquals,
         this.contentHash,
         this.getDefault
