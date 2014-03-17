@@ -133,7 +133,7 @@ describe("Array", function () {
             });
 
         it("should not be an in-place sort", function () {
-            expect(unsorted.sorted()).toNotBe(unsorted);
+            expect(unsorted.sorted()).not.toBe(unsorted);
         });
 
         it("should sort objects by a property array", function () {
@@ -153,7 +153,7 @@ describe("Array", function () {
             var array = [[[]]];
             var clone = array.clone();
             expect(clone).toEqual(array);
-            expect(clone).toNotBe(array);
+            expect(clone).not.toBe(array);
         });
 
         it("should clone with depth 0", function () {
@@ -163,14 +163,14 @@ describe("Array", function () {
 
         it("should clone with depth 1", function () {
             var array = [{}];
-            expect(array.clone(1)).toNotBe(array);
+            expect(array.clone(1)).not.toBe(array);
             expect(array.clone(1)[0]).toBe(array[0]);
         });
 
         it("should clone with depth 2", function () {
             var array = [{a: 10}];
-            expect(array.clone(2)).toNotBe(array);
-            expect(array.clone(2)[0]).toNotBe(array[0]);
+            expect(array.clone(2)).not.toBe(array);
+            expect(array.clone(2)[0]).not.toBe(array[0]);
             expect(array.clone(2)[0]).toEqual(array[0]);
         });
 

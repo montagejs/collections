@@ -520,13 +520,13 @@ describe("Object", function () {
         it("should clone object at one level of depth", function () {
             var clone = Object.clone(graph, 1);
             expect(clone).toEqual(graph);
-            expect(clone).toNotBe(graph);
+            expect(clone).not.toBe(graph);
         });
 
         it("should clone object at two levels of depth", function () {
             var clone = Object.clone(graph, 2);
             expect(clone).toEqual(graph);
-            expect(clone.object).toNotBe(graph.object);
+            expect(clone.object).not.toBe(graph.object);
             expect(clone.object).toEqual(graph.object);
             expect(clone.nestedObject.a).toBe(graph.nestedObject.a);
         });
@@ -538,7 +538,7 @@ describe("Object", function () {
 
         it("should clone identical values at least once", function () {
             var clone = Object.clone(graph);
-            expect(clone.cycle).toNotBe(graph.cycle);
+            expect(clone.cycle).not.toBe(graph.cycle);
         });
 
         it("should clone identical values only once", function () {
@@ -563,15 +563,15 @@ describe("Object", function () {
         it("should clone one level", function () {
             var clone = Object.clone(object, 1);
             expect(clone).toEqual(object);
-            expect(clone).toNotBe(object);
+            expect(clone).not.toBe(object);
             expect(clone.a).toBe(object.a);
         });
 
         it("should clone two levels", function () {
             var clone = Object.clone(object, 2);
             expect(clone).toEqual(object);
-            expect(clone).toNotBe(object);
-            expect(clone.a).toNotBe(object.a);
+            expect(clone).not.toBe(object);
+            expect(clone.a).not.toBe(object.a);
         });
 
         it("should clone with reference cycles", function () {
@@ -579,7 +579,7 @@ describe("Object", function () {
             cycle.cycle = cycle;
             var clone = Object.clone(cycle);
             expect(clone).toEqual(cycle);
-            expect(clone).toNotBe(cycle);
+            expect(clone).not.toBe(cycle);
             expect(clone.cycle).toBe(clone);
         });
 

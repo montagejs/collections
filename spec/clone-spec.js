@@ -12,9 +12,9 @@ describe("clone", function () {
         expect(Object.equals(a, b)).toBe(false);
         expect(a.equals(b)).toBe(false);
 
-        expect(a.one()).toNotBe(b.one());
+        expect(a.one()).not.toBe(b.one());
         expect(a.one().equals(b.one())).toBe(true);
-        expect(a.one().get('a')).toNotBe(b.one().get('a'));
+        expect(a.one().get('a')).not.toBe(b.one().get('a'));
         expect(a.one().get('a')).toEqual(b.one().get('a'));
     });
 

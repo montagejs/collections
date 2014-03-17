@@ -82,7 +82,7 @@ function describeMap(Map, values) {
         it("clones a map", function () {
             var map = Map({a: 10, b: 20});
             var clone = Object.clone(map);
-            expect(map).toNotBe(clone);
+            expect(map).not.toBe(clone);
             expect(map.equals(clone)).toBe(true);
         });
     });

@@ -96,7 +96,7 @@ function describeSet(Set, sorted) {
         expect(set.average()).toBe(1.5);
         expect(set.map(function (n) {
             return n + 1;
-        }).indexOf(3)).toNotBe(-1);
+        }).indexOf(3)).not.toBe(-1);
     });
 
     it("is iterable", function () {

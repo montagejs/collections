@@ -333,7 +333,7 @@ function describeOrder(Collection) {
             var collection = Collection([[[]]]);
             var clone = collection.clone();
             expect(clone).toEqual(collection);
-            expect(clone).toNotBe(collection);
+            expect(clone).not.toBe(collection);
         });
 
         it("should clone with depth 0", function () {
@@ -343,14 +343,14 @@ function describeOrder(Collection) {
 
         it("should clone with depth 1", function () {
             var collection = [Collection({})];
-            expect(collection.clone(1)).toNotBe(collection);
+            expect(collection.clone(1)).not.toBe(collection);
             expect(collection.clone(1).one()).toBe(collection.one());
         });
 
         it("should clone with depth 2", function () {
             var collection = Collection([{a: 10}]);
-            expect(collection.clone(2)).toNotBe(collection);
-            expect(collection.clone(2).one()).toNotBe(collection.one());
+            expect(collection.clone(2)).not.toBe(collection);
+            expect(collection.clone(2).one()).not.toBe(collection.one());
             expect(collection.clone(2).one()).toEqual(collection.one());
         });
 
