@@ -63,18 +63,21 @@ LruMap.prototype.observeMapChange = function () {
         // Detect LRU deletions in the LruSet and emit as MapChanges.
         // Array and Heap have no store.
         // Dict and FastMap define no listeners on their store.
-        var self = this;
-        this.store.observeRangeWillChange(function(plus, minus) {
-            if (plus.length && minus.length) {  // LRU item pruned
-                self.dispatchMapWillChange("delete", minus[0].key, undefined, minus[0].value);
-            }
-        });
-        this.store.observeRangeChange(function(plus, minus) {
-            if (plus.length && minus.length) {
-                self.dispatchMapChange("delete", minus[0].key, undefined, minus[0].value);
-            }
-        });
+        this.store.observeRangeWillChange(this, "store");
+        this.store.observeRangeChange(this, "store");
     }
     return GenericMap.prototype.observeMapChange.apply(this, arguments);
+};
+
+LruMap.prototype.handleStoreRangeWillChange = function (plus, minus, index) {
+    if (plus.length && minus.length) {  // LRU item pruned
+        this.dispatchMapWillChange("delete", minus[0].key, undefined, minus[0].value);
+    }
+};
+
+LruMap.prototype.handleStoreRangeChange = function (plus, minus, index) {
+    if (plus.length && minus.length) {
+        this.dispatchMapChange("delete", minus[0].key, undefined, minus[0].value);
+    }
 };
 
