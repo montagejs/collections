@@ -199,6 +199,11 @@ var observableArrayProperties = {
 
     splice: {
         value: function splice(start, length) {
+            // start parameter should be min(start, this.length)
+            // http://www.ecma-international.org/ecma-262/5.1/#sec-15.4.4.12
+            if (start > this.length) {
+                start = this.length;
+            }
             return this.swap.call(this, start, length, array_slice.call(arguments, 2));
         },
         writable: true,

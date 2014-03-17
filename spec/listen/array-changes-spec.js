@@ -222,6 +222,24 @@ describe("Array change dispatch", function () {
         ]);
     });
 
+    it("splices two values outside the array range", function () {
+        array.clear();
+        array.push(10, 20, 30);
+
+        spy = jasmine.createSpy();
+        expect(array).toEqual([10, 20, 30]);
+        expect(array.splice(4, 0, 50)).toEqual([]);
+        expect(array).toEqual([10, 20, 30, 50]);
+        expect(spy.argsForCall).toEqual([
+            ["length change from", 3],
+            ["before content change at", 3, "to add", [50], "to remove", []],
+            ["change at", 3, "from", undefined],
+            ["change at", 3, "to", 50],
+            ["content change at", 3, "added", [50], "removed", []],
+            ["length change to", 4]
+       ]);
+    });
+
     // ---- fresh start
 
     it("unshifts one to the beginning", function () {
