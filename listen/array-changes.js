@@ -122,6 +122,13 @@ var observableArrayProperties = {
                 if (!Array.isArray(plus)) {
                     plus = array_slice.call(plus);
                 }
+                if (start > this.length) {
+                    // pad trailing undefined created implicitly by splice
+                    var paddingSize = start - this.length;
+                    plus.unshift.apply(plus, new Array(paddingSize));
+                    length += paddingSize;
+                    start = this.length;
+                }
             } else {
                 plus = EMPTY_ARRAY;
             }
