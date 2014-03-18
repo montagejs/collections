@@ -95,12 +95,12 @@ GenericMap.prototype['delete'] = function (key) {
         var from;
         if (this.dispatchesMapChanges) {
             from = this.store.get(item).value;
-            this.dispatchMapWillChange("delete", key, undefined, from);
+            this.dispatchMapWillChange("delete", key, void 0, from);
         }
         this.store["delete"](item);
         this.length--;
         if (this.dispatchesMapChanges) {
-            this.dispatchMapChange("delete", key, undefined, from);
+            this.dispatchMapChange("delete", key, void 0, from);
         }
         return true;
     }
@@ -108,18 +108,18 @@ GenericMap.prototype['delete'] = function (key) {
 };
 
 GenericMap.prototype.clear = function () {
-    var keys;
+    var from;
     if (this.dispatchesMapChanges) {
         this.forEach(function (value, key) {
-            this.dispatchBeforeMapChange(key, value);
+            this.dispatchMapWillChange("delete", key, void 0, value);
         }, this);
-        keys = this.keys();
+        from = this.constructClone(this);
     }
     this.store.clear();
     this.length = 0;
     if (this.dispatchesMapChanges) {
-        keys.forEach(function (key) {
-            this.dispatchMapChange(key);
+        from.forEach(function (value, key) {
+            this.dispatchMapChange("delete", key, void 0, value);
         }, this);
     }
 };

@@ -91,14 +91,16 @@ Dict.prototype.has = function (key) {
 Dict.prototype["delete"] = function (key) {
     this.assertString(key);
     var mangled = mangle(key);
+    var from;
     if (mangled in this.store) {
         if (this.dispatchesMapChanges) {
-            this.dispatchBeforeMapChange(key, this.store[mangled]);
+            from = this.store[mangled];
+            this.dispatchMapWillChange("delete", key, void 0, from);
         }
         delete this.store[mangle(key)];
         this.length--;
         if (this.dispatchesMapChanges) {
-            this.dispatchMapChange(key, undefined);
+            this.dispatchMapChange("delete", key, void 0, from);
         }
         return true;
     }
@@ -106,15 +108,16 @@ Dict.prototype["delete"] = function (key) {
 };
 
 Dict.prototype.clear = function () {
-    var key, mangled;
+    var key, mangled, from;
     for (mangled in this.store) {
         key = unmangle(mangled);
         if (this.dispatchesMapChanges) {
-            this.dispatchBeforeMapChange(key, this.store[mangled]);
+            from = this.store[mangled];
+            this.dispatchMapWillChange("delete", key, void 0, from);
         }
         delete this.store[mangled];
         if (this.dispatchesMapChanges) {
-            this.dispatchMapChange(key, undefined);
+            this.dispatchMapChange("delete", key, void 0, from);
         }
     }
     this.length = 0;
