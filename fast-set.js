@@ -123,7 +123,13 @@ FastSet.prototype.log = function (charmap, logNode, callback, thisp) {
         callback = console.log;
         thisp = console;
     }
-    callback = callback.bind(thisp);
+
+    // Bind is unavailable in PhantomJS, the only environment of consequence
+    // that does not implement it yet.
+    var originalCallback = callback;
+    callback = function () {
+        return originalCallback.apply(thisp, arguments);
+    };
 
     var buckets = this.buckets;
     var hashes = buckets.keys();

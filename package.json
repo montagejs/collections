@@ -38,7 +38,7 @@
     "sinon": "^1.9.0"
   },
   "scripts": {
-    "test": "node spec/index.js",
+    "test": "jasminum spec && jasminum-phantom spec",
     "cover": "istanbul cover spec/index.js spec && istanbul report html && opener coverage/index.html"
   }
 }
