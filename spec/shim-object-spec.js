@@ -308,6 +308,7 @@ describe("Object", function () {
     });
 
     describe("equals", function () {
+
         var fakeNumber = {
             valueOf: function () {
                 return 10;
@@ -397,6 +398,21 @@ describe("Object", function () {
                     });
                 });
             });
+        });
+
+        it("recognizes deep structural similarity", function () {
+            var a = [];
+            a.push(a);
+            expect(Object.equals(a, [[a]])).toBe(true);
+        });
+
+        it("recognizes deep structural dissimilarity", function () {
+            function Foo() {}
+            var foo = new Foo();
+            expect(Object.equals(
+                [foo],
+                [[[foo]]]
+            )).toBe(false);
         });
 
     });

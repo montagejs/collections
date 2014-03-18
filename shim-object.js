@@ -347,9 +347,9 @@ Object.equals = function (a, b, equals, memo) {
     if (Object.isObject(a)) {
         memo = memo || new WeakMap();
         if (memo.has(a)) {
-            return memo.get(a) === b;
+            return true;
         }
-        memo.set(a, b);
+        memo.set(a, true);
     }
     if (Object.isObject(a) && typeof a.equals === "function") {
         return a.equals(b, equals, memo);
