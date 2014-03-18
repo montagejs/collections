@@ -318,3 +318,20 @@ describe("Array changes", function () {
 
 });
 
+describe("splice", function () {
+
+    it("truncates start to length", function () {
+        var array = [];
+        array.splice(1000, 0, 1, 2, 3);
+        expect(array).toEqual([1, 2, 3]);
+    });
+
+    it("truncates start to length on an observed array", function () {
+        var array = [];
+        array.makeRangeChangesObservable();
+        array.splice(1000, 0, 1, 2, 3);
+        expect(array).toEqual([1, 2, 3]);
+    });
+
+});
+

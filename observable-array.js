@@ -200,6 +200,9 @@ var observableArrayProperties = {
 
     splice: {
         value: function splice(start, length) {
+            if (start > this.length) {
+                start = this.length;
+            }
             return this.swap.call(this, start, length, array_slice.call(arguments, 2));
         },
         writable: true,
