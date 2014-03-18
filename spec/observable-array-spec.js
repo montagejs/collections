@@ -5,6 +5,8 @@ require("../observable-array");
 // TODO var describeObservableRange = require("./observable-range");
 // TODO make Array.from consistent with List
 
+extendSpyExpectation();
+
 describe("Array", function () {
     it("change dispatch properties should not be enumerable", function () {
         // this verifies that dispatchesRangeChanges and dispatchesMapChanges
@@ -262,13 +264,36 @@ describe("Array change dispatch with map observers", function () {
         ]);
     });
 
+    it("does not dispatch redundant map changes", function () {
+        array.length = 3;
+        spy = sinon.spy();
+        array.set(0, void 0);
+        array.set(0, void 0);
+        array.set(0, 1);
+        expect(spy.args).toEqual([
+
+            // opens holes
+            ["range will change from", [,], "to", [void 0], "at", 0],
+            ["range change from", [,], "to", [void 0], "at", 0],
+
+            // no real change
+            ["range will change from", [void 0], "to", [void 0], "at", 0],
+            ["range change from", [void 0], "to", [void 0], "at", 0],
+
+            // map change
+            ["range will change from", [void 0], "to", [1], "at", 0],
+            ["map will", "update", 0, "from", void 0, "to", 1],
+            ["map", "update", 0, "from", void 0, "to", 1],
+            ["range change from", [void 0], "to", [1], "at", 0]
+
+        ]);
+    });
+
     // TODO cancel observers
 
 });
 
 describe("Array changes", function () {
-
-    extendSpyExpectation();
 
     it("observes range changes on arrays that are not otherwised observed", function () {
         var array = [1, 2, 3];
@@ -302,6 +327,19 @@ describe("Array changes", function () {
         expect(spy).toHaveBeenCalledWith(4, undefined, 3, array);
     });
 
+    it("does not observe redundant property changes", function () {
+        var array = [];
+        var spy = sinon.spy();
+        array.observePropertyChange(0, spy);
+        array.set(0, 1);
+        expect(array).toEqual([1]);
+        expect(spy).toHaveBeenCalledWith(1, void 0, 0, array);
+
+        spy.args.clear();
+        array.set(0, 1);
+        expect(spy).not.toHaveBeenCalled();
+    });
+
     describe("swap", function () {
         it("works with large arrays", function () {
             var array = [];
@@ -333,5 +371,31 @@ describe("splice", function () {
         expect(array).toEqual([1, 2, 3]);
     });
 
+});
+
+describe("swap", function () {
+    it("grows the array if start beyond length", function () {
+        var array = [];
+        var spy = sinon.spy();
+        array.observeRangeChange(function (plus, minus, index) {
+            spy(plus, minus, index);
+        });
+        array.swap(4, 0, [1, 2, 3]);
+        expect(spy).toHaveBeenCalledWith([ , , , , 1, 2, 3], [], 0);
+        expect(array).toEqual([ , , , , 1, 2, 3]);
+    });
+});
+
+describe("set", function () {
+    it("grows the array if start beyond length", function () {
+        var array = [];
+        var spy = sinon.spy();
+        array.observeRangeChange(function (plus, minus, index) {
+            spy(plus, minus, index);
+        });
+        array.set(4, 1);
+        expect(spy).toHaveBeenCalledWith([ , , , , 1], [], 0);
+        expect(array).toEqual([ , , , , 1]);
+    });
 });
 

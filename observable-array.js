@@ -47,7 +47,7 @@ var observableArrayProperties = {
     makePropertyObservable: {
         value: function (index) {
             // Is a valid array index:
-            if (~~index === index && index > 0) { // Note: NaN !== NaN, ~~"foo" !== "foo"
+            if (~~index === index && index >= 0) { // Note: NaN !== NaN, ~~"foo" !== "foo"
                 this.makeIndexObservable(index);
             }
             // Does not call through to super because property dispatch on
@@ -61,7 +61,7 @@ var observableArrayProperties = {
     makeIndexObservable: {
         value: function (index) {
             var maxObservedIndex = observedLengthForObject.get(this) || 0;
-            if (index > maxObservedIndex) {
+            if (index >= maxObservedIndex) {
                 observedLengthForObject.set(this, index + 1);
             }
         },
@@ -70,7 +70,7 @@ var observableArrayProperties = {
     },
 
     swap: {
-        value: function swap(start, length, plus) {
+        value: function swap(start, minusLength, plus) {
             if (plus) {
                 if (!Array.isArray(plus)) {
                     plus = array_slice.call(plus);
@@ -81,9 +81,28 @@ var observableArrayProperties = {
 
             if (start < 0) {
                 start = this.length + start;
+            } else if (start > this.length) {
+                var holes = start - this.length;
+                var newPlus = Array(holes + plus.length);
+                for (var i = 0, j = holes; i < plus.length; i++, j++) {
+                    if (i in plus) {
+                        newPlus[j] = plus[i];
+                    }
+                }
+                plus = newPlus;
+                start = this.length;
             }
+
+            if (start + minusLength > this.length) {
+                // Truncate minus length if it extends beyond the length
+                minusLength = this.length - start;
+            } else if (minusLength < 0) {
+                // It is the JavaScript way.
+                minusLength = 0;
+            }
+
             var minus;
-            if (length === 0) {
+            if (minusLength === 0) {
                 // minus will be empty
                 if (plus.length === 0) {
                     // at this point if plus is empty there is nothing to do.
@@ -91,8 +110,9 @@ var observableArrayProperties = {
                 }
                 minus = Array.empty;
             } else {
-                minus = array_slice.call(this, start, start + length);
+                minus = array_slice.call(this, start, start + minusLength);
             }
+
             var diff = plus.length - minus.length;
             var oldLength = this.length;
             var newLength = Math.max(this.length + diff, start + plus.length);
@@ -107,8 +127,10 @@ var observableArrayProperties = {
             if (diff === 0) {
                 // Substring replacement
                 for (var i = start, j = 0; i < start + plus.length; i++, j++) {
-                    this.dispatchPropertyWillChange(i, plus[j], minus[j]);
-                    this.dispatchMapWillChange("update", i, plus[j], minus[j]);
+                    if (plus[j] !== minus[j]) {
+                        this.dispatchPropertyWillChange(i, plus[j], minus[j]);
+                        this.dispatchMapWillChange("update", i, plus[j], minus[j]);
+                    }
                 }
             } else {
                 // All subsequent values changed or shifted.
@@ -117,22 +139,32 @@ var observableArrayProperties = {
                 for (var i = start, j = 0; i < observedLength; i++, j++) {
                     if (i < oldLength && i < newLength) { // update
                         if (j < plus.length) {
-                            this.dispatchPropertyWillChange(i, plus[j], this[i]);
-                            this.dispatchMapWillChange("update", i, plus[j], this[i]);
+                            if (plus[j] !== this[i]) {
+                                this.dispatchPropertyWillChange(i, plus[j], this[i]);
+                                this.dispatchMapWillChange("update", i, plus[j], this[i]);
+                            }
                         } else {
-                            this.dispatchPropertyWillChange(i, this[i - diff], this[i]);
-                            this.dispatchMapWillChange("update", i, this[i - diff], this[i]);
+                            if (this[i - diff] !== this[i]) {
+                                this.dispatchPropertyWillChange(i, this[i - diff], this[i]);
+                                this.dispatchMapWillChange("update", i, this[i - diff], this[i]);
+                            }
                         }
                     } else if (i < newLength) { // but i >= oldLength, create
                         if (j < plus.length) {
-                            this.dispatchPropertyWillChange(i, plus[j]);
+                            if (plus[j] !== void 0) {
+                                this.dispatchPropertyWillChange(i, plus[j]);
+                            }
                             this.dispatchMapWillChange("create", i, plus[j]);
                         } else {
-                            this.dispatchPropertyWillChange(i, this[i - diff]);
+                            if (this[i - diff] !== void 0) {
+                                this.dispatchPropertyWillChange(i, this[i - diff]);
+                            }
                             this.dispatchMapWillChange("create", i, this[i - diff]);
                         }
                     } else if (i < oldLength) { // but i >= newLength, delete
-                        this.dispatchPropertyWillChange(i, void 0, this[i]);
+                        if (this[i] !== void 0) {
+                            this.dispatchPropertyWillChange(i, void 0, this[i]);
+                        }
                         this.dispatchMapWillChange("delete", i, void 0, this[i]);
                     } else {
                         throw new Error("assertion error");
@@ -141,16 +173,15 @@ var observableArrayProperties = {
             }
 
             // actual work
-            if (start > oldLength) {
-                this.length = start;
-            }
-            var result = array_swap.call(this, start, length, plus);
+            array_swap.call(this, start, minusLength, plus);
 
             // dispatch after change events
             if (diff === 0) { // substring replacement
                 for (var i = start, j = 0; i < start + plus.length; i++, j++) {
-                    this.dispatchPropertyChange(i, plus[j], minus[j]);
-                    this.dispatchMapChange("update", i, plus[j], minus[j]);
+                    if (plus[j] !== minus[j]) {
+                        this.dispatchPropertyChange(i, plus[j], minus[j]);
+                        this.dispatchMapChange("update", i, plus[j], minus[j]);
+                    }
                 }
             } else {
                 // All subsequent values changed or shifted.
@@ -159,26 +190,38 @@ var observableArrayProperties = {
                 for (var i = start, j = 0; i < observedLength; i++, j++) {
                     if (i < oldLength && i < newLength) { // update
                         if (j < minus.length) {
-                            this.dispatchPropertyChange(i, this[i], minus[j]);
-                            this.dispatchMapChange("update", i, this[i], minus[j]);
+                            if (this[i] !== minus[j]) {
+                                this.dispatchPropertyChange(i, this[i], minus[j]);
+                                this.dispatchMapChange("update", i, this[i], minus[j]);
+                            }
                         } else {
-                            this.dispatchPropertyChange(i, this[i], this[i + diff]);
-                            this.dispatchMapChange("update", i, this[i], this[i + diff]);
+                            if (this[i] !== this[i + diff]) {
+                                this.dispatchPropertyChange(i, this[i], this[i + diff]);
+                                this.dispatchMapChange("update", i, this[i], this[i + diff]);
+                            }
                         }
                     } else if (i < newLength) { // but i >= oldLength, create
                         if (j < minus.length) {
-                            this.dispatchPropertyChange(i, this[i], minus[j]);
+                            if (this[i] !== minus[j]) {
+                                this.dispatchPropertyChange(i, this[i], minus[j]);
+                            }
                             this.dispatchMapChange("create", i, this[i], minus[j]);
                         } else {
-                            this.dispatchPropertyChange(i, this[i], this[i + diff]);
+                            if (this[i] !== this[i + diff]) {
+                                this.dispatchPropertyChange(i, this[i], this[i + diff]);
+                            }
                             this.dispatchMapChange("create", i, this[i], this[i + diff]);
                         }
                     } else if (i < oldLength) { // but i >= newLength, delete
                         if (j < minus.length) {
-                            this.dispatchPropertyChange(i, void 0, minus[j]);
+                            if (minus[j] !== void 0) {
+                                this.dispatchPropertyChange(i, void 0, minus[j]);
+                            }
                             this.dispatchMapChange("delete", i, void 0, minus[j]);
                         } else {
-                            this.dispatchPropertyChange(i, void 0, this[i + diff]);
+                            if (this[i + diff] !== void 0) {
+                                this.dispatchPropertyChange(i, void 0, this[i + diff]);
+                            }
                             this.dispatchMapChange("delete", i, void 0, this[i + diff]);
                         }
                     } else {
@@ -191,19 +234,19 @@ var observableArrayProperties = {
             if (diff) {
                 this.dispatchPropertyChange("length", newLength, oldLength);
             }
-
-            return result;
         },
         writable: true,
         configurable: true
     },
 
     splice: {
-        value: function splice(start, length) {
+        value: function splice(start, minusLength) {
             if (start > this.length) {
                 start = this.length;
             }
-            return this.swap.call(this, start, length, array_slice.call(arguments, 2));
+            var result = this.slice(start, start + minusLength);
+            this.swap.call(this, start, minusLength, array_slice.call(arguments, 2));
+            return result;
         },
         writable: true,
         configurable: true
@@ -229,15 +272,6 @@ var observableArrayProperties = {
             var sorted = this.constructClone(this);
             array_sort.apply(sorted, arguments);
             this.swap(0, this.length, sorted);
-            return this;
-        },
-        writable: true,
-        configurable: true
-    },
-
-    set: {
-        value: function set(index, value) {
-            this.splice(index, 1, value);
             return this;
         },
         writable: true,

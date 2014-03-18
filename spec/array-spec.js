@@ -212,7 +212,58 @@ describe("Array", function () {
         beforeEach(function () {
             array = [1, 2, 3];
         });
-        it("should be able to replace content with content of another arraylike", function () {
+
+        it("grows", function () {
+            array.swap(3, 0, [4, 5, 6]);
+            expect(array).toEqual([1, 2, 3, 4, 5, 6]);
+        });
+
+        it("grows with some removed", function () {
+            array.swap(1, 2, [4, 5, 6]);
+            expect(array).toEqual([1, 4, 5, 6]);
+        });
+
+        it("grows from beyond length", function () {
+            array.swap(4, 0, [1]);
+            expect(array).toEqual([1, 2, 3, , 1]);
+        });
+
+        it("grows from beyond length truncating removal", function () {
+            array.swap(4, 1, [1]);
+            expect(array).toEqual([1, 2, 3, , 1]);
+        });
+
+        it("shrinks", function () {
+            array.swap(1, 1);
+            expect(array).toEqual([1, 3]);
+        });
+
+        it("shrinks with some added", function () {
+            array.swap(1, 2, [4]);
+            expect(array).toEqual([1, 4]);
+        });
+
+        it("copies a hole", function () {
+            array.swap(1, 1, [,]);
+            expect(array).toEqual([1, , 3]);
+        });
+
+        it("copies holes", function () {
+            array.swap(1, 1, [,,]);
+            expect(array).toEqual([1, , , 3]);
+        });
+
+        it("sets within", function () {
+            array.set(1, 4);
+            expect(array).toEqual([1, 4, 3]);
+        });
+
+        it("sets without", function () {
+            array.set(4, 4);
+            expect(array).toEqual([1, 2, 3, , 4]);
+        });
+
+        it("can replace content with content of another arraylike", function () {
             otherArray = { __proto__ : Array.prototype };
             otherArray[0] = 4;
             otherArray[1] = 5;
@@ -220,23 +271,26 @@ describe("Array", function () {
             array.swap(0, array.length, otherArray);
             expect(array).toEqual([4, 5]);
         });
+
         it("should ignore non array like plus value", function () {
             array.swap(0, array.length, 4);
             expect(array).toEqual([]);
 
         });
+
         it("should ignore extra arguments", function () {
             array.swap(0, array.length, 4, 5, 6);
             expect(array).toEqual([]);
-
         });
-        it("should work with large arrays", function () {
+
+        it("works with large arrays", function () {
             otherArray = new Array(200000);
             expect(function () {
                 array.swap(0, array.length, otherArray);
             }).not.toThrow();
             expect(array.length).toEqual(200000);
         });
+
    });
 
 });

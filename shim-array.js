@@ -99,8 +99,14 @@ define("get", function (index, defaultValue) {
 });
 
 define("set", function (index, value) {
-    this.splice(index, 1, value);
-    return true;
+    if (index < this.length) {
+        this.splice(index, 1, value);
+    } else {
+        // Must use swap instead of splice, dispite the unfortunate array
+        // argument, because splice would truncate index to length.
+        this.swap(index, 1, [value]);
+    }
+    return this;
 });
 
 define("add", function (value) {
@@ -139,48 +145,101 @@ define("findLastValue", function (value, equals) {
     return -1;
 });
 
-define("swap", function (start, length, plus) {
-    var args, plusLength, i, j, returnValue;
-    if (typeof plus !== "undefined") {
-        args = [start, length];
+define("swap", function (start, minusLength, plus) {
+    // Unrolled implementation into JavaScript for a couple reasons.
+    // Calling splice can cause large stack sizes for large swaps. Also,
+    // splice cannot handle array holes.
+    if (plus) {
         if (!Array.isArray(plus)) {
             plus = array_slice.call(plus);
         }
-        i = 0;
-        plusLength = plus.length;
-        // 1000 is a magic number, presumed to be smaller than the remaining
-        // stack length. For swaps this small, we take the fast path and just
-        // use the underlying Array splice. We could measure the exact size of
-        // the remaining stack using a try/catch around an unbounded recursive
-        // function, but this would defeat the purpose of short-circuiting in
-        // the common case.
-        if (plusLength < 1000) {
-            for (i; i < plusLength; i++) {
-                args[i+2] = plus[i];
-            }
-            return array_splice.apply(this, args);
-        } else {
-            // Avoid maximum call stack error.
-            // First delete the desired entries.
-            returnValue = array_splice.apply(this, args);
-            // Second batch in 1000s.
-            for (i; i < plusLength;) {
-                args = [start+i, 0];
-                for (j = 2; j < 1002 && i < plusLength; j++, i++) {
-                    args[j] = plus[i];
-                }
-                array_splice.apply(this, args);
-            }
-            return returnValue;
-        }
-    // using call rather than apply to cut down on transient objects
-    } else if (typeof length !== "undefined") {
-        return array_splice.call(this, start, length);
-    }  else if (typeof start !== "undefined") {
-        return array_splice.call(this, start);
     } else {
-        return [];
+        plus = Array.empty;
     }
+
+    if (start < 0) {
+        start = this.length + start;
+    } else if (start > this.length) {
+        this.length = start;
+    }
+
+    if (start + minusLength > this.length) {
+        // Truncate minus length if it extends beyond the length
+        minusLength = this.length - start;
+    } else if (minusLength < 0) {
+        // It is the JavaScript way.
+        minusLength = 0;
+    }
+
+    var diff = plus.length - minusLength;
+    var oldLength = this.length;
+    var newLength = this.length + diff;
+
+    if (diff > 0) {
+        // Head Tail Plus Minus
+        // H H H H M M T T T T
+        // H H H H P P P P T T T T
+        //         ^ start
+        //         ^-^ minus.length
+        //           ^ --> diff
+        //         ^-----^ plus.length
+        //             ^------^ tail before
+        //                 ^------^ tail after
+        //                   ^ start iteration
+        //                       ^ start iteration offset
+        //             ^ end iteration
+        //                 ^ end iteration offset
+        //             ^ start + minus.length
+        //                     ^ length
+        //                   ^ length - 1
+        for (var index = oldLength - 1; index >= start + minusLength; index--) {
+            var offset = index + diff;
+            if (index in this) {
+                this[offset] = this[index];
+            } else {
+                // Oddly, PhantomJS complains about deleting array
+                // properties, unless you assign undefined first.
+                this[offset] = void 0;
+                delete this[offset];
+            }
+        }
+    }
+    for (var index = 0; index < plus.length; index++) {
+        if (index in plus) {
+            this[start + index] = plus[index];
+        } else {
+            this[start + index] = void 0;
+            delete this[start + index];
+        }
+    }
+    if (diff < 0) {
+        // Head Tail Plus Minus
+        // H H H H M M M M T T T T
+        // H H H H P P T T T T
+        //         ^ start
+        //         ^-----^ length
+        //         ^-^ plus.length
+        //             ^ start iteration
+        //                 ^ offset start iteration
+        //                     ^ end
+        //                         ^ offset end
+        //             ^ start + minus.length - plus.length
+        //             ^ start - diff
+        //                 ^------^ tail before
+        //             ^------^ tail after
+        //                     ^ length - diff
+        //                     ^ newLength
+        for (var index = start + plus.length; index < oldLength - diff; index++) {
+            var offset = index - diff;
+            if (offset in this) {
+                this[index] = this[offset];
+            } else {
+                this[index] = void 0;
+                delete this[index];
+            }
+        }
+    }
+    this.length = newLength;
 });
 
 define("peek", function () {

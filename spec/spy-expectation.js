@@ -16,8 +16,9 @@ function extendSpyExpectation() {
 
     Expectation.prototype.toHaveBeenCalled = function () {
         this.assert(!!this.value.args.length, [
-            "expected spy [not] to have been called"
+            "expected spy [not] to have been called but calls were"
         ], [
+            this.value.args
         ]);
     };
 
