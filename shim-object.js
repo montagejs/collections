@@ -474,7 +474,9 @@ Object.clone = function (value, depth, memo) {
     } else if (depth === 0) {
         return value;
     }
-    if (Object.isObject(value)) {
+    if (typeof value === "function") {
+        return value;
+    } else if (Object.isObject(value)) {
         if (!memo.has(value)) {
             if (value && typeof value.clone === "function") {
                 memo.set(value, value.clone(depth, memo));

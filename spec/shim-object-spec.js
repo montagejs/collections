@@ -567,6 +567,13 @@ describe("Object", function () {
             expect(clone.clonable).toBe(graph.clonable);
         });
 
+        it("should clone an object with a function property", function () {
+            var original = {foo: function () {}};
+            var clone = Object.clone(original);
+            expect(clone.foo).toBe(original.foo);
+            expect(Object.equals(clone, original)).toBe(true);
+        });
+
     });
 
     describe("clone", function () {
