@@ -2,6 +2,7 @@
 // These do not apply to SortedMap since keys are not comparable.
 
 var describeObservableMap = require("./observable-map");
+var describeDict = require("./dict");
 
 module.exports = describeMap;
 function describeMap(Map, values) {
@@ -58,7 +59,7 @@ function describeMap(Map, values) {
     });
 
     describe("delete", function () {
-        it("should remove one entry", function () {
+        it("removes one entry", function () {
             var map = Map([[a, 10], [b, 20], [c, 30]]);
             expect(map.delete(c)).toBe(true);
             shouldHaveTheUsualContent(map);
@@ -66,7 +67,7 @@ function describeMap(Map, values) {
     });
 
     describe("clear", function () {
-        it("should be able to delete all content", function () {
+        it("deletes all content", function () {
             var map = Map({a: 10, b: 20, c: 30});
             map.clear();
             expect(map.length).toBe(0);
@@ -77,7 +78,7 @@ function describeMap(Map, values) {
     });
 
     describe("equals", function () {
-        it("should compare maps", function () {
+        it("compares maps", function () {
             var map = Map({a: 10, b: 20});
             expect(Object.equals(map, map)).toBe(true);
             expect(map.equals(map)).toBe(true);
@@ -98,6 +99,7 @@ function describeMap(Map, values) {
     });
 
     describeObservableMap(Map);
+    describeDict(Map);
 
 }
 

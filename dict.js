@@ -12,7 +12,7 @@ function Dict(values, getDefault) {
     if (!(this instanceof Dict)) {
         return new Dict(values, getDefault);
     }
-    getDefault = getDefault || Function.noop;
+    getDefault = getDefault || this.getDefault;
     this.getDefault = getDefault;
     this.store = {};
     this.length = 0;
@@ -32,6 +32,8 @@ function unmangle(mangled) {
 Object.addEach(Dict.prototype, GenericCollection.prototype);
 Object.addEach(Dict.prototype, GenericMap.prototype);
 Object.addEach(Dict.prototype, ObservableObject.prototype);
+
+Dict.prototype.isDict = true;
 
 Dict.prototype.constructClone = function (values) {
     return new this.constructor(values, this.mangle, this.getDefault);

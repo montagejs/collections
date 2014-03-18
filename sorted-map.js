@@ -14,7 +14,7 @@ function SortedMap(values, equals, compare, getDefault) {
     }
     equals = equals || Object.equals;
     compare = compare || Object.compare;
-    getDefault = getDefault || Function.noop;
+    getDefault = getDefault || this.getDefault;
     this.contentEquals = equals;
     this.contentCompare = compare;
     this.getDefault = getDefault;

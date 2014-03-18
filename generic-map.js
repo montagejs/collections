@@ -52,6 +52,9 @@ GenericMap.prototype.get = function (key, defaultValue) {
     }
 };
 
+GenericMap.prototype.getDefault = function () {
+};
+
 GenericMap.prototype.set = function (key, value) {
     var item = new this.Item(key, value);
     var found = this.store.get(item);

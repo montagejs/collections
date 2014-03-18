@@ -14,7 +14,7 @@ function FastMap(values, equals, hash, getDefault) {
     }
     equals = equals || Object.equals;
     hash = hash || Object.hash;
-    getDefault = getDefault || Function.noop;
+    getDefault = getDefault || this.getDefault;
     this.contentEquals = equals;
     this.contentHash = hash;
     this.getDefault = getDefault;

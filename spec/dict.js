@@ -45,6 +45,39 @@ function describeDict(Dict) {
         expect(dict.delete("__proto__")).toBe(false);
     });
 
+    describe("getDefault", function () {
+
+        it("can be overridden on the prototype", function () {
+
+            var called = false;
+
+            function Memo() {
+                Dict.call(this);
+            }
+
+            Memo.prototype = Object.create(Dict.prototype);
+            Memo.prototype.constructor = Memo;
+
+            Memo.prototype.getDefault = function (key) {
+                called = true;
+                this.set(key, key + "!");
+                return this.get(key);
+            };
+
+            var memo = new Memo();
+
+            called = false;
+            expect(memo.get("hi")).toBe("hi!");
+            expect(called).toBe(true);
+
+            called = false;
+            expect(memo.get("hi")).toBe("hi!");
+            expect(called).toBe(false);
+
+        });
+
+    });
+
 }
 
 function shouldHaveTheUsualContent(dict) {

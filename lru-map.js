@@ -14,7 +14,7 @@ function LruMap(values, capacity, equals, hash, getDefault) {
     }
     equals = equals || Object.equals;
     hash = hash || Object.hash;
-    getDefault = getDefault || Function.noop;
+    getDefault = getDefault || this.getDefault;
     this.capacity = capacity || Infinity;
     this.contentEquals = equals;
     this.contentHash = hash;
