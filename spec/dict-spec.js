@@ -1,11 +1,15 @@
 
 var Dict = require("../dict");
 var describeDict = require("./dict");
+var describeObservableMap = require("./observable-map");
 
 describe("Dict", function () {
+
     describeDict(Dict);
+    describeObservableMap(Dict);
 
     it("should throw errors for non-string keys", function () {
+
         var dict = Dict();
         expect(function () {
             dict.get(0);
@@ -19,6 +23,7 @@ describe("Dict", function () {
         expect(function () {
             dict.delete(0);
         }).toThrow();
+
     });
 
 });
