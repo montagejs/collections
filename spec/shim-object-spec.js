@@ -315,7 +315,7 @@ describe("Object", function () {
                 return this;
             },
             equals: function (n) {
-                return n === 10 || typeof n === "object" && n.value === 10;
+                return n === 10 || typeof n === "object" && n !== null && n.value === 10;
             }
         };
 
@@ -422,7 +422,7 @@ describe("Object", function () {
             [[10], [10], 0],
             [[10], [20], -10],
             [[100, 10], [100, 0], 10],
-            ["a", "b", -1],
+            ["a", "b", -Infinity],
             [now, now, 0, "now to itself"],
             [
                 comparable.create(function () {
