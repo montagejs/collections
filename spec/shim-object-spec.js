@@ -445,7 +445,7 @@ describe("Object", function () {
             [[10], [10], 0],
             [[10], [20], -10],
             [[100, 10], [100, 0], 10],
-            ["a", "b", -1],
+            ["a", "b", -Infinity],
             [now, now, 0, "now to itself"],
             [
                 comparable.create(function () {

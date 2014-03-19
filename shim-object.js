@@ -432,19 +432,15 @@ Object.compare = function (a, b) {
         return 0;
     var aType = typeof a;
     var bType = typeof b;
-    if (aType !== bType)
-        return 0;
-    if (a == null)
-        return b == null ? 0 : -1;
-    if (aType === "number")
+    if (aType === "number" && bType === "number")
         return a - b;
-    if (aType === "string")
-        return a < b ? -1 : 1;
+    if (aType === "string" && bType === "string")
+        return a < b ? -Infinity : Infinity;
         // the possibility of equality elimiated above
-    if (typeof a.compare === "function")
+    if (a && typeof a.compare === "function")
         return a.compare(b);
     // not commutative, the relationship is reversed
-    if (typeof b.compare === "function")
+    if (b && typeof b.compare === "function")
         return -b.compare(a);
     return 0;
 };
