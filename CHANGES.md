@@ -1,4 +1,8 @@
 
+## v2.0.0 :warning: BACKWARD INCOMPATIBLE
+
+-   Iterators have been reimplemented with an ES6 alike interface.
+-   Change observers have been reimplemented with an FRB alike interface.
 -   Removes support for `any` and `all`. Use `some(Boolean)` or
     `every(Boolean)`.
 
