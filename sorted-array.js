@@ -175,11 +175,15 @@ SortedArray.prototype.unshift = function () {
 };
 
 SortedArray.prototype.pop = function () {
-    return this.array.pop();
+    var val = this.array.pop();
+    this.length = this.array.length;
+    return val;
 };
 
 SortedArray.prototype.shift = function () {
-    return this.array.shift();
+    var val = this.array.shift();
+    this.length = this.array.length;
+    return val;
 };
 
 SortedArray.prototype.slice = function () {
