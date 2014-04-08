@@ -86,6 +86,7 @@ Heap.prototype.delete = function (value) {
     if (index === -1)
         return false;
     var top = this.content.pop();
+    this.length--;
     if (index === this.content.length)
         return true;
     this.content.set(index, top);
@@ -95,7 +96,6 @@ Heap.prototype.delete = function (value) {
     } else if (comparison < 0) {
         this.sink(index);
     }
-    this.length--;
     return true;
 };
 
@@ -235,4 +235,3 @@ Heap.prototype.handleContentMapChange = function (plus, minus, key, type) {
 Heap.prototype.handleContentMapWillChange = function (plus, minus, key, type) {
     this.dispatchMapWillChange(type, key, plus, minus);
 };
-
