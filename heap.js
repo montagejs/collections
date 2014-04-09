@@ -86,7 +86,7 @@ Heap.prototype.delete = function (value) {
     if (index === -1)
         return false;
     var top = this.content.pop();
-    this.length--;
+    this.length = this.content.length;
     if (index === this.content.length)
         return true;
     this.content.set(index, top);
