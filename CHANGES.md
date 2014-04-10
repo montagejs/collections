@@ -1,4 +1,29 @@
 
+## v1.0.3
+
+-   Fixes array `set` and `swap` for indexes outside the bounds of the existing
+    array, for both observed and unobserved arrays.
+
+## v1.0.2
+
+-   Refinements on `Object.equals` and `Object.compare`. These are not
+    necessarily backward compatible, but should be a strict improvement:
+-   `Object.compare` will now return +/- Infinity for inequal strings,
+    rather than +/- 1 which imply that the distance between any two inequal
+    strings is always 1. `Object.compare` for numbers is suitable for finding
+    the magnitude of the difference as well as the direction.
+-   `Object.compare` and `Object.equals` will now delegate to either non-null,
+    non-undefined argument if the other argument is null or undefined.
+    This allows objects to be constructed that will identify themselves
+    as equivalent to null or undefined, for example `Any` types, useful for
+    testing.
+-   `Object.equals` will only compare object literals derrived directly from the
+    `Object.prototype`. All other objects that do not implement `compare` are
+    incomparable.
+-   First attempt at fixing `set`, `swap`, and `splice`, later fixed in v1.0.3.
+    `splice` must truncate the `start` index to the array length. `swap` and
+    `set` should not.
+
 ## v1.0.1
 
 -   Bug fix for filter on map-like collections.
