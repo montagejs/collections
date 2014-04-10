@@ -128,7 +128,18 @@ var observableArrayProperties = {
 
             if (start < 0) {
                 start = this.length + start;
+            } else if (start > this.length) {
+                var holes = start - this.length;
+                var newPlus = Array(holes + plus.length);
+                for (var i = 0, j = holes; i < plus.length; i++, j++) {
+                    if (i in plus) {
+                        newPlus[j] = plus[i];
+                    }
+                }
+                plus = newPlus;
+                start = this.length;
             }
+
             var minus;
             if (length === 0) {
                 // minus will be empty
@@ -216,8 +227,8 @@ var observableArrayProperties = {
 
     set: {
         value: function set(index, value) {
-            this.splice(index, 1, value);
-            return this;
+            this.swap(index, index >= this.length ? 0 : 1, [value]);
+            return true;
         },
         writable: true,
         configurable: true

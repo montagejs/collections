@@ -197,7 +197,7 @@ describe("Array change dispatch", function () {
     it("sets new value at end", function () {
         spy = jasmine.createSpy();
         expect(array).toEqual([20, 30]);
-        expect(array.set(2, 40)).toBe(array);
+        expect(array.set(2, 40)).toBe(true);
         expect(array).toEqual([20, 30, 40]);
         expect(spy.argsForCall).toEqual([
             ["length change from", 2],
@@ -212,7 +212,7 @@ describe("Array change dispatch", function () {
     it("sets new value at beginning", function () {
         spy = jasmine.createSpy();
         expect(array).toEqual([20, 30, 40]);
-        expect(array.set(0, 10)).toBe(array);
+        expect(array.set(0, 10)).toBe(true);
         expect(array).toEqual([10, 30, 40]);
         expect(spy.argsForCall).toEqual([
             ["before content change at", 0, "to add", [10], "to remove", [20]],
@@ -329,6 +329,25 @@ describe("Array change dispatch", function () {
             ["content change at", 1, "added", [], "removed", [20]],
             ["length change to", 2]
         ]);
+    });
+
+    it("sets a value outside the existing range", function () {
+        expect(array).toEqual([10, 30]);
+        spy = jasmine.createSpy();
+        expect(array.set(3, 40)).toBe(true);
+        expect(array).toEqual([10, 30, , 40]);
+        expect(spy.argsForCall).toEqual([
+            ["length change from", 2],
+            ["before content change at", 2, "to add", [ , 40], "to remove", []],
+            ["change at", 2, "from", undefined],
+            ["change at", 3, "from", undefined],
+            ["change at", 2, "to", undefined],
+            ["change at", 3, "to", 40],
+            ["content change at", 2, "added", [ , 40], "removed", []],
+            ["length change to", 4]
+        ]);
+        array.pop();
+        array.pop();
     });
 
     it("clears all values finally", function () {
