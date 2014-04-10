@@ -100,7 +100,7 @@ define("get", function (index, defaultValue) {
 });
 
 define("set", function (index, value) {
-    this.splice(index, 1, value);
+    this[index] = value;
     return true;
 });
 
@@ -142,6 +142,9 @@ define("findLast", function (value, equals) {
 
 define("swap", function (start, length, plus) {
     var args, plusLength, i, j, returnValue;
+    if (start > this.length) {
+        this.length = start;
+    }
     if (typeof plus !== "undefined") {
         args = [start, length];
         if (!Array.isArray(plus)) {

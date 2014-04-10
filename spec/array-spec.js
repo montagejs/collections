@@ -250,6 +250,40 @@ describe("Array", function () {
             }).not.toThrow();
             expect(array.length).toEqual(200000);
         });
+        it("swaps at an outer index", function () {
+            array.swap(4, 0, [5]);
+            expect(array).toEqual([1, 2, 3, , 5]);
+        });
+   });
+
+   describe("set", function () {
+
+       it("sets an inner index", function () {
+           var array = [1, 2, 3];
+           array.set(1, 10);
+           expect(array).toEqual([1, 10, 3]);
+       });
+
+       it("sets an inner index of an observed array", function () {
+           var array = [1, 2, 3];
+           array.makeObservable();
+           array.set(1, 10);
+           expect(array).toEqual([1, 10, 3]);
+       });
+
+       it("sets an outer index", function () {
+           var array = [];
+           array.set(4, 10);
+           expect(array).toEqual([ , , , , 10]);
+       });
+
+       it("sets an outer index of an observed array", function () {
+           var array = [];
+           array.makeObservable();
+           array.set(4, 10);
+           expect(array).toEqual([ , , , , 10]);
+       });
+
    });
 
 });
