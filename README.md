@@ -144,6 +144,27 @@ var LruMap = require("collections/lru-map");
 
 A cache of entries backed by an `LruSet`.
 
+### LfuSet(values, capacity, equals, hash, getDefault)
+
+```javascript
+var LfuSet = require("collections/lfu-set");
+```
+
+A cache with the Least-Frequently-Used strategy for truncating its
+content when it’s length exceeds `capacity`. It maintains the
+eqivalent of a LRU for each frequency, so that the oldest, least
+frequently used value is evicted first. Both getting and setting a
+value constitute usage, but checking whether the set has a value and
+iterating values do not.
+
+### LfuMap(map, capacity, equals, hash, getDefault)
+
+```javascript
+var LfuMap = require("collections/lfu-map");
+```
+
+A cache of entries backed by an `LfuSet`.
+
 ### SortedArray(values, equals, compare, getDefault)
 
 ```javascript
@@ -320,8 +341,8 @@ should exist but has not yet been made (Send a pull request!).
 These are all of the collections:
 
 (Array, Array+, Object+, Iterator, List, Set, Map, MultiMap, WeakMap,
-SortedSet, SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
-SortedArrayMap, FastSet, FastMap, Dict)
+SortedSet, SortedMap, LruSet, LruMap, LfuSet, LfuMap, SortedArray,
+SortedArraySet, SortedArrayMap, FastSet, FastMap, Dict)
 
 ### has
 
@@ -437,8 +458,8 @@ implementation, which may or may not be appropriate depending on the
 collection.
 
 Collections: (Array+, List, Deque, Set, Map, MultiMap, SortedSet, SortedMap,
-LruSet, LruMap, SortedArray, SortedArraySet, SortedArrayMap, FastSet,
-FastMap, Dict, Heap)
+LruSet, LruMap, LfuSet, LfuMap, SortedArray, SortedArraySet, SortedArrayMap,
+FastSet, FastMap, Dict, Heap)
 
 ### indexOf(value)
 
@@ -617,7 +638,7 @@ Collections: (Array+, List, SortedArray, SortedSet, SortedArraySet)
 Deletes the all values.
 
 Collections: (Array+, Object+, List, Deque, Set, Map, MultiMap, SortedSet,
-SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+SortedMap, LruSet, LruMap, LfuSet, LfuMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### sort(compare)
@@ -653,7 +674,7 @@ if they have the same corresponding return value from the given
 callback.
 
 Collections: (Array+, Object+, List, Deque, Set, Map, MultiMap, SortedSet,
-SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+SortedMap, LruSet, LruMap, LfuSet, LfuMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap, Iterator)
 
 ### reverse()
@@ -691,7 +712,7 @@ updates the result.  Array is like a map from index to value.  List,
 Set, and SortedSet are like maps from nodes to values.
 
 Collections: (Array, ~~Object+~~, Iterator, List, Set, Map, MultiMap,
-SortedSet, SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+SortedSet, SortedMap, LruSet, LruMap, LfuSet, LfuMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### keys()
@@ -718,7 +739,7 @@ Dict)
 ### reduce(callback(result, value, key, object, depth), basis, thisp)
 
 Collections: (Array, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
-SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+SortedMap, LruSet, LruMap, LfuSet, LfuMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### reduceRight(callback(result, value, key, object, depth), basis, thisp)
@@ -734,19 +755,19 @@ added after the current node will be visited and nodes added before
 the current node will be ignored, and no node will be visited twice.
 
 Collections: (Array, Object+, Iterator, List, Deque, Set, Map, MultiMap, WeakMap,
-SortedSet, SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+SortedSet, SortedMap, LruSet, LruMap, LfuSet, LfuMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### map(callback(value, key, object, depth), thisp)
 
 Collections: (Array, Object+, Iterator, List, Deque, Set, Map, MultiMap, WeakMap,
-SortedSet, SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+SortedSet, SortedMap, LruSet, LruMap, LfuSet, LfuMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### toArray()
 
 Collections: (Array+, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
-SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+SortedMap, LruSet, LruMap, LfuSet, LfuMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### toObject()
@@ -760,7 +781,7 @@ SortedArrayMap, FastMap, Dict, Heap)
 ### filter(callback(value, key, object, depth), thisp)
 
 Collections: (Array, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
-SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+SortedMap, LruSet, LruMap, LfuSet, LfuMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### every(callback(value, key, object, depth), thisp)
@@ -770,7 +791,7 @@ guard after the first failure.  Iterators stop consuming after the
 the first failure.
 
 Collections: (Array, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
-SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+SortedMap, LruSet, LruMap, LfuSet, LfuMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### some(callback(value, key, object, depth), thisp)
@@ -780,7 +801,7 @@ evaluating the guard after the first success.  Iterators stop
 consuming after the first success.
 
 Collections: (Array, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
-SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+SortedMap, LruSet, LruMap, LfuSet, LfuMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### min()
@@ -790,7 +811,7 @@ for SortedSet, constant for SortedArray, SortedArraySet, and
 SortedArrayMap), but slow for everything else (linear).
 
 Collections: (Array+, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
-SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+SortedMap, LruSet, LruMap, LfuSet, LfuMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict)
 
 ### max()
@@ -800,7 +821,7 @@ for SortedSet, constant for SortedArray, SortedArraySet, and
 SortedArrayMap), but slow for everything else (linear).
 
 Collections: (Array+, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
-SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+SortedMap, LruSet, LruMap, LfuSet, LfuMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### one()
@@ -813,7 +834,7 @@ being consistent across accesses, and only changing in response to
 mutation, `one` returns the `min` of the set in logarithmic time.
 
 Collections: (Array+, List, Deque, Set, Map, MultiMap, SortedSet, SortedMap,
-LruSet, LruMap, SortedArray, SortedArray, SortedArraySet,
+LruSet, LruMap, LfuSet, LfuMap, SortedArray, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### only()
@@ -822,37 +843,37 @@ The one and only value, or throws an exception if there are no
 values or more than one value.
 
 Collections: (Array+, List, Deque, Set, Map, MultiMap, SortedSet, SortedMap,
-LruSet, LruMap, SortedArray, SortedArray, SortedArraySet,
+LruSet, LruMap, LfuSet, LfuMap, SortedArray, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### sum()
 
 Collections: (Array+, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
-SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+SortedMap, LruSet, LruMap, LfuSet, LfuMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict)
 
 ### average()
 
 Collections: (Array+, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
-SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+SortedMap, LruSet, LruMap, LfuSet, LfuMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict)
 
 ### flatten()
 
 Collections: (Array+, Iterator, List, Set, Map, MultiMap, SortedSet,
-SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+SortedMap, LruSet, LruMap, LfuSet, LfuMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### zip(...collections)
 
 Collections: (Array+, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
-SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+SortedMap, LruSet, LruMap, LfuSet, LfuMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### enumerate(zero)
 
 Collections: (Array+, Iterator, List, Deque, Set, Map, MultiMap, SortedSet,
-SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+SortedMap, LruSet, LruMap, LfuSet, LfuMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### clone(depth, memo)
@@ -873,7 +894,7 @@ directly since they do not necessarily supply a default depth and
 memo.
 
 Collections: (Array+, Object+, List, Deque, Set, Map, MultiMap, SortedSet,
-SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+SortedMap, LruSet, LruMap, LfuSet, LfuMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### constructClone(values)
@@ -885,13 +906,13 @@ the job of deeply cloning the values to the more general `clone`
 method.
 
 Collections: (Array+, Object+, List, Deque, Set, Map, MultiMap, SortedSet,
-SortedMap, LruSet, LruMap, SortedArray, SortedArraySet,
+SortedMap, LruSet, LruMap, LfuSet, LfuMap, SortedArray, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict, Heap)
 
 ### equals(that, equals)
 
 Collections: (Array+, Object+, List, Deque, Set, Map, MultiMap, SortedSet,
-SortedMap, LruSet, LruMap, ~~SortedArray~~, SortedArraySet,
+SortedMap, LruSet, LruMap, LfuSet, LfuMap, ~~SortedArray~~, SortedArraySet,
 SortedArrayMap, FastSet, FastMap, Dict)
 
 ### compare(that)
