@@ -68,19 +68,19 @@ LfuSet.prototype.get = function (value, equals) {
 
     var node = this.store.get(new this.Node(value));
     if (node !== undefined) {
-        var freq = node.parent;
-        var nextFreq = node.parent.next;
-        if (nextFreq.value !== freq.value + 1) {
-            nextFreq = new this.FrequencyNode(freq.value + 1, freq, nextFreq);
+        var frequencyNode = node.frequencyNode;
+        var nextFrequencyNode = frequencyNode.next;
+        if (nextFrequencyNode.frequency !== frequencyNode.frequency + 1) {
+            nextFrequencyNode = new this.FrequencyNode(frequencyNode.frequency + 1, frequencyNode, nextFrequencyNode);
         }
 
-        nextFreq.items.add(node);
-        node.parent = nextFreq;
-        freq.items["delete"](node);
+        nextFrequencyNode.values.add(node);
+        node.frequencyNode = nextFrequencyNode;
+        frequencyNode.values["delete"](node);
 
-        if (freq.items.length === 0) {
-            freq.prev.next = freq.next;
-            freq.next.prev = freq.prev;
+        if (frequencyNode.values.length === 0) {
+            frequencyNode.prev.next = frequencyNode.next;
+            frequencyNode.next.prev = frequencyNode.prev;
         }
 
         return node.value;
@@ -101,7 +101,7 @@ LfuSet.prototype.add = function (value) {
         plus.push(value);
         if (this.length + 1 > this.capacity) {
             leastFrequentNode = this.frequencyHead.next;
-            leastFrequent = leastFrequentNode.items.order.head.next.value;
+            leastFrequent = leastFrequentNode.values.order.head.next.value;
             minus.push(leastFrequent.value);
         }
         if (this.dispatchesRangeChanges) {
@@ -112,23 +112,23 @@ LfuSet.prototype.add = function (value) {
         // the value we are about to add
         if (minus.length > 0) {
             this.store["delete"](leastFrequent);
-            leastFrequentNode.items["delete"](leastFrequent);
+            leastFrequentNode.values["delete"](leastFrequent);
             // Don't remove the frequencyNode with value of 1, because we
             // are about to use it again in the addition.
-            if (leastFrequentNode.value !== 1 && leastFrequentNode.items.length === 0) {
+            if (leastFrequentNode.value !== 1 && leastFrequentNode.values.length === 0) {
                 this.frequencyHead.next = leastFrequentNode.next;
                 leastFrequentNode.next.prev = this.frequencyHead;
             }
         }
 
         var node = new this.Node(value);
-        var freq = this.frequencyHead.next;
-        if (freq.value !== 1) {
-            freq = new this.FrequencyNode(1, this.frequencyHead, freq);
+        var frequencyNode = this.frequencyHead.next;
+        if (frequencyNode.frequency !== 1) {
+            frequencyNode = new this.FrequencyNode(1, this.frequencyHead, frequencyNode);
         }
         this.store.add(node);
-        freq.items.add(node);
-        node.parent = freq;
+        frequencyNode.values.add(node);
+        node.frequencyNode = frequencyNode;
 
         this.length = this.length + plus.length - minus.length;
 
@@ -152,13 +152,13 @@ LfuSet.prototype["delete"] = function (value, equals) {
         if (this.dispatchesRangeChanges) {
             this.dispatchBeforeRangeChange([], [value], 0);
         }
-        var freq = node.parent;
+        var frequencyNode = node.frequencyNode;
 
         this.store["delete"](node);
-        freq.items["delete"](node);
-        if (freq.items.length === 0) {
-            freq.prev.next = freq.next;
-            freq.next.prev = freq.prev;
+        frequencyNode.values["delete"](node);
+        if (frequencyNode.values.length === 0) {
+            frequencyNode.prev.next = frequencyNode.next;
+            frequencyNode.next.prev = frequencyNode.prev;
         }
         this.length--;
 
@@ -172,7 +172,7 @@ LfuSet.prototype["delete"] = function (value, equals) {
 
 LfuSet.prototype.one = function () {
     if (this.length > 0) {
-        return this.frequencyHead.next.items.one().value;
+        return this.frequencyHead.next.values.one().value;
     }
 };
 
@@ -185,15 +185,15 @@ LfuSet.prototype.clear = function () {
 LfuSet.prototype.reduce = function (callback, basis /*, thisp*/) {
     var thisp = arguments[2];
     var index = 0;
-    var freq = this.frequencyHead.next;
+    var frequencyNode = this.frequencyHead.next;
 
-    while (freq.value !== 0) {
-        var set = freq.items;
+    while (frequencyNode.frequency !== 0) {
+        var set = frequencyNode.values;
         basis = set.reduce(function (basis, node) {
             return callback.call(thisp, basis, node.value, index++, this);
         }, basis, this);
 
-        freq = freq.next;
+        frequencyNode = frequencyNode.next;
     }
 
     return basis;
@@ -202,15 +202,15 @@ LfuSet.prototype.reduce = function (callback, basis /*, thisp*/) {
 LfuSet.prototype.reduceRight = function (callback, basis /*, thisp*/) {
     var thisp = arguments[2];
     var index = this.length - 1;
-    var freq = this.frequencyHead.prev;
+    var frequencyNode = this.frequencyHead.prev;
 
-    while (freq.value !== 0) {
-        var set = freq.items;
+    while (frequencyNode.frequency !== 0) {
+        var set = frequencyNode.values;
         basis = set.reduceRight(function (basis, node) {
             return callback.call(thisp, basis, node.value, index--, this);
         }, basis, this);
 
-        freq = freq.prev;
+        frequencyNode = frequencyNode.prev;
     }
 
     return basis;
@@ -224,16 +224,16 @@ LfuSet.prototype.iterate = function () {
 
 LfuSet.prototype.Node = Node;
 
-function Node(value, parent) {
+function Node(value, frequencyNode) {
     this.value = value;
-    this.parent = parent;
+    this.frequencyNode = frequencyNode;
 }
 
 LfuSet.prototype.FrequencyNode = FrequencyNode;
 
-function FrequencyNode(value, prev, next) {
-    this.value = value;
-    this.items = new Set();
+function FrequencyNode(frequency, prev, next) {
+    this.frequency = frequency;
+    this.values = new Set();
     this.prev = prev || this;
     this.next = next || this;
     if (prev) {
