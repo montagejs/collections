@@ -6,8 +6,10 @@
 -   Removes support for `any` and `all`. Use `some(Boolean)` or
     `every(Boolean)`.
 
-## v1.0.3
+## v1.1.0
 
+-   Adds an LfuSet, a set useful as a cache with a least-frequently-used
+    eviction strategy.
 -   Fixes array `set` and `swap` for indexes outside the bounds of the existing
     array, for both observed and unobserved arrays.
 
