@@ -243,3 +243,4 @@ function FrequencyNode(frequency, prev, next) {
         next.prev = this;
     }
 }
+
