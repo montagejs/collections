@@ -112,20 +112,20 @@ function describeSet(Set, sorted) {
     });
 
     it("should compute unions", function () {
-        expect(Set([1, 2, 3]).union([2, 3, 4]).toArray()).toEqual([1, 2, 3, 4]);
+        expect(Set([1, 2, 3]).union([2, 3, 4]).sorted()).toEqual([1, 2, 3, 4]);
         expect(Set([1, 2, 3]).union([2, 3, 4]).equals([1, 2, 3, 4])).toBe(true);
     });
 
     it("should compute intersections", function () {
-        expect(Set([1, 2, 3]).intersection([2, 3, 4]).toArray()).toEqual([2, 3]);
+        expect(Set([1, 2, 3]).intersection([2, 3, 4]).sorted()).toEqual([2, 3]);
     });
 
     it("should compute differences", function () {
-        expect(Set([1, 2, 3]).difference([2, 3, 4]).toArray()).toEqual([1]);
+        expect(Set([1, 2, 3]).difference([2, 3, 4]).sorted()).toEqual([1]);
     });
 
     it("should compute symmetric differences", function () {
-        expect(Set([1, 2, 3]).symmetricDifference([2, 3, 4]).toArray()).toEqual([1, 4]);
+        expect(Set([1, 2, 3]).symmetricDifference([2, 3, 4]).sorted()).toEqual([1, 4]);
     });
 
 }
