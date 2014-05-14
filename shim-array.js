@@ -118,6 +118,20 @@ define("delete", function (value, equals) {
     return false;
 });
 
+define("deleteAll", function (value, equals) {
+    equals = equals || this.contentEquals || Object.equals;
+    var count = 0;
+    for (var index = 0; index < this.length;) {
+        if (equals(value, this[index])) {
+            this.swap(index, 1);
+            count++;
+        } else {
+            index++;
+        }
+    }
+    return count;
+});
+
 define("find", function (value, equals) {
     equals = equals || this.contentEquals || Object.equals;
     for (var index = 0; index < this.length; index++) {

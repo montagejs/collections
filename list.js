@@ -37,7 +37,7 @@ List.prototype.find = function (value, equals, index) {
     var head = this.head;
     var at = this.scan(index, head.next);
     while (at !== head) {
-        if (equals(at.value, value)) {
+        if (equals(value, at.value)) {
             return at;
         }
         at = at.next;
@@ -49,7 +49,7 @@ List.prototype.findLast = function (value, equals, index) {
     var head = this.head;
     var at = this.scan(index, head.prev);
     while (at !== head) {
-        if (equals(at.value, value)) {
+        if (equals(value, at.value)) {
             return at;
         }
         at = at.prev;
@@ -86,6 +86,22 @@ List.prototype['delete'] = function (value, equals) {
         return true;
     }
     return false;
+};
+
+List.prototype.deleteAll = function (value, equals) {
+    equals = equals || this.contentEquals;
+    var head = this.head;
+    var at = head.next;
+    var count = 0;
+    while (at !== head) {
+        if (equals(value, at.value)) {
+            at["delete"]();
+            count++;
+        }
+        at = at.next;
+    }
+    this.length -= count;
+    return count;
 };
 
 List.prototype.clear = function () {
