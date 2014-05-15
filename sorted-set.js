@@ -214,25 +214,29 @@ SortedSet.prototype.findLeast = function (at) {
 SortedSet.prototype.findGreatestLessThanOrEqual = function (value) {
     if (this.root) {
         this.splay(value);
-        // assert root.value <= value
-        return this.root;
+        if (this.contentCompare(this.root.value, value) > 0) {
+            return this.root.getPrevious();
+        } else {
+            return this.root;
+        }
     }
 };
 
 SortedSet.prototype.findGreatestLessThan = function (value) {
     if (this.root) {
         this.splay(value);
-        // assert root.value <= value
-        return this.root.getPrevious();
+        if (this.contentCompare(this.root.value, value) >= 0) {
+            return this.root.getPrevious();
+        } else {
+            return this.root;
+        }
     }
 };
 
 SortedSet.prototype.findLeastGreaterThanOrEqual = function (value) {
     if (this.root) {
         this.splay(value);
-        // assert root.value <= value
-        var comparison = this.contentCompare(value, this.root.value);
-        if (comparison === 0) {
+        if (this.contentCompare(this.root.value, value) >= 0) {
             return this.root;
         } else {
             return this.root.getNext();
@@ -243,9 +247,11 @@ SortedSet.prototype.findLeastGreaterThanOrEqual = function (value) {
 SortedSet.prototype.findLeastGreaterThan = function (value) {
     if (this.root) {
         this.splay(value);
-        // assert root.value <= value
-        var comparison = this.contentCompare(value, this.root.value);
-        return this.root.getNext();
+        if (this.contentCompare(this.root.value, value) <= 0) {
+            return this.root.getNext();
+        } else {
+            return this.root;
+        }
     }
 };
 
@@ -338,8 +344,9 @@ SortedSet.prototype.swap = function (start, length, plus) {
 };
 
 // This is the simplified top-down splaying algorithm from: "Self-adjusting
-// Binary Search Trees" by Sleator and Tarjan guarantees that the root.value <=
-// value if root exists
+// Binary Search Trees" by Sleator and Tarjan. Guarantees that root.value
+// equals value if value exists. If value does not exist, then root will be
+// the node whose value either immediately preceeds or immediately follows value.
 // - as described in https://github.com/hij1nx/forest
 SortedSet.prototype.splay = function (value) {
     var stub, left, right, temp, root, history;
