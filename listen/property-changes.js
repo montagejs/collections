@@ -247,7 +247,7 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
     };
 
     if (!overriddenDescriptor.configurable) {
-        throw new Error("Can't observe non-configurable properties");
+        return;
     }
 
     // memoize the descriptor so we know not to install another layer,
