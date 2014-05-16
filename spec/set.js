@@ -49,6 +49,12 @@ function describeSet(Set, sorted) {
         expect(set.has(object)).toBe(false);
     });
 
+    it("can deleteAll", function () {
+        var set = new Set([0]);
+        expect(set.deleteAll(0)).toBe(1);
+        expect(set.deleteAll(0)).toBe(0);
+    });
+
     if (!sorted) {
         it("can add and delete objects from the same bucket", function () {
             var a = {id: 0}, b = {id: 1};
