@@ -280,7 +280,11 @@ var observableArrayProperties = {
 
     shift: {
         value: function shift() {
-            return this.splice(0, 1)[0];
+            if (this.length) {
+                var result = this[0];
+                this.swap(0, 1);
+                return result;
+            }
         },
         writable: true,
         configurable: true
@@ -289,7 +293,9 @@ var observableArrayProperties = {
     pop: {
         value: function pop() {
             if (this.length) {
-                return this.splice(this.length - 1, 1)[0];
+                var result = this[this.length - 1];
+                this.swap(this.length - 1, 1);
+                return result;
             }
         },
         writable: true,
@@ -297,26 +303,18 @@ var observableArrayProperties = {
     },
 
     push: {
-        value: function push(arg) {
-            if (arguments.length === 1) {
-                return this.splice(this.length, 0, arg);
-            } else {
-                var args = array_slice.call(arguments);
-                return this.swap(this.length, 0, args);
-            }
+        value: function push(value) {
+            this.swap(this.length, 0, arguments);
+            return this.length;
         },
         writable: true,
         configurable: true
     },
 
     unshift: {
-        value: function unshift(arg) {
-            if (arguments.length === 1) {
-                return this.splice(0, 0, arg);
-            } else {
-                var args = array_slice.call(arguments);
-                return this.swap(0, 0, args);
-            }
+        value: function unshift(value) {
+            this.swap(0, 0, arguments);
+            return this.length;
         },
         writable: true,
         configurable: true
@@ -324,7 +322,7 @@ var observableArrayProperties = {
 
     clear: {
         value: function clear() {
-            return this.splice(0, this.length);
+            this.swap(0, this.length);
         },
         writable: true,
         configurable: true
