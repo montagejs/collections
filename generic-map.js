@@ -159,11 +159,6 @@ GenericMap.prototype.entries = function () {
     });
 };
 
-// XXX deprecated
-GenericMap.prototype.items = function () {
-    return this.entries();
-};
-
 GenericMap.prototype.equals = function (that, equals) {
     equals = equals || Object.equals;
     if (this === that) {
