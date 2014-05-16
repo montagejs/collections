@@ -4,6 +4,7 @@ var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
 var ObservableObject = require("./observable-object");
+var Iterator = require("./iterator");
 
 // Burgled from https://github.com/domenic/dict
 
@@ -144,6 +145,28 @@ Dict.prototype.one = function () {
     var key;
     for (key in this.store) {
         return this.store[key];
+    }
+};
+
+Dict.prototype.iterate = function () {
+    return new this.Iterator(new Iterator(this.store));
+};
+
+Dict.prototype.Iterator = DictIterator;
+
+function DictIterator(storeIterator) {
+    this.storeIterator = storeIterator;
+}
+
+DictIterator.prototype.next = function () {
+    var iteration = this.storeIterator.next();
+    if (iteration.done) {
+        return iteration;
+    } else {
+        return new Iterator.Iteration(
+            iteration.value,
+            unmangle(iteration.index)
+        );
     }
 };
 

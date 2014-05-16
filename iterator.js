@@ -24,6 +24,8 @@ function Iterator(iterable, start, stop, step) {
         iterators.set(this, iterable.iterate(start, stop, step));
     } else if (Object.prototype.toString.call(iterable) === "[object Function]") {
         this.next = iterable;
+    } else if (Object.getPrototypeOf(iterable) === Object.prototype) {
+        iterators.set(this, new ObjectIterator(iterable));
     } else {
         throw new TypeError("Can't iterate " + iterable);
     }
@@ -60,8 +62,7 @@ Iterator.prototype.constructClone = function (values) {
 };
 
 // A level of indirection so a full-interface iterator can proxy for a simple
-// nextable iterator, and to allow the child iterator to replace its governing
-// iterator, as with drop-while iterators.
+// nextable iterator.
 Iterator.prototype.next = function () {
     var nextable = iterators.get(this);
     if (nextable) {
@@ -331,6 +332,21 @@ IndexIterator.prototype.next = function () {
     );
     this.start += this.step;
     return iteration;
+};
+
+function ObjectIterator(object) {
+    this.object = object;
+    this.iterator = new Iterator(Object.keys(object));
+}
+
+ObjectIterator.prototype.next = function () {
+    var iteration = this.iterator.next();
+    if (iteration.done) {
+        return iteration;
+    } else {
+        var key = iteration.value;
+        return new Iteration(this.object[key], key);
+    }
 };
 
 Iterator.cycle = function (cycle, times) {

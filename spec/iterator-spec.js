@@ -36,6 +36,11 @@ function describeIterator(Iterator) {
         expect(iterator.next()).toEqual({value: undefined, done: true});
     });
 
+    it("iterates empty object iteration", function () {
+        var iterator = Iterator({});
+        expect(iterator.next()).toEqual({value: undefined, done: true});
+    });
+
     it("iterates an array", function () {
         var iterator = Iterator([1, 2, 3]);
         expectCommonIterator(iterator);
@@ -48,6 +53,15 @@ function describeIterator(Iterator) {
         expect(Object.equals(iterator.next(), {value: 3, index: 4, done: false})).toBe(true);
         expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
         expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+    });
+
+    it("iterates an object", function () {
+        var iterator = Iterator({a: 10, b: 20, c: 30});
+        expect(iterator.next()).toEqual({value: 10, index: "a", done: false});
+        expect(iterator.next()).toEqual({value: 20, index: "b", done: false});
+        expect(iterator.next()).toEqual({value: 30, index: "c", done: false});
+        expect(iterator.next()).toEqual({value: undefined, index: undefined, done: true});
+        expect(iterator.next()).toEqual({value: undefined, index: undefined, done: true});
     });
 
     it("iterates a string", function () {

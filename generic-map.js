@@ -128,7 +128,7 @@ GenericMap.prototype.clear = function () {
 };
 
 GenericMap.prototype.iterate = function () {
-    return new GenericMapIterator(this);
+    return new this.Iterator(this);
 };
 
 GenericMap.prototype.reduce = function (callback, basis, thisp) {
@@ -181,6 +181,7 @@ GenericMap.prototype.equals = function (that, equals) {
 };
 
 GenericMap.prototype.Item = Item;
+GenericMap.prototype.Iterator = GenericMapIterator;
 
 function Item(key, value) {
     this.key = key;
@@ -196,21 +197,20 @@ Item.prototype.compare = function (that) {
 };
 
 function GenericMapIterator(map) {
-    this.map = map;
-    this.iterator = map.store.iterate();
+    this.storeIterator = new Iterator(map.store);
 }
 
 GenericMapIterator.prototype = Object.create(Iterator.prototype);
 GenericMapIterator.prototype.constructor = GenericMapIterator;
 
 GenericMapIterator.prototype.next = function () {
-    var iteration = this.iterator.next();
+    var iteration = this.storeIterator.next();
     if (iteration.done) {
         return iteration;
     } else {
         return new Iterator.Iteration(
-            iteration.value[1],
-            iteration.value[0]
+            iteration.value.value,
+            iteration.value.key
         );
     }
 };

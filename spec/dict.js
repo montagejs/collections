@@ -78,6 +78,25 @@ function describeDict(Dict) {
 
     });
 
+    describe("iterate", function () {
+        it("should iterate a dictionary", function () {
+            var dict = new Dict({a: 10, b: 20, c: 30});
+            var iterator = dict.iterate();
+            expect(iterator.next()).toEqual({value: 10, index: "a", done: false});
+        });
+    });
+
+    describe("some", function () {
+        it("can enumerate the content of a dict", function () {
+            var dict = new Dict({only: 10});
+            expect(dict.some(function (value, key) {
+                expect(key).toBe("only");
+                expect(value).toBe(10);
+                return value === 10;
+            })).toBe(true);
+        });
+    });
+
 }
 
 function shouldHaveTheUsualContent(dict) {
