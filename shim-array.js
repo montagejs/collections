@@ -99,13 +99,11 @@ define("get", function (index, defaultValue) {
 });
 
 define("set", function (index, value) {
-    if (index < this.length) {
-        this.splice(index, 1, value);
-    } else {
-        // Must use swap instead of splice, dispite the unfortunate array
-        // argument, because splice would truncate index to length.
-        this.swap(index, 1, [value]);
-    }
+    // Whether we use splice or swap, we're going to allocate an
+    // unnecessary array. "swap" works in cases where the index
+    // exceeds the length of the array, whereas splice would
+    // truncate.
+    this.swap(index, 1, [value]);
     return this;
 });
 
