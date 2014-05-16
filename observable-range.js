@@ -216,6 +216,7 @@ RangeChangeObserver.prototype.dispatch = function (plus, minus, index) {
     }
 
     this.childObserver = childObserver;
+
     return this;
 };
 

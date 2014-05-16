@@ -366,7 +366,7 @@ Object.equals = function (a, b, equals, memo) {
                 }
             }
             for (var name in b) {
-                if (!(name in a) || !equals(b[name], a[name], equals, memo)) {
+                if (!equals(b[name], a[name], equals, memo)) {
                     return false;
                 }
             }
