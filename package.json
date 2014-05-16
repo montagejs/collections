@@ -40,7 +40,7 @@
     "opener": "^1.3.0"
   },
   "scripts": {
-    "test": "jasminum spec && jasminum-phantom spec",
+    "test": "jasminum spec",
     "cover": "istanbul cover spec/index.js spec && istanbul report html && opener coverage/index.html"
   }
 }
