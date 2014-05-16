@@ -1,6 +1,9 @@
 {
   "name": "collections",
   "version": "2.0.1",
+  "publishConfig": {
+      "tag": "future"
+  },
   "description": "data structures with idiomatic JavaScript collection interfaces",
   "homepage": "http://github.com/montagejs/collections",
   "author": "Kris Kowal <kris@cixar.com> (http://github.com/kriskowal)",
