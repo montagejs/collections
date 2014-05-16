@@ -479,10 +479,13 @@ function makeValuePropertyThunk(name, wrappedDescriptor) {
             // upward in the prototype chain.
             if (this.__state__ === void 0 || this.__state__.__this__ !== this) {
                 initState(this);
-                // Get the initial value from up the prototype chain
-                this.__state__[name] = wrappedDescriptor.value;
             }
             var state = this.__state__;
+
+            if (!(name in state)) {
+                // Get the initial value from up the prototype chain
+                state[name] = wrappedDescriptor.value;
+            }
 
             return state[name];
         },
@@ -494,6 +497,11 @@ function makeValuePropertyThunk(name, wrappedDescriptor) {
                 this.__state__[name] = this[name];
             }
             var state = this.__state__;
+
+            if (!(name in state)) {
+                // Get the initial value from up the prototype chain
+                state[name] = wrappedDescriptor.value;
+            }
 
             if (plus === state[name]) {
                 return plus;
