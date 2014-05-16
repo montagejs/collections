@@ -1,11 +1,11 @@
 
+var sinon = require("sinon");
 var LfuMap = require("../lfu-map");
 var describeDict = require("./dict");
 var describeMap = require("./map");
 
 describe("LfuMap", function () {
 
-    describeDict(LfuMap);
     describeMap(LfuMap);
 
     it("should remove stale entries", function () {
@@ -63,17 +63,17 @@ describe("LfuMap", function () {
 
     it("should dispatch deletion for stale entries", function () {
         var map = LfuMap({a: 10, b: 20, c: 30}, 3);
-        var spy = jasmine.createSpy();
-        map.addBeforeMapChangeListener(function (value, key) {
-            spy('before', key, value);
+        var spy = sinon.spy();
+        map.observeMapWillChange(function (plus, minus, key) {
+            spy('before', key, minus);
         });
-        map.addMapChangeListener(function (value, key) {
-            spy('after', key, value);
+        map.observeMapChange(function (plus, minus, key) {
+            spy('after', key, plus);
         });
         map.set('d', 40);
-        expect(spy.argsForCall).toEqual([
+        expect(spy.args).toEqual([
             ['before', 'd', undefined], // d will be added
-            ['before', 'a', undefined], // then a is pruned (stale)
+            ['before', 'a', 10],        // then a is pruned (stale)
             ['after', 'a', undefined],  // afterwards a is still pruned
             ['after', 'd', 40]          // and now d has a value
         ]);

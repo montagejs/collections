@@ -3,98 +3,102 @@
 module.exports = describeDict;
 function describeDict(Dict) {
 
-    it("should be constructable from entry duples", function () {
-        var dict = Dict([['a', 10], ['b', 20]]);
-        shouldHaveTheUsualContent(dict);
-    });
+    describe("as Dict", function () {
 
-    it("should be constructable from objects", function () {
-        var dict = Dict({a: 10, b: 20});
-        shouldHaveTheUsualContent(dict);
-    });
-
-    it("should be constructable from dicts", function () {
-        var dict = Dict(Dict({a: 10, b: 20}));
-        shouldHaveTheUsualContent(dict);
-    });
-
-    describe("delete", function () {
-        it("should be able to delete keys", function () {
-            var dict = Dict({a: 10, b: 20, c: 30});
-            expect(dict.delete('c')).toBe(true);
-            expect(dict.delete('c')).toBe(false);
+        it("should be constructable from entry duples", function () {
+            var dict = Dict([['a', 10], ['b', 20]]);
             shouldHaveTheUsualContent(dict);
         });
-    });
 
-    it("should be able to contain hasOwnProperty", function () {
-        var dict = Dict();
-        expect(dict.set("hasOwnProperty", 10)).toBe(true);
-        expect(dict.get("hasOwnProperty")).toBe(10);
-        expect(dict.delete("hasOwnProperty")).toBe(true);
-        expect(dict.length).toBe(0);
-        expect(dict.delete("hasOwnProperty")).toBe(false);
-    });
+        it("should be constructable from objects", function () {
+            var dict = Dict({a: 10, b: 20});
+            shouldHaveTheUsualContent(dict);
+        });
 
-    it("should be able to contain __proto__", function () {
-        var dict = Dict();
-        expect(dict.set("__proto__", 10)).toBe(true);
-        expect(dict.get("__proto__")).toBe(10);
-        expect(dict.delete("__proto__")).toBe(true);
-        expect(dict.length).toBe(0);
-        expect(dict.delete("__proto__")).toBe(false);
-    });
+        it("should be constructable from dicts", function () {
+            var dict = Dict(Dict({a: 10, b: 20}));
+            shouldHaveTheUsualContent(dict);
+        });
 
-    describe("getDefault", function () {
+        describe("delete", function () {
+            it("should be able to delete keys", function () {
+                var dict = Dict({a: 10, b: 20, c: 30});
+                expect(dict.delete('c')).toBe(true);
+                expect(dict.delete('c')).toBe(false);
+                shouldHaveTheUsualContent(dict);
+            });
+        });
 
-        it("can be overridden on the prototype", function () {
+        it("should be able to contain hasOwnProperty", function () {
+            var dict = Dict();
+            expect(dict.set("hasOwnProperty", 10)).toBe(true);
+            expect(dict.get("hasOwnProperty")).toBe(10);
+            expect(dict.delete("hasOwnProperty")).toBe(true);
+            expect(dict.length).toBe(0);
+            expect(dict.delete("hasOwnProperty")).toBe(false);
+        });
 
-            var called = false;
+        it("should be able to contain __proto__", function () {
+            var dict = Dict();
+            expect(dict.set("__proto__", 10)).toBe(true);
+            expect(dict.get("__proto__")).toBe(10);
+            expect(dict.delete("__proto__")).toBe(true);
+            expect(dict.length).toBe(0);
+            expect(dict.delete("__proto__")).toBe(false);
+        });
 
-            function Memo() {
-                Dict.call(this);
-            }
+        describe("getDefault", function () {
 
-            Memo.prototype = Object.create(Dict.prototype);
-            Memo.prototype.constructor = Memo;
+            it("can be overridden on the prototype", function () {
 
-            Memo.prototype.getDefault = function (key) {
-                called = true;
-                this.set(key, key + "!");
-                return this.get(key);
-            };
+                var called = false;
 
-            var memo = new Memo();
+                function Memo() {
+                    Dict.call(this);
+                }
 
-            called = false;
-            expect(memo.get("hi")).toBe("hi!");
-            expect(called).toBe(true);
+                Memo.prototype = Object.create(Dict.prototype);
+                Memo.prototype.constructor = Memo;
 
-            called = false;
-            expect(memo.get("hi")).toBe("hi!");
-            expect(called).toBe(false);
+                Memo.prototype.getDefault = function (key) {
+                    called = true;
+                    this.set(key, key + "!");
+                    return this.get(key);
+                };
+
+                var memo = new Memo();
+
+                called = false;
+                expect(memo.get("hi")).toBe("hi!");
+                expect(called).toBe(true);
+
+                called = false;
+                expect(memo.get("hi")).toBe("hi!");
+                expect(called).toBe(false);
+
+            });
 
         });
 
-    });
-
-    describe("iterate", function () {
-        it("should iterate a dictionary", function () {
-            var dict = new Dict({a: 10, b: 20, c: 30});
-            var iterator = dict.iterate();
-            expect(iterator.next()).toEqual({value: 10, index: "a", done: false});
+        describe("iterate", function () {
+            it("should iterate a dictionary", function () {
+                var dict = new Dict({a: 10, b: 20, c: 30});
+                var iterator = dict.iterate();
+                expect(iterator.next()).toEqual({value: 10, index: "a", done: false});
+            });
         });
-    });
 
-    describe("some", function () {
-        it("can enumerate the content of a dict", function () {
-            var dict = new Dict({only: 10});
-            expect(dict.some(function (value, key) {
-                expect(key).toBe("only");
-                expect(value).toBe(10);
-                return value === 10;
-            })).toBe(true);
+        describe("some", function () {
+            it("can enumerate the content of a dict", function () {
+                var dict = new Dict({only: 10});
+                expect(dict.some(function (value, key) {
+                    expect(key).toBe("only");
+                    expect(value).toBe(10);
+                    return value === 10;
+                })).toBe(true);
+            });
         });
+
     });
 
 }

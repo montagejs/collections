@@ -6,8 +6,8 @@ var Shim = require("./shim");
 var Set = require("./set");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
-var PropertyChanges = require("./listen/property-changes");
-var RangeChanges = require("./listen/range-changes");
+var ObservableRange = require("./observable-range");
+var ObservableObject = require("./observable-object");
 
 module.exports = LfuSet;
 
@@ -44,8 +44,8 @@ LfuSet.LfuSet = LfuSet; // hack so require("lfu-set").LfuSet will work in Montag
 
 Object.addEach(LfuSet.prototype, GenericCollection.prototype);
 Object.addEach(LfuSet.prototype, GenericSet.prototype);
-Object.addEach(LfuSet.prototype, PropertyChanges.prototype);
-Object.addEach(LfuSet.prototype, RangeChanges.prototype);
+Object.addEach(LfuSet.prototype, ObservableRange.prototype);
+Object.addEach(LfuSet.prototype, ObservableObject.prototype);
 
 LfuSet.prototype.constructClone = function (values) {
     return new this.constructor(
@@ -105,7 +105,7 @@ LfuSet.prototype.add = function (value) {
             minus.push(leastFrequent.value);
         }
         if (this.dispatchesRangeChanges) {
-            this.dispatchBeforeRangeChange(plus, minus, 0);
+            this.dispatchRangeWillChange(plus, minus, 0);
         }
 
         // removal must happen before addition, otherwise we could remove
@@ -150,7 +150,7 @@ LfuSet.prototype["delete"] = function (value, equals) {
     var found = !!node;
     if (found) {
         if (this.dispatchesRangeChanges) {
-            this.dispatchBeforeRangeChange([], [value], 0);
+            this.dispatchRangeWillChange([], [value], 0);
         }
         var frequencyNode = node.frequencyNode;
 

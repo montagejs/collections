@@ -4,7 +4,7 @@ var Shim = require("./shim");
 var LfuSet = require("./lfu-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
-var PropertyChanges = require("./listen/property-changes");
+var ObservableObject = require("./observable-object");
 
 module.exports = LfuMap;
 
@@ -14,7 +14,7 @@ function LfuMap(values, maxLength, equals, hash, getDefault) {
     }
     equals = equals || Object.equals;
     hash = hash || Object.hash;
-    getDefault = getDefault || Function.noop;
+    getDefault = getDefault || this.getDefault;
     this.contentEquals = equals;
     this.contentHash = hash;
     this.getDefault = getDefault;
@@ -36,7 +36,7 @@ LfuMap.LfuMap = LfuMap; // hack so require("lfu-map").LfuMap will work in Montag
 
 Object.addEach(LfuMap.prototype, GenericCollection.prototype);
 Object.addEach(LfuMap.prototype, GenericMap.prototype);
-Object.addEach(LfuMap.prototype, PropertyChanges.prototype);
+Object.addEach(LfuMap.prototype, ObservableObject.prototype);
 
 LfuMap.prototype.constructClone = function (values) {
     return new this.constructor(
@@ -57,23 +57,26 @@ LfuMap.prototype.stringify = function (item, leader) {
     return leader + JSON.stringify(item.key) + ": " + JSON.stringify(item.value);
 };
 
-LfuMap.prototype.addMapChangeListener = function () {
+LfuMap.prototype.observeMapChange = function () {
     if (!this.dispatchesMapChanges) {
-        // Detect LFU deletions in the LfuSet and emit as MapChanges.
+        // Detect LRU deletions in the LfuSet and emit as MapChanges.
         // Array and Heap have no store.
         // Dict and FastMap define no listeners on their store.
-        var self = this;
-        this.store.addBeforeRangeChangeListener(function(plus, minus) {
-            if (plus.length && minus.length) {  // LFU item pruned
-                self.dispatchBeforeMapChange(minus[0].key, undefined);
-            }
-        });
-        this.store.addRangeChangeListener(function(plus, minus) {
-            if (plus.length && minus.length) {
-                self.dispatchMapChange(minus[0].key, undefined);
-            }
-        });
+        this.store.observeRangeWillChange(this, "store");
+        this.store.observeRangeChange(this, "store");
     }
-    GenericMap.prototype.addMapChangeListener.apply(this, arguments);
+    return GenericMap.prototype.observeMapChange.apply(this, arguments);
+};
+
+LfuMap.prototype.handleStoreRangeWillChange = function (plus, minus, index) {
+    if (plus.length && minus.length) {  // LRU item pruned
+        this.dispatchMapWillChange("delete", minus[0].key, undefined, minus[0].value);
+    }
+};
+
+LfuMap.prototype.handleStoreRangeChange = function (plus, minus, index) {
+    if (plus.length && minus.length) {
+        this.dispatchMapChange("delete", minus[0].key, undefined, minus[0].value);
+    }
 };
 
