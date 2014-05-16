@@ -14,7 +14,7 @@ describe("LfuSet", function () {
     [LfuSet, newLfuSet].forEach(function (LfuSet) {
         describeCollection(LfuSet, [1, 2, 3, 4], true);
         describeCollection(LfuSet, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
-        //describeSet(LfuSet);
+        describeSet(LfuSet);
     });
 
     it("should handle many repeated values", function () {
