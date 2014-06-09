@@ -1332,3 +1332,4 @@ More possible collections
   the previous version's internal state, some perhaps backed by a hash
   trie)
 
+[![Analytics](https://ga-beacon.appspot.com/UA-51771141-2/collections/readme)](https://github.com/igrigorik/ga-beacon)
