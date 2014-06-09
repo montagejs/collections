@@ -1721,3 +1721,4 @@ More possible collections
 - array-set (a set, for fast lookup, backed by an array for meaningful
   range changes)
 
+[![Analytics](https://ga-beacon.appspot.com/UA-51771141-2/collections/readme)](https://github.com/igrigorik/ga-beacon)
