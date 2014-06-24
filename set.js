@@ -89,17 +89,17 @@ Set.prototype.add = function (value) {
     return false;
 };
 
-Set.prototype["delete"] = function (value, equals) {
+Set.prototype.delete = function (value, equals) {
     if (equals) {
         throw new Error("Set#delete does not support second argument: equals");
     }
     var node = new this.order.Node(value);
     if (this.store.has(node)) {
-        var node = this.store.get(node);
+        node = this.store.get(node);
         if (this.dispatchesRangeChanges) {
             this.dispatchBeforeRangeChange([], [value], node.index);
         }
-        this.store["delete"](node); // removes from the set
+        this.store.delete(node); // removes from the set
         this.order.splice(node, 1); // removes the node from the list
         this.length--;
         if (this.dispatchesRangeChanges) {
@@ -113,7 +113,7 @@ Set.prototype["delete"] = function (value, equals) {
 Set.prototype.pop = function () {
     if (this.length) {
         var result = this.order.head.prev.value;
-        this["delete"](result);
+        this.delete(result);
         return result;
     }
 };
@@ -121,7 +121,7 @@ Set.prototype.pop = function () {
 Set.prototype.shift = function () {
     if (this.length) {
         var result = this.order.head.next.value;
-        this["delete"](result);
+        this.delete(result);
         return result;
     }
 };

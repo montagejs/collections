@@ -49,7 +49,7 @@ describe("Set", function () {
         var set = Set([1, 2, 3]);
         var spy = jasmine.createSpy();
         set.addRangeChangeListener(spy);
-        set["delete"](2);
+        set.delete(2);
         expect(set.toArray()).toEqual([1, 3]);
         expect(spy).toHaveBeenCalledWith([], [2], 1, set, undefined);
     });
