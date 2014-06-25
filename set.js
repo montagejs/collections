@@ -95,7 +95,7 @@ Set.prototype["delete"] = function (value, equals) {
     }
     var node = new this.order.Node(value);
     if (this.store.has(node)) {
-        var node = this.store.get(node);
+        node = this.store.get(node);
         if (this.dispatchesRangeChanges) {
             this.dispatchBeforeRangeChange([], [value], node.index);
         }
