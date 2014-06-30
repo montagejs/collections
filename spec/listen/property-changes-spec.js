@@ -168,5 +168,69 @@ describe("PropertyChanges", function () {
         expect(listener2.handleFooChange).toHaveBeenCalled();
     });
 
+    it("calls later handlers if multiple earlier ones remove themselves", function () {
+        var object = {
+            foo: true
+        };
+        var listener3 = {
+            handleFooChange: function (value, key, object) {
+                PropertyChanges.removeOwnPropertyChangeListener(object, key, listener1);
+                PropertyChanges.removeOwnPropertyChangeListener(object, key, listener3);
+            }
+        };
+        var listener1 = jasmine.createSpyObj("listener1", ["handleFooChange"]);
+        var listener2 = jasmine.createSpyObj("listener2", ["handleFooChange"]);
+        var listener4 = jasmine.createSpyObj("listener4", ["handleFooChange"]);
+
+        PropertyChanges.addOwnPropertyChangeListener(object, "foo", listener1);
+        PropertyChanges.addOwnPropertyChangeListener(object, "foo", listener2);
+        PropertyChanges.addOwnPropertyChangeListener(object, "foo", listener3);
+        PropertyChanges.addOwnPropertyChangeListener(object, "foo", listener4);
+
+        object.foo = false;
+        expect(listener1.handleFooChange).toHaveBeenCalled();
+        expect(listener2.handleFooChange).toHaveBeenCalled();
+        expect(listener4.handleFooChange).toHaveBeenCalled();
+    });
+
+    it("doesn't call any handlers if all the listeners are removed during dispatch", function () {
+        var object = {
+            foo: true
+        };
+        var listener1 = {
+            handleFooChange: function (value, key, object) {
+                PropertyChanges.removeOwnPropertyChangeListener(object, key, listener1);
+                PropertyChanges.removeOwnPropertyChangeListener(object, key, listener2);
+            }
+        };
+        var listener2 = jasmine.createSpyObj("listener2", ["handleFooChange"]);
+
+        PropertyChanges.addOwnPropertyChangeListener(object, "foo", listener1);
+        PropertyChanges.addOwnPropertyChangeListener(object, "foo", listener2);
+
+        object.foo = false;
+        expect(listener2.handleFooChange).not.toHaveBeenCalled();
+    });
+
+    it("doesn't call new handlers if listeners are added during dispatch", function () {
+        var object = {
+            foo: true
+        };
+        var listener1 = {
+            handleFooChange: function (value, key, object) {
+                PropertyChanges.removeOwnPropertyChangeListener(object, key, listener1);
+                PropertyChanges.addOwnPropertyChangeListener(object, "foo", listener3);
+            }
+        };
+        var listener2 = jasmine.createSpyObj("listener2", ["handleFooChange"]);
+        var listener3 = jasmine.createSpyObj("listener3", ["handleFooChange"]);
+
+        PropertyChanges.addOwnPropertyChangeListener(object, "foo", listener1);
+        PropertyChanges.addOwnPropertyChangeListener(object, "foo", listener2);
+
+        object.foo = false;
+        expect(listener2.handleFooChange).toHaveBeenCalled();
+        expect(listener3.handleFooChange).not.toHaveBeenCalled();
+    });
 });
 
