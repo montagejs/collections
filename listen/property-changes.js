@@ -153,29 +153,33 @@ PropertyChanges.prototype.dispatchOwnPropertyChange = function (key, value, befo
         listeners = descriptor.changeListeners;
     }
 
-    var changeName = (beforeChange ? "Will" : "") + "Change";
-    var genericHandlerName = "handleProperty" + changeName;
-    var propertyName = String(key);
-    propertyName = propertyName && propertyName[0].toUpperCase() + propertyName.slice(1);
-    var specificHandlerName = "handle" + propertyName + changeName;
-
     try {
-        // dispatch to each listener
-        listeners.slice().forEach(function (listener) {
-            if (listeners.indexOf(listener) < 0) {
-                return;
-            }
-            var thisp = listener;
-            listener = (
-                listener[specificHandlerName] ||
-                listener[genericHandlerName] ||
-                listener
-            );
-            if (!listener.call) {
-                throw new Error("No event listener for " + specificHandlerName + " or " + genericHandlerName + " or call on " + listener);
-            }
-            listener.call(thisp, value, key, this);
-        }, this);
+		if(listeners && listeners.length > 0) {
+
+		    var changeName = (beforeChange ? "Will" : "") + "Change";
+		    var genericHandlerName = "handleProperty" + changeName;
+		    var propertyName = String(key);
+		    propertyName = propertyName && propertyName[0].toUpperCase() + propertyName.slice(1);
+		    var specificHandlerName = "handle" + propertyName + changeName;
+	
+	        // dispatch to each listener
+			var i = 0, countI, listener, listenerHandler;
+			while ((countI = listeners.length) && i<countI) {
+				listener = listeners[i];
+				listenerHandler = (
+	                listener[specificHandlerName] ||
+	                listener[genericHandlerName] ||
+	                listener
+	            );
+	            if (!listenerHandler.call) {
+	                throw new Error("No event listener for " + specificHandlerName + " or " + genericHandlerName + " or call on " + listener);
+	            }
+	            listenerHandler.call(listener, value, key, this);
+				//This is to handle the case where the listener removes himself when informed, in that case, the array is smaller and the next listner is at the same index
+				i = (listeners.length === countI) ? i+1 : i;
+			};
+
+		}
     } finally {
         descriptor.isActive = false;
     }
