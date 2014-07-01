@@ -373,10 +373,10 @@ describe("Array change dispatch", function () {
         // mute all listeners
 
         var descriptor = array.getOwnPropertyChangeDescriptor('length');
-        descriptor.willChangeListeners.forEach(function (listener) {
+        descriptor.willChangeListeners.current.forEach(function (listener) {
             array.removeBeforeOwnPropertyChangeListener('length', listener);
         });
-        descriptor.changeListeners.forEach(function (listener) {
+        descriptor.changeListeners.current.forEach(function (listener) {
             array.removeOwnPropertyChangeListener('length', listener);
         });
 

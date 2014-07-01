@@ -13,22 +13,22 @@
 */
 
 require("../shim");
-var WeakMap = require("weak-map");
 
 var object_owns = Object.prototype.hasOwnProperty;
 
-/*
-    Object property descriptors carry information necessary for adding,
-    removing, dispatching, and shorting events to listeners for property changes
-    for a particular key on a particular object.  These descriptors are used
-    here for shallow property changes.
-
-    {
-        willChangeListeners:Array(Function)
-        changeListeners:Array(Function)
-    }
-*/
-var propertyChangeDescriptors = new WeakMap();
+// Object property descriptors carry information necessary for adding,
+// removing, dispatching, and shorting events to listeners for property changes
+// for a particular key on a particular object.  These descriptors are used
+// here for shallow property changes.  The current listeners are the ones
+// modified by add and remove own property change listener methods.  During
+// property change dispatch, we capture a snapshot of the current listeners in
+// the active change listeners array.  The descriptor also keeps a memo of the
+// corresponding handler method names.
+//
+// {
+//     willChangeListeners:{current, active:Array<Function>, ...method names}
+//     changeListeners:{current, active:Array<Function>, ...method names}
+// }
 
 // Maybe remove entries from this table if the corresponding object no longer
 // has any property change listeners for any key.  However, the cost of
@@ -37,23 +37,20 @@ var propertyChangeDescriptors = new WeakMap();
 // of or reused as an observable.  The only benefit would be in avoiding bulk
 // calls to dispatchOwnPropertyChange events on objects that have no listeners.
 
-/*
-    To observe shallow property changes for a particular key of a particular
-    object, we install a property descriptor on the object that overrides the previous
-    descriptor.  The overridden descriptors are stored in this weak map.  The
-    weak map associates an object with another object that maps property names
-    to property descriptors.
-
-    overriddenObjectDescriptors.get(object)[key]
-
-    We retain the old descriptor for various purposes.  For one, if the property
-    is no longer being observed by anyone, we revert the property descriptor to
-    the original.  For "value" descriptors, we store the actual value of the
-    descriptor on the overridden descriptor, so when the property is reverted, it
-    retains the most recently set value.  For "get" and "set" descriptors,
-    we observe then forward "get" and "set" operations to the original descriptor.
-*/
-var overriddenObjectDescriptors = new WeakMap();
+//  To observe shallow property changes for a particular key of a particular
+//  object, we install a property descriptor on the object that overrides the previous
+//  descriptor.  The overridden descriptors are stored in this weak map.  The
+//  weak map associates an object with another object that maps property names
+//  to property descriptors.
+//
+//  object.__overriddenPropertyDescriptors__[key]
+//
+//  We retain the old descriptor for various purposes.  For one, if the property
+//  is no longer being observed by anyone, we revert the property descriptor to
+//  the original.  For "value" descriptors, we store the actual value of the
+//  descriptor on the overridden descriptor, so when the property is reverted, it
+//  retains the most recently set value.  For "get" and "set" descriptors,
+//  we observe then forward "get" and "set" operations to the original descriptor.
 
 module.exports = PropertyChanges;
 
@@ -64,27 +61,44 @@ function PropertyChanges() {
 PropertyChanges.debug = true;
 
 PropertyChanges.prototype.getOwnPropertyChangeDescriptor = function (key) {
-    if (!propertyChangeDescriptors.has(this)) {
-        propertyChangeDescriptors.set(this, {});
+    if (!this.__propertyChangeListeners__) {
+        Object.defineProperty(this, "__propertyChangeListeners__", {
+            value: {},
+            enumerable: false,
+            configurable: true,
+            writable: true
+        });
     }
-    var objectPropertyChangeDescriptors = propertyChangeDescriptors.get(this);
+    var objectPropertyChangeDescriptors = this.__propertyChangeListeners__;
     if (!object_owns.call(objectPropertyChangeDescriptors, key)) {
+        var propertyName = String(key);
+        propertyName = propertyName && propertyName[0].toUpperCase() + propertyName.slice(1);
         objectPropertyChangeDescriptors[key] = {
-            willChangeListeners: [],
-            changeListeners: []
+            willChangeListeners: {
+                current: [],
+                active: [],
+                specificHandlerMethodName: "handle" + propertyName + "WillChange",
+                genericHandlerMethodName: "handlePropertyWillChange"
+            },
+            changeListeners: {
+                current: [],
+                active: [],
+                specificHandlerMethodName: "handle" + propertyName + "Change",
+                genericHandlerMethodName: "handlePropertyChange"
+            }
         };
     }
     return objectPropertyChangeDescriptors[key];
 };
 
 PropertyChanges.prototype.hasOwnPropertyChangeDescriptor = function (key) {
-    if (!propertyChangeDescriptors.has(this)) {
+    if (!this.__propertyChangeListeners__) {
         return false;
     }
     if (!key) {
         return true;
     }
-    var objectPropertyChangeDescriptors = propertyChangeDescriptors.get(this);
+    var objectPropertyChangeDescriptors = this.__propertyChangeListeners__;
     if (!object_owns.call(objectPropertyChangeDescriptors, key)) {
         return false;
     }
@@ -104,11 +118,11 @@ PropertyChanges.prototype.addOwnPropertyChangeListener = function (key, listener
         listeners = descriptor.changeListeners;
     }
     PropertyChanges.makePropertyObservable(this, key);
-    listeners.push(listener);
+    listeners.current.push(listener);
 
     var self = this;
     return function cancelOwnPropertyChangeListener() {
-        PropertyChanges.removeOwnPropertyChangeListener(self, key, listeners, beforeChange);
+        PropertyChanges.removeOwnPropertyChangeListener(self, key, listener, beforeChange);
         self = null;
     };
 };
@@ -127,11 +141,11 @@ PropertyChanges.prototype.removeOwnPropertyChangeListener = function (key, liste
         listeners = descriptor.changeListeners;
     }
 
-    var index = listeners.lastIndexOf(listener);
+    var index = listeners.current.lastIndexOf(listener);
     if (index === -1) {
         throw new Error("Can't remove property change listener: does not exist: property name" + JSON.stringify(key));
     }
-    listeners.splice(index, 1);
+    listeners.current.splice(index, 1);
 };
 
 PropertyChanges.prototype.removeBeforeOwnPropertyChangeListener = function (key, listener) {
@@ -153,33 +167,40 @@ PropertyChanges.prototype.dispatchOwnPropertyChange = function (key, value, befo
         listeners = descriptor.changeListeners;
     }
 
-    var changeName = (beforeChange ? "Will" : "") + "Change";
-    var genericHandlerName = "handleProperty" + changeName;
-    var propertyName = String(key);
-    propertyName = propertyName && propertyName[0].toUpperCase() + propertyName.slice(1);
-    var specificHandlerName = "handle" + propertyName + changeName;
-
     try {
         // dispatch to each listener
-        listeners.slice().forEach(function (listener) {
-            if (listeners.indexOf(listener) < 0) {
-                return;
-            }
-            var thisp = listener;
-            listener = (
-                listener[specificHandlerName] ||
-                listener[genericHandlerName] ||
-                listener
-            );
-            if (!listener.call) {
-                throw new Error("No event listener for " + specificHandlerName + " or " + genericHandlerName + " or call on " + listener);
-            }
-            listener.call(thisp, value, key, this);
-        }, this);
+        dispatchEach.call(this, listeners, key, value);
     } finally {
         descriptor.isActive = false;
     }
 };
+
+// Factored out of parent to avoid try/catch deoptimization
+function dispatchEach(listeners, key, value) {
+    // copy snapshot of current listeners to active listeners
+    var active = listeners.active;
+    var current = listeners.current;
+    var index = active.length = current.length;
+    while (index--) {
+        active[index] = current[index];
+    }
+    for (var index = 0, length = active.length; index < length; index++) {
+        var listener = active[index];
+        if (current.indexOf(listener) < 0) {
+            return;
+        }
+        var thisp = listener;
+        listener = (
+            listener[listeners.specificHandlerMethodName] ||
+            listener[listeners.genericHandlerMethodName] ||
+            listener
+        );
+        if (!listener.call) {
+            throw new Error("No event listener for " + listeners.specificHandlerName + " or " + listeners.genericHandlerName + " or call on " + listener);
+        }
+        listener.call(thisp, value, key, this);
+    }
+}
 
 PropertyChanges.prototype.dispatchBeforeOwnPropertyChange = function (key, listener) {
     return PropertyChanges.dispatchOwnPropertyChange(this, key, listener, true);
@@ -214,11 +235,16 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
     state[key] = this[key];
 
     // memoize overridden property descriptor table
-    if (!overriddenObjectDescriptors.has(this)) {
+    if (!this.__overriddenPropertyDescriptors__) {
         overriddenPropertyDescriptors = {};
-        overriddenObjectDescriptors.set(this, overriddenPropertyDescriptors);
+        Object.defineProperty(this, "__overriddenPropertyDescriptors__", {
+            value: {},
+            enumerable: false,
+            writable: true,
+            configurable: true
+        });
     }
-    var overriddenPropertyDescriptors = overriddenObjectDescriptors.get(this);
+    var overriddenPropertyDescriptors = this.__overriddenPropertyDescriptors__;
 
     if (object_owns.call(overriddenPropertyDescriptors, key)) {
         // if we have already recorded an overridden property descriptor,
@@ -333,45 +359,6 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
     Object.defineProperty(this, key, propertyListener);
 };
 
-PropertyChanges.prototype.makePropertyUnobservable = function (key) {
-    // arrays are special.  we do not support direct setting of properties
-    // on an array.  instead, call .set(index, value).  this is observable.
-    // 'length' property is observable for all mutating methods because
-    // our overrides explicitly dispatch that change.
-    if (Array.isArray(this)) {
-        return;
-    }
-
-    if (!overriddenObjectDescriptors.has(this)) {
-        throw new Error("Can't uninstall observer on property");
-    }
-    var overriddenPropertyDescriptors = overriddenObjectDescriptors.get(this);
-
-    if (!overriddenPropertyDescriptors[key]) {
-        throw new Error("Can't uninstall observer on property");
-    }
-
-    var overriddenDescriptor = overriddenPropertyDescriptors[key];
-    delete overriddenPropertyDescriptors[key];
-
-    var state;
-    if (typeof this.__state__ === "object") {
-        state = this.__state__;
-    } else {
-        state = {};
-        if (Object.isExtensible(this, "__state__")) {
-            Object.defineProperty(this, "__state__", {
-                value: state,
-                writable: true,
-                enumerable: false
-            });
-        }
-    }
-    delete state[key];
-
-    Object.defineProperty(this, key, overriddenDescriptor);
-};
-
 // constructor functions
 
 PropertyChanges.getOwnPropertyChangeDescriptor = function (object, key) {
@@ -434,14 +421,6 @@ PropertyChanges.makePropertyObservable = function (object, key) {
         return object.makePropertyObservable(key);
     } else {
         return PropertyChanges.prototype.makePropertyObservable.call(object, key);
-    }
-};
-
-PropertyChanges.makePropertyUnobservable = function (object, key) {
-    if (object.makePropertyUnobservable) {
-        return object.makePropertyUnobservable(key);
-    } else {
-        return PropertyChanges.prototype.makePropertyUnobservable.call(object, key);
     }
 };
 
