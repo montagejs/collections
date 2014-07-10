@@ -38,6 +38,8 @@ Object.addEach(SortedArrayMap.prototype, GenericCollection.prototype);
 Object.addEach(SortedArrayMap.prototype, GenericMap.prototype);
 Object.addEach(SortedArrayMap.prototype, PropertyChanges.prototype);
 
+SortedArrayMap.prototype.isSorted = true;
+
 SortedArrayMap.prototype.constructClone = function (values) {
     return new this.constructor(
         values,
