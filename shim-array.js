@@ -121,7 +121,7 @@ define("delete", function (value, equals) {
 define("find", function (value, equals) {
     equals = equals || this.contentEquals || Object.equals;
     for (var index = 0; index < this.length; index++) {
-        if (index in this && equals(this[index], value)) {
+        if (index in this && equals(value, this[index])) {
             return index;
         }
     }
