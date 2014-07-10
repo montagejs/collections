@@ -31,7 +31,7 @@
     "weak-map": "1.0.0"
   },
   "devDependencies": {
-    "jasmine-node": "*",
+    "jasmine-node": ">=1.13.1 <1.14.0",
     "istanbul": "*",
     "opener": "*"
   },
