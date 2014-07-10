@@ -9,7 +9,7 @@ function MultiMap(values, bucket, equals, hash) {
     }
     this.bucket = bucket || this.bucket;
     Map.call(this, values, equals, hash, function getDefault(key) {
-        var bucket = this.bucket();
+        var bucket = this.bucket(key);
         Map.prototype.set.call(this, key, bucket);
         return bucket;
     });
