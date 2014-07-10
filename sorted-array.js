@@ -159,14 +159,17 @@ SortedArray.prototype["delete"] = function (value, equals) {
 };
 
 SortedArray.prototype.indexOf = function (value) {
+    // TODO throw error if provided a start index
     return searchFirst(this.array, value, this.contentCompare, this.contentEquals);
 };
 
 SortedArray.prototype.lastIndexOf = function (value) {
+    // TODO throw error if provided a start index
     return searchLast(this.array, value, this.contentCompare, this.contentEquals);
 };
 
 SortedArray.prototype.find = function (value, equals, index) {
+    // TODO throw error if provided a start index
     if (equals) {
         throw new Error("SortedArray#find does not support second argument: equals");
     }

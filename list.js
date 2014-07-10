@@ -69,7 +69,7 @@ List.prototype.get = function (value, equals) {
 };
 
 // LIFO (delete removes the most recently added equivalent value)
-List.prototype['delete'] = function (value, equals) {
+List.prototype["delete"] = function (value, equals) {
     var found = this.findLast(value, equals);
     if (found) {
         if (this.dispatchesRangeChanges) {
@@ -77,7 +77,7 @@ List.prototype['delete'] = function (value, equals) {
             var minus = [value];
             this.dispatchBeforeRangeChange(plus, minus, found.index);
         }
-        found['delete']();
+        found["delete"]();
         this.length--;
         if (this.dispatchesRangeChanges) {
             this.updateIndexes(found.next, found.index);
@@ -420,7 +420,7 @@ function Node(value) {
     this.next = null;
 };
 
-Node.prototype['delete'] = function () {
+Node.prototype["delete"] = function () {
     this.prev.next = this.next;
     this.next.prev = this.prev;
 };

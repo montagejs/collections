@@ -39,6 +39,7 @@ Heap.prototype.constructClone = function (values) {
     );
 };
 
+// TODO variadic
 Heap.prototype.push = function (value) {
     this.content.push(value);
     this.float(this.content.length - 1);
@@ -236,3 +237,4 @@ Heap.prototype.handleContentMapChange = function (value, key) {
 Heap.prototype.handleContentMapWillChange = function (value, key) {
     this.dispatchBeforeMapChange(key, value);
 };
+

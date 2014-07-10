@@ -25,3 +25,4 @@ Documentation can be found at http://collectionsjs.com which in turn can be
 updated at https://github.com/montagejs/collectionsjs.com.
 
 [![Analytics](https://ga-beacon.appspot.com/UA-51771141-2/collections/readme)](https://github.com/igrigorik/ga-beacon)
+
