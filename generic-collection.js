@@ -201,8 +201,13 @@ GenericCollection.prototype.zip = function () {
 
 GenericCollection.prototype.join = function (delimiter) {
     return this.reduce(function (result, string) {
-        return result + delimiter + string;
-    });
+        // work-around for reduce that does not support no-basis form
+        if (result === void 0) {
+            return string;
+        } else {
+            return result + delimiter + string;
+        }
+    }, void 0);
 };
 
 GenericCollection.prototype.sorted = function (compare, by, order) {
