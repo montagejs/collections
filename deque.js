@@ -3,7 +3,6 @@
 require("./shim-object");
 var GenericCollection = require("./generic-collection");
 var GenericOrder = require("./generic-order");
-var GenericOrder = require("./generic-order");
 var RangeChanges = require("./listen/range-changes");
 
 // by Petka Antonov
