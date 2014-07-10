@@ -22,7 +22,10 @@ function Dict(values, getDefault) {
 Dict.Dict = Dict; // hack so require("dict").Dict will work in MontageJS.
 
 function mangle(key) {
-    return "~" + key;
+    // Use "$" as the mangle prefix so dictionaries of valid identifiers can
+    // take advantage of optimizations for objects containing only valid
+    // identifiers. I have not verified that this makes a difference.
+    return "$" + key;
 }
 
 function unmangle(mangled) {
@@ -34,7 +37,7 @@ Object.addEach(Dict.prototype, GenericMap.prototype);
 Object.addEach(Dict.prototype, PropertyChanges.prototype);
 
 Dict.prototype.constructClone = function (values) {
-    return new this.constructor(values, this.mangle, this.getDefault);
+    return new this.constructor(values, this.getDefault);
 };
 
 Dict.prototype.assertString = function (key) {
