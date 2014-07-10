@@ -195,7 +195,7 @@ Object.addEach = function (target, source) {
     if (!source) {
     } else if (typeof source.forEach === "function" && !source.hasOwnProperty("forEach")) {
         // copy map-alikes
-        if (typeof source.keys === "function") {
+        if (source.isMap === true) {
             source.forEach(function (value, key) {
                 target[key] = value;
             });
@@ -204,6 +204,11 @@ Object.addEach = function (target, source) {
             source.forEach(function (pair) {
                 target[pair[0]] = pair[1];
             });
+        }
+    } else if (typeof source.length === "number") {
+        // arguments, strings
+        for (var index = 0; index < source.length; index++) {
+            target[index] = source[index];
         }
     } else {
         // copy other objects as map-alikes

@@ -30,11 +30,22 @@ GenericMap.prototype.addEach = function (values) {
                     this.set(pair[0], pair[1]);
                 }, this);
             }
+        } else if (typeof values.length === "number") {
+            // Array-like objects that do not implement forEach, ergo,
+            // Arguments
+            for (var i = 0; i < values.length; i++) {
+                this.add(values[i], i);
+            }
         } else {
             // copy other objects as map-alikes
             Object.keys(values).forEach(function (key) {
                 this.set(key, values[key]);
             }, this);
+        }
+    } else if (values && typeof values.length === "number") {
+        // String
+        for (var i = 0; i < values.length; i++) {
+            this.add(values[i], i);
         }
     }
     return this;

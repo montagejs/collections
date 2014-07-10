@@ -20,6 +20,11 @@ GenericCollection.prototype.addEach = function (values) {
                 this.add(values[key], key);
             }, this);
         }
+    } else if (values && typeof values.length === "number") {
+        // Strings
+        for (var i = 0; i < values.length; i++) {
+            this.add(values[i], i);
+        }
     }
     return this;
 };
