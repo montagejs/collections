@@ -246,10 +246,10 @@ function describeRangeChanges(Collection) {
         // mute all listeners
 
         var descriptor = collection.getOwnPropertyChangeDescriptor('length');
-        descriptor.willChangeListeners.forEach(function (listener) {
+        descriptor.willChangeListeners.current.forEach(function (listener) {
             collection.removeBeforeOwnPropertyChangeListener('length', listener);
         });
-        descriptor.changeListeners.forEach(function (listener) {
+        descriptor.changeListeners.current.forEach(function (listener) {
             collection.removeOwnPropertyChangeListener('length', listener);
         });
 
