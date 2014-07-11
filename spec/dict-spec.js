@@ -1,9 +1,11 @@
 
 var Dict = require("../dict");
 var describeDict = require("./dict");
+var describeToJson = require("./to-json");
 
 describe("Dict", function () {
     describeDict(Dict);
+    describeToJson(Dict, {a: 1, b: 2, c: 3});
 
     it("should throw errors for non-string keys", function () {
         var dict = Dict();

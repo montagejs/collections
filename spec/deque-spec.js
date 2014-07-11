@@ -2,6 +2,7 @@
 var Deque = require("../deque");
 var describeDeque = require("./deque");
 var describeOrder = require("./order");
+var describeToJson = require("./to-json");
 
 describe("Deque", function () {
 
@@ -114,6 +115,7 @@ describe("Deque", function () {
 
     describeDeque(Deque);
     describeOrder(Deque);
+    describeToJson(Deque, [1, 2, 3, 4]);
 
 });
 

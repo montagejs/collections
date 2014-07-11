@@ -41,6 +41,10 @@ GenericSet.prototype.equals = function (that, equals) {
     );
 };
 
+GenericSet.prototype.toJSON = function () {
+    return this.toArray();
+};
+
 // W3C DOMTokenList API overlap (does not handle variadic arguments)
 
 GenericSet.prototype.contains = function (value) {

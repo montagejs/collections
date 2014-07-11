@@ -6,6 +6,7 @@ var TreeLog = require("../tree-log");
 
 var describeCollection = require("./collection");
 var describeSet = require("./set");
+var describeToJson = require("./to-json");
 
 describe("Set", function () {
     // new Set()
@@ -38,6 +39,7 @@ describe("Set", function () {
         describeCollection(Set, [1, 2, 3, 4], true);
         describeCollection(Set, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
         describeSet(Set);
+        describeToJson(Set, [1, 2, 3, 4]);
     });
 
     it("can use hash delegate methods", function () {

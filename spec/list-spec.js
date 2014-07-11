@@ -3,6 +3,7 @@ var List = require("../list");
 var describeDeque = require("./deque");
 var describeCollection = require("./collection");
 var describeRangeChanges = require("./listen/range-changes");
+var describeToJson = require("./to-json");
 
 describe("List", function () {
     // new List()
@@ -206,6 +207,7 @@ describe("List", function () {
     });
 
     describeRangeChanges(List);
+    describeToJson(List, [1, 2, 3, 4]);
 
 });
 

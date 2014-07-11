@@ -180,6 +180,10 @@ GenericMap.prototype.equals = function (that, equals) {
     }
 };
 
+GenericMap.prototype.toJSON = function () {
+    return this.entries();
+};
+
 GenericMap.prototype.Item = Item;
 
 function Item(key, value) {

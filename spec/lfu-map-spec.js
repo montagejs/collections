@@ -2,11 +2,13 @@
 var LfuMap = require("../lfu-map");
 var describeDict = require("./dict");
 var describeMap = require("./map");
+var describeToJson = require("./to-json");
 
 describe("LfuMap", function () {
 
     describeDict(LfuMap);
     describeMap(LfuMap);
+    describeToJson(LfuMap, [[{a: 1}, 10], [{b: 2}, 20], [{c: 3}, 30]]);
 
     it("should remove stale entries", function () {
         var map = LfuMap({a: 10, b: 20, c: 30}, 3);

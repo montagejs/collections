@@ -3,6 +3,7 @@ var SortedArray = require("../sorted-array");
 var describeCollection = require("./collection");
 var describeDeque = require("./deque");
 var describeOrder = require("./order");
+var describeToJson = require("./to-json");
 
 describe("SortedArray", function () {
 
@@ -16,6 +17,7 @@ describe("SortedArray", function () {
         describeDeque(SortedArray);
         describeCollection(SortedArray, [1, 2, 3, 4]);
         describeOrder(SortedArray);
+        describeToJson(SortedArray, [1, 2, 3, 4]);
     });
 
     describe("non-uniqueness", function () {

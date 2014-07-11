@@ -143,3 +143,6 @@ Dict.prototype.one = function () {
     }
 };
 
+Dict.prototype.toJSON = function () {
+    return this.toObject();
+};
