@@ -286,5 +286,13 @@ describe("Array", function () {
 
    });
 
+    describe("deleteAll", function () {
+        it("should delete a range of equivalent values", function () {
+            var array = [1, 1, 1, 2, 2, 2, 3, 3, 3];
+            expect(array.deleteAll(2)).toBe(3);
+            expect(array).toEqual([1, 1, 1, 3, 3, 3]);
+        });
+    });
+
 });
 

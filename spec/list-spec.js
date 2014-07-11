@@ -206,6 +206,20 @@ describe("List", function () {
 
     });
 
+    describe("deleteAll", function () {
+        it("deletes all equivalent values", function () {
+            var anyEven = {
+                equals: function (that) {
+                    return that % 2 === 0;
+                }
+            };
+            var collection = List([1, 2, 3, 4, 5]);
+            expect(collection.deleteAll(anyEven)).toBe(2);
+            expect(collection.toArray()).toEqual([1, 3, 5]);
+            expect(collection.length).toBe(3);
+        });
+    });
+
     describeRangeChanges(List);
     describeToJson(List, [1, 2, 3, 4]);
 

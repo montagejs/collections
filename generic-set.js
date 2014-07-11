@@ -30,6 +30,13 @@ GenericSet.prototype.symmetricDifference = function (that) {
     return union.difference(intersection);
 };
 
+GenericSet.prototype.deleteAll = function (value) {
+    // deleteAll is equivalent to delete for sets since they guarantee that
+    // only one value exists for an equivalence class, but deleteAll returns
+    // the count of deleted values instead of whether a value was deleted.
+    return +this["delete"](value);
+};
+
 GenericSet.prototype.equals = function (that, equals) {
     var self = this;
     return (

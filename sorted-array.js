@@ -158,6 +158,34 @@ SortedArray.prototype["delete"] = function (value, equals) {
     }
 };
 
+SortedArray.prototype.deleteAll = function (value, equals) {
+    if (equals) {
+        var count = this.array.deleteAll(value, equals);
+        this.length -= count;
+        return count;
+    } else {
+        var start = searchFirst(this.array, value, this.contentCompare, this.contentEquals);
+        if (start !== -1) {
+            var end = start;
+            while (this.contentEquals(value, this.array[end])) {
+                end++;
+            }
+            var minus = this.slice(start, end);
+            if (this.dispatchesRangeChanges) {
+                this.dispatchBeforeRangeChange([], minus, start);
+            }
+            this.array.splice(start, minus.length);
+            this.length -= minus.length;
+            if (this.dispatchesRangeChanges) {
+                this.dispatchRangeChange([], minus, start);
+            }
+            return minus.length;
+        } else {
+            return 0;
+        }
+    }
+};
+
 SortedArray.prototype.indexOf = function (value) {
     // TODO throw error if provided a start index
     return searchFirst(this.array, value, this.contentCompare, this.contentEquals);
@@ -176,6 +204,7 @@ SortedArray.prototype.find = function (value, equals, index) {
     if (index) {
         throw new Error("SortedArray#find does not support third argument: index");
     }
+    // TODO support initial partition index
     return searchFirst(this.array, value, this.contentCompare, this.contentEquals);
 };
 
@@ -186,6 +215,7 @@ SortedArray.prototype.findLast = function (value, equals, index) {
     if (index) {
         throw new Error("SortedArray#findLast does not support third argument: index");
     }
+    // TODO support initial partition index
     return searchLast(this.array, value, this.contentCompare, this.contentEquals);
 };
 
