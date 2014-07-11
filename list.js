@@ -37,7 +37,7 @@ List.prototype.find = function (value, equals, index) {
     var head = this.head;
     var at = this.scan(index, head.next);
     while (at !== head) {
-        if (equals(value, at.value)) {
+        if (equals(at.value, value)) {
             return at;
         }
         at = at.next;
@@ -49,7 +49,7 @@ List.prototype.findLast = function (value, equals, index) {
     var head = this.head;
     var at = this.scan(index, head.prev);
     while (at !== head) {
-        if (equals(value, at.value)) {
+        if (equals(at.value, value)) {
             return at;
         }
         at = at.prev;
