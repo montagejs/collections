@@ -1,4 +1,23 @@
 
+## v1.2.0
+
+-   Trevor Dixon fixed bugs in SortedSet find methods.
+-   Adds toJSON method to all collections.
+-   Adds deleteAll to some collections.
+-   Eliminate some extra work in change listener registration and dispatch by
+    using namespaced properties instead of a weak map, precomputing event
+    handler method names, and reusing an array to capture a snapshot of active
+    change listeners during dispatch.
+-   Fix SortedArrayMap isSorted flag.
+-   Fix Array find such that the sought value may be a wild card.
+-   MultiMap provides the key to the bucket maker
+-   Improve support for strings, maps, and arguments across implementations of
+    addEach
+-   Fix a bug in the generic join method
+-   Dict uses $ in mangled names instead of ~, so names are more frequently
+    valid identifiers. May have a performance win.
+-   Ignore property changes in non-configurable objects.
+
 ## v1.1.0
 
 -   Adds an LfuSet, a set useful as a cache with a least-frequently-used
