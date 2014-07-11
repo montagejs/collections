@@ -1,9 +1,11 @@
 
 var SortedMap = require("../sorted-map");
 var describeDict = require("./dict");
+var describeToJson = require("./to-json");
 
 describe("SortedMap", function () {
     describeDict(SortedMap);
+    describeToJson(SortedMap, [[1, 10], [2, 20], [3, 30]]);
 
     describe("reduceRight", function () {
         var map = SortedMap([

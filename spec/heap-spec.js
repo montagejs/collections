@@ -1,8 +1,11 @@
 
 var Heap = require("../heap");
 var permute = require("./permute");
+var describeToJson = require("./to-json");
 
 describe("Heap", function () {
+
+    describeToJson(Heap, [4, 3, 2, 1]);
 
     describe("always tracks the max value", function () {
 

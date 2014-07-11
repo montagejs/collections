@@ -1,6 +1,7 @@
 var LfuSet = require("../lfu-set");
 var describeCollection = require("./collection");
 var describeSet = require("./set");
+var describeToJson = require("./to-json");
 
 describe("LfuSet", function () {
 
@@ -13,6 +14,7 @@ describe("LfuSet", function () {
         describeCollection(LfuSet, [1, 2, 3, 4], true);
         describeCollection(LfuSet, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
         describeSet(LfuSet);
+        describeToJson(LfuSet, [1, 2, 3, 4]);
     });
 
     it("should handle many repeated values", function () {

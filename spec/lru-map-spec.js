@@ -2,11 +2,13 @@
 var LruMap = require("../lru-map");
 var describeDict = require("./dict");
 var describeMap = require("./map");
+var describeToJson = require("./to-json");
 
 describe("LruMap", function () {
 
     describeDict(LruMap);
     describeMap(LruMap);
+    describeToJson(LruMap, [[{a: 1}, 10], [{b: 2}, 20], [{c: 3}, 30]]);
 
     it("should remove stale entries", function () {
         var map = LruMap({a: 10, b: 20, c: 30}, 3);

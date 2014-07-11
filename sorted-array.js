@@ -295,4 +295,8 @@ SortedArray.prototype.iterate = function (start, end) {
     return new this.Iterator(this.array, start, end);
 };
 
+SortedArray.prototype.toJSON = function () {
+    return this.toArray();
+};
+
 SortedArray.prototype.Iterator = Array.prototype.Iterator;

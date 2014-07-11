@@ -214,6 +214,10 @@ Heap.prototype.reduceRight = function (callback, basis /*, thisp*/) {
     }, basis, this);
 };
 
+Heap.prototype.toJSON = function () {
+    return this.toArray();
+};
+
 Heap.prototype.makeObservable = function () {
     // TODO refactor dispatchers to allow direct forwarding
     this.content.addRangeChangeListener(this, "content");

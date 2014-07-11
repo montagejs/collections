@@ -53,3 +53,6 @@ GenericOrder.prototype.compare = function (that, compare) {
     return comparison;
 };
 
+GenericOrder.prototype.toJSON = function () {
+    return this.toArray();
+};
