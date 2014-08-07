@@ -208,6 +208,7 @@ var observableArrayProperties = {
         configurable: true
     },
 
+	//TODO: Naming conflict with montage/core/range-controller:splice
     splice: {
         value: function splice(start, length) {
             // start parameter should be min(start, this.length)
@@ -227,7 +228,14 @@ var observableArrayProperties = {
 
     set: {
         value: function set(index, value) {
-            this.swap(index, index >= this.length ? 0 : 1, [value]);
+            
+			/* TODO: this function should use a swap. It uses a splice for now in order to prevent a bug in the Popcorn demo.
+			 * Currently, this.splice() does not call the splice method in this file, but calls montage/core/range-controller:splice instead.
+			 * See GitHub issues (https://github.com/montagejs/collections/issues/91) for more details. */
+			
+			//this.swap(index, index >= this.length ? 0 : 1, [value]);
+			
+			this.splice(index, 1, value);
             return true;
         },
         writable: true,
