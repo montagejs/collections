@@ -1,7 +1,6 @@
 /*global -WeakMap*/
 "use strict";
 
-require("./shim-array");
 var WeakMap = require("weak-map");
 
 var changeObserversByObject = new WeakMap();

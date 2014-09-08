@@ -1,10 +1,12 @@
 "use strict";
 
-var Shim = require("./shim");
 var LfuSet = require("./lfu-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
 var ObservableObject = require("./observable-object");
+var equalsOperator = require("./operators/equals");
+var hashOperator = require("./operators/hash");
+var addEach = require("./operators/add-each");
 
 module.exports = LfuMap;
 
@@ -12,8 +14,8 @@ function LfuMap(values, maxLength, equals, hash, getDefault) {
     if (!(this instanceof LfuMap)) {
         return new LfuMap(values, maxLength, equals, hash, getDefault);
     }
-    equals = equals || Object.equals;
-    hash = hash || Object.hash;
+    equals = equals || equalsOperator;
+    hash = hash || hashOperator;
     getDefault = getDefault || this.getDefault;
     this.contentEquals = equals;
     this.contentHash = hash;
@@ -34,9 +36,9 @@ function LfuMap(values, maxLength, equals, hash, getDefault) {
 
 LfuMap.LfuMap = LfuMap; // hack so require("lfu-map").LfuMap will work in MontageJS
 
-Object.addEach(LfuMap.prototype, GenericCollection.prototype);
-Object.addEach(LfuMap.prototype, GenericMap.prototype);
-Object.addEach(LfuMap.prototype, ObservableObject.prototype);
+addEach(LfuMap.prototype, GenericCollection.prototype);
+addEach(LfuMap.prototype, GenericMap.prototype);
+addEach(LfuMap.prototype, ObservableObject.prototype);
 
 LfuMap.prototype.constructClone = function (values) {
     return new this.constructor(

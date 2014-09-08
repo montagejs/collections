@@ -1,12 +1,15 @@
 "use strict";
 
-var Shim = require("./shim");
 var List = require("./list");
 var FastSet = require("./fast-set");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
 var ObservableObject = require("./observable-object");
 var ObservableRange = require("./observable-range");
+var equalsOperator = require("./operators/equals");
+var hashOperator = require("./operators/hash");
+var noop = require("./operators/noop");
+var addEach = require("./operators/add-each");
 
 module.exports = Set;
 
@@ -14,9 +17,9 @@ function Set(values, equals, hash, getDefault) {
     if (!(this instanceof Set)) {
         return new Set(values, equals, hash, getDefault);
     }
-    equals = equals || Object.equals;
-    hash = hash || Object.hash;
-    getDefault = getDefault || Function.noop;
+    equals = equals || equalsOperator;
+    hash = hash || hashOperator;
+    getDefault = getDefault || noop;
     this.contentEquals = equals;
     this.contentHash = hash;
     this.getDefault = getDefault;
@@ -40,10 +43,10 @@ function Set(values, equals, hash, getDefault) {
 
 Set.Set = Set; // hack so require("set").Set will work in MontageJS
 
-Object.addEach(Set.prototype, GenericCollection.prototype);
-Object.addEach(Set.prototype, GenericSet.prototype);
-Object.addEach(Set.prototype, ObservableObject.prototype);
-Object.addEach(Set.prototype, ObservableRange.prototype);
+addEach(Set.prototype, GenericCollection.prototype);
+addEach(Set.prototype, GenericSet.prototype);
+addEach(Set.prototype, ObservableObject.prototype);
+addEach(Set.prototype, ObservableRange.prototype);
 
 Set.prototype.Order = List;
 Set.prototype.Store = FastSet;

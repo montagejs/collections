@@ -1,9 +1,9 @@
 "use strict";
 
-var Shim = require("./shim");
 var SortedArray = require("./sorted-array");
 var GenericSet = require("./generic-set");
 var ObservableObject = require("./observable-object");
+var addEach = require("./operators/add-each");
 
 module.exports = SortedArraySet;
 
@@ -21,8 +21,8 @@ SortedArraySet.prototype = Object.create(SortedArray.prototype);
 
 SortedArraySet.prototype.constructor = SortedArraySet;
 
-Object.addEach(SortedArraySet.prototype, GenericSet.prototype);
-Object.addEach(SortedArraySet.prototype, ObservableObject.prototype);
+addEach(SortedArraySet.prototype, GenericSet.prototype);
+addEach(SortedArraySet.prototype, ObservableObject.prototype);
 
 SortedArraySet.prototype.isSorted = true;
 

@@ -1,17 +1,19 @@
 "use strict";
 
-var Object = require("./shim-object");
 var ObservableMap = require("./observable-map");
 var ObservableObject = require("./observable-object");
 var Iterator = require("./iterator");
+var equalsOperator = require("./operators/equals");
+var compareOperator = require("./operators/compare");
+var addEach = require("./operators/add-each");
 
 module.exports = GenericMap;
 function GenericMap() {
     throw new Error("Can't construct. GenericMap is a mixin.");
 }
 
-Object.addEach(GenericMap.prototype, ObservableMap.prototype);
-Object.addEach(GenericMap.prototype, ObservableObject.prototype);
+addEach(GenericMap.prototype, ObservableMap.prototype);
+addEach(GenericMap.prototype, ObservableObject.prototype);
 
 // all of these methods depend on the constructor providing a `store` set
 
@@ -160,7 +162,7 @@ GenericMap.prototype.entries = function () {
 };
 
 GenericMap.prototype.equals = function (that, equals) {
-    equals = equals || Object.equals;
+    equals = equals || equalsOperator;
     if (this === that) {
         return true;
     } else if (that && typeof that.every === "function") {
@@ -184,11 +186,11 @@ function Item(key, value) {
 }
 
 Item.prototype.equals = function (that) {
-    return Object.equals(this.key, that.key) && Object.equals(this.value, that.value);
+    return equalsOperator(this.key, that.key) && equalsOperator(this.value, that.value);
 };
 
 Item.prototype.compare = function (that) {
-    return Object.compare(this.key, that.key);
+    return compareOperator(this.key, that.key);
 };
 
 function GenericMapIterator(map) {

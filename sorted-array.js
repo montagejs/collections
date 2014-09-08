@@ -2,11 +2,14 @@
 
 module.exports = SortedArray;
 
-var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
 var ObservableObject = require("./observable-object");
 var ObservableRange = require("./observable-range");
 var Iterator = require("./iterator");
+var equalsOperator = require("./operators/equals");
+var compareOperator = require("./operators/compare");
+var noop = require("./operators/noop");
+var addEach = require("./operators/add-each");
 
 function SortedArray(values, equals, compare, getDefault) {
     if (!(this instanceof SortedArray)) {
@@ -18,9 +21,9 @@ function SortedArray(values, equals, compare, getDefault) {
     } else {
         this.array = [];
     }
-    this.contentEquals = equals || Object.equals;
-    this.contentCompare = compare || Object.compare;
-    this.getDefault = getDefault || Function.noop;
+    this.contentEquals = equals || equalsOperator;
+    this.contentCompare = compare || compareOperator;
+    this.getDefault = getDefault || noop;
 
     this.length = 0;
     this.addEach(values);
@@ -29,9 +32,9 @@ function SortedArray(values, equals, compare, getDefault) {
 // hack so require("sorted-array").SortedArray will work in MontageJS
 SortedArray.SortedArray = SortedArray;
 
-Object.addEach(SortedArray.prototype, GenericCollection.prototype);
-Object.addEach(SortedArray.prototype, ObservableObject.prototype);
-Object.addEach(SortedArray.prototype, ObservableRange.prototype);
+addEach(SortedArray.prototype, GenericCollection.prototype);
+addEach(SortedArray.prototype, ObservableObject.prototype);
+addEach(SortedArray.prototype, ObservableRange.prototype);
 
 SortedArray.prototype.isSorted = true;
 

@@ -7,11 +7,11 @@
     https://github.com/motorola-mobility/montage/blob/master/LICENSE.md
 */
 
-var Function = require("./shim-function");
 var GenericCollection = require("./generic-collection");
 var GenericOrder = require("./generic-order");
 var Iterator = require("./iterator");
 var WeakMap = require("weak-map");
+var swap = require("./operators/swap");
 
 module.exports = Array;
 
@@ -24,34 +24,38 @@ if (Object.freeze) {
     Object.freeze(Array.empty);
 }
 
-Array.from = function (values) {
-    var array = [];
-    array.addEach(values);
-    return array;
-};
+if (!Array.from) {
+    Array.from = function (values) {
+        var array = [];
+        array.addEach(values);
+        return array;
+    };
+}
 
-Array.unzip = function (table) {
-    var transpose = [];
-    var length = Infinity;
-    // compute shortest row
-    for (var i = 0; i < table.length; i++) {
-        var row = table[i];
-        table[i] = row.toArray();
-        if (row.length < length) {
-            length = row.length;
-        }
-    }
-    for (var i = 0; i < table.length; i++) {
-        var row = table[i];
-        for (var j = 0; j < row.length; j++) {
-            if (j < length && j in row) {
-                transpose[j] = transpose[j] || [];
-                transpose[j][i] = row[j];
+if (!Array.unzip) {
+    Array.unzip = function (table) {
+        var transpose = [];
+        var length = Infinity;
+        // compute shortest row
+        for (var i = 0; i < table.length; i++) {
+            var row = table[i];
+            table[i] = row.toArray();
+            if (row.length < length) {
+                length = row.length;
             }
         }
-    }
-    return transpose;
-};
+        for (var i = 0; i < table.length; i++) {
+            var row = table[i];
+            for (var j = 0; j < row.length; j++) {
+                if (j < length && j in row) {
+                    transpose[j] = transpose[j] || [];
+                    transpose[j][i] = row[j];
+                }
+            }
+        }
+        return transpose;
+    };
+}
 
 function define(key, value) {
     Object.defineProperty(Array.prototype, key, {
@@ -103,6 +107,7 @@ define("set", function (index, value) {
     // unnecessary array. "swap" works in cases where the index
     // exceeds the length of the array, whereas splice would
     // truncate.
+    // The swap implementation is overridden by observable arrays.
     this.swap(index, 1, [value]);
     return this;
 });
@@ -144,100 +149,7 @@ define("findLastValue", function (value, equals) {
 });
 
 define("swap", function (start, minusLength, plus) {
-    // Unrolled implementation into JavaScript for a couple reasons.
-    // Calling splice can cause large stack sizes for large swaps. Also,
-    // splice cannot handle array holes.
-    if (plus) {
-        if (!Array.isArray(plus)) {
-            plus = array_slice.call(plus);
-        }
-    } else {
-        plus = Array.empty;
-    }
-
-    if (start < 0) {
-        start = this.length + start;
-    } else if (start > this.length) {
-        this.length = start;
-    }
-
-    if (start + minusLength > this.length) {
-        // Truncate minus length if it extends beyond the length
-        minusLength = this.length - start;
-    } else if (minusLength < 0) {
-        // It is the JavaScript way.
-        minusLength = 0;
-    }
-
-    var diff = plus.length - minusLength;
-    var oldLength = this.length;
-    var newLength = this.length + diff;
-
-    if (diff > 0) {
-        // Head Tail Plus Minus
-        // H H H H M M T T T T
-        // H H H H P P P P T T T T
-        //         ^ start
-        //         ^-^ minus.length
-        //           ^ --> diff
-        //         ^-----^ plus.length
-        //             ^------^ tail before
-        //                 ^------^ tail after
-        //                   ^ start iteration
-        //                       ^ start iteration offset
-        //             ^ end iteration
-        //                 ^ end iteration offset
-        //             ^ start + minus.length
-        //                     ^ length
-        //                   ^ length - 1
-        for (var index = oldLength - 1; index >= start + minusLength; index--) {
-            var offset = index + diff;
-            if (index in this) {
-                this[offset] = this[index];
-            } else {
-                // Oddly, PhantomJS complains about deleting array
-                // properties, unless you assign undefined first.
-                this[offset] = void 0;
-                delete this[offset];
-            }
-        }
-    }
-    for (var index = 0; index < plus.length; index++) {
-        if (index in plus) {
-            this[start + index] = plus[index];
-        } else {
-            this[start + index] = void 0;
-            delete this[start + index];
-        }
-    }
-    if (diff < 0) {
-        // Head Tail Plus Minus
-        // H H H H M M M M T T T T
-        // H H H H P P T T T T
-        //         ^ start
-        //         ^-----^ length
-        //         ^-^ plus.length
-        //             ^ start iteration
-        //                 ^ offset start iteration
-        //                     ^ end
-        //                         ^ offset end
-        //             ^ start + minus.length - plus.length
-        //             ^ start - diff
-        //                 ^------^ tail before
-        //             ^------^ tail after
-        //                     ^ length - diff
-        //                     ^ newLength
-        for (var index = start + plus.length; index < oldLength - diff; index++) {
-            var offset = index - diff;
-            if (offset in this) {
-                this[index] = this[offset];
-            } else {
-                this[index] = void 0;
-                delete this[index];
-            }
-        }
-    }
-    this.length = newLength;
+    return swap(this, start, minusLength, plus);
 });
 
 define("peek", function () {

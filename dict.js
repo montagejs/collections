@@ -1,10 +1,10 @@
 "use strict";
 
-var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
 var ObservableObject = require("./observable-object");
 var Iterator = require("./iterator");
+var addEach = require("./operators/add-each");
 
 // Burgled from https://github.com/domenic/dict
 
@@ -30,9 +30,9 @@ function unmangle(mangled) {
     return mangled.slice(1);
 }
 
-Object.addEach(Dict.prototype, GenericCollection.prototype);
-Object.addEach(Dict.prototype, GenericMap.prototype);
-Object.addEach(Dict.prototype, ObservableObject.prototype);
+addEach(Dict.prototype, GenericCollection.prototype);
+addEach(Dict.prototype, GenericMap.prototype);
+addEach(Dict.prototype, ObservableObject.prototype);
 
 Dict.prototype.isDict = true;
 

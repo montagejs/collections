@@ -13,7 +13,7 @@
  * necessary for any collection with observable content.
  */
 
-require("./shim");
+require("./shim-array");
 var WeakMap = require("weak-map");
 
 var observedLengthForObject = new WeakMap();
@@ -22,7 +22,7 @@ var ObservableObject = require("./observable-object");
 var ObservableRange = require("./observable-range");
 var ObservableMap = require("./observable-map");
 
-var array_swap = Array.prototype.swap;
+var array_swap = require("./operators/swap");
 var array_splice = Array.prototype.splice;
 var array_slice = Array.prototype.slice;
 var array_reverse = Array.prototype.reverse;
@@ -173,7 +173,7 @@ var observableArrayProperties = {
             }
 
             // actual work
-            array_swap.call(this, start, minusLength, plus);
+            array_swap(this, start, minusLength, plus);
 
             // dispatch after change events
             if (diff === 0) { // substring replacement

@@ -1,12 +1,15 @@
 "use strict";
 
-var Shim = require("./shim");
 var Dict = require("./dict");
 var List = require("./list");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
 var TreeLog = require("./tree-log");
 var ObservableObject = require("./observable-object");
+var noop = require("./operators/noop");
+var hashOperator = require("./operators/hash");
+var equalsOperator = require("./operators/equals");
+var addEach = require("./operators/add-each");
 
 var object_has = Object.prototype.hasOwnProperty;
 
@@ -16,9 +19,9 @@ function FastSet(values, equals, hash, getDefault) {
     if (!(this instanceof FastSet)) {
         return new FastSet(values, equals, hash, getDefault);
     }
-    equals = equals || Object.equals;
-    hash = hash || Object.hash;
-    getDefault = getDefault || Function.noop;
+    equals = equals || equalsOperator;
+    hash = hash || hashOperator;
+    getDefault = getDefault || noop;
     this.contentEquals = equals;
     this.contentHash = hash;
     this.getDefault = getDefault;
@@ -29,9 +32,9 @@ function FastSet(values, equals, hash, getDefault) {
 
 FastSet.FastSet = FastSet; // hack so require("fast-set").FastSet will work in MontageJS
 
-Object.addEach(FastSet.prototype, GenericCollection.prototype);
-Object.addEach(FastSet.prototype, GenericSet.prototype);
-Object.addEach(FastSet.prototype, ObservableObject.prototype);
+addEach(FastSet.prototype, GenericCollection.prototype);
+addEach(FastSet.prototype, GenericSet.prototype);
+addEach(FastSet.prototype, ObservableObject.prototype);
 
 FastSet.prototype.Buckets = Dict;
 FastSet.prototype.Bucket = List;

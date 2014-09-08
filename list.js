@@ -2,12 +2,14 @@
 
 module.exports = List;
 
-var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
 var GenericOrder = require("./generic-order");
 var ObservableObject = require("./observable-object");
 var ObservableRange = require("./observable-range");
 var Iterator = require("./iterator");
+var equalsOperator = require("./operators/equals");
+var noop = require("./operators/noop");
+var addEach = require("./operators/add-each");
 
 function List(values, equals, getDefault) {
     if (!(this instanceof List)) {
@@ -16,18 +18,18 @@ function List(values, equals, getDefault) {
     var head = this.head = new this.Node();
     head.next = head;
     head.prev = head;
-    this.contentEquals = equals || Object.equals;
-    this.getDefault = getDefault || Function.noop;
+    this.contentEquals = equals || equalsOperator;
+    this.getDefault = getDefault || noop;
     this.length = 0;
     this.addEach(values);
 }
 
 List.List = List; // hack so require("list").List will work in MontageJS
 
-Object.addEach(List.prototype, GenericCollection.prototype);
-Object.addEach(List.prototype, GenericOrder.prototype);
-Object.addEach(List.prototype, ObservableObject.prototype);
-Object.addEach(List.prototype, ObservableRange.prototype);
+addEach(List.prototype, GenericCollection.prototype);
+addEach(List.prototype, GenericOrder.prototype);
+addEach(List.prototype, ObservableObject.prototype);
+addEach(List.prototype, ObservableRange.prototype);
 
 List.prototype.constructClone = function (values) {
     return new this.constructor(values, this.contentEquals, this.getDefault);

@@ -1,10 +1,12 @@
 "use strict";
 
-var Shim = require("./shim");
 var Set = require("./set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
 var ObservableObject = require("./observable-object");
+var equalsOperator = require("./operators/equals");
+var hashOperator = require("./operators/hash");
+var addEach = require("./operators/add-each");
 
 module.exports = Map;
 
@@ -12,8 +14,8 @@ function Map(values, equals, hash, getDefault) {
     if (!(this instanceof Map)) {
         return new Map(values, equals, hash, getDefault);
     }
-    equals = equals || Object.equals;
-    hash = hash || Object.hash;
+    equals = equals || equalsOperator;
+    hash = hash || hashOperator;
     getDefault = getDefault || this.getDefault;
     this.contentEquals = equals;
     this.contentHash = hash;
@@ -33,9 +35,9 @@ function Map(values, equals, hash, getDefault) {
 
 Map.Map = Map; // hack so require("map").Map will work in MontageJS
 
-Object.addEach(Map.prototype, GenericCollection.prototype);
-Object.addEach(Map.prototype, GenericMap.prototype); // overrides GenericCollection
-Object.addEach(Map.prototype, ObservableObject.prototype);
+addEach(Map.prototype, GenericCollection.prototype);
+addEach(Map.prototype, GenericMap.prototype); // overrides GenericCollection
+addEach(Map.prototype, ObservableObject.prototype);
 
 Map.prototype.constructClone = function (values) {
     return new this.constructor(

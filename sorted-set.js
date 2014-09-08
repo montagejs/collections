@@ -2,20 +2,22 @@
 
 module.exports = SortedSet;
 
-var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
 var ObservableObject = require("./observable-object");
 var ObservableRange = require("./observable-range");
 var Iterator = require("./iterator");
 var TreeLog = require("./tree-log");
+var equalsOperator = require("./operators/equals");
+var compareOperator = require("./operators/compare");
+var addEach = require("./operators/add-each");
 
 function SortedSet(values, equals, compare, getDefault) {
     if (!(this instanceof SortedSet)) {
         return new SortedSet(values, equals, compare, getDefault);
     }
-    this.contentEquals = equals || Object.equals;
-    this.contentCompare = compare || Object.compare;
+    this.contentEquals = equals || equalsOperator;
+    this.contentCompare = compare || compareOperator;
     this.getDefault = getDefault || Function.noop;
     this.root = null;
     this.length = 0;
@@ -25,10 +27,10 @@ function SortedSet(values, equals, compare, getDefault) {
 // hack so require("sorted-set").SortedSet will work in MontageJS
 SortedSet.SortedSet = SortedSet;
 
-Object.addEach(SortedSet.prototype, GenericCollection.prototype);
-Object.addEach(SortedSet.prototype, GenericSet.prototype);
-Object.addEach(SortedSet.prototype, ObservableObject.prototype);
-Object.addEach(SortedSet.prototype, ObservableRange.prototype);
+addEach(SortedSet.prototype, GenericCollection.prototype);
+addEach(SortedSet.prototype, GenericSet.prototype);
+addEach(SortedSet.prototype, ObservableObject.prototype);
+addEach(SortedSet.prototype, ObservableRange.prototype);
 
 SortedSet.prototype.isSorted = true;
 

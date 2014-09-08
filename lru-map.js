@@ -1,10 +1,12 @@
 "use strict";
 
-var Shim = require("./shim");
 var LruSet = require("./lru-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
 var ObservableObject = require("./observable-object");
+var equalsOperator = require("./operators/equals");
+var hashOperator = require("./operators/hash");
+var addEach = require("./operators/add-each");
 
 module.exports = LruMap;
 
@@ -12,8 +14,8 @@ function LruMap(values, capacity, equals, hash, getDefault) {
     if (!(this instanceof LruMap)) {
         return new LruMap(values, capacity, equals, hash, getDefault);
     }
-    equals = equals || Object.equals;
-    hash = hash || Object.hash;
+    equals = equals || equalsOperator;
+    hash = hash || hashOperator;
     getDefault = getDefault || this.getDefault;
     this.capacity = capacity || Infinity;
     this.contentEquals = equals;
@@ -35,9 +37,9 @@ function LruMap(values, capacity, equals, hash, getDefault) {
 
 LruMap.LruMap = LruMap; // hack so require("lru-map").LruMap will work in MontageJS
 
-Object.addEach(LruMap.prototype, GenericCollection.prototype);
-Object.addEach(LruMap.prototype, GenericMap.prototype);
-Object.addEach(LruMap.prototype, ObservableObject.prototype);
+addEach(LruMap.prototype, GenericCollection.prototype);
+addEach(LruMap.prototype, GenericMap.prototype);
+addEach(LruMap.prototype, ObservableObject.prototype);
 
 LruMap.prototype.constructClone = function (values) {
     return new this.constructor(

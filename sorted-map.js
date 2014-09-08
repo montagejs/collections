@@ -1,10 +1,12 @@
 "use strict";
 
-var Shim = require("./shim");
 var SortedSet = require("./sorted-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
 var ObservableObject = require("./observable-object");
+var equalsOperator = require("./operators/equals");
+var compareOperator = require("./operators/compare");
+var addEach = require("./operators/add-each");
 
 module.exports = SortedMap;
 
@@ -12,8 +14,8 @@ function SortedMap(values, equals, compare, getDefault) {
     if (!(this instanceof SortedMap)) {
         return new SortedMap(values, equals, compare, getDefault);
     }
-    equals = equals || Object.equals;
-    compare = compare || Object.compare;
+    equals = equals || equalsOperator;
+    compare = compare || compareOperator;
     getDefault = getDefault || this.getDefault;
     this.contentEquals = equals;
     this.contentCompare = compare;
@@ -34,9 +36,9 @@ function SortedMap(values, equals, compare, getDefault) {
 // hack so require("sorted-map").SortedMap will work in MontageJS
 SortedMap.SortedMap = SortedMap;
 
-Object.addEach(SortedMap.prototype, GenericCollection.prototype);
-Object.addEach(SortedMap.prototype, GenericMap.prototype);
-Object.addEach(SortedMap.prototype, ObservableObject.prototype);
+addEach(SortedMap.prototype, GenericCollection.prototype);
+addEach(SortedMap.prototype, GenericMap.prototype);
+addEach(SortedMap.prototype, ObservableObject.prototype);
 
 SortedMap.prototype.constructClone = function (values) {
     return new this.constructor(

@@ -1,12 +1,13 @@
 "use strict";
 
-require("./shim-object");
 var GenericCollection = require("./generic-collection");
 var GenericOrder = require("./generic-order");
 var GenericOrder = require("./generic-order");
 var ObservableRange = require("./observable-range");
 var ObservableObject = require("./observable-object");
 var Iterator = require("./iterator");
+var addEach = require("./operators/add-each");
+var equalsOperator = require("./operators/equals");
 
 // by Petka Antonov
 // https://github.com/petkaantonov/deque/blob/master/js/deque.js
@@ -27,10 +28,10 @@ function Deque(values, capacity) {
     this.addEach(values);
 }
 
-Object.addEach(Deque.prototype, GenericCollection.prototype);
-Object.addEach(Deque.prototype, GenericOrder.prototype);
-Object.addEach(Deque.prototype, ObservableRange.prototype);
-Object.addEach(Deque.prototype, ObservableObject.prototype);
+addEach(Deque.prototype, GenericCollection.prototype);
+addEach(Deque.prototype, GenericOrder.prototype);
+addEach(Deque.prototype, ObservableRange.prototype);
+addEach(Deque.prototype, ObservableObject.prototype);
 
 Deque.prototype.maxCapacity = (1 << 30) | 0;
 Deque.prototype.minCapacity = 16;
@@ -350,7 +351,7 @@ Deque.prototype.lastIndexOf = function (value, index) {
 }
 
 Deque.prototype.findValue = function (value, equals, index) {
-    equals = equals || Object.equals;
+    equals = equals || equalsOperator;
     // Default start index at beginning
     if (index == null) {
         index = 0;
@@ -371,7 +372,7 @@ Deque.prototype.findValue = function (value, equals, index) {
 };
 
 Deque.prototype.findLastValue = function (value, equals, index) {
-    equals = equals || Object.equals;
+    equals = equals || equalsOperator;
     // Default start position at the end
     if (index == null) {
         index = this.length - 1;
@@ -392,7 +393,7 @@ Deque.prototype.findLastValue = function (value, equals, index) {
 };
 
 Deque.prototype.has = function (value, equals) {
-    equals = equals || Object.equals;
+    equals = equals || equalsOperator;
     // Left to right walk
     var mask = this.capacity - 1;
     for (var index = 0; index < this.length; index++) {

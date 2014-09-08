@@ -1,11 +1,13 @@
 "use strict";
 
-var Shim = require("./shim");
 var Set = require("./set");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
 var ObservableObject = require("./observable-object");
 var ObservableRange = require("./observable-range");
+var equalsOperator = require("./operators/equals");
+var hashOperator = require("./operators/hash");
+var addEach = require("./operators/add-each");
 
 module.exports = LruSet;
 
@@ -14,8 +16,8 @@ function LruSet(values, maxLength, equals, hash, getDefault) {
         return new LruSet(values, maxLength, equals, hash, getDefault);
     }
     maxLength = maxLength || Infinity;
-    equals = equals || Object.equals;
-    hash = hash || Object.hash;
+    equals = equals || equalsOperator;
+    hash = hash || hashOperator;
     getDefault = getDefault || Function.noop;
     this.store = new Set(undefined, equals, hash);
     this.contentEquals = equals;
@@ -28,10 +30,10 @@ function LruSet(values, maxLength, equals, hash, getDefault) {
 
 LruSet.LruSet = LruSet; // hack so require("lru-set").LruSet will work in MontageJS
 
-Object.addEach(LruSet.prototype, GenericCollection.prototype);
-Object.addEach(LruSet.prototype, GenericSet.prototype);
-Object.addEach(LruSet.prototype, ObservableObject.prototype);
-Object.addEach(LruSet.prototype, ObservableRange.prototype);
+addEach(LruSet.prototype, GenericCollection.prototype);
+addEach(LruSet.prototype, GenericSet.prototype);
+addEach(LruSet.prototype, ObservableObject.prototype);
+addEach(LruSet.prototype, ObservableRange.prototype);
 
 LruSet.prototype.constructClone = function (values) {
     return new this.constructor(

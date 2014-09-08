@@ -2,12 +2,14 @@
 
 // Based on http://dhruvbird.com/lfu.pdf
 
-var Shim = require("./shim");
 var Set = require("./set");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
 var ObservableRange = require("./observable-range");
 var ObservableObject = require("./observable-object");
+var equalsOperator = require("./operators/equals");
+var hashOperator = require("./operators/hash");
+var addEach = require("./operators/add-each");
 
 module.exports = LfuSet;
 
@@ -16,8 +18,8 @@ function LfuSet(values, capacity, equals, hash, getDefault) {
         return new LfuSet(values, capacity, equals, hash, getDefault);
     }
     capacity = capacity || Infinity;
-    equals = equals || Object.equals;
-    hash = hash || Object.hash;
+    equals = equals || equalsOperator;
+    hash = hash || hashOperator;
     getDefault = getDefault || Function.noop;
 
     // TODO
@@ -42,10 +44,10 @@ function LfuSet(values, capacity, equals, hash, getDefault) {
 
 LfuSet.LfuSet = LfuSet; // hack so require("lfu-set").LfuSet will work in MontageJS
 
-Object.addEach(LfuSet.prototype, GenericCollection.prototype);
-Object.addEach(LfuSet.prototype, GenericSet.prototype);
-Object.addEach(LfuSet.prototype, ObservableRange.prototype);
-Object.addEach(LfuSet.prototype, ObservableObject.prototype);
+addEach(LfuSet.prototype, GenericCollection.prototype);
+addEach(LfuSet.prototype, GenericSet.prototype);
+addEach(LfuSet.prototype, ObservableRange.prototype);
+addEach(LfuSet.prototype, ObservableObject.prototype);
 
 LfuSet.prototype.constructClone = function (values) {
     return new this.constructor(

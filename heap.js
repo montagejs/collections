@@ -3,11 +3,13 @@
 // http://eloquentjavascript.net/appendix2.html
 
 require("./observable-array");
-require("./shim");
 var GenericCollection = require("./generic-collection");
 var ObservableObject = require("./observable-object");
 var ObservableRange = require("./observable-range");
 var ObservableMap = require("./observable-map");
+var equalsOperator = require("./operators/equals");
+var compareOperator = require("./operators/compare");
+var addEach = require("./operators/add-each");
 
 // Max Heap by default.  Comparison can be reversed to produce a Min Heap.
 
@@ -17,8 +19,8 @@ function Heap(values, equals, compare) {
     if (!(this instanceof Heap)) {
         return new Heap(values, equals, compare);
     }
-    this.contentEquals = equals || Object.equals;
-    this.contentCompare = compare || Object.compare;
+    this.contentEquals = equals || equalsOperator;
+    this.contentCompare = compare || compareOperator;
     this.content = [];
     this.length = 0;
     this.addEach(values);
@@ -26,10 +28,10 @@ function Heap(values, equals, compare) {
 
 Heap.Heap = Heap; // hack so require("heap").Heap will work in MontageJS
 
-Object.addEach(Heap.prototype, GenericCollection.prototype);
-Object.addEach(Heap.prototype, ObservableObject.prototype);
-Object.addEach(Heap.prototype, ObservableRange.prototype);
-Object.addEach(Heap.prototype, ObservableMap.prototype);
+addEach(Heap.prototype, GenericCollection.prototype);
+addEach(Heap.prototype, ObservableObject.prototype);
+addEach(Heap.prototype, ObservableRange.prototype);
+addEach(Heap.prototype, ObservableMap.prototype);
 
 Heap.prototype.constructClone = function (values) {
     return new this.constructor(
@@ -235,3 +237,4 @@ Heap.prototype.handleContentMapChange = function (plus, minus, key, type) {
 Heap.prototype.handleContentMapWillChange = function (plus, minus, key, type) {
     this.dispatchMapWillChange(type, key, plus, minus);
 };
+

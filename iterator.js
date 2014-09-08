@@ -2,7 +2,7 @@
 
 module.exports = Iterator;
 
-var WeakMap = require("./weak-map");
+var WeakMap = require("weak-map");
 var GenericCollection = require("./generic-collection");
 
 // upgrades an iterable to a Iterator
