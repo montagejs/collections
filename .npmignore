@@ -1,5 +1,6 @@
 .gitignore
-.travis.ymp
+.npmignore
+.travis.yml
 .tmp
 /bench
 checklist.csv
