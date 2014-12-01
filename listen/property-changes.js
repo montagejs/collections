@@ -122,7 +122,7 @@ PropertyChanges.prototype.addOwnPropertyChangeListener = function (key, listener
 
     var self = this;
     return function cancelOwnPropertyChangeListener() {
-        PropertyChanges.removeOwnPropertyChangeListener(self, key, listener, beforeChange);
+        PropertyChanges.removeOwnPropertyChangeListener(self, key, listeners.current, beforeChange);
         self = null;
     };
 };
@@ -167,6 +167,8 @@ PropertyChanges.prototype.dispatchOwnPropertyChange = function (key, value, befo
         listeners = descriptor.changeListeners;
     }
 
+	if(listeners.lenth === 0) return;
+
     try {
         // dispatch to each listener
         dispatchEach.call(this, listeners, key, value);
@@ -187,7 +189,8 @@ function dispatchEach(listeners, key, value) {
     for (var index = 0, length = active.length; index < length; index++) {
         var listener = active[index];
         if (current.indexOf(listener) < 0) {
-            return;
+			//This is fixing the issue causing a regression in Montage's repetition
+            continue;
         }
         var thisp = listener;
         listener = (
@@ -238,7 +241,7 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
     if (!this.__overriddenPropertyDescriptors__) {
         overriddenPropertyDescriptors = {};
         Object.defineProperty(this, "__overriddenPropertyDescriptors__", {
-            value: {},
+            value: overriddenPropertyDescriptors,
             enumerable: false,
             writable: true,
             configurable: true
