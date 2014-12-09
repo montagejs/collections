@@ -53,5 +53,5 @@ FastMap.prototype.log = function (charmap, stringify) {
 
 FastMap.prototype.stringify = function (item, leader) {
     return leader + JSON.stringify(item.key) + ": " + JSON.stringify(item.value);
-}
+};
 
