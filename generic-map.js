@@ -17,6 +17,7 @@ Object.addEach(GenericMap.prototype, PropertyChanges.prototype);
 GenericMap.prototype.isMap = true;
 
 GenericMap.prototype.addEach = function (values) {
+    var i;
     if (values && Object(values) === values) {
         if (typeof values.forEach === "function") {
             // copy map-alikes
@@ -33,7 +34,7 @@ GenericMap.prototype.addEach = function (values) {
         } else if (typeof values.length === "number") {
             // Array-like objects that do not implement forEach, ergo,
             // Arguments
-            for (var i = 0; i < values.length; i++) {
+            for (i = 0; i < values.length; i++) {
                 this.add(values[i], i);
             }
         } else {
@@ -44,12 +45,12 @@ GenericMap.prototype.addEach = function (values) {
         }
     } else if (values && typeof values.length === "number") {
         // String
-        for (var i = 0; i < values.length; i++) {
+        for (i = 0; i < values.length; i++) {
             this.add(values[i], i);
         }
     }
     return this;
-}
+};
 
 GenericMap.prototype.get = function (key, defaultValue) {
     var item = this.store.get(new this.Item(key));
