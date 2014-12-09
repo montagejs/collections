@@ -1,6 +1,5 @@
 "use strict";
 
-var WeakMap = require("weak-map");
 var List = require("../list");
 
 module.exports = MapChanges;

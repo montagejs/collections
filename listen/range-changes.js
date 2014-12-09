@@ -1,6 +1,5 @@
 "use strict";
 
-var WeakMap = require("weak-map");
 var Dict = require("../dict");
 
 var rangeChangeDescriptors = new WeakMap(); // {isActive, willChangeListeners, changeListeners}

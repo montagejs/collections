@@ -10,7 +10,13 @@
 var Function = require("./shim-function");
 var GenericCollection = require("./generic-collection");
 var GenericOrder = require("./generic-order");
-var WeakMap = require("weak-map");
+
+var WeakMap;
+try {
+    WeakMap = window.WeakMap || require("weak-map");
+} catch (e) {
+    WeakMap = require("weak-map");
+}
 
 module.exports = Array;
 
