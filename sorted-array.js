@@ -2,7 +2,6 @@
 
 module.exports = SortedArray;
 
-var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
 var PropertyChanges = require("./listen/property-changes");
 var RangeChanges = require("./listen/range-changes");
