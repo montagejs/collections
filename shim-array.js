@@ -30,18 +30,19 @@ Array.from = function (values) {
 };
 
 Array.unzip = function (table) {
-    var transpose = [];
-    var length = Infinity;
+    var transpose = [],
+        length = Infinity,
+        i, row;
     // compute shortest row
-    for (var i = 0; i < table.length; i++) {
-        var row = table[i];
+    for (i = 0; i < table.length; i++) {
+        row = table[i];
         table[i] = row.toArray();
         if (row.length < length) {
             length = row.length;
         }
     }
-    for (var i = 0; i < table.length; i++) {
-        var row = table[i];
+    for (i = 0; i < table.length; i++) {
+        row = table[i];
         for (var j = 0; j < row.length; j++) {
             if (j < length && j in row) {
                 transpose[j] = transpose[j] || [];
@@ -117,6 +118,8 @@ define("delete", function (value, equals) {
     }
     return false;
 });
+
+define("remove", Array.prototype.delete);
 
 define("deleteAll", function (value, equals) {
     equals = equals || this.contentEquals || Object.equals;
@@ -327,7 +330,7 @@ define("clone", function (depth, memo) {
     memo.set(this, clone);
     for (var i in this) {
         clone[i] = Object.clone(this[i], depth - 1, memo);
-    };
+    }
     return clone;
 });
 
@@ -341,7 +344,7 @@ function ArrayIterator(array, start, end) {
     this.array = array;
     this.start = start == null ? 0 : start;
     this.end = end;
-};
+}
 
 ArrayIterator.prototype.next = function () {
     if (this.start === (this.end == null ? this.array.length : this.end)) {
