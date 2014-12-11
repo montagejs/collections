@@ -28,8 +28,13 @@ function SortedArray(values, equals, compare, getDefault) {
 SortedArray.SortedArray = SortedArray;
 
 Object.addEach(SortedArray.prototype, GenericCollection.prototype);
+GenericCollection = null;
+
 Object.addEach(SortedArray.prototype, PropertyChanges.prototype);
+PropertyChanges = null;
+
 Object.addEach(SortedArray.prototype, RangeChanges.prototype);
+RangeChanges = null;
 
 SortedArray.prototype.isSorted = true;
 
