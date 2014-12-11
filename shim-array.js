@@ -234,12 +234,10 @@ define("one", function () {
     }
 });
 
-if (!Array.prototype.clear) {
-    define("clear", function () {
-        this.length = 0;
-        return this;
-    });
-}
+define("clear", function () {
+    this.length = 0;
+    return this;
+});
 
 define("compare", function (that, compare) {
     compare = compare || Object.compare;
