@@ -119,7 +119,7 @@ List.prototype.clear = function () {
 };
 
 List.prototype.add = function (value) {
-    var node = new this.Node(value)
+    var node = new this.Node(value);
     if (this.dispatchesRangeChanges) {
         node.index = this.length;
         this.dispatchBeforeRangeChange([value], [], node.index);
@@ -136,7 +136,7 @@ List.prototype.push = function () {
     var head = this.head;
     if (this.dispatchesRangeChanges) {
         var plus = Array.prototype.slice.call(arguments);
-        var minus = []
+        var minus = [];
         var index = this.length;
         this.dispatchBeforeRangeChange(plus, minus, index);
         var start = this.head.prev;

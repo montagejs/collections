@@ -40,12 +40,13 @@ Deque.prototype.add = function (value) {
 };
 
 Deque.prototype.push = function (value /* or ...values */) {
-    var argsLength = arguments.length;
-    var length = this.length;
+    var argsLength = arguments.length,
+        length = this.length,
+        argIndex, j;
 
     if (this.dispatchesRangeChanges) {
         var plus = new Array(argsLength);
-        for (var argIndex = 0; argIndex < argsLength; ++argIndex) {
+        for (argIndex = 0; argIndex < argsLength; ++argIndex) {
             plus[argIndex] = arguments[argIndex];
         }
         var minus = [];
@@ -55,17 +56,17 @@ Deque.prototype.push = function (value /* or ...values */) {
     if (argsLength > 1) {
         var capacity = this.capacity;
         if (length + argsLength > capacity) {
-            for (var argIndex = 0; argIndex < argsLength; ++argIndex) {
+            for (argIndex = 0; argIndex < argsLength; ++argIndex) {
                 this.ensureCapacity(length + 1);
-                var j = (this.front + length) & (this.capacity - 1);
+                j = (this.front + length) & (this.capacity - 1);
                 this[j] = arguments[argIndex];
                 length++;
                 this.length = length;
             }
         }
         else {
-            var j = this.front;
-            for (var argIndex = 0; argIndex < argsLength; ++argIndex) {
+            j = this.front;
+            for (argIndex = 0; argIndex < argsLength; ++argIndex) {
                 this[(j + length) & (capacity - 1)] = arguments[argIndex];
                 j++;
             }
@@ -130,12 +131,13 @@ Deque.prototype.shift = function () {
 };
 
 Deque.prototype.unshift = function (value /* or ...values */) {
-    var length = this.length;
-    var argsLength = arguments.length;
+    var argsLength = arguments.length,
+        length = this.length,
+        argIndex, capacity, index;
 
     if (this.dispatchesRangeChanges) {
         var plus = new Array(argsLength);
-        for (var argIndex = 0; argIndex < argsLength; ++argIndex) {
+        for (argIndex = 0; argIndex < argsLength; ++argIndex) {
             plus[argIndex] = arguments[argIndex];
         }
         var minus = [];
@@ -143,12 +145,12 @@ Deque.prototype.unshift = function (value /* or ...values */) {
     }
 
     if (argsLength > 1) {
-        var capacity = this.capacity;
+        capacity = this.capacity;
         if (length + argsLength > capacity) {
-            for (var argIndex = argsLength - 1; argIndex >= 0; argIndex--) {
+            for (argIndex = argsLength - 1; argIndex >= 0; argIndex--) {
                 this.ensureCapacity(length + 1);
-                var capacity = this.capacity;
-                var index = (
+                capacity = this.capacity;
+                index = (
                     (
                         (
                             ( this.front - 1 ) &
@@ -163,8 +165,8 @@ Deque.prototype.unshift = function (value /* or ...values */) {
             }
         } else {
             var front = this.front;
-            for (var argIndex = argsLength - 1; argIndex >= 0; argIndex--) {
-                var index = (
+            for (argIndex = argsLength - 1; argIndex >= 0; argIndex--) {
+                index = (
                     (
                         (
                             (front - 1) &
@@ -180,8 +182,8 @@ Deque.prototype.unshift = function (value /* or ...values */) {
         }
     } else if (argsLength === 1) {
         this.ensureCapacity(length + 1);
-        var capacity = this.capacity;
-        var index = (
+        capacity = this.capacity;
+        index = (
             (
                 (
                     (this.front - 1) &
@@ -342,7 +344,7 @@ Deque.prototype.lastIndexOf = function (value, index) {
         }
     }
     return -1;
-}
+};
 
 // TODO rename findValue
 Deque.prototype.find = function (value, equals, index) {

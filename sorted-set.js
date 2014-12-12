@@ -623,7 +623,7 @@ Node.prototype.checkIntegrity = function () {
     if (this.length !== length)
         throw new Error("Integrity check failed: " + this.summary());
     return length;
-}
+};
 
 // get the next node in this subtree
 Node.prototype.getNext = function () {

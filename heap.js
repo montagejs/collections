@@ -144,7 +144,7 @@ Heap.prototype.sink = function (index) {
     // Moves a value downward until it is greater than its children.
     var length = this.content.length;
     var value = this.content[index];
-    var left, right, leftIndex, rightIndex, swapIndex, needsSwap;
+    var left, right, comparison, leftIndex, rightIndex, swapIndex, needsSwap;
 
     while (true) {
         // Invariant: the value is at index.
@@ -159,8 +159,8 @@ Heap.prototype.sink = function (index) {
         needsSwap = false;
         if (leftIndex < length) {
             // Look it up and compare it.
-            var left = this.content[leftIndex];
-            var comparison = this.contentCompare(left, value);
+            left = this.content[leftIndex];
+            comparison = this.contentCompare(left, value);
             // If the child is greater than the parent, it can be floated.
             if (comparison > 0) {
                 swapIndex = leftIndex;
@@ -171,8 +171,8 @@ Heap.prototype.sink = function (index) {
         // If the right child exists, determine whether it is greater than the
         // parent (value), or even greater than the left child.
         if (rightIndex < length) {
-            var right = this.content[rightIndex];
-            var comparison = this.contentCompare(right, needsSwap ? left : value);
+            right = this.content[rightIndex];
+            comparison = this.contentCompare(right, needsSwap ? left : value);
             if (comparison > 0) {
                 swapIndex = rightIndex;
                 needsSwap = true;

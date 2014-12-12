@@ -120,7 +120,7 @@ Iterator.prototype.reduce = function (callback /*, initial, thisp*/) {
             if (arguments.length > 1) {
                 return arguments[1]; // initial
             } else {
-                throw TypeError("cannot reduce a value from an empty iterator with no initial value");
+                throw new TypeError("cannot reduce a value from an empty iterator with no initial value");
             }
         } else {
             throw exception;

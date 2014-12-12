@@ -18,10 +18,11 @@ var size = 10000;
 
     function bench(Sorted) {
         var set = Sorted();
-        for (var i = 0; i < size; i++) {
+        var i;
+        for (i = 0; i < size; i++) {
             set.add(numbers[i]);
         }
-        for (var i = 0; i < size; i++) {
+        for (i = 0; i < size; i++) {
             set.delete(numbers[i]);
         }
     }
@@ -36,7 +37,7 @@ var size = 10000;
         callback();
         var stop = hrtime();
         return stop - start;
-    };
+    }
 
     var sortedSetSpeed = time(function () {
         bench(SortedSet);

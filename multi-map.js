@@ -8,8 +8,9 @@ function MultiMap(values, bucket, equals, hash) {
         return new MultiMap(values, bucket, equals, hash);
     }
     this.bucket = bucket || this.bucket;
+    var self = this;
     Map.call(this, values, equals, hash, function getDefault(key) {
-        var bucket = this.bucket(key);
+        var bucket = self.bucket(key);
         Map.prototype.set.call(this, key, bucket);
         return bucket;
     });
