@@ -2,32 +2,74 @@
 
 var Dict = require("../dict");
 
-var rangeChangeDescriptors = new WeakMap(); // {isActive, willChangeListeners, changeListeners}
+function TokenChangeDescriptor(token) {
+	var changeName = "handle" + (token.charAt(0).toUpperCase() + token.slice(1) );
+	this.tokenChangeMethodName = changeName+"RangeChange";
+	this.tokenWillChangeMethodName = changeName+"RangeWillChange";
+	return this;
+}
+
+Object.defineProperties(TokenChangeDescriptor.prototype,{
+    tokenChangeMethodName: {
+		value: false,
+		writable: true
+	},
+    tokenWillChangeMethodName: {
+		value: false,
+		writable: true
+	},
+    isActive: {
+		value: false,
+		writable: true
+	},
+    _changeListeners: {
+		value: null,
+		writable: true
+	},
+    changeListeners: {
+		get: function() {
+			return this._changeListeners || (this._changeListeners = []);
+		}
+	},
+    _willChangeListeners: {
+		value: null,
+		writable: true
+	},
+    willChangeListeners: {
+		get: function() {
+			return this._willChangeListeners || (this._willChangeListeners = []);
+		}
+	}
+});
 
 module.exports = RangeChanges;
 function RangeChanges() {
     throw new Error("Can't construct. RangeChanges is a mixin.");
 }
 
+// {isActive, willChangeListeners, changeListeners}
+RangeChanges.prototype._rangeChangeDescriptors = null;
+
 RangeChanges.prototype.getAllRangeChangeDescriptors = function () {
-    if (!rangeChangeDescriptors.has(this)) {
-        rangeChangeDescriptors.set(this, Dict());
+    var rangeChangeDescriptor = this._rangeChangeDescriptors || (this._rangeChangeDescriptors = Object.create(null));
+    if (this.propertyIsEnumerable("_rangeChangeDescriptors")) {
+        Object.defineProperty(this, "_rangeChangeDescriptors", {
+            enumerable: false
+        });
     }
-    return rangeChangeDescriptors.get(this);
+    return rangeChangeDescriptor;
 };
 
 RangeChanges.prototype.getRangeChangeDescriptor = function (token) {
     var tokenChangeDescriptors = this.getAllRangeChangeDescriptors();
     token = token || "";
-    if (!tokenChangeDescriptors.has(token)) {
-        tokenChangeDescriptors.set(token, {
-            isActive: false,
-            changeListeners: [],
-            willChangeListeners: []
-        });
+    if (!(token in tokenChangeDescriptors)) {
+        tokenChangeDescriptors[token] = new TokenChangeDescriptor(token);
     }
-    return tokenChangeDescriptors.get(token);
+    return tokenChangeDescriptors[token];
 };
+
+RangeChanges.prototype.dispatchesRangeChanges = true;
 
 RangeChanges.prototype.addRangeChangeListener = function (listener, token, beforeChange) {
     // a concession for objects like Array that are not inherently observable
@@ -46,12 +88,6 @@ RangeChanges.prototype.addRangeChangeListener = function (listener, token, befor
 
     // even if already registered
     listeners.push(listener);
-    Object.defineProperty(this, "dispatchesRangeChanges", {
-        value: true,
-        writable: true,
-        configurable: true,
-        enumerable: false
-    });
 
     var self = this;
     return function cancelRangeChangeListener() {
@@ -83,8 +119,11 @@ RangeChanges.prototype.removeRangeChangeListener = function (listener, token, be
 
 RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, beforeChange) {
     var descriptors = this.getAllRangeChangeDescriptors();
-    var changeName = "Range" + (beforeChange ? "WillChange" : "Change");
-    descriptors.forEach(function (descriptor, token) {
+	var descriptor, token, tokenName;
+	
+	for(token in descriptors) {
+		
+		descriptor = descriptors[token];
 
         if (descriptor.isActive) {
             return;
@@ -96,14 +135,12 @@ RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, befor
         var listeners;
         if (beforeChange) {
             listeners = descriptor.willChangeListeners;
+			tokenName = descriptor.tokenWillChangeMethodName;
         } else {
             listeners = descriptor.changeListeners;
+			tokenName = descriptor.tokenChangeMethodName;
         }
 
-        var tokenName = "handle" + (
-            token.slice(0, 1).toUpperCase() +
-            token.slice(1)
-        ) + changeName;
         // notably, defaults to "handleRangeChange" or "handleRangeWillChange"
         // if token is "" (the default)
 
@@ -124,7 +161,7 @@ RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, befor
         } finally {
             descriptor.isActive = false;
         }
-    }, this);
+    }
 };
 
 RangeChanges.prototype.addBeforeRangeChangeListener = function (listener, token) {

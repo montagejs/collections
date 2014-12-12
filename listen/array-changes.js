@@ -17,12 +17,12 @@ var List = require("../list");
 var PropertyChanges = require("./property-changes");
 var RangeChanges = require("./range-changes");
 var MapChanges = require("./map-changes");
-
-var array_splice = Array.prototype.splice;
-var array_slice = Array.prototype.slice;
-var array_reverse = Array.prototype.reverse;
-var array_sort = Array.prototype.sort;
-var array_swap = Array.prototype.swap;
+var ArrayP = Array.prototype;
+var array_splice = ArrayP.splice;
+var array_slice = ArrayP.slice;
+var array_reverse = ArrayP.reverse;
+var array_sort = ArrayP.sort;
+var array_swap = ArrayP.swap;
 
 var EMPTY_ARRAY = [];
 
@@ -40,7 +40,7 @@ if (protoIsSupported) {
     };
 }
 
-Object.defineProperty(Array.prototype, "makeObservable", {
+Object.defineProperty(ArrayP, "makeObservable", {
     value: array_makeObservable,
     writable: true,
     configurable: true,
@@ -49,7 +49,7 @@ Object.defineProperty(Array.prototype, "makeObservable", {
 
 function defineEach(prototype) {
     for (var name in prototype) {
-        Object.defineProperty(Array.prototype, name, {
+        Object.defineProperty(ArrayP, name, {
             value: prototype[name],
             writable: true,
             configurable: true,
@@ -59,6 +59,15 @@ function defineEach(prototype) {
 }
 
 defineEach(PropertyChanges.prototype);
+
+//This is a no-op test in property-changes.js - PropertyChanges.prototype.makePropertyObservable, so might as well not pay the price every time....
+Object.defineProperty(ArrayP, "makePropertyObservable", {
+    value: function(){},
+    writable: true,
+    configurable: true,
+    enumerable: false
+});
+
 defineEach(RangeChanges.prototype);
 defineEach(MapChanges.prototype);
 
@@ -91,10 +100,10 @@ var observableArrayProperties = {
 
     sort: {
         value: function sort() {
-
+            var i, countI;
             // dispatch before change events
             this.dispatchBeforeRangeChange(this, this, 0);
-            for (var i = 0; i < this.length; i++) {
+            for (i = 0, countI = this.length; i < countI; i++) {
                 PropertyChanges.dispatchBeforeOwnPropertyChange(this, i, this[i]);
                 this.dispatchBeforeMapChange(i, this[i]);
             }
@@ -103,7 +112,7 @@ var observableArrayProperties = {
             array_sort.apply(this, arguments);
 
             // dispatch after change events
-            for (var i = 0; i < this.length; i++) {
+            for (i = 0, countI = this.length; i < countI; i++) {
                 PropertyChanges.dispatchOwnPropertyChange(this, i, this[i]);
                 this.dispatchMapChange(i, this[i]);
             }
@@ -117,6 +126,7 @@ var observableArrayProperties = {
 
     swap: {
         value: function swap(start, length, plus) {
+			var hasOwnPropertyChangeDescriptor, i, j;
             if (plus) {
                 if (!Array.isArray(plus)) {
                     plus = array_slice.call(plus);
@@ -130,7 +140,7 @@ var observableArrayProperties = {
             } else if (start > this.length) {
                 var holes = start - this.length;
                 var newPlus = Array(holes + plus.length);
-                for (var i = 0, j = holes; i < plus.length; i++, j++) {
+                for (i = 0, j = holes; i < plus.length; i++, j++) {
                     if (i in plus) {
                         newPlus[j] = plus[i];
                     }
@@ -161,15 +171,15 @@ var observableArrayProperties = {
             }
             this.dispatchBeforeRangeChange(plus, minus, start);
             if (diff === 0) { // substring replacement
-                for (var i = start; i < start + plus.length; i++) {
+                for (i = start, countI = start + plus.length; i < countI; i++) {
                     PropertyChanges.dispatchBeforeOwnPropertyChange(this, i, this[i]);
                     this.dispatchBeforeMapChange(i, this[i]);
                 }
-            } else if (PropertyChanges.hasOwnPropertyChangeDescriptor(this)) {
+            } else if ((hasOwnPropertyChangeDescriptor = PropertyChanges.hasOwnPropertyChangeDescriptor(this))) {
                 // all subsequent values changed or shifted.
                 // avoid (longest - start) long walks if there are no
                 // registered descriptors.
-                for (var i = start; i < longest; i++) {
+                for (i = start; i < longest; i++) {
                     PropertyChanges.dispatchBeforeOwnPropertyChange(this, i, this[i]);
                     this.dispatchBeforeMapChange(i, this[i]);
                 }
@@ -183,22 +193,22 @@ var observableArrayProperties = {
 
             // dispatch after change events
             if (diff === 0) { // substring replacement
-                for (var i = start; i < start + plus.length; i++) {
-                    PropertyChanges.dispatchOwnPropertyChange(this, i, this[i]);
+                for (i = start; i < start + plus.length; i++) {
+					this.dispatchOwnPropertyChange(i, this[i]);
                     this.dispatchMapChange(i, this[i]);
                 }
-            } else if (PropertyChanges.hasOwnPropertyChangeDescriptor(this)) {
+            } else if (hasOwnPropertyChangeDescriptor) {
                 // all subsequent values changed or shifted.
                 // avoid (longest - start) long walks if there are no
                 // registered descriptors.
-                for (var i = start; i < longest; i++) {
-                    PropertyChanges.dispatchOwnPropertyChange(this, i, this[i]);
+                for (i = start; i < longest; i++) {
+ 					this.dispatchOwnPropertyChange(i, this[i]);
                     this.dispatchMapChange(i, this[i]);
                 }
             }
             this.dispatchRangeChange(plus, minus, start);
             if (diff) {
-                PropertyChanges.dispatchOwnPropertyChange(this, "length", this.length);
+				this.dispatchOwnPropertyChange("length", this.length);
             }
 
             return result;
@@ -287,5 +297,6 @@ var observableArrayProperties = {
 
 };
 
-var ChangeDispatchArray = Object.create(Array.prototype, observableArrayProperties);
+var ChangeDispatchArray = Object.create(ArrayP, observableArrayProperties);
+exports.observableArrayProperties = observableArrayProperties;
 
