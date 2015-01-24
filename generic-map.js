@@ -159,6 +159,18 @@ GenericMap.prototype.entries = function () {
     });
 };
 
+var MapIterator = function(iterable,args) {
+    this.iterator = iterable.store.iterate.apply(iterable.store,args);
+}
+
+MapIterator.prototype.next = function() {
+    return this.iterator.next().key;
+}
+
+GenericMap.prototype.iterate = function() {
+    return new MapIterator(this,arguments);
+}
+
 // XXX deprecated
 GenericMap.prototype.items = function () {
     return this.entries();

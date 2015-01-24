@@ -3,6 +3,7 @@
 module.exports = List;
 
 var Shim = require("./shim");
+var Iterator = require("./iterator");
 var GenericCollection = require("./generic-collection");
 var GenericOrder = require("./generic-order");
 var PropertyChanges = require("./listen/property-changes");
