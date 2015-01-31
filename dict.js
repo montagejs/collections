@@ -4,7 +4,7 @@ var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
 var ObservableObject = require("./observable-object");
 var Iterator = require("./iterator");
-var addEach = require("./operators/add-each");
+var copy = require("./copy");
 
 // Burgled from https://github.com/domenic/dict
 
@@ -23,16 +23,16 @@ function Dict(values, getDefault) {
 Dict.Dict = Dict; // hack so require("dict").Dict will work in MontageJS.
 
 function mangle(key) {
-    return "~" + key;
+    return "$" + key;
 }
 
 function unmangle(mangled) {
     return mangled.slice(1);
 }
 
-addEach(Dict.prototype, GenericCollection.prototype);
-addEach(Dict.prototype, GenericMap.prototype);
-addEach(Dict.prototype, ObservableObject.prototype);
+copy(Dict.prototype, GenericCollection.prototype);
+copy(Dict.prototype, GenericMap.prototype);
+copy(Dict.prototype, ObservableObject.prototype);
 
 Dict.prototype.isDict = true;
 
@@ -40,14 +40,7 @@ Dict.prototype.constructClone = function (values) {
     return new this.constructor(values, this.mangle, this.getDefault);
 };
 
-Dict.prototype.assertString = function (key) {
-    if (typeof key !== "string") {
-        throw new TypeError("key must be a string but Got " + key);
-    }
-}
-
 Dict.prototype.get = function (key, defaultValue) {
-    this.assertString(key);
     var mangled = mangle(key);
     if (mangled in this.store) {
         return this.store[mangled];
@@ -59,7 +52,6 @@ Dict.prototype.get = function (key, defaultValue) {
 };
 
 Dict.prototype.set = function (key, value) {
-    this.assertString(key);
     var mangled = mangle(key);
     var from;
     if (mangled in this.store) { // update
@@ -86,13 +78,11 @@ Dict.prototype.set = function (key, value) {
 };
 
 Dict.prototype.has = function (key) {
-    this.assertString(key);
     var mangled = mangle(key);
     return mangled in this.store;
 };
 
 Dict.prototype["delete"] = function (key) {
-    this.assertString(key);
     var mangled = mangle(key);
     var from;
     if (mangled in this.store) {

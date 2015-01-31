@@ -335,7 +335,7 @@ describe("Array changes", function () {
         expect(array).toEqual([1]);
         expect(spy).toHaveBeenCalledWith(1, void 0, 0, array);
 
-        spy.args.clear();
+        spy.args.length = 0;
         array.set(0, 1);
         expect(spy).not.toHaveBeenCalled();
     });

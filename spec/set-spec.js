@@ -1,5 +1,6 @@
 
 var sinon = require("sinon");
+var is = require("../operators").is;
 var extendSpyExpectation = require("./spy-expectation");
 var Set = require("../set");
 var describeCollection = require("./collection");
@@ -22,14 +23,14 @@ describe("Set", function () {
         });
 
         describeCollection(function (values) {
-            return Set(values, Object.is);
+            return Set(values, is);
         }, [{}, {}, {}, {}], true);
 
         it("should pop and shift", function () {
             var a = {i: 2};
             var b = {i: 1};
             var c = {i: 0};
-            var set = Set([a, b, c], Object.is);
+            var set = Set([a, b, c], is);
             expect(set.pop()).toBe(c);
             expect(set.shift()).toBe(a);
         });

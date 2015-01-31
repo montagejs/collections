@@ -7,9 +7,9 @@ var GenericCollection = require("./generic-collection");
 var ObservableObject = require("./observable-object");
 var ObservableRange = require("./observable-range");
 var ObservableMap = require("./observable-map");
-var equalsOperator = require("./operators/equals");
-var compareOperator = require("./operators/compare");
-var addEach = require("./operators/add-each");
+var equalsOperator = require("pop-equals");
+var compareOperator = require("pop-compare");
+var copy = require("./copy");
 
 // Max Heap by default.  Comparison can be reversed to produce a Min Heap.
 
@@ -28,10 +28,10 @@ function Heap(values, equals, compare) {
 
 Heap.Heap = Heap; // hack so require("heap").Heap will work in MontageJS
 
-addEach(Heap.prototype, GenericCollection.prototype);
-addEach(Heap.prototype, ObservableObject.prototype);
-addEach(Heap.prototype, ObservableRange.prototype);
-addEach(Heap.prototype, ObservableMap.prototype);
+copy(Heap.prototype, GenericCollection.prototype);
+copy(Heap.prototype, ObservableObject.prototype);
+copy(Heap.prototype, ObservableRange.prototype);
+copy(Heap.prototype, ObservableMap.prototype);
 
 Heap.prototype.constructClone = function (values) {
     return new this.constructor(
@@ -59,7 +59,11 @@ Heap.prototype.pop = function () {
     // If there are any values remaining, put the last value on the top and
     // let it sink back down.
     if (this.content.length > 0) {
-        this.content.set(0, top);
+        if (this.content.set) {
+            this.content.set(0, top);
+        } else {
+            this.content[0] = top;
+        }
         this.sink(0);
     }
     this.length--;
@@ -91,7 +95,11 @@ Heap.prototype.delete = function (value) {
     this.length = this.content.length;
     if (index === this.content.length)
         return true;
-    this.content.set(index, top);
+    if (this.content.set) {
+        this.content.set(index, top);
+    } else {
+        this.content[index] = top;
+    }
     var comparison = this.contentCompare(top, value);
     if (comparison > 0) {
         this.float(index);
@@ -126,8 +134,13 @@ Heap.prototype.float = function (index) {
         var parent = this.content[parentIndex];
         // If the parent is less than it
         if (this.contentCompare(parent, value) < 0) {
-            this.content.set(parentIndex, value);
-            this.content.set(index, parent);
+            if (this.content.set) {
+                this.content.set(parentIndex, value);
+                this.content.set(index, parent);
+            } else {
+                this.content[parentIndex] = value;
+                this.content[index] = parent;
+            }
         } else {
             // Stop propagating if the parent is greater than the value.
             break;
@@ -180,8 +193,13 @@ Heap.prototype.sink = function (index) {
         // if there is a child that is less than the value, float the child and
         // sink the value.
         if (needsSwap) {
-            this.content.set(index, this.content[swapIndex]);
-            this.content.set(swapIndex, value);
+            if (this.content.set) {
+                this.content.set(index, this.content[swapIndex]);
+                this.content.set(swapIndex, value);
+            } else {
+                this.content[index] = this.content[swapIndex];
+                this.content[swapIndex] = value;
+            }
             index = swapIndex;
             // and continue sinking
         } else {

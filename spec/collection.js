@@ -3,7 +3,8 @@
 // Array#get() behaves like a Map, not a Set, so it is excluded from those
 // tests.
 
-var Iterator = require("../iterator");
+var iterate = require("pop-iterate");
+var arrayify = require("pop-arrayify");
 
 module.exports = describeCollection;
 function describeCollection(Collection, values) {
@@ -14,6 +15,9 @@ function describeCollection(Collection, values) {
     var d = values[3];
 
     function shouldHaveTheUsualContent(collection) {
+        if (!collection.has)
+            return;
+
         expect(collection.has(a)).toBe(true);
         expect(collection.has(b)).toBe(true);
         expect(collection.has(c)).toBe(true);
@@ -44,6 +48,9 @@ function describeCollection(Collection, values) {
     });
 
     describe("add", function () {
+        if (!Collection.prototype.add)
+            return;
+
         it("should add values to a collection", function () {
             var collection = Collection();
             expect(collection.add(a)).toBe(true);
@@ -85,6 +92,8 @@ function describeCollection(Collection, values) {
     });
 
     describe("some", function () {
+        if (!Collection.prototype.some)
+            return;
 
         it("identifies existence", function () {
             expect(Collection([1, 2, 3, 4, 5]).some(function (n) {
@@ -101,6 +110,8 @@ function describeCollection(Collection, values) {
     });
 
     describe("every", function () {
+        if (!Collection.prototype.every)
+            return;
 
         it("identifies completeness", function () {
             expect(Collection([1, 2, 3, 4, 5]).every(function (n) {
@@ -117,6 +128,9 @@ function describeCollection(Collection, values) {
     });
 
     describe("one", function () {
+        if (!Collection.prototype.one)
+            return;
+
         it("should return a value in the collection", function () {
             var collection = Collection([a, b, c, d]);
             expect(collection.has(collection.one())).toBe(true);
@@ -129,6 +143,8 @@ function describeCollection(Collection, values) {
     });
 
     describe("only", function () {
+        if (!Collection.prototype.only)
+            return;
 
         it("should return a value in the collection", function () {
             var collection = Collection([a]);
@@ -149,8 +165,12 @@ function describeCollection(Collection, values) {
         it("should delete all values", function () {
             var collection = Collection([a, b, c, d]);
             expect(collection.length).toBe(4);
-            collection.clear();
-            expect(collection.toArray()).toEqual([]);
+            if (collection.clear) {
+                collection.clear();
+            } else {
+                collection.length = 0;
+            }
+            expect(arrayify(collection)).toEqual([]);
             expect(collection.length).toBe(0);
         });
     });
@@ -158,8 +178,8 @@ function describeCollection(Collection, values) {
     describe("iterate", function () {
         it("iterates", function () {
             var collection = Collection([1, 2, 3, 4]);
-            expect(collection.toArray()).toEqual([1, 2, 3, 4]);
-            var iterator = collection.iterate();
+            expect(arrayify(collection)).toEqual([1, 2, 3, 4]);
+            var iterator = iterate(collection);
 
             for (var index = 0; index < 4; index++) {
                 var iteration = iterator.next();
@@ -167,8 +187,8 @@ function describeCollection(Collection, values) {
                 expect(iteration.index).toBe(index);
                 expect(iteration.done).toBe(false);
             }
-            expect(iterator.next()).toEqual(Iterator.done);
-            expect(iterator.next()).toEqual(Iterator.done);
+            expect(iterator.next()).toEqual({done: true});
+            expect(iterator.next()).toEqual({done: true});
         });
     });
 

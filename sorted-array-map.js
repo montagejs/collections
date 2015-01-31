@@ -4,9 +4,9 @@ var SortedArraySet = require("./sorted-array-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
 var ObservableObject = require("./observable-object");
-var equalsOperator = require("./operators/equals");
-var compareOperator = require("./operators/compare");
-var addEach = require("./operators/add-each");
+var equalsOperator = require("pop-equals");
+var compareOperator = require("pop-compare");
+var copy = require("./copy");
 
 module.exports = SortedArrayMap;
 
@@ -36,9 +36,9 @@ function SortedArrayMap(values, equals, compare, getDefault) {
 // hack so require("sorted-array-map").SortedArrayMap will work in MontageJS
 SortedArrayMap.SortedArrayMap = SortedArrayMap;
 
-addEach(SortedArrayMap.prototype, GenericCollection.prototype);
-addEach(SortedArrayMap.prototype, GenericMap.prototype);
-addEach(SortedArrayMap.prototype, ObservableObject.prototype);
+copy(SortedArrayMap.prototype, GenericCollection.prototype);
+copy(SortedArrayMap.prototype, GenericMap.prototype);
+copy(SortedArrayMap.prototype, ObservableObject.prototype);
 
 SortedArrayMap.prototype.constructClone = function (values) {
     return new this.constructor(

@@ -2,7 +2,7 @@
 var List = require("../list");
 var describeDeque = require("./deque");
 var describeCollection = require("./collection");
-var describeRangeChanges = Function.noop; /// TODO
+var describeRangeChanges = function () {}; /// TODO
 
 describe("List", function () {
     // new List()

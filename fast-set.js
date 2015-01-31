@@ -6,10 +6,11 @@ var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
 var TreeLog = require("./tree-log");
 var ObservableObject = require("./observable-object");
-var noop = require("./operators/noop");
-var hashOperator = require("./operators/hash");
-var equalsOperator = require("./operators/equals");
-var addEach = require("./operators/add-each");
+var hashOperator = require("pop-hash");
+var equalsOperator = require("pop-equals");
+var iterate = require("pop-iterate");
+var arrayify = require("pop-arrayify");
+var copy = require("./copy");
 
 var object_has = Object.prototype.hasOwnProperty;
 
@@ -32,9 +33,9 @@ function FastSet(values, equals, hash, getDefault) {
 
 FastSet.FastSet = FastSet; // hack so require("fast-set").FastSet will work in MontageJS
 
-addEach(FastSet.prototype, GenericCollection.prototype);
-addEach(FastSet.prototype, GenericSet.prototype);
-addEach(FastSet.prototype, ObservableObject.prototype);
+copy(FastSet.prototype, GenericCollection.prototype);
+copy(FastSet.prototype, GenericSet.prototype);
+copy(FastSet.prototype, ObservableObject.prototype);
 
 FastSet.prototype.Buckets = Dict;
 FastSet.prototype.Bucket = List;
@@ -115,8 +116,12 @@ FastSet.prototype.one = function () {
     }
 };
 
+FastSet.prototype.toArray = function () {
+    return flatten(this.buckets.map(arrayify));
+};
+
 FastSet.prototype.iterate = function () {
-    return this.buckets.values().flatten().iterate();
+    return iterate(this.toArray());
 };
 
 FastSet.prototype.log = function (charmap, logNode, callback, thisp) {
@@ -190,3 +195,8 @@ FastSet.prototype.logNode = function (node, write) {
     }
 };
 
+function flatten(arrays) {
+    return Array.prototype.concat.apply([], arrays);
+}
+
+function noop() {}

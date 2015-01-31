@@ -6,8 +6,8 @@ var GenericOrder = require("./generic-order");
 var ObservableRange = require("./observable-range");
 var ObservableObject = require("./observable-object");
 var Iterator = require("./iterator");
-var addEach = require("./operators/add-each");
-var equalsOperator = require("./operators/equals");
+var copyProperties = require("./copy");
+var equalsOperator = require("pop-equals");
 
 // by Petka Antonov
 // https://github.com/petkaantonov/deque/blob/master/js/deque.js
@@ -28,10 +28,10 @@ function Deque(values, capacity) {
     this.addEach(values);
 }
 
-addEach(Deque.prototype, GenericCollection.prototype);
-addEach(Deque.prototype, GenericOrder.prototype);
-addEach(Deque.prototype, ObservableRange.prototype);
-addEach(Deque.prototype, ObservableObject.prototype);
+copyProperties(Deque.prototype, GenericCollection.prototype);
+copyProperties(Deque.prototype, GenericOrder.prototype);
+copyProperties(Deque.prototype, ObservableRange.prototype);
+copyProperties(Deque.prototype, ObservableObject.prototype);
 
 Deque.prototype.maxCapacity = (1 << 30) | 0;
 Deque.prototype.minCapacity = 16;
@@ -398,7 +398,7 @@ Deque.prototype.has = function (value, equals) {
     var mask = this.capacity - 1;
     for (var index = 0; index < this.length; index++) {
         var offset = (this.front + index) & mask;
-        if (this[offset] === value) {
+        if (equals(value, this[offset])) {
             return true;
         }
     }

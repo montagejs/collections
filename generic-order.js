@@ -1,6 +1,6 @@
 
-var equalsOperator = require("./operators/equals");
-var compareOperator = require("./operators/compare");
+var equalsOperator = require("pop-equals");
+var compareOperator = require("pop-compare");
 
 module.exports = GenericOrder;
 function GenericOrder() {

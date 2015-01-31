@@ -1,6 +1,6 @@
 
 var Deque = require("../deque");
-require("../shim-array");
+var arrayify = require("pop-arrayify");
 var prng = require("./prng");
 
 exports.fuzzDeque = fuzzDeque;
@@ -63,9 +63,9 @@ function execute(Collection, ops) {
         executeOp(oracle, op);
         executeOp(actual, op);
         if (typeof expect === "function") {
-            expect(actual.toArray()).toEqual(oracle);
-        } else if (!actual.toArray().equals(oracle)) {
-            console.log(actual.front, actual.toArray(), oracle);
+            expect(arrayify(actual)).toEqual(oracle);
+        } else if (!actual.slice().equals(oracle)) {
+            console.log(actual.front, actual.slice(), oracle);
             throw new Error("Did not match after " + stringifyOp(op));
         }
     });

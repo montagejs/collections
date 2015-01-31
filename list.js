@@ -7,9 +7,11 @@ var GenericOrder = require("./generic-order");
 var ObservableObject = require("./observable-object");
 var ObservableRange = require("./observable-range");
 var Iterator = require("./iterator");
-var equalsOperator = require("./operators/equals");
-var noop = require("./operators/noop");
-var addEach = require("./operators/add-each");
+var equalsOperator = require("pop-equals");
+var arrayify = require("pop-arrayify");
+var copy = require("./copy");
+
+var emptyArray = [];
 
 function List(values, equals, getDefault) {
     if (!(this instanceof List)) {
@@ -26,10 +28,10 @@ function List(values, equals, getDefault) {
 
 List.List = List; // hack so require("list").List will work in MontageJS
 
-addEach(List.prototype, GenericCollection.prototype);
-addEach(List.prototype, GenericOrder.prototype);
-addEach(List.prototype, ObservableObject.prototype);
-addEach(List.prototype, ObservableRange.prototype);
+copy(List.prototype, GenericCollection.prototype);
+copy(List.prototype, GenericOrder.prototype);
+copy(List.prototype, ObservableObject.prototype);
+copy(List.prototype, ObservableRange.prototype);
 
 List.prototype.constructClone = function (values) {
     return new this.constructor(values, this.contentEquals, this.getDefault);
@@ -40,7 +42,9 @@ List.prototype.findValue = function (value, equals) {
     var head = this.head;
     var at = head.next;
     while (at !== head) {
-        if (equals(at.value, value)) {
+        // Note that the given value occurs first so that it can be a matcher
+        // like an Any(Number) object.
+        if (equals(value, at.value)) {
             return at;
         }
         at = at.next;
@@ -52,7 +56,7 @@ List.prototype.findLastValue = function (value, equals) {
     var head = this.head;
     var at = head.prev;
     while (at !== head) {
-        if (equals(at.value, value)) {
+        if (equals(value, at.value)) {
             return at;
         }
         at = at.prev;
@@ -284,7 +288,7 @@ List.prototype.swap = function (start, length, plus) {
     if (length == null) {
         length = Infinity;
     }
-    plus = Array.from(plus);
+    plus = arrayify(plus);
 
     // collect the minus array
     var minus = [];
@@ -396,6 +400,10 @@ List.prototype.makeRangeChangesObservable = function () {
     ObservableRange.prototype.makeRangeChangesObservable.call(this);
 };
 
+List.prototype.toArray = function () {
+    return this.slice();
+};
+
 List.prototype.iterate = function () {
     return new ListIterator(this.head);
 };
@@ -450,4 +458,6 @@ Node.prototype.addAfter = function (node) {
     next.prev = node;
     node.prev = this;
 };
+
+function noop() {}
 
