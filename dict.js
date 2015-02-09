@@ -14,7 +14,7 @@ function Dict(values, getDefault) {
     }
     getDefault = getDefault || Function.noop;
     this.getDefault = getDefault;
-    this.store = {};
+    this.store = Object.create(null);
     this.length = 0;
     this.addEach(values);
 }
@@ -44,14 +44,17 @@ Dict.prototype.assertString = function (key) {
     if (typeof key !== "string") {
         throw new TypeError("key must be a string but Got " + key);
     }
-}
+};
 
 Dict.prototype.get = function (key, defaultValue) {
     this.assertString(key);
-    var mangled = mangle(key);
-    if (mangled in this.store) {
-        return this.store[mangled];
-    } else if (arguments.length > 1) {
+    if (key == '__proto__') {
+        key = '$__proto__';
+    }
+    if (key in this.store) {
+        return this.store[key];
+    }
+    if (arguments.length > 1) {
         return defaultValue;
     } else {
         return this.getDefault(key);
@@ -60,12 +63,14 @@ Dict.prototype.get = function (key, defaultValue) {
 
 Dict.prototype.set = function (key, value) {
     this.assertString(key);
-    var mangled = mangle(key);
-    if (mangled in this.store) { // update
+    if (key == '__proto__') {
+        key = '$__proto__';
+    }
+    if (key in this.store) { // update
         if (this.dispatchesBeforeMapChanges) {
-            this.dispatchBeforeMapChange(key, this.store[mangled]);
+            this.dispatchBeforeMapChange(key, this.store[key]);
         }
-        this.store[mangled] = value;
+        this.store[key] = value;
         if (this.dispatchesMapChanges) {
             this.dispatchMapChange(key, value);
         }
@@ -75,7 +80,7 @@ Dict.prototype.set = function (key, value) {
             this.dispatchBeforeMapChange(key, undefined);
         }
         this.length++;
-        this.store[mangled] = value;
+        this.store[key] = value;
         if (this.dispatchesMapChanges) {
             this.dispatchMapChange(key, value);
         }
@@ -85,18 +90,22 @@ Dict.prototype.set = function (key, value) {
 
 Dict.prototype.has = function (key) {
     this.assertString(key);
-    var mangled = mangle(key);
-    return mangled in this.store;
+    if (key == '__proto__') {
+        key = '$__proto__';
+    }
+    return key in this.store;
 };
 
 Dict.prototype["delete"] = function (key) {
     this.assertString(key);
-    var mangled = mangle(key);
-    if (mangled in this.store) {
+    if (key == '__proto__') {
+        key = '$__proto__';
+    }
+    if (key in this.store) {
         if (this.dispatchesMapChanges) {
-            this.dispatchBeforeMapChange(key, this.store[mangled]);
+            this.dispatchBeforeMapChange(key, this.store[key]);
         }
-        delete this.store[mangle(key)];
+        delete this.store[key];
         this.length--;
         if (this.dispatchesMapChanges) {
             this.dispatchMapChange(key, undefined);
@@ -107,13 +116,15 @@ Dict.prototype["delete"] = function (key) {
 };
 
 Dict.prototype.clear = function () {
-    var key, mangled;
-    for (mangled in this.store) {
-        key = unmangle(mangled);
-        if (this.dispatchesMapChanges) {
-            this.dispatchBeforeMapChange(key, this.store[mangled]);
+    var key;
+    for (key in this.store) {
+        if (key == '$__proto__') {
+            key = '__proto__';
         }
-        delete this.store[mangled];
+        if (this.dispatchesMapChanges) {
+            this.dispatchBeforeMapChange(key, this.store[key]);
+        }
+        delete this.store[key];
         if (this.dispatchesMapChanges) {
             this.dispatchMapChange(key, undefined);
         }
@@ -122,8 +133,8 @@ Dict.prototype.clear = function () {
 };
 
 Dict.prototype.reduce = function (callback, basis, thisp) {
-    for (var mangled in this.store) {
-        basis = callback.call(thisp, basis, this.store[mangled], unmangle(mangled), this);
+    for (var key in this.store) {
+        basis = callback.call(thisp, basis, this.store[key], key, this);
     }
     return basis;
 };
@@ -131,8 +142,8 @@ Dict.prototype.reduce = function (callback, basis, thisp) {
 Dict.prototype.reduceRight = function (callback, basis, thisp) {
     var self = this;
     var store = this.store;
-    return Object.keys(this.store).reduceRight(function (basis, mangled) {
-        return callback.call(thisp, basis, store[mangled], unmangle(mangled), self);
+    return Object.keys(this.store).reduceRight(function (basis, key) {
+        return callback.call(thisp, basis, store[key], key, self);
     }, basis);
 };
 

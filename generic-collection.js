@@ -6,13 +6,14 @@ function GenericCollection() {
 }
 
 GenericCollection.prototype.addEach = function (values) {
+    var i;
     if (values && Object(values) === values) {
         if (typeof values.forEach === "function") {
             values.forEach(this.add, this);
         } else if (typeof values.length === "number") {
             // Array-like objects that do not implement forEach, ergo,
             // Arguments
-            for (var i = 0; i < values.length; i++) {
+            for (i = 0; i < values.length; i++) {
                 this.add(values[i], i);
             }
         } else {
@@ -22,7 +23,7 @@ GenericCollection.prototype.addEach = function (values) {
         }
     } else if (values && typeof values.length === "number") {
         // Strings
-        for (var i = 0; i < values.length; i++) {
+        for (i = 0; i < values.length; i++) {
             this.add(values[i], i);
         }
     }
@@ -73,7 +74,7 @@ GenericCollection.prototype.group = function (callback, thisp, equals) {
     var groups = [];
     var keys = [];
     this.forEach(function (value, key, object) {
-        var key = callback.call(thisp, value, key, object);
+        key = callback.call(thisp, value, key, object);
         var index = keys.indexOf(key, equals);
         var group;
         if (index === -1) {
@@ -202,7 +203,7 @@ GenericCollection.prototype.zip = function () {
     var table = Array.prototype.slice.call(arguments);
     table.unshift(this);
     return Array.unzip(table);
-}
+};
 
 GenericCollection.prototype.join = function (delimiter) {
     return this.reduce(function (result, string) {

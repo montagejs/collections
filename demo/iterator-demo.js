@@ -82,7 +82,7 @@ Iterator.count().zipIterator("abc").toArray()
 .forEach(console.log);
 
 // filter
-console.log(".filter")
+console.log(".filter");
 Iterator.range(10).filterIterator(function (n) {
     return n & 1;
 })
@@ -94,7 +94,8 @@ console.log(Iterator("abc").enumerate().toArray());
 console.log(Iterator("abc").enumerate(1).toArray());
 console.log(Iterator("abc").enumerate(1, 'i', 'x').toArray());
 
-var iterator = new Iterator([1, 2, 3, 4, 5]);
+var iterator;
+iterator = new Iterator([1, 2, 3, 4, 5]);
 iterator.mapIterator(function (n) {
     console.log('producing', n * 2);
     return n * 2;
@@ -111,20 +112,20 @@ iterator.mapIterator(function (n) {
 });
 
 list = new List([1, 2, 3, 4, 5]);
-var iterator = list.iterate();
+iterator = list.iterate();
 console.log(iterator.next());
 iterator = new Iterator(iterator);
 console.log(iterator.next());
 console.log(iterator.sum());
 
 list = new List([1, 2, 3, 4, 5]);
-var iterator = new Iterator(list);
+iterator = new Iterator(list);
 console.log(iterator.next());
 iterator = new Iterator(iterator);
 console.log(iterator.next());
 console.log(iterator.average());
 
-console.log(Iterator([[1, 2], [3, 4]]).flatten())
+console.log(Iterator([[1, 2], [3, 4]]).flatten());
 
 console.log(Iterator([1, 2, 3, 4]).max());
 

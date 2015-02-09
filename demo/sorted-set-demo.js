@@ -53,7 +53,7 @@ iterator.forEach(function (value) {
     console.log(value);
 });
 
-console.log('\nset length')
+console.log('\nset length');
 var set = new SortedSet([1, 3, 3, 5, 7, 10]);
 console.log(set.length);
 

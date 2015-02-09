@@ -46,7 +46,7 @@ describe("Array change dispatch", function () {
         // are both non-enumerable, and any other properties that might get
         // added in the future.
         for (var name in array) {
-            expect(isNaN(+name)).toBe(false);
+            expect(isNaN(+name)).toBeFalsy();
         }
     });
 

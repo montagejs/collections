@@ -2,7 +2,6 @@
 
 module.exports = SortedArray;
 
-var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
 var PropertyChanges = require("./listen/property-changes");
 var RangeChanges = require("./listen/range-changes");
@@ -29,8 +28,13 @@ function SortedArray(values, equals, compare, getDefault) {
 SortedArray.SortedArray = SortedArray;
 
 Object.addEach(SortedArray.prototype, GenericCollection.prototype);
+GenericCollection = null;
+
 Object.addEach(SortedArray.prototype, PropertyChanges.prototype);
+PropertyChanges = null;
+
 Object.addEach(SortedArray.prototype, RangeChanges.prototype);
+RangeChanges = null;
 
 SortedArray.prototype.isSorted = true;
 
