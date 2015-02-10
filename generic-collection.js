@@ -5,6 +5,8 @@ function GenericCollection() {
     throw new Error("Can't construct. GenericCollection is a mixin.");
 }
 
+GenericCollection.EmptyArray = Object.freeze([]);
+
 GenericCollection.prototype.addEach = function (values) {
     if (values && Object(values) === values) {
         if (typeof values.forEach === "function") {
