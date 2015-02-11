@@ -62,7 +62,7 @@ Dict.prototype.set = function (key, value) {
     this.assertString(key);
     var mangled = mangle(key);
     if (mangled in this.store) { // update
-        if (this.dispatchesBeforeMapChanges) {
+        if (this.dispatchesMapChanges) {
             this.dispatchBeforeMapChange(key, this.store[mangled]);
         }
         this.store[mangled] = value;

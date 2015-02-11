@@ -263,10 +263,11 @@ SortedArray.prototype.swap = function (index, length, plus) {
         this.dispatchBeforeRangeChange(plus, minus, index);
     }
     this.array.splice(index, length);
-    this.addEach(plus);
+    this.length -= minus.length;
     if (this.dispatchesRangeChanges) {
-        this.dispatchRangeChange(plus, minus, index);
+        this.dispatchRangeChange([], minus, index);
     }
+    this.addEach(plus);
     return minus;
 };
 
