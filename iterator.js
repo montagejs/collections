@@ -20,7 +20,9 @@ function Iterator(iterable) {
     if (iterable instanceof Iterator) {
         return iterable;
     } else if (iterable.reduce) {
-        this.iterable = iterable;
+        this.reduce = function() {
+            return iterable.reduce.apply(iterable,arguments);
+        }
     } else if (iterable.next) {
         this.next = function () {
             return iterable.next();
@@ -107,9 +109,6 @@ Iterator.prototype.reduce = function (callback /*, initial, thisp*/) {
 
     if (Object.prototype.toString.call(callback) != "[object Function]")
         throw new TypeError();
-
-    if( this.iterable && this.iterable.reduce )
-        return this.iterable.reduce(callback);
 
     // first iteration unrolled
     try {
