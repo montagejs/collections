@@ -4,7 +4,7 @@ var Maps = [require("../map"),require("../sorted-map"),require("../sorted-array-
 
 describe("Map Iterator", function () {
     Maps.forEach(function(M) {
-        it("iterator should iterate keys of a "+M.name,function() {
+        it("iterator should iterate value-key pairs of a "+M.name,function() {
             var map = M({a:10});
             var count = 0;
             Iterator(map).forEach(function(v,k) {
