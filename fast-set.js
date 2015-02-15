@@ -22,7 +22,10 @@ function FastSet(values, equals, hash, getDefault) {
     this.contentEquals = equals;
     this.contentHash = hash;
     this.getDefault = getDefault;
-    this.buckets = new this.Buckets(null, this.Bucket);
+    var self = this;
+    this.buckets = new this.Buckets(null, function getDefaultBucket() {
+        return new self.Bucket();
+    });
     this.length = 0;
     this.addEach(values);
 }
