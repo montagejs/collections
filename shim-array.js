@@ -17,12 +17,6 @@ module.exports = Array;
 var array_splice = Array.prototype.splice;
 var array_slice = Array.prototype.slice;
 
-Array.empty = [];
-
-if (Object.freeze) {
-    Object.freeze(Array.empty);
-}
-
 Array.from = function (values) {
     var array = [];
     array.addEach(values);
