@@ -1,4 +1,8 @@
 
+## Next patch
+
+- Vlad Alexandru Ionescu fixed a bug in dictionaries with single character keys.
+
 ## v1.2.0
 
 -   Trevor Dixon fixed bugs in SortedSet find methods.
