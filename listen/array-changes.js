@@ -17,13 +17,12 @@ var List = require("../list");
 var PropertyChanges = require("./property-changes");
 var RangeChanges = require("./range-changes");
 var MapChanges = require("./map-changes");
-var ArrayP = Array.prototype;
-var array_splice = ArrayP.splice;
-var array_slice = ArrayP.slice;
-var array_reverse = ArrayP.reverse;
-var array_sort = ArrayP.sort;
-var array_swap = ArrayP.swap;
-var array_push = ArrayP.push;
+var array_splice = Array.prototype.splice;
+var array_slice = Array.prototype.slice;
+var array_reverse = Array.prototype.reverse;
+var array_sort = Array.prototype.sort;
+var array_swap = Array.prototype.swap;
+var array_push = Array.prototype.push;
 
 // use different strategies for making arrays observable between Internet
 // Explorer and other browsers.
@@ -39,7 +38,7 @@ if (protoIsSupported) {
     };
 }
 
-Object.defineProperty(ArrayP, "makeObservable", {
+Object.defineProperty(Array.prototype, "makeObservable", {
     value: array_makeObservable,
     writable: true,
     configurable: true,
@@ -48,7 +47,7 @@ Object.defineProperty(ArrayP, "makeObservable", {
 
 function defineEach(prototype) {
     for (var name in prototype) {
-        Object.defineProperty(ArrayP, name, {
+        Object.defineProperty(Array.prototype, name, {
             value: prototype[name],
             writable: true,
             configurable: true,
@@ -60,7 +59,7 @@ function defineEach(prototype) {
 defineEach(PropertyChanges.prototype);
 
 //This is a no-op test in property-changes.js - PropertyChanges.prototype.makePropertyObservable, so might as well not pay the price every time....
-Object.defineProperty(ArrayP, "makePropertyObservable", {
+Object.defineProperty(Array.prototype, "makePropertyObservable", {
     value: function(){},
     writable: true,
     configurable: true,
@@ -323,6 +322,6 @@ var observableArrayProperties = {
 
 };
 
-var ChangeDispatchArray = Object.create(ArrayP, observableArrayProperties);
+var ChangeDispatchArray = Object.create(Array.prototype, observableArrayProperties);
 exports.observableArrayProperties = observableArrayProperties;
 
