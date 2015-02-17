@@ -1,16 +1,16 @@
 /*
-    Based in part on observable arrays from Motorola Mobility’s Montage
-    Copyright (c) 2012, Motorola Mobility LLC. All Rights Reserved.
-    3-Clause BSD License
-    https://github.com/motorola-mobility/montage/blob/master/LICENSE.md
-*/
+ Based in part on observable arrays from Motorola Mobility’s Montage
+ Copyright (c) 2012, Motorola Mobility LLC. All Rights Reserved.
+ 3-Clause BSD License
+ https://github.com/motorola-mobility/montage/blob/master/LICENSE.md
+ */
 
 /*
-    This module is responsible for observing changes to owned properties of
-    objects and changes to the content of arrays caused by method calls.
-    The interface for observing array content changes establishes the methods
-    necessary for any collection with observable content.
-*/
+ This module is responsible for observing changes to owned properties of
+ objects and changes to the content of arrays caused by method calls.
+ The interface for observing array content changes establishes the methods
+ necessary for any collection with observable content.
+ */
 
 require("../shim");
 var List = require("../list");
@@ -98,21 +98,21 @@ var observableArrayProperties = {
 
     sort: {
         value: function sort() {
-            var i, countI;
+            var index, length;
             // dispatch before change events
             this.dispatchBeforeRangeChange(this, this, 0);
-            for (i = 0, countI = this.length; i < countI; i++) {
-                PropertyChanges.dispatchBeforeOwnPropertyChange(this, i, this[i]);
-                this.dispatchBeforeMapChange(i, this[i]);
+            for (index = 0, length = this.length; index < length; index++) {
+                PropertyChanges.dispatchBeforeOwnPropertyChange(this, index, this[index]);
+                this.dispatchBeforeMapChange(index, this[index]);
             }
 
             // actual work
             array_sort.apply(this, arguments);
 
             // dispatch after change events
-            for (i = 0, countI = this.length; i < countI; i++) {
-                PropertyChanges.dispatchOwnPropertyChange(this, i, this[i]);
-                this.dispatchMapChange(i, this[i]);
+            for (index = 0, length = this.length; index < length; index++) {
+                PropertyChanges.dispatchOwnPropertyChange(this, index, this[index]);
+                this.dispatchMapChange(index, this[index]);
             }
             this.dispatchRangeChange(this, this, 0);
 
@@ -122,27 +122,27 @@ var observableArrayProperties = {
         configurable: true
     },
 
-	_dispatchBeforeOwnPropertyChange: {
-		value: function _dispatchBeforeOwnPropertyChange(start, length) {
-		    for (var i = start, countI = start+length; i < countI; i++) {
-		        PropertyChanges.dispatchBeforeOwnPropertyChange(this, i, this[i]);
-		        this.dispatchBeforeMapChange(i, this[i]);
-		    }
-		}
-	},
-	
-	_dispatchOwnPropertyChange: {
-		value: function _dispatchOwnPropertyChange(start, length) {
-		    for (var i = start, countI = start+length; i < countI; i++) {
-				this.dispatchOwnPropertyChange(i, this[i]);
-			    this.dispatchMapChange(i, this[i]);
-		    }
-		}
-	},
+    _dispatchBeforeOwnPropertyChange: {
+        value: function _dispatchBeforeOwnPropertyChange(start, length) {
+            for (var i = start, countI = start+length; i < countI; i++) {
+                PropertyChanges.dispatchBeforeOwnPropertyChange(this, i, this[i]);
+                this.dispatchBeforeMapChange(i, this[i]);
+            }
+        }
+    },
+
+    _dispatchOwnPropertyChange: {
+        value: function _dispatchOwnPropertyChange(start, length) {
+            for (var i = start, countI = start+length; i < countI; i++) {
+                this.dispatchOwnPropertyChange(i, this[i]);
+                this.dispatchMapChange(i, this[i]);
+            }
+        }
+    },
 
     swap: {
         value: function swap(start, length, plus) {
-			var hasOwnPropertyChangeDescriptor, i, j;
+            var hasOwnPropertyChangeDescriptor, i, j;
             if (plus) {
                 if (!Array.isArray(plus)) {
                     plus = array_slice.call(plus);
@@ -192,7 +192,7 @@ var observableArrayProperties = {
                 // all subsequent values changed or shifted.
                 // avoid (longest - start) long walks if there are no
                 // registered descriptors.
-				this._dispatchBeforeOwnPropertyChange(start, longest-start);
+                this._dispatchBeforeOwnPropertyChange(start, longest-start);
             }
 
             // actual work
@@ -203,16 +203,16 @@ var observableArrayProperties = {
 
             // dispatch after change events
             if (diff === 0) { // substring replacement
-				this._dispatchOwnPropertyChange(start,plus.length);
+                this._dispatchOwnPropertyChange(start,plus.length);
             } else if (hasOwnPropertyChangeDescriptor) {
                 // all subsequent values changed or shifted.
                 // avoid (longest - start) long walks if there are no
                 // registered descriptors.
-				this._dispatchOwnPropertyChange(start,longest-start);
+                this._dispatchOwnPropertyChange(start,longest-start);
             }
             this.dispatchRangeChange(plus, minus, start);
             if (diff) {
-				this.dispatchOwnPropertyChange("length", this.length);
+                this.dispatchOwnPropertyChange("length", this.length);
             }
 
             return result;
@@ -267,32 +267,31 @@ var observableArrayProperties = {
 
     push: {
         value: function push(arg) {
-			var start = this.length, 
-				addedCount = arguments.length, 
-				argArray,
-				hasOwnPropertyChangeDescriptor;
-			
-           	argArray = addedCount === 1 ? [arguments[0]] : Array.apply(null, arguments);
-           	//argArray = array_slice.call(arguments);
+            var start = this.length,
+                addedCount = arguments.length,
+                argArray,
+                hasOwnPropertyChangeDescriptor;
 
-			if(addedCount > 0) {
-	    		PropertyChanges.dispatchBeforeOwnPropertyChange(this, "length", start);
-				this.dispatchBeforeRangeChange(argArray, Array.empty, start);
-				
-				if(hasOwnPropertyChangeDescriptor = PropertyChanges.hasOwnPropertyChangeDescriptor(this)) {
-					this._dispatchBeforeOwnPropertyChange(start, addedCount);
-				}
-			}
-			
-			array_push.apply(this,arguments);
+            argArray = addedCount === 1 ? [arguments[0]] : Array.apply(null, arguments);
 
-	        if (addedCount > 0) {
-				if (hasOwnPropertyChangeDescriptor) {
-					this._dispatchOwnPropertyChange(start,addedCount);
-				}
-		        this.dispatchRangeChange(argArray,Array.empty, start);
-				this.dispatchOwnPropertyChange("length", this.length);
-	        }
+            if(addedCount > 0) {
+                PropertyChanges.dispatchBeforeOwnPropertyChange(this, "length", start);
+                this.dispatchBeforeRangeChange(argArray, Array.empty, start);
+
+                if(hasOwnPropertyChangeDescriptor = PropertyChanges.hasOwnPropertyChangeDescriptor(this)) {
+                    this._dispatchBeforeOwnPropertyChange(start, addedCount);
+                }
+            }
+
+            array_push.apply(this,arguments);
+
+            if (addedCount > 0) {
+                if (hasOwnPropertyChangeDescriptor) {
+                    this._dispatchOwnPropertyChange(start,addedCount);
+                }
+                this.dispatchRangeChange(argArray,Array.empty, start);
+                this.dispatchOwnPropertyChange("length", this.length);
+            }
 
         },
         writable: true,
