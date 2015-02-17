@@ -187,7 +187,7 @@ var observableArrayProperties = {
             }
             this.dispatchBeforeRangeChange(plus, minus, start);
             if (diff === 0) { // substring replacement
-				this._dispatchBeforeOwnPropertyChange(start, plus.length);
+                this._dispatchBeforeOwnPropertyChange(start, plus.length);
             } else if ((hasOwnPropertyChangeDescriptor = PropertyChanges.hasOwnPropertyChangeDescriptor(this))) {
                 // all subsequent values changed or shifted.
                 // avoid (longest - start) long walks if there are no
