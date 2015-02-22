@@ -25,7 +25,7 @@ var array_reverse = Array.prototype.reverse;
 var array_sort = Array.prototype.sort;
 var array_swap = Array.prototype.swap;
 
-var EMPTY_ARRAY = [];
+var EMPTY_ARRAY = Array.empty;
 
 // use different strategies for making arrays observable between Internet
 // Explorer and other browsers.
