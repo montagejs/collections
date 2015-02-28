@@ -167,7 +167,7 @@ PropertyChanges.prototype.dispatchOwnPropertyChange = function (key, value, befo
         listeners = descriptor.changeListeners;
     }
 
-	if(listeners.lenth === 0) return;
+	if (listeners.length === 0) return;
 
     try {
         // dispatch to each listener
@@ -186,8 +186,8 @@ function dispatchEach(listeners, key, value) {
     while (index--) {
         active[index] = current[index];
     }
-    for (var index = 0, length = active.length; index < length; index++) {
-        var listener = active[index];
+    for (var i = 0, length = active.length; i < length; i++) {
+        var listener = active[i];
         if (current.indexOf(listener) < 0) {
 			//This is fixing the issue causing a regression in Montage's repetition
             continue;
@@ -218,7 +218,7 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
         return;
     }
 
-    if (!Object.isExtensible(this, key)) {
+    if (!Object.isExtensible(this)) {
         throw new Error("Can't make property " + JSON.stringify(key) + " observable on " + this + " because object is not extensible");
     }
 
@@ -227,7 +227,7 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
         state = this.__state__;
     } else {
         state = {};
-        if (Object.isExtensible(this, "__state__")) {
+        if (Object.isExtensible(this)) {
             Object.defineProperty(this, "__state__", {
                 value: state,
                 writable: true,
@@ -259,7 +259,6 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
     // the property name
     var overriddenDescriptor;
     var attached = this;
-    var formerDescriptor = Object.getOwnPropertyDescriptor(attached, key);
     do {
         overriddenDescriptor = Object.getOwnPropertyDescriptor(attached, key);
         if (overriddenDescriptor) {
