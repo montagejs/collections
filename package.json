@@ -28,10 +28,10 @@
     "url": "http://github.com/montagejs/collections.git"
   },
   "dependencies": {
-    "weak-map": "1.0.0"
+    "weak-map": "~1.0.x"
   },
   "devDependencies": {
-    "jasmine-node": ">=1.13.1 <1.14.0",
+    "jasmine-node": "~1.14.x",
     "istanbul": "*",
     "opener": "*"
   },
