@@ -67,7 +67,7 @@ Dict.prototype.set = function (key, value) {
         key = '$__proto__';
     }
     if (key in this.store) { // update
-        if (this.dispatchesBeforeMapChanges) {
+        if (this.dispatchesMapChanges) {
             this.dispatchBeforeMapChange(key, this.store[key]);
         }
         this.store[key] = value;
