@@ -1,11 +1,12 @@
 
-require("../shim-array");
 var SortedSet = require("../sorted-set");
 var TreeLog = require("../tree-log");
 var describeDeque = require("./deque");
 var describeCollection = require("./collection");
 var describeSet = require("./set");
 var Fuzz = require("./fuzz");
+var swap = require("pop-swap/swap");
+var compare = require("pop-compare");
 
 describe("SortedSet", function () {
 
@@ -27,7 +28,7 @@ describe("SortedSet", function () {
             this.value = value;
         }
         Value.prototype.compare = function (that) {
-            return Object.compare(this.value, that.value);
+            return compare(this.value, that.value);
         }
         var a = new Value(1);
         var b = new Value(2);
@@ -345,7 +346,7 @@ describe("SortedSet", function () {
                     var mirror = [];
                     var set = SortedSet();
                     set.observeRangeChange(function (plus, minus, index) {
-                        mirror.swap(index, minus.length, plus);
+                        swap(mirror, index, minus.length, plus);
                     });
                     set.addEach(numbers);
                     expect(mirror.length).toBe(set.length);

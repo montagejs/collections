@@ -4,9 +4,9 @@ var Set = require("./set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
 var ObservableObject = require("./observable-object");
-var equalsOperator = require("./operators/equals");
-var hashOperator = require("./operators/hash");
-var addEach = require("./operators/add-each");
+var equalsOperator = require("pop-equals");
+var hashOperator = require("pop-hash");
+var copy = require("./copy");
 
 module.exports = Map;
 
@@ -35,9 +35,9 @@ function Map(values, equals, hash, getDefault) {
 
 Map.Map = Map; // hack so require("map").Map will work in MontageJS
 
-addEach(Map.prototype, GenericCollection.prototype);
-addEach(Map.prototype, GenericMap.prototype); // overrides GenericCollection
-addEach(Map.prototype, ObservableObject.prototype);
+copy(Map.prototype, GenericCollection.prototype);
+copy(Map.prototype, GenericMap.prototype); // overrides GenericCollection
+copy(Map.prototype, ObservableObject.prototype);
 
 Map.prototype.constructClone = function (values) {
     return new this.constructor(

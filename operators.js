@@ -1,9 +1,7 @@
 
-var Map = require("./map");
-var Set = require("./set");
-var equals = require("./operators/equals");
-var compare = require("./operators/compare");
-var escape = require("./operators/escape");
+require("regexp-escape");
+var equals = require("pop-equals");
+var compare = require("pop-compare");
 
 // from highest to lowest precedence
 
@@ -21,11 +19,9 @@ function toString(value) {
     }
 }
 
-exports.toArray = Array.from;
-
-exports.toMap = Map;
-
-exports.toSet = Set;
+exports.toArray = function toArray(array) {
+    return Array.prototype.slice.call(array);
+};
 
 exports.not = not;
 function not(value) {
@@ -175,19 +171,19 @@ function defined(value) {
 
 exports.startsWith = startsWith;
 function startsWith(a, b) {
-    var expression = new RegExp("^" + escape(b));
+    var expression = new RegExp("^" + RegExp.escape(b));
     return expression.test(a);
 }
 
 exports.endsWith = endsWith;
 function endsWith(a, b) {
-    var expression = new RegExp(escape(b) + "$");
+    var expression = new RegExp(RegExp.escape(b) + "$");
     return expression.test(a);
 }
 
 exports.contains = contains;
 function contains(a, b) {
-    var expression = new RegExp(escape(b));
+    var expression = new RegExp(RegExp.escape(b));
     return expression.test(a);
 }
 
@@ -210,10 +206,10 @@ function range(stop) {
     return range;
 }
 
-exports.clone = require("./operators/clone");
+exports.clone = require("pop-clone");
 
 function isObject(object) {
-    return Object(object) === object;
+    return object && typeof object === "object";
 }
 
 function valueOf(value) {

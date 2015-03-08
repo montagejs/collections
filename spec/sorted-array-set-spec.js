@@ -15,7 +15,7 @@ describe("SortedArraySet", function () {
     [SortedArraySet, newSortedArraySet].forEach(function (SortedArraySet) {
         describeDeque(SortedArraySet);
         describeCollection(SortedArraySet, [1, 2, 3, 4]);
-        describeSet(SortedArraySet);
+        describeSet(SortedArraySet, true);
     });
 
     describe("constructor", function () {

@@ -13,16 +13,16 @@
  * necessary for any collection with observable content.
  */
 
-require("./shim-array");
 var WeakMap = require("weak-map");
 
 var observedLengthForObject = new WeakMap();
+var emptyArray = [];
 
 var ObservableObject = require("./observable-object");
 var ObservableRange = require("./observable-range");
 var ObservableMap = require("./observable-map");
 
-var array_swap = require("./operators/swap");
+var array_swap = require("pop-swap/swap");
 var array_splice = Array.prototype.splice;
 var array_slice = Array.prototype.slice;
 var array_reverse = Array.prototype.reverse;
@@ -31,7 +31,7 @@ var array_sort = Array.prototype.sort;
 var observableArrayProperties = {
 
     makeRangeChangesObservable: {
-        value: Function.noop, // idempotent
+        value: function () {}, // idempotent
         writable: true,
         configurable: true
     },
@@ -76,7 +76,7 @@ var observableArrayProperties = {
                     plus = array_slice.call(plus);
                 }
             } else {
-                plus = Array.empty;
+                plus = emptyArray;
             }
 
             if (start < 0) {
@@ -108,7 +108,7 @@ var observableArrayProperties = {
                     // at this point if plus is empty there is nothing to do.
                     return []; // [], but spare us an instantiation
                 }
-                minus = Array.empty;
+                minus = emptyArray;
             } else {
                 minus = array_slice.call(this, start, start + minusLength);
             }
@@ -258,7 +258,7 @@ var observableArrayProperties = {
 
     reverse: {
         value: function reverse() {
-            var reversed = this.constructClone(this);
+            var reversed = this.slice();
             reversed.reverse();
             this.swap(0, this.length, reversed);
             return this;
@@ -269,7 +269,7 @@ var observableArrayProperties = {
 
     sort: {
         value: function sort() {
-            var sorted = this.constructClone(this);
+            var sorted = this.slice();
             array_sort.apply(sorted, arguments);
             this.swap(0, this.length, sorted);
             return this;
@@ -318,6 +318,16 @@ var observableArrayProperties = {
         },
         writable: true,
         configurable: true
+    },
+
+    set: {
+        value: function set(index, value) {
+            if (index >= this.length) {
+                this.swap(index, 0, [value]);
+            } else {
+                this.swap(index, 1, [value]);
+            }
+        }
     },
 
     clear: {

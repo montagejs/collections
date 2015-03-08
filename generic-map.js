@@ -3,17 +3,17 @@
 var ObservableMap = require("./observable-map");
 var ObservableObject = require("./observable-object");
 var Iterator = require("./iterator");
-var equalsOperator = require("./operators/equals");
-var compareOperator = require("./operators/compare");
-var addEach = require("./operators/add-each");
+var equalsOperator = require("pop-equals");
+var compareOperator = require("pop-compare");
+var copy = require("./copy");
 
 module.exports = GenericMap;
 function GenericMap() {
     throw new Error("Can't construct. GenericMap is a mixin.");
 }
 
-addEach(GenericMap.prototype, ObservableMap.prototype);
-addEach(GenericMap.prototype, ObservableObject.prototype);
+copy(GenericMap.prototype, ObservableMap.prototype);
+copy(GenericMap.prototype, ObservableObject.prototype);
 
 // all of these methods depend on the constructor providing a `store` set
 
@@ -152,7 +152,7 @@ GenericMap.prototype.keys = function () {
 };
 
 GenericMap.prototype.values = function () {
-    return this.map(Function.identity);
+    return this.map(identity);
 };
 
 GenericMap.prototype.entries = function () {
@@ -212,3 +212,4 @@ GenericMapIterator.prototype.next = function () {
     }
 };
 
+function identity(value) { return value; }

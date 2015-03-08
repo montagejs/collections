@@ -4,9 +4,9 @@ var LruSet = require("./lru-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
 var ObservableObject = require("./observable-object");
-var equalsOperator = require("./operators/equals");
-var hashOperator = require("./operators/hash");
-var addEach = require("./operators/add-each");
+var equalsOperator = require("pop-equals");
+var hashOperator = require("pop-hash");
+var copy = require("./copy");
 
 module.exports = LruMap;
 
@@ -37,9 +37,9 @@ function LruMap(values, capacity, equals, hash, getDefault) {
 
 LruMap.LruMap = LruMap; // hack so require("lru-map").LruMap will work in MontageJS
 
-addEach(LruMap.prototype, GenericCollection.prototype);
-addEach(LruMap.prototype, GenericMap.prototype);
-addEach(LruMap.prototype, ObservableObject.prototype);
+copy(LruMap.prototype, GenericCollection.prototype);
+copy(LruMap.prototype, GenericMap.prototype);
+copy(LruMap.prototype, ObservableObject.prototype);
 
 LruMap.prototype.constructClone = function (values) {
     return new this.constructor(

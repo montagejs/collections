@@ -1,8 +1,9 @@
 "use strict";
 
-var equalsOperator = require("./operators/equals");
-var compareOperator = require("./operators/compare");
-var cloneOperator = require("./operators/clone");
+var equalsOperator = require("pop-equals");
+var compareOperator = require("pop-compare");
+var cloneOperator = require("pop-clone");
+var unzipOperator = require("pop-zip/pop-unzip");
 
 module.exports = GenericCollection;
 function GenericCollection() {
@@ -88,7 +89,7 @@ GenericCollection.prototype.group = function (callback, thisp, equals) {
 };
 
 GenericCollection.prototype.toArray = function () {
-    return this.map(Function.identity);
+    return this.map(identity);
 };
 
 // this depends on stringable keys, which apply to Array and Iterator
@@ -204,7 +205,7 @@ GenericCollection.prototype.flatten = function () {
 GenericCollection.prototype.zip = function () {
     var table = Array.prototype.slice.call(arguments);
     table.unshift(this);
-    return Array.unzip(table);
+    return unzipOperator(table);
 }
 
 GenericCollection.prototype.join = function (delimiter) {
@@ -220,7 +221,7 @@ GenericCollection.prototype.sorted = function (compare, by, order) {
         by = compare.by;
         compare = compare.compare || this.contentCompare || compareOperator;
     } else {
-        by = by || Function.identity;
+        by = by || identity;
     }
     if (order === undefined)
         order = 1;
@@ -262,3 +263,4 @@ GenericCollection.prototype.only = function () {
     }
 };
 
+function identity(value) { return value; }

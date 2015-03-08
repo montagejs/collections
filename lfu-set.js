@@ -7,9 +7,10 @@ var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
 var ObservableRange = require("./observable-range");
 var ObservableObject = require("./observable-object");
-var equalsOperator = require("./operators/equals");
-var hashOperator = require("./operators/hash");
-var addEach = require("./operators/add-each");
+var equalsOperator = require("pop-equals");
+var hashOperator = require("pop-hash");
+var iterateOperator = require("pop-iterate");
+var copy = require("./copy");
 
 module.exports = LfuSet;
 
@@ -20,7 +21,7 @@ function LfuSet(values, capacity, equals, hash, getDefault) {
     capacity = capacity || Infinity;
     equals = equals || equalsOperator;
     hash = hash || hashOperator;
-    getDefault = getDefault || Function.noop;
+    getDefault = getDefault || noop;
 
     // TODO
     this.store = new Set(
@@ -44,10 +45,10 @@ function LfuSet(values, capacity, equals, hash, getDefault) {
 
 LfuSet.LfuSet = LfuSet; // hack so require("lfu-set").LfuSet will work in MontageJS
 
-addEach(LfuSet.prototype, GenericCollection.prototype);
-addEach(LfuSet.prototype, GenericSet.prototype);
-addEach(LfuSet.prototype, ObservableRange.prototype);
-addEach(LfuSet.prototype, ObservableObject.prototype);
+copy(LfuSet.prototype, GenericCollection.prototype);
+copy(LfuSet.prototype, GenericSet.prototype);
+copy(LfuSet.prototype, ObservableRange.prototype);
+copy(LfuSet.prototype, ObservableObject.prototype);
 
 LfuSet.prototype.constructClone = function (values) {
     return new this.constructor(
@@ -219,9 +220,9 @@ LfuSet.prototype.reduceRight = function (callback, basis /*, thisp*/) {
 };
 
 LfuSet.prototype.iterate = function () {
-    return this.store.map(function (node) {
+    return iterateOperator(this.store.map(function (node) {
         return node.value;
-    }).iterate();
+    }));
 };
 
 LfuSet.prototype.Node = Node;
@@ -245,4 +246,6 @@ function FrequencyNode(frequency, prev, next) {
         next.prev = this;
     }
 }
+
+function noop() {}
 

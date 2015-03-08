@@ -1,6 +1,4 @@
 
-require("../shim-regexp");
-
 describe("RegExp", function () {
     describe("escape", function () {
 

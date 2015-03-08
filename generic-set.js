@@ -1,4 +1,6 @@
 
+var has = require("pop-has");
+
 module.exports = GenericSet;
 function GenericSet() {
     throw new Error("Can't construct. GenericSet is a mixin.");
@@ -14,7 +16,7 @@ GenericSet.prototype.union = function (that) {
 
 GenericSet.prototype.intersection = function (that) {
     return this.constructClone(this.filter(function (value) {
-        return that.has(value);
+        return has(that, value);
     }));
 };
 

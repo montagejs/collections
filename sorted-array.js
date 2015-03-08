@@ -5,11 +5,12 @@ module.exports = SortedArray;
 var GenericCollection = require("./generic-collection");
 var ObservableObject = require("./observable-object");
 var ObservableRange = require("./observable-range");
-var Iterator = require("./iterator");
-var equalsOperator = require("./operators/equals");
-var compareOperator = require("./operators/compare");
-var noop = require("./operators/noop");
-var addEach = require("./operators/add-each");
+var equalsOperator = require("pop-equals");
+var compareOperator = require("pop-compare");
+var hasOperator = require("pop-has");
+var iterateOperator = require("pop-iterate");
+var clear = require("pop-clear");
+var copy = require("./copy");
 
 function SortedArray(values, equals, compare, getDefault) {
     if (!(this instanceof SortedArray)) {
@@ -32,9 +33,9 @@ function SortedArray(values, equals, compare, getDefault) {
 // hack so require("sorted-array").SortedArray will work in MontageJS
 SortedArray.SortedArray = SortedArray;
 
-addEach(SortedArray.prototype, GenericCollection.prototype);
-addEach(SortedArray.prototype, ObservableObject.prototype);
-addEach(SortedArray.prototype, ObservableRange.prototype);
+copy(SortedArray.prototype, GenericCollection.prototype);
+copy(SortedArray.prototype, ObservableObject.prototype);
+copy(SortedArray.prototype, ObservableRange.prototype);
 
 SortedArray.prototype.isSorted = true;
 
@@ -109,9 +110,13 @@ SortedArray.prototype.constructClone = function (values) {
     );
 };
 
-SortedArray.prototype.has = function (value) {
-    var index = search(this.array, value, this.contentCompare);
-    return index >= 0 && this.contentEquals(this.array[index], value);
+SortedArray.prototype.has = function (value, equals) {
+    if (equals) {
+        return hasOperator(this.array, value, equals);
+    } else {
+        var index = search(this.array, value, this.contentCompare);
+        return index >= 0 && this.contentEquals(this.array[index], value);
+    }
 };
 
 SortedArray.prototype.get = function (value) {
@@ -247,7 +252,7 @@ SortedArray.prototype.max = function () {
 };
 
 SortedArray.prototype.one = function () {
-    return this.array.one();
+    return this.array[0];
 };
 
 SortedArray.prototype.clear = function () {
@@ -257,23 +262,23 @@ SortedArray.prototype.clear = function () {
         this.dispatchBeforeRangeChange([], minus, 0);
     }
     this.length = 0;
-    this.array.clear();
+    clear(this.array);
     if (this.dispatchesRangeChanges) {
         this.dispatchRangeChange([], minus, 0);
     }
 };
 
 SortedArray.prototype.equals = function (that, equals) {
-    return this.array.equals(that, equals);
+    return equalsOperator(this.array, that, equals);
 };
 
 SortedArray.prototype.compare = function (that, compare) {
-    return this.array.compare(that, compare);
+    return compareOperator(this.array, that, compare);
 };
 
 SortedArray.prototype.iterate = function (start, stop, step) {
-    return new this.Iterator(this.array, start, stop, step);
+    return iterateOperator(this.array, start, stop, step);
 };
 
-SortedArray.prototype.Iterator = Iterator;
+function noop() {}
 

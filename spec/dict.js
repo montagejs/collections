@@ -115,9 +115,9 @@ function shouldHaveTheUsualContent(dict) {
     expect(dict.get('c')).toBe(undefined);
     expect(dict.get('c', 30)).toBe(30);
 
-    expect(dict.keys().toArray()).toEqual(['a', 'b']);
-    expect(dict.values().toArray()).toEqual([10, 20]);
-    expect(dict.entries().toArray()).toEqual([['a', 10], ['b', 20]]);
+    expect(dict.keys()).toEqual(['a', 'b']);
+    expect(dict.values()).toEqual([10, 20]);
+    expect(dict.entries()).toEqual([['a', 10], ['b', 20]]);
     expect(dict.reduce(function (basis, value, key) {
         return basis + value;
     }, 0)).toEqual(30);

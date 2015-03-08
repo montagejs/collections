@@ -4,9 +4,9 @@ var Set = require("./fast-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
 var ObservableObject = require("./observable-object");
-var equalsOperator = require("./operators/equals");
-var hashOperator = require("./operators/hash");
-var addEach = require("./operators/add-each");
+var equalsOperator = require("pop-equals");
+var hashOperator = require("pop-hash");
+var copy = require("./copy");
 
 module.exports = FastMap;
 
@@ -35,9 +35,9 @@ function FastMap(values, equals, hash, getDefault) {
 
 FastMap.FastMap = FastMap; // hack so require("fast-map").FastMap will work in MontageJS
 
-addEach(FastMap.prototype, GenericCollection.prototype);
-addEach(FastMap.prototype, GenericMap.prototype);
-addEach(FastMap.prototype, ObservableObject.prototype);
+copy(FastMap.prototype, GenericCollection.prototype);
+copy(FastMap.prototype, GenericMap.prototype);
+copy(FastMap.prototype, ObservableObject.prototype);
 
 FastMap.prototype.constructClone = function (values) {
     return new this.constructor(

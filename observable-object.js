@@ -8,9 +8,8 @@
 // change dispatch. The internal records should not be corrupt, but observers
 // might miss an intermediate property change.
 
-require("./shim-array");
-require("./shim-object");
 var WeakMap = require("weak-map");
+var owns = Object.prototype.hasOwnProperty;
 
 var observersByObject = new WeakMap();
 var observerFreeList = [];
@@ -226,7 +225,7 @@ function startPropertyChangeDispatchContext(object, name, plus, minus, capture) 
             );
             // Using clear because it is observable. The handler record array
             // is obtainable by getPropertyChangeObservers, and is observable.
-            observerToFreeList.clear();
+            observerToFreeList.length = 0;
         }
     }
 }
@@ -238,7 +237,7 @@ function getPropertyChangeObservers(object, name, capture) {
     var observersByKey = observersByObject.get(object);
     var phase = capture ? "WillChange" : "Change";
     var key = name + phase;
-    if (!Object.owns(observersByKey, key)) {
+    if (!Object.prototype.hasOwnProperty.call(observersByKey, key)) {
         observersByKey[key] = [];
     }
     return observersByKey[key];
@@ -401,7 +400,7 @@ function wrapPropertyDescriptor(object, name) {
     var wrappedPrototype = wrappedDescriptor.prototype;
 
     var existingWrappedDescriptors = wrappedObjectDescriptors.get(wrappedPrototype);
-    if (existingWrappedDescriptors && Object.owns(existingWrappedDescriptors, name)) {
+    if (existingWrappedDescriptors && owns.call(existingWrappedDescriptors, name)) {
         return;
     }
 
@@ -412,7 +411,7 @@ function wrapPropertyDescriptor(object, name) {
 
     var wrappedPropertyDescriptors = wrappedObjectDescriptors.get(object);
 
-    if (Object.owns(wrappedPropertyDescriptors, name)) {
+    if (owns.call(wrappedPropertyDescriptors, name)) {
         // If we have already recorded a wrapped property descriptor,
         // we have already installed the observer, so short-here.
         return;

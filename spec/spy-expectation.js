@@ -1,15 +1,18 @@
 
+var has = require("pop-has");
+var equals = require("pop-equals");
+
 module.exports = extendSpyExpectation;
 function extendSpyExpectation() {
     var Expectation = getCurrentSuite().Expectation;
 
     Expectation.prototype.toHaveBeenCalledWith = function () {
-        var args = Array.prototype.slice.call(arguments);
-        this.assert(Object.has(this.value.args, args), [
+        var soughtArgs = Array.prototype.slice.call(arguments);
+        this.assert(has(this.value.args, soughtArgs), [
            "expected spy [not] to have been called with",
            "but calls were"
         ], [
-            args,
+            soughtArgs,
             this.value.args
         ]);
     };

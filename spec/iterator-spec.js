@@ -1,6 +1,7 @@
 
 var Iterator = require("../iterator");
 var Iterator_ = Iterator; // For referencing things on the constructor
+var equalsOperator = require("pop-equals");
 
 describe("Iterator", function () {
     describeIterator(function withoutNew(iterable) {
@@ -12,11 +13,11 @@ describe("Iterator", function () {
 });
 
 function expectCommonIterator(iterator) {
-    expect(Object.equals(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
-    expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
-    expect(Object.equals(iterator.next(), {value: 3, index: 2, done: false})).toBe(true);
-    expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-    expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+    expect(equalsOperator(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
+    expect(equalsOperator(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+    expect(equalsOperator(iterator.next(), {value: 3, index: 2, done: false})).toBe(true);
+    expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+    expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
 }
 
 function describeIterator(Iterator) {
@@ -48,11 +49,11 @@ function describeIterator(Iterator) {
 
     it("iterates a sparse array", function () {
         var iterator = Iterator([1,, 2,, 3]);
-        expect(Object.equals(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 2, index: 2, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 3, index: 4, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 2, index: 2, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 3, index: 4, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
     });
 
     it("iterates an object", function () {
@@ -66,11 +67,11 @@ function describeIterator(Iterator) {
 
     it("iterates a string", function () {
         var iterator = Iterator("abc");
-        expect(Object.equals(iterator.next(), {value: "a", index: 0, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: "b", index: 1, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: "c", index: 2, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: "a", index: 0, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: "b", index: 1, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: "c", index: 2, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
     });
 
     it("fails to iterate a number", function () {
@@ -132,11 +133,11 @@ function describeIterator(Iterator) {
                 expect(i).toBe(n - 1);
                 return n * 2;
             });
-            expect(Object.equals(iterator.next(), {value: 2, index: 0, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: 4, index: 1, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: 6, index: 2, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 2, index: 0, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 4, index: 1, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 6, index: 2, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
         });
 
     });
@@ -148,9 +149,9 @@ function describeIterator(Iterator) {
                 expect(i).toBe(n - 1);
                 return n % 2 === 0;
             });
-            expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
         });
 
     });
@@ -162,28 +163,28 @@ function describeIterator(Iterator) {
                 expect(i).toBe(n - 1);
                 return n % 2 === 0;
             }).recount();
-            expect(Object.equals(iterator.next(), {value: 2, index: 0, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: 4, index: 1, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 2, index: 0, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 4, index: 1, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
         });
 
         it("recounts a sparse array iterator", function () {
             var iterator = Iterator([1,, 2,, 3]).recount();
-            expect(Object.equals(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: 3, index: 2, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 3, index: 2, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
         });
 
         it("recounts from one", function () {
             var iterator = Iterator([1,, 2,, 3]).recount(1);
-            expect(Object.equals(iterator.next(), {value: 1, index: 1, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: 2, index: 2, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: 3, index: 3, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 1, index: 1, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 2, index: 2, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 3, index: 3, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
         });
 
     });
@@ -226,11 +227,11 @@ function describeIterator(Iterator) {
             .dropWhile(function (n) {
                 return n < 0;
             });
-            expect(Object.equals(iterator.next(), {value: 1, index: 3, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: 2, index: 4, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: 3, index: 5, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 1, index: 3, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 2, index: 4, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 3, index: 5, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
         });
     });
 
@@ -251,14 +252,14 @@ function describeIterator(Iterator) {
                 Iterator([3, 4]),
                 Iterator([5, 6])
             ]).iterateFlatten();
-            expect(Object.equals(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: 3, index: 0, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: 4, index: 1, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: 5, index: 0, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: 6, index: 1, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 3, index: 0, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 4, index: 1, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 5, index: 0, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 6, index: 1, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
         });
     });
 
@@ -268,16 +269,16 @@ function describeIterator(Iterator) {
                 Iterator([1, 'B', 'y', 'I']),
                 Iterator([2, 'C'])
             );
-            expect(Object.equals(iterator.next(), {
+            expect(equalsOperator(iterator.next(), {
                 value: [0, 1, 2],
                 index: 0, done: false
             })).toBe(true);
-            expect(Object.equals(iterator.next(), {
+            expect(equalsOperator(iterator.next(), {
                 value: ["A", "B", "C"],
                 index: 1, done: false
             })).toBe(true);
-            expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
         });
     });
 
@@ -288,26 +289,26 @@ function describeIterator(Iterator) {
                 Iterator([1, 'B', 'y', 'I']),
                 Iterator([2, 'C'])
             ]).iterateUnzip();
-            expect(Object.equals(iterator.next(), {
+            expect(equalsOperator(iterator.next(), {
                 value: [0, 1, 2],
                 index: 0, done: false
             })).toBe(true);
-            expect(Object.equals(iterator.next(), {
+            expect(equalsOperator(iterator.next(), {
                 value: ["A", "B", "C"],
                 index: 1, done: false
             })).toBe(true);
-            expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
         });
     });
 
     describe("iterateEnumerate", function () {
         it("should enumerate an array", function () {
             var iterator = Iterator([1, 2, 3]).iterateEnumerate();
-            expect(Object.equals(iterator.next(), {value: [0, 1], index: 0, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: [1, 2], index: 1, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: [2, 3], index: 2, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: [0, 1], index: 0, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: [1, 2], index: 1, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: [2, 3], index: 2, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
         });
     });
 
@@ -317,14 +318,14 @@ function describeIterator(Iterator) {
                 Iterator([3, 4]),
                 Iterator([5, 6])
             );
-            expect(Object.equals(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: 3, index: 0, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: 4, index: 1, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: 5, index: 0, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: 6, index: 1, done: false})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-            expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 3, index: 0, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 4, index: 1, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 5, index: 0, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 6, index: 1, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
         });
     });
 
@@ -334,27 +335,27 @@ describe("Iterator.cycle", function () {
 
     it("cycles an array", function () {
         var iterator = Iterator.cycle([1, 2, 3]);
-        expect(Object.equals(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 3, index: 2, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 3, index: 2, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 3, index: 2, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 3, index: 2, done: false})).toBe(true);
     });
 
     it("cycles an array twice", function () {
         var iterator = Iterator.cycle([1, 2], 2);
-        expect(Object.equals(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
     });
 
     it("cycles zero times", function () {
         var iterator = Iterator.cycle([1, 2, 3], 0);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
     });
 
 });
@@ -367,14 +368,14 @@ describe("Iterator.concat", function () {
             Iterator([3, 4]),
             Iterator([5, 6])
         );
-        expect(Object.equals(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 3, index: 0, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 4, index: 1, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 5, index: 0, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 6, index: 1, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 3, index: 0, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 4, index: 1, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 5, index: 0, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 6, index: 1, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
     });
 
 });
@@ -387,14 +388,14 @@ describe("Iterator.flatten", function () {
             Iterator([3, 4]),
             Iterator([5, 6])
         ]);
-        expect(Object.equals(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 3, index: 0, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 4, index: 1, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 5, index: 0, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 6, index: 1, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 3, index: 0, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 4, index: 1, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 5, index: 0, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 6, index: 1, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
     });
 
 });
@@ -407,16 +408,16 @@ describe("Iterator.unzip", function () {
             Iterator([1, 'B', 'y', 'I']),
             Iterator([2, 'C'])
         ]);
-        expect(Object.equals(iterator.next(), {
+        expect(equalsOperator(iterator.next(), {
             value: [0, 1, 2],
             index: 0, done: false
         })).toBe(true);
-        expect(Object.equals(iterator.next(), {
+        expect(equalsOperator(iterator.next(), {
             value: ["A", "B", "C"],
             index: 1, done: false
         })).toBe(true);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
     });
 
 });
@@ -429,16 +430,16 @@ describe("Iterator.zip", function () {
             Iterator([1, 'B', 'y', 'I']),
             Iterator([2, 'C'])
         );
-        expect(Object.equals(iterator.next(), {
+        expect(equalsOperator(iterator.next(), {
             value: [0, 1, 2],
             index: 0, done: false
         })).toBe(true);
-        expect(Object.equals(iterator.next(), {
+        expect(equalsOperator(iterator.next(), {
             value: ["A", "B", "C"],
             index: 1, done: false
         })).toBe(true);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
     });
 
 });
@@ -447,11 +448,11 @@ describe("Iterator.range", function () {
 
     it("iterates a range", function () {
         var iterator = new Iterator.range(3);
-        expect(Object.equals(iterator.next(), {value: 0, index: 0, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 1, index: 1, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 2, index: 2, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 0, index: 0, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 1, index: 1, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 2, index: 2, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
     });
 
     it("iterates an offset range", function () {
@@ -461,11 +462,11 @@ describe("Iterator.range", function () {
 
     it("iterates an offset, strided range", function () {
         var iterator = new Iterator.range(0, 5, 2);
-        expect(Object.equals(iterator.next(), {value: 0, index: 0, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 4, index: 2, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 0, index: 0, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 4, index: 2, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
     });
 
 });
@@ -474,26 +475,26 @@ describe("Iterator.count", function () {
 
     it("iterates an open range", function () {
         var iterator = new Iterator.count();
-        expect(Object.equals(iterator.next(), {value: 0, index: 0, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 1, index: 1, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 2, index: 2, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 3, index: 3, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 0, index: 0, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 1, index: 1, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 2, index: 2, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 3, index: 3, done: false})).toBe(true);
     });
 
     it("iterates an open range starting with one", function () {
         var iterator = new Iterator.count(1);
-        expect(Object.equals(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 3, index: 2, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 4, index: 3, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 3, index: 2, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 4, index: 3, done: false})).toBe(true);
     });
 
     it("iterates an open range with stride", function () {
         var iterator = new Iterator.count(0, 2);
-        expect(Object.equals(iterator.next(), {value: 0, index: 0, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 4, index: 2, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 6, index: 3, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 0, index: 0, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 4, index: 2, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 6, index: 3, done: false})).toBe(true);
     });
 
 });
@@ -503,18 +504,18 @@ describe("Iterator.repeat", function () {
     it("repeats a value indefinitely", function () {
         var iterator = Iterator.repeat(1);
         for (var index = 0; index < 10; index++) {
-            expect(Object.equals(iterator.next(), {value: 1, index: index, done: false})).toBe(true);
+            expect(equalsOperator(iterator.next(), {value: 1, index: index, done: false})).toBe(true);
         }
     });
 
     it("repeats a value some times", function () {
         var iterator = Iterator.repeat(1, 3);
-        expect(Object.equals(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 1, index: 1, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: 1, index: 2, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 1, index: 1, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: 1, index: 2, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
     });
 
 });
@@ -523,10 +524,10 @@ describe("Iterator.enumerate", function () {
 
     it("should enumerate an array", function () {
         var iterator = Iterator.enumerate([1, 2, 3]);
-        expect(Object.equals(iterator.next(), {value: [0, 1], index: 0, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: [1, 2], index: 1, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: [2, 3], index: 2, done: false})).toBe(true);
-        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: [0, 1], index: 0, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: [1, 2], index: 1, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: [2, 3], index: 2, done: false})).toBe(true);
+        expect(equalsOperator(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
     });
 
 });

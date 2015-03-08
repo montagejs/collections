@@ -4,9 +4,9 @@ var LfuSet = require("./lfu-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
 var ObservableObject = require("./observable-object");
-var equalsOperator = require("./operators/equals");
-var hashOperator = require("./operators/hash");
-var addEach = require("./operators/add-each");
+var equalsOperator = require("pop-equals");
+var hashOperator = require("pop-hash");
+var copy = require("./copy");
 
 module.exports = LfuMap;
 
@@ -36,9 +36,9 @@ function LfuMap(values, maxLength, equals, hash, getDefault) {
 
 LfuMap.LfuMap = LfuMap; // hack so require("lfu-map").LfuMap will work in MontageJS
 
-addEach(LfuMap.prototype, GenericCollection.prototype);
-addEach(LfuMap.prototype, GenericMap.prototype);
-addEach(LfuMap.prototype, ObservableObject.prototype);
+copy(LfuMap.prototype, GenericCollection.prototype);
+copy(LfuMap.prototype, GenericMap.prototype);
+copy(LfuMap.prototype, ObservableObject.prototype);
 
 LfuMap.prototype.constructClone = function (values) {
     return new this.constructor(
