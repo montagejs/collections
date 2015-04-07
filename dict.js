@@ -14,7 +14,7 @@ function Dict(values, getDefault) {
     }
     getDefault = getDefault || Function.noop;
     this.getDefault = getDefault;
-    this.store = {};
+    this.store = Object.create(null);
     this.length = 0;
     this.addEach(values);
 }
