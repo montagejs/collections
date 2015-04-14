@@ -131,7 +131,7 @@ RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, befor
 };
 
 RangeChanges.prototype.addBeforeRangeChangeListener = function (listener, token, allowActive) {
-    return this.addRangeChangeListener(listener, token, true);
+    return this.addRangeChangeListener(listener, token, true, allowActive);
 };
 
 RangeChanges.prototype.removeBeforeRangeChangeListener = function (listener, token) {

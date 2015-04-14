@@ -136,7 +136,7 @@ MapChanges.prototype.dispatchMapChange = function (key, value, beforeChange) {
 };
 
 MapChanges.prototype.addBeforeMapChangeListener = function (listener, token, allowActive) {
-    return this.addMapChangeListener(listener, token, true);
+    return this.addMapChangeListener(listener, token, true, allowActive);
 };
 
 MapChanges.prototype.removeBeforeMapChangeListener = function (listener, token) {
