@@ -32,24 +32,26 @@ MapChanges.prototype.getAllMapChangeDescriptors = function () {
     return mapChangeDescriptors.get(this);
 };
 
-MapChanges.prototype.getMapChangeDescriptor = function (token) {
+MapChanges.prototype.getMapChangeDescriptor = function (token, allowActive) {
     var tokenChangeDescriptors = this.getAllMapChangeDescriptors();
     token = token || "";
+    allowActive = allowActive || false;
     if (!tokenChangeDescriptors.has(token)) {
         tokenChangeDescriptors.set(token, {
             willChangeListeners: new List(),
-            changeListeners: new List()
+            changeListeners: new List(),
+            allowActive: allowActive
         });
     }
     return tokenChangeDescriptors.get(token);
 };
 
-MapChanges.prototype.addMapChangeListener = function (listener, token, beforeChange) {
+MapChanges.prototype.addMapChangeListener = function (listener, token, beforeChange, allowActive) {
     if (!this.isObservable && this.makeObservable) {
         // for Array
         this.makeObservable();
     }
-    var descriptor = this.getMapChangeDescriptor(token);
+    var descriptor = this.getMapChangeDescriptor(token, allowActive);
     var listeners;
     if (beforeChange) {
         listeners = descriptor.willChangeListeners;
@@ -97,7 +99,7 @@ MapChanges.prototype.dispatchMapChange = function (key, value, beforeChange) {
     var changeName = "Map" + (beforeChange ? "WillChange" : "Change");
     descriptors.forEach(function (descriptor, token) {
 
-        if (descriptor.isActive) {
+        if (descriptor.isActive && ! descriptor.allowActive) {
             return;
         } else {
             descriptor.isActive = true;
@@ -133,7 +135,7 @@ MapChanges.prototype.dispatchMapChange = function (key, value, beforeChange) {
     }, this);
 };
 
-MapChanges.prototype.addBeforeMapChangeListener = function (listener, token) {
+MapChanges.prototype.addBeforeMapChangeListener = function (listener, token, allowActive) {
     return this.addMapChangeListener(listener, token, true);
 };
 

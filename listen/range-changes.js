@@ -17,26 +17,28 @@ RangeChanges.prototype.getAllRangeChangeDescriptors = function () {
     return rangeChangeDescriptors.get(this);
 };
 
-RangeChanges.prototype.getRangeChangeDescriptor = function (token) {
+RangeChanges.prototype.getRangeChangeDescriptor = function (token, allowActive) {
     var tokenChangeDescriptors = this.getAllRangeChangeDescriptors();
     token = token || "";
+    allowActive = allowActive || false;
     if (!tokenChangeDescriptors.has(token)) {
         tokenChangeDescriptors.set(token, {
             isActive: false,
             changeListeners: [],
-            willChangeListeners: []
+            willChangeListeners: [],
+            allowActive: allowActive
         });
     }
     return tokenChangeDescriptors.get(token);
 };
 
-RangeChanges.prototype.addRangeChangeListener = function (listener, token, beforeChange) {
+RangeChanges.prototype.addRangeChangeListener = function (listener, token, beforeChange, allowActive) {
     // a concession for objects like Array that are not inherently observable
     if (!this.isObservable && this.makeObservable) {
         this.makeObservable();
     }
 
-    var descriptor = this.getRangeChangeDescriptor(token);
+    var descriptor = this.getRangeChangeDescriptor(token, allowActive);
 
     var listeners;
     if (beforeChange) {
@@ -87,7 +89,7 @@ RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, befor
     var changeName = "Range" + (beforeChange ? "WillChange" : "Change");
     descriptors.forEach(function (descriptor, token) {
 
-        if (descriptor.isActive) {
+        if (descriptor.isActive && ! descriptor.allowActive) {
             return;
         } else {
             descriptor.isActive = true;
@@ -128,7 +130,7 @@ RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, befor
     }, this);
 };
 
-RangeChanges.prototype.addBeforeRangeChangeListener = function (listener, token) {
+RangeChanges.prototype.addBeforeRangeChangeListener = function (listener, token, allowActive) {
     return this.addRangeChangeListener(listener, token, true);
 };
 
