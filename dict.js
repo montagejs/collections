@@ -14,23 +14,12 @@ function Dict(values, getDefault) {
     }
     getDefault = getDefault || Function.noop;
     this.getDefault = getDefault;
-    this.store = {};
+    this.store = Object.create(null);
     this.length = 0;
     this.addEach(values);
 }
 
 Dict.Dict = Dict; // hack so require("dict").Dict will work in MontageJS.
-
-function mangle(key) {
-    // Use "$" as the mangle prefix so dictionaries of valid identifiers can
-    // take advantage of optimizations for objects containing only valid
-    // identifiers. I have not verified that this makes a difference.
-    return "$" + key;
-}
-
-function unmangle(mangled) {
-    return mangled.slice(1);
-}
 
 Object.addEach(Dict.prototype, GenericCollection.prototype);
 Object.addEach(Dict.prototype, GenericMap.prototype);
@@ -46,74 +35,123 @@ Dict.prototype.assertString = function (key) {
     }
 }
 
+Object.defineProperty(Dict.prototype,Dict.prototype.mangledProtoKey,{writable:true});
+
 Dict.prototype.get = function (key, defaultValue) {
     this.assertString(key);
-    var mangled = mangle(key);
-    if (mangled in this.store) {
-        return this.store[mangled];
-    } else if (arguments.length > 1) {
-        return defaultValue;
-    } else {
-        return this.getDefault(key);
+    if (key === "__proto__") {
+        if (this.hasOwnProperty("$__proto__")) {
+            return this["$__proto__"];
+        } else if (arguments.length > 1) {
+            return defaultValue;
+        } else {
+            return this.getDefault(key);
+        }
+    }
+    else {
+        if (key in this.store) {
+            return this.store[key];
+        } else if (arguments.length > 1) {
+            return defaultValue;
+        } else {
+            return this.getDefault(key);
+        }
     }
 };
 
 Dict.prototype.set = function (key, value) {
     this.assertString(key);
-    var mangled = mangle(key);
-    if (mangled in this.store) { // update
-        if (this.dispatchesMapChanges) {
-            this.dispatchBeforeMapChange(key, this.store[mangled]);
+    if (key === "__proto__") {
+        if (this.hasOwnProperty("$__proto__")) { // update
+            if (this.dispatchesMapChanges) {
+                this.dispatchBeforeMapChange(key, this["$__proto__"]);
+            }
+            this["$__proto__"] = value;
+            if (this.dispatchesMapChanges) {
+                this.dispatchMapChange(key, value);
+            }
+            return false;
+        } else { // create
+            if (this.dispatchesMapChanges) {
+                this.dispatchBeforeMapChange(key, undefined);
+            }
+            this.length++;
+            this["$__proto__"] = value;
+            if (this.dispatchesMapChanges) {
+                this.dispatchMapChange(key, value);
+            }
+            return true;
         }
-        this.store[mangled] = value;
-        if (this.dispatchesMapChanges) {
-            this.dispatchMapChange(key, value);
+    }
+    else {
+        if (key in this.store) { // update
+            if (this.dispatchesMapChanges) {
+                this.dispatchBeforeMapChange(key, this.store[key]);
+            }
+            this.store[key] = value;
+            if (this.dispatchesMapChanges) {
+                this.dispatchMapChange(key, value);
+            }
+            return false;
+        } else { // create
+            if (this.dispatchesMapChanges) {
+                this.dispatchBeforeMapChange(key, undefined);
+            }
+            this.length++;
+            this.store[key] = value;
+            if (this.dispatchesMapChanges) {
+                this.dispatchMapChange(key, value);
+            }
+            return true;
         }
-        return false;
-    } else { // create
-        if (this.dispatchesMapChanges) {
-            this.dispatchBeforeMapChange(key, undefined);
-        }
-        this.length++;
-        this.store[mangled] = value;
-        if (this.dispatchesMapChanges) {
-            this.dispatchMapChange(key, value);
-        }
-        return true;
     }
 };
 
 Dict.prototype.has = function (key) {
     this.assertString(key);
-    var mangled = mangle(key);
-    return mangled in this.store;
+    return (key === "__proto__") ? this.hasOwnProperty("$__proto__") : (key in this.store);
 };
 
 Dict.prototype["delete"] = function (key) {
     this.assertString(key);
-    var mangled = mangle(key);
-    if (mangled in this.store) {
-        if (this.dispatchesMapChanges) {
-            this.dispatchBeforeMapChange(key, this.store[mangled]);
+    if (key === "__proto__") {
+        if (this.hasOwnProperty("$__proto__")) {
+            if (this.dispatchesMapChanges) {
+                this.dispatchBeforeMapChange(key, this["$__proto__"]);
+            }
+            delete this["$__proto__"];
+            this.length--;
+            if (this.dispatchesMapChanges) {
+                this.dispatchMapChange(key, undefined);
+            }
+            return true;
         }
-        delete this.store[mangle(key)];
-        this.length--;
-        if (this.dispatchesMapChanges) {
-            this.dispatchMapChange(key, undefined);
-        }
-        return true;
+        return false;
     }
-    return false;
+    else {
+        if (key in this.store) {
+            if (this.dispatchesMapChanges) {
+                this.dispatchBeforeMapChange(key, this.store[key]);
+            }
+            delete this.store[key];
+            this.length--;
+            if (this.dispatchesMapChanges) {
+                this.dispatchMapChange(key, undefined);
+            }
+            return true;
+        }
+        return false;
+    }
 };
 
 Dict.prototype.clear = function () {
-    var key, mangled;
-    for (mangled in this.store) {
-        key = unmangle(mangled);
+    var key;
+    delete this["$__proto__"];
+    for (key in this.store) {
         if (this.dispatchesMapChanges) {
-            this.dispatchBeforeMapChange(key, this.store[mangled]);
+            this.dispatchBeforeMapChange(key, this.store[key]);
         }
-        delete this.store[mangled];
+        delete this.store[key];
         if (this.dispatchesMapChanges) {
             this.dispatchMapChange(key, undefined);
         }
@@ -122,8 +160,12 @@ Dict.prototype.clear = function () {
 };
 
 Dict.prototype.reduce = function (callback, basis, thisp) {
-    for (var mangled in this.store) {
-        basis = callback.call(thisp, basis, this.store[mangled], unmangle(mangled), this);
+    if(this.hasOwnProperty("$__proto__")) {
+        basis = callback.call(thisp, basis, "$__proto__", "__proto__", this);
+    }
+    var store = this.store;
+    for (var key in this.store) {
+        basis = callback.call(thisp, basis, store[key], key, this);
     }
     return basis;
 };
@@ -131,9 +173,14 @@ Dict.prototype.reduce = function (callback, basis, thisp) {
 Dict.prototype.reduceRight = function (callback, basis, thisp) {
     var self = this;
     var store = this.store;
-    return Object.keys(this.store).reduceRight(function (basis, mangled) {
-        return callback.call(thisp, basis, store[mangled], unmangle(mangled), self);
+    basis = Object.keys(this.store).reduceRight(function (basis, key) {
+        return callback.call(thisp, basis, store[key], key, self);
     }, basis);
+    
+    if(this.hasOwnProperty("$__proto__")) {
+        return callback.call(thisp, basis, this["$__proto__"], "__proto__", self);
+    }
+    return basis;
 };
 
 Dict.prototype.one = function () {
@@ -141,6 +188,7 @@ Dict.prototype.one = function () {
     for (key in this.store) {
         return this.store[key];
     }
+    return this["$__proto__"];
 };
 
 Dict.prototype.toJSON = function () {
