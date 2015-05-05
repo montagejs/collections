@@ -35,13 +35,26 @@ Dict.prototype.assertString = function (key) {
     }
 }
 
-Object.defineProperty(Dict.prototype,Dict.prototype.mangledProtoKey,{writable:true});
+Object.defineProperty(Dict.prototype,"$__proto__",{writable:true});
+Object.defineProperty(Dict.prototype,"_hasProto",{
+    get:function() {
+        return this.hasOwnProperty("$__proto__") && typeof this._protoValue !== "undefined";
+    }
+});
+Object.defineProperty(Dict.prototype,"_protoValue",{
+    get:function() {
+        return this["$__proto__"];
+    },
+    set: function(value) {
+        this["$__proto__"] = value;
+    }
+});
 
 Dict.prototype.get = function (key, defaultValue) {
     this.assertString(key);
     if (key === "__proto__") {
-        if (this.hasOwnProperty("$__proto__")) {
-            return this["$__proto__"];
+        if (this._hasProto) {
+            return this._protoValue;
         } else if (arguments.length > 1) {
             return defaultValue;
         } else {
@@ -62,11 +75,11 @@ Dict.prototype.get = function (key, defaultValue) {
 Dict.prototype.set = function (key, value) {
     this.assertString(key);
     if (key === "__proto__") {
-        if (this.hasOwnProperty("$__proto__")) { // update
+        if (this._hasProto) { // update
             if (this.dispatchesMapChanges) {
-                this.dispatchBeforeMapChange(key, this["$__proto__"]);
+                this.dispatchBeforeMapChange(key, this._protoValue);
             }
-            this["$__proto__"] = value;
+            this._protoValue = value;
             if (this.dispatchesMapChanges) {
                 this.dispatchMapChange(key, value);
             }
@@ -76,7 +89,7 @@ Dict.prototype.set = function (key, value) {
                 this.dispatchBeforeMapChange(key, undefined);
             }
             this.length++;
-            this["$__proto__"] = value;
+            this._protoValue = value;
             if (this.dispatchesMapChanges) {
                 this.dispatchMapChange(key, value);
             }
@@ -109,17 +122,17 @@ Dict.prototype.set = function (key, value) {
 
 Dict.prototype.has = function (key) {
     this.assertString(key);
-    return (key === "__proto__") ? this.hasOwnProperty("$__proto__") : (key in this.store);
+    return key === "__proto__" ? this._hasProto : key in this.store;
 };
 
 Dict.prototype["delete"] = function (key) {
     this.assertString(key);
     if (key === "__proto__") {
-        if (this.hasOwnProperty("$__proto__")) {
+        if (this._hasProto) {
             if (this.dispatchesMapChanges) {
-                this.dispatchBeforeMapChange(key, this["$__proto__"]);
+                this.dispatchBeforeMapChange(key, this._protoValue);
             }
-            delete this["$__proto__"];
+            this._protoValue = undefined;
             this.length--;
             if (this.dispatchesMapChanges) {
                 this.dispatchMapChange(key, undefined);
@@ -146,7 +159,15 @@ Dict.prototype["delete"] = function (key) {
 
 Dict.prototype.clear = function () {
     var key;
-    delete this["$__proto__"];
+    if (this._hasProto) {
+        if (this.dispatchesMapChanges) {
+            this.dispatchBeforeMapChange("__proto__", this._protoValue);
+        }
+        this._protoValue = undefined;
+        if (this.dispatchesMapChanges) {
+            this.dispatchMapChange("__proto__", undefined);
+        }
+    }
     for (key in this.store) {
         if (this.dispatchesMapChanges) {
             this.dispatchBeforeMapChange(key, this.store[key]);
@@ -160,7 +181,7 @@ Dict.prototype.clear = function () {
 };
 
 Dict.prototype.reduce = function (callback, basis, thisp) {
-    if(this.hasOwnProperty("$__proto__")) {
+    if(this._hasProto) {
         basis = callback.call(thisp, basis, "$__proto__", "__proto__", this);
     }
     var store = this.store;
@@ -177,8 +198,8 @@ Dict.prototype.reduceRight = function (callback, basis, thisp) {
         return callback.call(thisp, basis, store[key], key, self);
     }, basis);
     
-    if(this.hasOwnProperty("$__proto__")) {
-        return callback.call(thisp, basis, this["$__proto__"], "__proto__", self);
+    if(this._hasProto) {
+        return callback.call(thisp, basis, this._protoValue, "__proto__", self);
     }
     return basis;
 };
@@ -188,7 +209,7 @@ Dict.prototype.one = function () {
     for (key in this.store) {
         return this.store[key];
     }
-    return this["$__proto__"];
+    return this._protoValue;
 };
 
 Dict.prototype.toJSON = function () {
