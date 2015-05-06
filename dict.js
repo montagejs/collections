@@ -14,23 +14,12 @@ function Dict(values, getDefault) {
     }
     getDefault = getDefault || Function.noop;
     this.getDefault = getDefault;
-    this.store = {};
+    this.store = Object.create(null);
     this.length = 0;
     this.addEach(values);
 }
 
 Dict.Dict = Dict; // hack so require("dict").Dict will work in MontageJS.
-
-function mangle(key) {
-    // Use "$" as the mangle prefix so dictionaries of valid identifiers can
-    // take advantage of optimizations for objects containing only valid
-    // identifiers. I have not verified that this makes a difference.
-    return "$" + key;
-}
-
-function unmangle(mangled) {
-    return mangled.slice(1);
-}
 
 Object.addEach(Dict.prototype, GenericCollection.prototype);
 Object.addEach(Dict.prototype, GenericMap.prototype);
@@ -46,26 +35,56 @@ Dict.prototype.assertString = function (key) {
     }
 }
 
+Object.defineProperty(Dict.prototype,"$__proto__",{writable:true});
+Object.defineProperty(Dict.prototype,"_hasProto",{
+    get:function() {
+        return this.hasOwnProperty("$__proto__") && typeof this._protoValue !== "undefined";
+    }
+});
+Object.defineProperty(Dict.prototype,"_protoValue",{
+    get:function() {
+        return this["$__proto__"];
+    },
+    set: function(value) {
+        this["$__proto__"] = value;
+    }
+});
+
 Dict.prototype.get = function (key, defaultValue) {
     this.assertString(key);
-    var mangled = mangle(key);
-    if (mangled in this.store) {
-        return this.store[mangled];
-    } else if (arguments.length > 1) {
-        return defaultValue;
-    } else {
-        return this.getDefault(key);
+    if (key === "__proto__") {
+        if (this._hasProto) {
+            return this._protoValue;
+        } else if (arguments.length > 1) {
+            return defaultValue;
+        } else {
+            return this.getDefault(key);
+        }
+    }
+    else {
+        if (key in this.store) {
+            return this.store[key];
+        } else if (arguments.length > 1) {
+            return defaultValue;
+        } else {
+            return this.getDefault(key);
+        }
     }
 };
 
 Dict.prototype.set = function (key, value) {
     this.assertString(key);
-    var mangled = mangle(key);
-    if (mangled in this.store) { // update
+    var isProtoKey = (key === "__proto__");
+    
+    if (isProtoKey ? this._hasProto : key in this.store) { // update
         if (this.dispatchesMapChanges) {
-            this.dispatchBeforeMapChange(key, this.store[mangled]);
+            this.dispatchBeforeMapChange(key, isProtoKey ? this._protoValue : this.store[key]);
         }
-        this.store[mangled] = value;
+        
+        isProtoKey
+            ? this._protoValue = value
+            : this.store[key] = value;
+        
         if (this.dispatchesMapChanges) {
             this.dispatchMapChange(key, value);
         }
@@ -75,7 +94,11 @@ Dict.prototype.set = function (key, value) {
             this.dispatchBeforeMapChange(key, undefined);
         }
         this.length++;
-        this.store[mangled] = value;
+
+        isProtoKey
+            ? this._protoValue = value
+            : this.store[key] = value;
+
         if (this.dispatchesMapChanges) {
             this.dispatchMapChange(key, value);
         }
@@ -85,35 +108,57 @@ Dict.prototype.set = function (key, value) {
 
 Dict.prototype.has = function (key) {
     this.assertString(key);
-    var mangled = mangle(key);
-    return mangled in this.store;
+    return key === "__proto__" ? this._hasProto : key in this.store;
 };
 
 Dict.prototype["delete"] = function (key) {
     this.assertString(key);
-    var mangled = mangle(key);
-    if (mangled in this.store) {
-        if (this.dispatchesMapChanges) {
-            this.dispatchBeforeMapChange(key, this.store[mangled]);
+    if (key === "__proto__") {
+        if (this._hasProto) {
+            if (this.dispatchesMapChanges) {
+                this.dispatchBeforeMapChange(key, this._protoValue);
+            }
+            this._protoValue = undefined;
+            this.length--;
+            if (this.dispatchesMapChanges) {
+                this.dispatchMapChange(key, undefined);
+            }
+            return true;
         }
-        delete this.store[mangle(key)];
-        this.length--;
-        if (this.dispatchesMapChanges) {
-            this.dispatchMapChange(key, undefined);
-        }
-        return true;
+        return false;
     }
-    return false;
+    else {
+        if (key in this.store) {
+            if (this.dispatchesMapChanges) {
+                this.dispatchBeforeMapChange(key, this.store[key]);
+            }
+            delete this.store[key];
+            this.length--;
+            if (this.dispatchesMapChanges) {
+                this.dispatchMapChange(key, undefined);
+            }
+            return true;
+        }
+        return false;
+    }
 };
 
 Dict.prototype.clear = function () {
-    var key, mangled;
-    for (mangled in this.store) {
-        key = unmangle(mangled);
+    var key;
+    if (this._hasProto) {
         if (this.dispatchesMapChanges) {
-            this.dispatchBeforeMapChange(key, this.store[mangled]);
+            this.dispatchBeforeMapChange("__proto__", this._protoValue);
         }
-        delete this.store[mangled];
+        this._protoValue = undefined;
+        if (this.dispatchesMapChanges) {
+            this.dispatchMapChange("__proto__", undefined);
+        }
+    }
+    for (key in this.store) {
+        if (this.dispatchesMapChanges) {
+            this.dispatchBeforeMapChange(key, this.store[key]);
+        }
+        delete this.store[key];
         if (this.dispatchesMapChanges) {
             this.dispatchMapChange(key, undefined);
         }
@@ -122,8 +167,12 @@ Dict.prototype.clear = function () {
 };
 
 Dict.prototype.reduce = function (callback, basis, thisp) {
-    for (var mangled in this.store) {
-        basis = callback.call(thisp, basis, this.store[mangled], unmangle(mangled), this);
+    if(this._hasProto) {
+        basis = callback.call(thisp, basis, "$__proto__", "__proto__", this);
+    }
+    var store = this.store;
+    for (var key in this.store) {
+        basis = callback.call(thisp, basis, store[key], key, this);
     }
     return basis;
 };
@@ -131,9 +180,14 @@ Dict.prototype.reduce = function (callback, basis, thisp) {
 Dict.prototype.reduceRight = function (callback, basis, thisp) {
     var self = this;
     var store = this.store;
-    return Object.keys(this.store).reduceRight(function (basis, mangled) {
-        return callback.call(thisp, basis, store[mangled], unmangle(mangled), self);
+    basis = Object.keys(this.store).reduceRight(function (basis, key) {
+        return callback.call(thisp, basis, store[key], key, self);
     }, basis);
+    
+    if(this._hasProto) {
+        return callback.call(thisp, basis, this._protoValue, "__proto__", self);
+    }
+    return basis;
 };
 
 Dict.prototype.one = function () {
@@ -141,6 +195,7 @@ Dict.prototype.one = function () {
     for (key in this.store) {
         return this.store[key];
     }
+    return this._protoValue;
 };
 
 Dict.prototype.toJSON = function () {
