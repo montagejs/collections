@@ -1,3 +1,6 @@
+## v1.2.3
+
+- Dict Optimization to remove the need to mangle/unmangle keys. This minimize the amount of string creation and therefore garbage collection
 
 ## v1.2.2
 
