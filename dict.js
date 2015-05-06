@@ -74,49 +74,35 @@ Dict.prototype.get = function (key, defaultValue) {
 
 Dict.prototype.set = function (key, value) {
     this.assertString(key);
-    if (key === "__proto__") {
-        if (this._hasProto) { // update
-            if (this.dispatchesMapChanges) {
-                this.dispatchBeforeMapChange(key, this._protoValue);
-            }
-            this._protoValue = value;
-            if (this.dispatchesMapChanges) {
-                this.dispatchMapChange(key, value);
-            }
-            return false;
-        } else { // create
-            if (this.dispatchesMapChanges) {
-                this.dispatchBeforeMapChange(key, undefined);
-            }
-            this.length++;
-            this._protoValue = value;
-            if (this.dispatchesMapChanges) {
-                this.dispatchMapChange(key, value);
-            }
-            return true;
+    var isProtoKey = (key === "__proto__");
+    
+    if (isProtoKey ? this._hasProto : key in this.store) { // update
+        if (this.dispatchesMapChanges) {
+            this.dispatchBeforeMapChange(key, isProtoKey ? this._protoValue : this.store[key]);
         }
-    }
-    else {
-        if (key in this.store) { // update
-            if (this.dispatchesMapChanges) {
-                this.dispatchBeforeMapChange(key, this.store[key]);
-            }
-            this.store[key] = value;
-            if (this.dispatchesMapChanges) {
-                this.dispatchMapChange(key, value);
-            }
-            return false;
-        } else { // create
-            if (this.dispatchesMapChanges) {
-                this.dispatchBeforeMapChange(key, undefined);
-            }
-            this.length++;
-            this.store[key] = value;
-            if (this.dispatchesMapChanges) {
-                this.dispatchMapChange(key, value);
-            }
-            return true;
+        
+        isProtoKey
+            ? this._protoValue = value
+            : this.store[key] = value;
+        
+        if (this.dispatchesMapChanges) {
+            this.dispatchMapChange(key, value);
         }
+        return false;
+    } else { // create
+        if (this.dispatchesMapChanges) {
+            this.dispatchBeforeMapChange(key, undefined);
+        }
+        this.length++;
+
+        isProtoKey
+            ? this._protoValue = value
+            : this.store[key] = value;
+
+        if (this.dispatchesMapChanges) {
+            this.dispatchMapChange(key, value);
+        }
+        return true;
     }
 };
 
