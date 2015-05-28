@@ -14,6 +14,12 @@
 
 require("../shim");
 
+// objectHasOwnProperty.call(myObject, key) will be used instead of
+// myObject.hasOwnProperty(key) to allow myObject have defined
+// a own property called "hasOwnProperty".
+
+var objectHasOwnProperty = Object.prototype.hasOwnProperty;
+
 // Object property descriptors carry information necessary for adding,
 // removing, dispatching, and shorting events to listeners for property changes
 // for a particular key on a particular object.  These descriptors are used
@@ -68,7 +74,7 @@ PropertyChanges.prototype.getOwnPropertyChangeDescriptor = function (key) {
         });
     }
     var objectPropertyChangeDescriptors = this.__propertyChangeListeners__;
-    if (!objectPropertyChangeDescriptors.hasOwnProperty(key)) {
+    if (!objectHasOwnProperty.call(objectPropertyChangeDescriptors, key)) {
         var propertyName = String(key);
 
         propertyName = propertyName && propertyName[0].toUpperCase() + propertyName.slice(1);
@@ -98,7 +104,7 @@ PropertyChanges.prototype.hasOwnPropertyChangeDescriptor = function (key) {
         return true;
     }
     var objectPropertyChangeDescriptors = this.__propertyChangeListeners__;
-    if (!objectPropertyChangeDescriptors.hasOwnProperty(key)) {
+    if (!objectHasOwnProperty.call(objectPropertyChangeDescriptors, key)) {
         return false;
     }
     return true;
@@ -162,8 +168,11 @@ PropertyChanges.prototype.dispatchOwnPropertyChange = function (key, value, befo
         } else {
             listeners = descriptor.changeListeners;
         }
-        dispatchEach(listeners, key, value, this);
-        descriptor.isActive = false;
+        try {
+            dispatchEach(listeners, key, value, this);
+        } finally {
+            descriptor.isActive = false;
+        }
     }
 };
 
@@ -227,7 +236,7 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
             configurable: true
         });
     } else {
-        if (overriddenPropertyDescriptors.hasOwnProperty(key)) {
+        if (objectHasOwnProperty.call(overriddenPropertyDescriptors, key)) {
             // if we have already recorded an overridden property descriptor,
             // we have already installed the observer, so short-here
             return;
@@ -305,13 +314,18 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
                     isActive = descriptor.isActive;
                     if (!isActive) {
                         descriptor.isActive = true;
-                        dispatchEach(descriptor.willChangeListeners, key, overriddenDescriptor.value, this);
+                        try {
+                            dispatchEach(descriptor.willChangeListeners, key, overriddenDescriptor.value, this);
+                        } finally {}
                     }
                     overriddenDescriptor.value = value;
                     state[key] = value;
                     if (!isActive) {
-                        dispatchEach(descriptor.changeListeners, key, value, this);
-                        descriptor.isActive = false;
+                        try {
+                            dispatchEach(descriptor.changeListeners, key, value, this);
+                        } finally {
+                            descriptor.isActive = false;
+                        }
                     }
                 }
             },
@@ -333,12 +347,17 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
                     isActive = descriptor.isActive;
                     if (!isActive) {
                         descriptor.isActive = true;
-                        dispatchEach(descriptor.willChangeListeners, key, formerValue, this);
+                        try {
+                            dispatchEach(descriptor.willChangeListeners, key, formerValue, this);
+                        } finally {}
                     }
                     state[key] = value;
                     if (!isActive) {
-                        dispatchEach(descriptor.changeListeners, key, value, this);
-                        descriptor.isActive = false;
+                        try {
+                            dispatchEach(descriptor.changeListeners, key, value, this);
+                        } finally {
+                            descriptor.isActive = false;
+                        }
                     }
                 }
             },
