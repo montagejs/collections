@@ -1,3 +1,12 @@
+## v1.2.3
+
+- Dict Optimization to remove the need to mangle/unmangle keys. This minimize the amount of string creation and therefore garbage collection
+
+## v1.2.2
+
+- Vlad Alexandru Ionescu fixed a bug in dictionaries with single character keys.
+- Optimizations for push to avoid creating unnecessary arrays through splice
+- Fixes for a few regressions in listen and impacting Montage
 
 ## v1.2.0
 
