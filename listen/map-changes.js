@@ -17,8 +17,10 @@ var object_owns = Object.prototype.hasOwnProperty;
     here for shallow map changes.
 
     {
+        isActive:boolean
         willChangeListeners:Array(Function)
         changeListeners:Array(Function)
+        allowsNestedDispatch:boolean
     }
 */
 
@@ -32,26 +34,27 @@ MapChanges.prototype.getAllMapChangeDescriptors = function () {
     return mapChangeDescriptors.get(this);
 };
 
-MapChanges.prototype.getMapChangeDescriptor = function (token, allowActive) {
+MapChanges.prototype.getMapChangeDescriptor = function (token, allowsNestedDispatch) {
     var tokenChangeDescriptors = this.getAllMapChangeDescriptors();
     token = token || "";
-    allowActive = allowActive || false;
+    allowsNestedDispatch = allowsNestedDispatch || false;
     if (!tokenChangeDescriptors.has(token)) {
         tokenChangeDescriptors.set(token, {
+            isActive: false,
             willChangeListeners: new List(),
             changeListeners: new List(),
-            allowActive: allowActive
+            allowsNestedDispatch: allowsNestedDispatch
         });
     }
     return tokenChangeDescriptors.get(token);
 };
 
-MapChanges.prototype.addMapChangeListener = function (listener, token, beforeChange, allowActive) {
+MapChanges.prototype.addMapChangeListener = function (listener, token, beforeChange, allowsNestedDispatch) {
     if (!this.isObservable && this.makeObservable) {
         // for Array
         this.makeObservable();
     }
-    var descriptor = this.getMapChangeDescriptor(token, allowActive);
+    var descriptor = this.getMapChangeDescriptor(token, allowsNestedDispatch);
     var listeners;
     if (beforeChange) {
         listeners = descriptor.willChangeListeners;
@@ -99,7 +102,7 @@ MapChanges.prototype.dispatchMapChange = function (key, value, beforeChange) {
     var changeName = "Map" + (beforeChange ? "WillChange" : "Change");
     descriptors.forEach(function (descriptor, token) {
 
-        if (descriptor.isActive && ! descriptor.allowActive) {
+        if (descriptor.isActive && ! descriptor.allowsNestedDispatch) {
             return;
         } else {
             descriptor.isActive = true;
@@ -135,8 +138,8 @@ MapChanges.prototype.dispatchMapChange = function (key, value, beforeChange) {
     }, this);
 };
 
-MapChanges.prototype.addBeforeMapChangeListener = function (listener, token, allowActive) {
-    return this.addMapChangeListener(listener, token, true, allowActive);
+MapChanges.prototype.addBeforeMapChangeListener = function (listener, token, allowsNestedDispatch) {
+    return this.addMapChangeListener(listener, token, true, allowsNestedDispatch);
 };
 
 MapChanges.prototype.removeBeforeMapChangeListener = function (listener, token) {

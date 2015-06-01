@@ -26,8 +26,10 @@ var object_owns = Object.prototype.hasOwnProperty;
 // corresponding handler method names.
 //
 // {
+//     isActive:boolean
 //     willChangeListeners:{current, active:Array<Function>, ...method names}
 //     changeListeners:{current, active:Array<Function>, ...method names}
+//     allowsNestedDispatch:boolean
 // }
 
 // Maybe remove entries from this table if the corresponding object no longer
@@ -60,7 +62,7 @@ function PropertyChanges() {
 
 PropertyChanges.debug = true;
 
-PropertyChanges.prototype.getOwnPropertyChangeDescriptor = function (key) {
+PropertyChanges.prototype.getOwnPropertyChangeDescriptor = function (key, allowsNestedDispatch) {
     if (!this.__propertyChangeListeners__) {
         Object.defineProperty(this, "__propertyChangeListeners__", {
             value: {},
@@ -73,7 +75,9 @@ PropertyChanges.prototype.getOwnPropertyChangeDescriptor = function (key) {
     if (!object_owns.call(objectPropertyChangeDescriptors, key)) {
         var propertyName = String(key);
         propertyName = propertyName && propertyName[0].toUpperCase() + propertyName.slice(1);
+        allowsNestedDispatch = allowsNestedDispatch || false;
         objectPropertyChangeDescriptors[key] = {
+            isActive: false,
             willChangeListeners: {
                 current: [],
                 active: [],
@@ -85,7 +89,8 @@ PropertyChanges.prototype.getOwnPropertyChangeDescriptor = function (key) {
                 active: [],
                 specificHandlerMethodName: "handle" + propertyName + "Change",
                 genericHandlerMethodName: "handlePropertyChange"
-            }
+            },
+            allowsNestedDispatch: allowsNestedDispatch
         };
     }
     return objectPropertyChangeDescriptors[key];
@@ -105,12 +110,12 @@ PropertyChanges.prototype.hasOwnPropertyChangeDescriptor = function (key) {
     return true;
 };
 
-PropertyChanges.prototype.addOwnPropertyChangeListener = function (key, listener, beforeChange) {
+PropertyChanges.prototype.addOwnPropertyChangeListener = function (key, listener, beforeChange, allowsNestedDispatch) {
     if (this.makeObservable && !this.isObservable) {
         this.makeObservable(); // particularly for observable arrays, for
         // their length property
     }
-    var descriptor = PropertyChanges.getOwnPropertyChangeDescriptor(this, key);
+    var descriptor = PropertyChanges.getOwnPropertyChangeDescriptor(this, key, allowsNestedDispatch);
     var listeners;
     if (beforeChange) {
         listeners = descriptor.willChangeListeners;
@@ -127,8 +132,8 @@ PropertyChanges.prototype.addOwnPropertyChangeListener = function (key, listener
     };
 };
 
-PropertyChanges.prototype.addBeforeOwnPropertyChangeListener = function (key, listener) {
-    return PropertyChanges.addOwnPropertyChangeListener(this, key, listener, true);
+PropertyChanges.prototype.addBeforeOwnPropertyChangeListener = function (key, listener, allowsNestedDispatch) {
+    return PropertyChanges.addOwnPropertyChangeListener(this, key, listener, true, allowsNestedDispatch);
 };
 
 PropertyChanges.prototype.removeOwnPropertyChangeListener = function (key, listener, beforeChange) {
@@ -155,7 +160,7 @@ PropertyChanges.prototype.removeBeforeOwnPropertyChangeListener = function (key,
 PropertyChanges.prototype.dispatchOwnPropertyChange = function (key, value, beforeChange) {
     var descriptor = PropertyChanges.getOwnPropertyChangeDescriptor(this, key);
 
-    if (descriptor.isActive) {
+    if (descriptor.isActive && ! descriptor.allowsNestedDispatch) {
         return;
     }
     descriptor.isActive = true;
