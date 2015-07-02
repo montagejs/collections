@@ -23,10 +23,13 @@ var object_owns = Object.prototype.hasOwnProperty;
 */
 
 var mapChangeDescriptors = new WeakMap();
+var Dict = null;
 
 MapChanges.prototype.getAllMapChangeDescriptors = function () {
-    var Dict = require("../dict");
     if (!mapChangeDescriptors.has(this)) {
+        if (!Dict) {
+            Dict = require("../dict");
+        }
         mapChangeDescriptors.set(this, Dict());
     }
     return mapChangeDescriptors.get(this);
