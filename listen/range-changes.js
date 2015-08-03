@@ -3,7 +3,20 @@
 var WeakMap = require("weak-map");
 var Dict = require("../dict");
 
-var rangeChangeDescriptors = new WeakMap(); // {isActive, willChangeListeners, changeListeners}
+/*
+    Object range change descriptors carry information necessary for adding, removing,
+    dispatching, and shorting events to listeners for range changes when values
+    are removed or added at an index or multiple indexes of a flat collection.
+
+    {
+        isActive:boolean
+        willChangeListeners:Array(Function)
+        changeListeners:Array(Function)
+	allowsNestedDispatch:boolean
+    }
+*/
+
+var rangeChangeDescriptors = new WeakMap();
 
 module.exports = RangeChanges;
 function RangeChanges() {
@@ -17,26 +30,28 @@ RangeChanges.prototype.getAllRangeChangeDescriptors = function () {
     return rangeChangeDescriptors.get(this);
 };
 
-RangeChanges.prototype.getRangeChangeDescriptor = function (token) {
+RangeChanges.prototype.getRangeChangeDescriptor = function (token, allowsNestedDispatch) {
     var tokenChangeDescriptors = this.getAllRangeChangeDescriptors();
     token = token || "";
+    allowsNestedDispatch = allowsNestedDispatch || false;
     if (!tokenChangeDescriptors.has(token)) {
         tokenChangeDescriptors.set(token, {
             isActive: false,
             changeListeners: [],
-            willChangeListeners: []
+            willChangeListeners: [],
+            allowsNestedDispatch: allowsNestedDispatch
         });
     }
     return tokenChangeDescriptors.get(token);
 };
 
-RangeChanges.prototype.addRangeChangeListener = function (listener, token, beforeChange) {
+RangeChanges.prototype.addRangeChangeListener = function (listener, token, beforeChange, allowsNestedDispatch) {
     // a concession for objects like Array that are not inherently observable
     if (!this.isObservable && this.makeObservable) {
         this.makeObservable();
     }
 
-    var descriptor = this.getRangeChangeDescriptor(token);
+    var descriptor = this.getRangeChangeDescriptor(token, allowsNestedDispatch);
 
     var listeners;
     if (beforeChange) {
@@ -87,7 +102,7 @@ RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, befor
     var changeName = "Range" + (beforeChange ? "WillChange" : "Change");
     descriptors.forEach(function (descriptor, token) {
 
-        if (descriptor.isActive) {
+        if (descriptor.isActive && ! descriptor.allowsNestedDispatch) {
             return;
         } else {
             descriptor.isActive = true;
@@ -128,8 +143,8 @@ RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, befor
     }, this);
 };
 
-RangeChanges.prototype.addBeforeRangeChangeListener = function (listener, token) {
-    return this.addRangeChangeListener(listener, token, true);
+RangeChanges.prototype.addBeforeRangeChangeListener = function (listener, token, allowsNestedDispatch) {
+    return this.addRangeChangeListener(listener, token, true, allowsNestedDispatch);
 };
 
 RangeChanges.prototype.removeBeforeRangeChangeListener = function (listener, token) {
