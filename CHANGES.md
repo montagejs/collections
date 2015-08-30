@@ -1,3 +1,7 @@
+## v1.2.4
+
+- Optimise performance of PropertyChanges with PR#126 and avoid unnecessary calls to require in Map Changes with PR #129
+
 ## v1.2.3
 
 - Dict Optimization to remove the need to mangle/unmangle keys. This minimize the amount of string creation and therefore garbage collection
