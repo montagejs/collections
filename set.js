@@ -46,6 +46,8 @@ Object.addEach(Set.prototype, GenericSet.prototype);
 Object.addEach(Set.prototype, PropertyChanges.prototype);
 Object.addEach(Set.prototype, RangeChanges.prototype);
 
+Object.defineProperty(Set.prototype,"size",GenericCollection._sizePropertyDescriptor);
+
 Set.prototype.Order = List;
 Set.prototype.Store = FastSet;
 

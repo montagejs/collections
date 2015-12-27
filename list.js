@@ -418,14 +418,24 @@ function ListIterator(head) {
     this.at = head.next;
 };
 
+ListIterator.prototype.__iterationObject = null;
+Object.defineProperty(ListIterator.prototype,"_iterationObject", {
+    get: function() {
+        return this.__iterationObject || (this.__iterationObject = { done: false, value:null});
+    }
+});
+
+
 ListIterator.prototype.next = function () {
     if (this.at === this.head) {
-        throw StopIteration;
+        this._iterationObject.done = true;
+        this._iterationObject.value = void 0;
     } else {
         var value = this.at.value;
         this.at = this.at.next;
-        return value;
+        this._iterationObject.value = value;
     }
+    return this._iterationObject;
 };
 
 List.prototype.Node = Node;
@@ -456,4 +466,3 @@ Node.prototype.addAfter = function (node) {
     next.prev = node;
     node.prev = this;
 };
-

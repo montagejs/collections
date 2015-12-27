@@ -231,9 +231,12 @@ Object.addEach = function (target, source) {
     callback
 */
 Object.forEach = function (object, callback, thisp) {
-    Object.keys(object).forEach(function (key) {
-        callback.call(thisp, object[key], key, object);
-    });
+
+    var keys = Object.keys(object), i = 0, iKey;
+    for(;(iKey = keys[i]);i++) {
+        callback.call(thisp, object[iKey], iKey, object);
+    }
+
 };
 
 /**
@@ -251,9 +254,11 @@ Object.forEach = function (object, callback, thisp) {
     item in the object.
 */
 Object.map = function (object, callback, thisp) {
-    return Object.keys(object).map(function (key) {
-        return callback.call(thisp, object[key], key, object);
-    });
+    var keys = Object.keys(object), i = 0, result = [], iKey;
+    for(;(iKey = keys[i]);i++) {
+        result.push(callback.call(thisp, object[iKey], iKey, object));
+    }
+    return result;
 };
 
 /**
@@ -517,4 +522,3 @@ Object.clear = function (object) {
     }
     return object;
 };
-

@@ -342,12 +342,19 @@ function ArrayIterator(array, start, end) {
     this.start = start == null ? 0 : start;
     this.end = end;
 };
+ArrayIterator.prototype.__iterationObject = null;
+Object.defineProperty(ArrayIterator.prototype,"_iterationObject", {
+    get: function() {
+        return this.__iterationObject || (this.__iterationObject = { done: false, value:null});
+    }
+});
 
 ArrayIterator.prototype.next = function () {
     if (this.start === (this.end == null ? this.array.length : this.end)) {
-        throw StopIteration;
+        this._iterationObject.done = true;
+        this._iterationObject.value = void 0;
     } else {
-        return this.array[this.start++];
+        this._iterationObject.value = this.array[this.start++];
     }
+    return this._iterationObject;
 };
-
