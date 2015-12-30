@@ -269,5 +269,14 @@ GenericCollection.prototype.iterator = function () {
     return this.iterate.apply(this, arguments);
 };
 
-require("./shim-array");
+GenericCollection._sizePropertyDescriptor = {
+    get: function() {
+        return this.length;
+    },
+    enumerable: false,
+    configurable: true
+};
 
+Object.defineProperty(GenericCollection.prototype,"size",GenericCollection._sizePropertyDescriptor);
+
+require("./shim-array");

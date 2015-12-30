@@ -742,6 +742,12 @@ function Iterator(set, start, end) {
         }
     }
 }
+Iterator.prototype.__iterationObject = null;
+Object.defineProperty(Iterator.prototype,"_iterationObject", {
+    get: function() {
+        return this.__iterationObject || (this.__iterationObject = { done: false, value:null});
+    }
+});
 
 Iterator.prototype.next = function () {
     var next;
@@ -751,15 +757,22 @@ Iterator.prototype.next = function () {
         next = this.set.findLeast();
     }
     if (!next) {
-        throw StopIteration;
+        this._iterationObject.done = true;
+        this._iterationObject.value = void 0;
     }
-    if (
-        this.end !== undefined &&
-        this.set.contentCompare(next.value, this.end) >= 0
-    ) {
-        throw StopIteration;
-    }
-    this.prev = next;
-    return next.value;
-};
+    else {
+        if (
+            this.end !== undefined &&
+            this.set.contentCompare(next.value, this.end) >= 0
+        ) {
+            this._iterationObject.done = true;
+            this._iterationObject.value = void 0;
+        }
+        else {
+            this.prev = next;
+            this._iterationObject.value =  next.value;
+        }
 
+    }
+    return this._iterationObject;
+};

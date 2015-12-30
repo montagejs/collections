@@ -1,3 +1,7 @@
+## v3.0.0
+
+- Aligns iterations with latest standard with PR #137
+
 ## v1.2.4
 
 - Optimise performance of PropertyChanges with PR#126 and avoid unnecessary calls to require in Map Changes with PR #129
@@ -182,4 +186,3 @@
 -   The `observable` module provides generics methods for observables.
     New collections need only call the appropriate dispatch functions if
     `isObservable` is true.
-

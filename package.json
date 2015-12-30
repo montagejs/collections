@@ -1,6 +1,6 @@
 {
   "name": "collections",
-  "version": "1.2.4",
+  "version": "3.0.0",
   "description": "data structures with idiomatic JavaScript collection interfaces",
   "homepage": "http://www.collectionsjs.com",
   "author": "Kris Kowal <kris@cixar.com> (http://github.com/kriskowal)",

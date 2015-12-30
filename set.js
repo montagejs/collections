@@ -7,6 +7,7 @@ var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
 var PropertyChanges = require("./listen/property-changes");
 var RangeChanges = require("./listen/range-changes");
+var Iterator = require("./iterator");
 
 module.exports = Set;
 
@@ -44,6 +45,8 @@ Object.addEach(Set.prototype, GenericCollection.prototype);
 Object.addEach(Set.prototype, GenericSet.prototype);
 Object.addEach(Set.prototype, PropertyChanges.prototype);
 Object.addEach(Set.prototype, RangeChanges.prototype);
+
+Object.defineProperty(Set.prototype,"size",GenericCollection._sizePropertyDescriptor);
 
 Set.prototype.Order = List;
 Set.prototype.Store = FastSet;
@@ -168,6 +171,10 @@ Set.prototype.iterate = function () {
     return this.order.iterate();
 };
 
+Set.prototype.values = function () {
+    return new Iterator(this);
+};
+
 Set.prototype.log = function () {
     var set = this.store;
     return set.log.apply(set, arguments);
@@ -176,4 +183,3 @@ Set.prototype.log = function () {
 Set.prototype.makeObservable = function () {
     this.order.makeObservable();
 };
-
