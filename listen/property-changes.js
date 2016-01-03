@@ -340,7 +340,7 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
                     descriptor,
                     isActive;
 
-                overriddenDescriptor.set.call(this, value);
+                overriddenDescriptor.set.apply(this, arguments);
                 value = this[key];
                 if (value !== formerValue) {
                     descriptor = this.__propertyChangeListeners__[key];
