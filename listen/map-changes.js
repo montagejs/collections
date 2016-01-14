@@ -24,6 +24,7 @@ var object_owns = Object.prototype.hasOwnProperty;
 
 var mapChangeDescriptors = new WeakMap();
 var Dict = null;
+var UNDEFINED;
 
 MapChanges.prototype.getAllMapChangeDescriptors = function () {
     if (!mapChangeDescriptors.has(this)) {
@@ -47,6 +48,14 @@ MapChanges.prototype.getMapChangeDescriptor = function (token) {
     return tokenChangeDescriptors.get(token);
 };
 
+var ObjectsDispatchesMapChanges = new WeakMap(),
+    dispatchesMapChangesGetter = function() {
+        return ObjectsDispatchesMapChanges.get(this);
+    },
+    dispatchesMapChangesSetter = function(value) {
+        return ObjectsDispatchesMapChanges.set(this,value);
+    };
+
 MapChanges.prototype.addMapChangeListener = function (listener, token, beforeChange) {
     if (!this.isObservable && this.makeObservable) {
         // for Array
@@ -60,12 +69,15 @@ MapChanges.prototype.addMapChangeListener = function (listener, token, beforeCha
         listeners = descriptor.changeListeners;
     }
     listeners.push(listener);
-    Object.defineProperty(this, "dispatchesMapChanges", {
-        value: true,
-        writable: true,
-        configurable: true,
-        enumerable: false
-    });
+    if(Object.getOwnPropertyDescriptor(this.__proto__,"dispatchesMapChanges") === UNDEFINED) {
+        Object.defineProperty(this.__proto__, "dispatchesMapChanges", {
+            get: dispatchesMapChangesGetter,
+            set: dispatchesMapChangesSetter,
+            configurable: true,
+            enumerable: false
+        });
+    }
+    this.dispatchesMapChanges = true;
 
     var self = this;
     return function cancelMapChangeListener() {
@@ -147,4 +159,3 @@ MapChanges.prototype.removeBeforeMapChangeListener = function (listener, token) 
 MapChanges.prototype.dispatchBeforeMapChange = function (key, value) {
     return this.dispatchMapChange(key, value, true);
 };
-

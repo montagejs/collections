@@ -4,6 +4,7 @@ var WeakMap = require("weak-map");
 var Dict = require("../dict");
 
 var rangeChangeDescriptors = new WeakMap(); // {isActive, willChangeListeners, changeListeners}
+var UNDEFINED;
 
 module.exports = RangeChanges;
 function RangeChanges() {
@@ -30,6 +31,14 @@ RangeChanges.prototype.getRangeChangeDescriptor = function (token) {
     return tokenChangeDescriptors.get(token);
 };
 
+var ObjectsDispatchesRangeChanges = new WeakMap(),
+    dispatchesRangeChangesGetter = function() {
+        return ObjectsDispatchesRangeChanges.get(this);
+    },
+    dispatchesRangeChangesSetter = function(value) {
+        return ObjectsDispatchesRangeChanges.set(this,value);
+    };
+
 RangeChanges.prototype.addRangeChangeListener = function (listener, token, beforeChange) {
     // a concession for objects like Array that are not inherently observable
     if (!this.isObservable && this.makeObservable) {
@@ -47,12 +56,15 @@ RangeChanges.prototype.addRangeChangeListener = function (listener, token, befor
 
     // even if already registered
     listeners.push(listener);
-    Object.defineProperty(this, "dispatchesRangeChanges", {
-        value: true,
-        writable: true,
-        configurable: true,
-        enumerable: false
-    });
+    if(Object.getOwnPropertyDescriptor(this.__proto__,"dispatchesRangeChanges") === UNDEFINED) {
+        Object.defineProperty(this.__proto__, "dispatchesRangeChanges", {
+            get: dispatchesRangeChangesGetter,
+            set: dispatchesRangeChangesSetter,
+            configurable: true,
+            enumerable: false
+        });
+    }
+    this.dispatchesRangeChanges = true;
 
     var self = this;
     return function cancelRangeChangeListener() {
@@ -139,4 +151,3 @@ RangeChanges.prototype.removeBeforeRangeChangeListener = function (listener, tok
 RangeChanges.prototype.dispatchBeforeRangeChange = function (plus, minus, index) {
     return this.dispatchRangeChange(plus, minus, index, true);
 };
-
