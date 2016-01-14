@@ -264,6 +264,7 @@ PropertyChanges.prototype.dispatchBeforeOwnPropertyChange = function (key, liste
 };
 
 var ObjectsOverriddenPropertyDescriptors = new WeakMap();
+var Objects__state__ = new WeakMap();
 
 PropertyChanges.prototype.makePropertyObservable = function (key) {
     // arrays are special.  we do not support direct setting of properties
@@ -292,16 +293,9 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
         }
     }
 
-    var state;
-    if (typeof this.__state__ === "object") {
-        state = this.__state__;
-    } else {
-        state = {};
-        Object.defineProperty(this, "__state__", {
-            value: state,
-            writable: true,
-            enumerable: false
-        });
+    var state = Objects__state__.get(this);
+    if (typeof state !== "object") {
+        Objects__state__.set(this,(state = {}));
     }
     state[key] = this[key];
 
