@@ -212,9 +212,9 @@ Object.addEach = function (target, source) {
         }
     } else {
         // copy other objects as map-alikes
-        Object.keys(source).forEach(function (key) {
+        for(var keys = Object.keys(source), i = 0, key;(key = keys[i]); i++) {
             target[key] = source[key];
-        });
+        }
     }
     return target;
 };
