@@ -4,7 +4,6 @@ var WeakMap = require("weak-map");
 var Dict = require("../dict");
 
 var rangeChangeDescriptors = new WeakMap(); // {isActive, willChangeListeners, changeListeners}
-var UNDEFINED;
 
 module.exports = RangeChanges;
 function RangeChanges() {
@@ -56,7 +55,7 @@ RangeChanges.prototype.addRangeChangeListener = function (listener, token, befor
 
     // even if already registered
     listeners.push(listener);
-    if(Object.getOwnPropertyDescriptor(this.__proto__,"dispatchesRangeChanges") === UNDEFINED) {
+    if(Object.getOwnPropertyDescriptor(this.__proto__,"dispatchesRangeChanges") === void 0) {
         Object.defineProperty(this.__proto__, "dispatchesRangeChanges", {
             get: dispatchesRangeChangesGetter,
             set: dispatchesRangeChangesSetter,

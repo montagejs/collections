@@ -24,7 +24,6 @@ var object_owns = Object.prototype.hasOwnProperty;
 
 var mapChangeDescriptors = new WeakMap();
 var Dict = null;
-var UNDEFINED;
 
 MapChanges.prototype.getAllMapChangeDescriptors = function () {
     if (!mapChangeDescriptors.has(this)) {
@@ -69,7 +68,7 @@ MapChanges.prototype.addMapChangeListener = function (listener, token, beforeCha
         listeners = descriptor.changeListeners;
     }
     listeners.push(listener);
-    if(Object.getOwnPropertyDescriptor(this.__proto__,"dispatchesMapChanges") === UNDEFINED) {
+    if(Object.getOwnPropertyDescriptor(this.__proto__,"dispatchesMapChanges") === void 0) {
         Object.defineProperty(this.__proto__, "dispatchesMapChanges", {
             get: dispatchesMapChangesGetter,
             set: dispatchesMapChangesSetter,

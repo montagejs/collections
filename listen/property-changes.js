@@ -132,7 +132,6 @@ WillChangeListenersRecord.prototype.genericHandlerMethodName = "handlePropertyWi
 PropertyChanges.debug = true;
 
 var ObjectsPropertyChangeListeners = new WeakMap();
-var UNDEFINED;
 
 PropertyChanges.prototype.getOwnPropertyChangeDescriptor = function (key) {
     var objectPropertyChangeDescriptors = ObjectsPropertyChangeListeners.get(this);
@@ -140,7 +139,7 @@ PropertyChanges.prototype.getOwnPropertyChangeDescriptor = function (key) {
         objectPropertyChangeDescriptors = Object.create(null);
         ObjectsPropertyChangeListeners.set(this,objectPropertyChangeDescriptors);
     }
-    if (objectPropertyChangeDescriptors[key] === UNDEFINED) {
+    if (objectPropertyChangeDescriptors[key] === void 0) {
         var propertyName = String(key);
 
         propertyName = propertyName && propertyName[0].toUpperCase() + propertyName.slice(1);
@@ -157,7 +156,7 @@ PropertyChanges.prototype.hasOwnPropertyChangeDescriptor = function (key) {
     if (!key) {
         return true;
     }
-    if (objectPropertyChangeDescriptors[key] === UNDEFINED) {
+    if (objectPropertyChangeDescriptors[key] === void 0) {
         return false;
     }
     return true;
@@ -286,7 +285,7 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
         overriddenPropertyDescriptors = {};
         ObjectsOverriddenPropertyDescriptors.set(this,overriddenPropertyDescriptors);
     } else {
-        if (overriddenPropertyDescriptors[key] !== UNDEFINED) {
+        if (overriddenPropertyDescriptors[key] !== void 0) {
             // if we have already recorded an overridden property descriptor,
             // we have already installed the observer, so short-here
             return;
@@ -322,7 +321,7 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
     // or default to an undefined value
     if (!overriddenDescriptor) {
         overriddenDescriptor = {
-            value: undefined,
+            value: void 0,
             enumerable: true,
             writable: true,
             configurable: true
