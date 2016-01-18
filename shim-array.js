@@ -335,6 +335,18 @@ define("iterate", function (start, end) {
     return new ArrayIterator(this, start, end);
 });
 
+if(Array.prototype.spliceOne === void 0) {
+    define("spliceOne", function (index) {
+        var len=this.length;
+        if (!len) { return }
+        while (index<len) {
+            this[index] = this[index+1];
+            index++
+        }
+        this.length--;
+    });
+}
+
 define("Iterator", ArrayIterator);
 
 function ArrayIterator(array, start, end) {

@@ -147,7 +147,7 @@ SortedArray.prototype["delete"] = function (value, equals) {
         if (this.dispatchesRangeChanges) {
             this.dispatchBeforeRangeChange([], [value], index);
         }
-        this.array.splice(index, 1);
+        this.array.spliceOne(index);
         this.length--;
         if (this.dispatchesRangeChanges) {
             this.dispatchRangeChange([], [value], index);

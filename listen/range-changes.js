@@ -90,7 +90,7 @@ RangeChanges.prototype.removeRangeChangeListener = function (listener, token, be
     if (index === -1) {
         throw new Error("Can't remove range change listener: does not exist: token " + JSON.stringify(token));
     }
-    listeners.splice(index, 1);
+    listeners.spliceOne(index, 1);
 };
 
 RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, beforeChange) {
