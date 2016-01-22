@@ -381,10 +381,10 @@ describe("Array change dispatch", function () {
         });
 
         var descriptor = array.getRangeChangeDescriptor();
-        descriptor.willChangeListeners.forEach(function (listener) {
+        descriptor.willChangeListeners.current.forEach(function (listener) {
             array.removeBeforeRangeChangeListener(listener);
         });
-        descriptor.changeListeners.forEach(function (listener) {
+        descriptor.changeListeners.current.forEach(function (listener) {
             array.removeRangeChangeListener(listener);
         });
 
@@ -472,4 +472,3 @@ describe("Array change dispatch", function () {
     });
 
 });
-

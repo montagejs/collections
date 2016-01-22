@@ -254,10 +254,10 @@ function describeRangeChanges(Collection) {
         });
 
         var descriptor = collection.getRangeChangeDescriptor();
-        descriptor.willChangeListeners.forEach(function (listener) {
+        descriptor.willChangeListeners.current.forEach(function (listener) {
             collection.removeBeforeRangeChangeListener(listener);
         });
-        descriptor.changeListeners.forEach(function (listener) {
+        descriptor.changeListeners.current.forEach(function (listener) {
             collection.removeRangeChangeListener(listener);
         });
 
@@ -300,4 +300,3 @@ function describeRangeChanges(Collection) {
     });
 
 }
-

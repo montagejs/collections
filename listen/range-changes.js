@@ -1,9 +1,54 @@
 "use strict";
 
+//TODO:
+// Remove Dict and use native Map as much as possible here
+//Use ObjectChangeDescriptor to avoid creating useless arrays and benefit from similar gains made in property-changes
+
+
 var WeakMap = require("weak-map");
 var Dict = require("../dict");
+var ChangeDescriptor = require("./change-descriptor");
+var ObjectChangeDescriptor = ChangeDescriptor.ObjectChangeDescriptor;
+var ChangeListenersRecord = ChangeDescriptor.ChangeListenersRecord;
+
+if (typeof window !== "undefined") { // client-side
+    Dict = window.Map || Dict;
+}
 
 var rangeChangeDescriptors = new WeakMap(); // {isActive, willChangeListeners, changeListeners}
+
+
+//
+function RangeChangeDescriptor() {}
+RangeChangeDescriptor.prototype = new ObjectChangeDescriptor();
+RangeChangeDescriptor.prototype.constructor = RangeChangeDescriptor;
+
+RangeChangeDescriptor.prototype.changeListenersRecordConstructor = RangeChangeListenersRecord;
+RangeChangeDescriptor.prototype.willChangeListenersRecordConstructor = RangeWillChangeListenersRecord;
+
+function RangeChangeListenersRecord() {}
+RangeChangeListenersRecord.prototype = new ChangeListenersRecord();
+RangeChangeListenersRecord.prototype.constructor = RangeChangeListenersRecord;
+RangeChangeListenersRecord.prototype.initWithName = function(name) {
+    this.specificHandlerMethodName = "handle";
+    this.specificHandlerMethodName += name.slice(0, 1).toUpperCase();
+    this.specificHandlerMethodName += name.slice(1);
+    this.specificHandlerMethodName += "RangeChange";
+	return this;
+};
+
+
+function RangeWillChangeListenersRecord() {}
+RangeWillChangeListenersRecord.prototype = new ChangeListenersRecord();
+RangeWillChangeListenersRecord.prototype.constructor = RangeWillChangeListenersRecord;
+RangeWillChangeListenersRecord.prototype.initWithName = function(name) {
+    this.specificHandlerMethodName = "handle";
+    this.specificHandlerMethodName += name.slice(0, 1).toUpperCase();
+    this.specificHandlerMethodName += name.slice(1);
+    this.specificHandlerMethodName += "RangeWillChange";
+	return this;
+};
+
 
 module.exports = RangeChanges;
 function RangeChanges() {
@@ -12,7 +57,7 @@ function RangeChanges() {
 
 RangeChanges.prototype.getAllRangeChangeDescriptors = function () {
     if (!rangeChangeDescriptors.has(this)) {
-        rangeChangeDescriptors.set(this, Dict());
+        rangeChangeDescriptors.set(this, new Dict());
     }
     return rangeChangeDescriptors.get(this);
 };
@@ -21,11 +66,12 @@ RangeChanges.prototype.getRangeChangeDescriptor = function (token) {
     var tokenChangeDescriptors = this.getAllRangeChangeDescriptors();
     token = token || "";
     if (!tokenChangeDescriptors.has(token)) {
-        tokenChangeDescriptors.set(token, {
-            isActive: false,
-            changeListeners: [],
-            willChangeListeners: []
-        });
+        // tokenChangeDescriptors.set(token, {
+        //     isActive: false,
+        //     changeListeners: [],
+        //     willChangeListeners: []
+        // });
+        tokenChangeDescriptors.set(token, new RangeChangeDescriptor().initWithName(token));
     }
     return tokenChangeDescriptors.get(token);
 };
@@ -54,7 +100,7 @@ RangeChanges.prototype.addRangeChangeListener = function (listener, token, befor
     }
 
     // even if already registered
-    listeners.push(listener);
+    listeners.current.push(listener);
     if(Object.getOwnPropertyDescriptor(this.__proto__,"dispatchesRangeChanges") === void 0) {
         Object.defineProperty(this.__proto__, "dispatchesRangeChanges", {
             get: dispatchesRangeChangesGetter,
@@ -81,62 +127,62 @@ RangeChanges.prototype.removeRangeChangeListener = function (listener, token, be
 
     var listeners;
     if (beforeChange) {
-        listeners = descriptor.willChangeListeners;
+        listeners = descriptor._willChangeListeners;
     } else {
-        listeners = descriptor.changeListeners;
+        listeners = descriptor._changeListeners;
     }
 
-    var index = listeners.lastIndexOf(listener);
+    var index = listeners.current.lastIndexOf(listener);
     if (index === -1) {
         throw new Error("Can't remove range change listener: does not exist: token " + JSON.stringify(token));
     }
-    listeners.spliceOne(index, 1);
+    listeners.current.spliceOne(index, 1);
 };
 
 RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, beforeChange) {
+    //console.groupTime("dispatchRangeChange");
     var descriptors = this.getAllRangeChangeDescriptors();
-    var changeName = "Range" + (beforeChange ? "WillChange" : "Change");
-    descriptors.forEach(function (descriptor, token) {
+    descriptors.dispatchBeforeChange = beforeChange;
+    descriptors.forEach(function (descriptor, token, descriptors) {
 
         if (descriptor.isActive) {
             return;
-        } else {
-            descriptor.isActive = true;
         }
 
         // before or after
-        var listeners;
-        if (beforeChange) {
-            listeners = descriptor.willChangeListeners;
-        } else {
-            listeners = descriptor.changeListeners;
-        }
+        var listeners = descriptors.dispatchBeforeChange ? descriptor._willChangeListeners : descriptor._changeListeners;
+        if(listeners && listeners.current && listeners.current.length) {
+            var tokenName = listeners.specificHandlerMethodName;
+            // notably, defaults to "handleRangeChange" or "handleRangeWillChange"
+            // if token is "" (the default)
 
-        var tokenName = "handle" + (
-            token.slice(0, 1).toUpperCase() +
-            token.slice(1)
-        ) + changeName;
-        // notably, defaults to "handleRangeChange" or "handleRangeWillChange"
-        // if token is "" (the default)
+            descriptor.isActive = true;
 
-        // dispatch each listener
-        try {
-            listeners.slice().forEach(function (listener) {
-                if (listeners.indexOf(listener) < 0) {
-                    return;
-                }
-                if (listener[tokenName]) {
-                    listener[tokenName](plus, minus, index, this, beforeChange);
-                } else if (listener.call) {
-                    listener.call(this, plus, minus, index, this, beforeChange);
-                } else {
-                    throw new Error("Handler " + listener + " has no method " + tokenName + " and is not callable");
-                }
-            }, this);
-        } finally {
-            descriptor.isActive = false;
+
+            // dispatch each listener
+            try {
+                var i,
+                    listener,
+                    currentListeners = listeners.current,
+                    currentListenersCopy = listeners.current.slice();
+                for(i=0;(listener = currentListenersCopy[i]);i++) {
+                    if (currentListeners.indexOf(listener) < 0) {
+                        return;
+                    }
+                    if (listener[tokenName]) {
+                        listener[tokenName](plus, minus, index, this, beforeChange);
+                    } else if (listener.call) {
+                        listener.call(this, plus, minus, index, this, beforeChange);
+                    } else {
+                        throw new Error("Handler " + listener + " has no method " + tokenName + " and is not callable");
+                    }
+                }/*, this);*/
+            } finally {
+                descriptor.isActive = false;
+            }
         }
     }, this);
+    //console.groupTimeEnd("dispatchRangeChange");
 };
 
 RangeChanges.prototype.addBeforeRangeChangeListener = function (listener, token) {

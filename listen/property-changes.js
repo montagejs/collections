@@ -13,6 +13,7 @@
 */
 
 require("../shim");
+var ObjectChangeDescriptor = require("./change-descriptor").ObjectChangeDescriptor;
 
 // objectHasOwnProperty.call(myObject, key) will be used instead of
 // myObject.hasOwnProperty(key) to allow myObject have defined
@@ -62,77 +63,6 @@ function PropertyChanges() {
     throw new Error("This is an abstract interface. Mix it. Don't construct it");
 }
 
-function ObjectPropertyChangeDescriptor(propertyName) {
-	this.propertyName = propertyName;
-	return this;
-}
-Object.defineProperties(ObjectPropertyChangeDescriptor.prototype,{
-    propertyName: {
-		value:null,
-		writable: true
-	},
-    isActive: {
-		value:false,
-		writable: true
-	},
-	_willChangeListeners: {
-		value:null,
-		writable: true
-	},
-	willChangeListeners: {
-		get: function() {
-			return this._willChangeListeners || (this._willChangeListeners = new WillChangeListenersRecord(this.propertyName));
-		}
-	},
-	_changeListeners: {
-		value:null,
-		writable: true
-	},
-    changeListeners: {
-		get: function() {
-			return this._changeListeners || (this._changeListeners = new ChangeListenersRecord(this.propertyName));
-		}
-	}
-});
-
-function ChangeListenersRecord(propertyName) {
-    this.specificHandlerMethodName = "handle" + propertyName + "Change";
-	return this;
-}
-
-Object.defineProperties(ChangeListenersRecord.prototype,{
-    _current: {
-		value: null,
-		writable: true
-	},
-	current: {
-		get: function() {
-			return this._current || (this._current = []);
-		},
-	},
-    _active: {
-		value: null,
-		writable: true
-	},
-    active: {
-		get: function() {
-			return this._active || (this._active = []);
-		}
-	},
-    genericHandlerMethodName: {
-		value: "handlePropertyChange"
-	}
-});
-
-function WillChangeListenersRecord(propertyName) {
-    this.specificHandlerMethodName = "handle" + propertyName + "WillChange";
-	return this;
-}
-WillChangeListenersRecord.prototype = new ChangeListenersRecord();
-WillChangeListenersRecord.prototype.genericHandlerMethodName = "handlePropertyWillChange";
-
-
-
 PropertyChanges.debug = true;
 
 var ObjectsPropertyChangeListeners = new WeakMap();
@@ -147,7 +77,7 @@ PropertyChanges.prototype.getOwnPropertyChangeDescriptor = function (key) {
         var propertyName = String(key);
 
         propertyName = propertyName && propertyName[0].toUpperCase() + propertyName.slice(1);
-        objectPropertyChangeDescriptors[key] = new ObjectPropertyChangeDescriptor(propertyName);
+        objectPropertyChangeDescriptors[key] = new ObjectChangeDescriptor().initWithName(propertyName);
     }
     return objectPropertyChangeDescriptors[key];
 };
@@ -238,10 +168,12 @@ PropertyChanges.prototype.dispatchOwnPropertyChange = function (key, value, befo
 function dispatchEach(listeners, key, value, object) {
     if(listeners) {
         // copy snapshot of current listeners to active listeners
-        var active = listeners.active;
-        var current = listeners.current;
-        var index = current.length;
-        var listener, length = index, i, thisp;
+        var active = listeners.active,
+            current = listeners.current,
+            index = current.length,
+            listener,
+            i,
+            thisp;
 
         if (active.length > index) {
             active.length = index;
@@ -249,10 +181,9 @@ function dispatchEach(listeners, key, value, object) {
         while (index--) {
             active[index] = current[index];
         }
-        for (i = 0; i < length; i++) {
-            thisp = active[i];
+        for (i = 0; (thisp = active[i]); i++) {
             //This is fixing the issue causing a regression in Montage's repetition
-            if (!i || current.indexOf(thisp) >= 0) {
+            if (!i || current.indexOf(thisp) !== -1) {
                 listener = (
                     thisp[listeners.specificHandlerMethodName] ||
                     thisp[listeners.genericHandlerMethodName] ||
