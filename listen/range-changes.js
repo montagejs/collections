@@ -5,11 +5,12 @@
 //Use ObjectChangeDescriptor to avoid creating useless arrays and benefit from similar gains made in property-changes
 
 
-var WeakMap = require("weak-map");
-var Dict = require("../dict");
-var ChangeDescriptor = require("./change-descriptor");
-var ObjectChangeDescriptor = ChangeDescriptor.ObjectChangeDescriptor;
-var ChangeListenersRecord = ChangeDescriptor.ChangeListenersRecord;
+var WeakMap = require("weak-map"),
+    Dict = require("../dict"),
+    ChangeDescriptor = require("./change-descriptor"),
+    ObjectChangeDescriptor = ChangeDescriptor.ObjectChangeDescriptor,
+    ChangeListenersRecord = ChangeDescriptor.ChangeListenersRecord,
+    ListenerGhost = ChangeDescriptor.ListenerGhost;
 
 if (typeof window !== "undefined") { // client-side
     Dict = window.Map || Dict;
@@ -25,6 +26,13 @@ RangeChangeDescriptor.prototype.constructor = RangeChangeDescriptor;
 
 RangeChangeDescriptor.prototype.changeListenersRecordConstructor = RangeChangeListenersRecord;
 RangeChangeDescriptor.prototype.willChangeListenersRecordConstructor = RangeWillChangeListenersRecord;
+Object.defineProperty(RangeChangeDescriptor.prototype,"active",{
+    get: function() {
+        return this._active || (this._active = this._current ? this._current.slice():[]);
+    }
+});
+
+
 
 function RangeChangeListenersRecord() {}
 RangeChangeListenersRecord.prototype = new ChangeListenersRecord();
@@ -136,7 +144,15 @@ RangeChanges.prototype.removeRangeChangeListener = function (listener, token, be
     if (index === -1) {
         throw new Error("Can't remove range change listener: does not exist: token " + JSON.stringify(token));
     }
-    listeners.current.spliceOne(index, 1);
+    else {
+        if(descriptor.isActive) {
+            listeners.ghostCount = listeners.ghostCount+1
+            listeners.current[index]=ListenerGhost
+        }
+        else {
+            listeners.current.spliceOne(index, 1);
+        }
+    }
 };
 
 RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, beforeChange) {
@@ -157,24 +173,24 @@ RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, befor
             // if token is "" (the default)
 
             descriptor.isActive = true;
-
-
             // dispatch each listener
             try {
                 var i,
+                    countI,
                     listener,
-                    currentListeners = listeners.current,
-                    currentListenersCopy = listeners.current.slice();
-                for(i=0;(listener = currentListenersCopy[i]);i++) {
-                    if (currentListeners.indexOf(listener) < 0) {
-                        return;
-                    }
-                    if (listener[tokenName]) {
-                        listener[tokenName](plus, minus, index, this, beforeChange);
-                    } else if (listener.call) {
-                        listener.call(this, plus, minus, index, this, beforeChange);
-                    } else {
-                        throw new Error("Handler " + listener + " has no method " + tokenName + " and is not callable");
+                    //removeGostListenersIfNeeded returns listeners.current or a new filtered one when conditions are met
+                    currentListeners = listeners.removeCurrentGostListenersIfNeeded(),
+                    active = listeners.active,
+                    Ghost = ListenerGhost;
+                for(i=0, countI = currentListeners.length;i<countI;i++) {
+                    if ((listener = currentListeners[i]) !== Ghost) {
+                        if (listener[tokenName]) {
+                            listener[tokenName](plus, minus, index, this, beforeChange);
+                        } else if (listener.call) {
+                            listener.call(this, plus, minus, index, this, beforeChange);
+                        } else {
+                            throw new Error("Handler " + listener + " has no method " + tokenName + " and is not callable");
+                        }
                     }
                 }/*, this);*/
             } finally {

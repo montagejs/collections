@@ -229,5 +229,43 @@ describe("PropertyChanges", function () {
         expect(listener2.handleFooChange).toHaveBeenCalled();
         expect(listener3.handleFooChange).not.toHaveBeenCalled();
     });
-});
 
+    it("compact listeners when the ratio of ListenerGhost is too high", function () {
+        var object = {
+            foo: true
+        };
+        var listener3 = {
+            handleFooChange: function (value, key, object) {
+                PropertyChanges.removeOwnPropertyChangeListener(object, key, listener1);
+                PropertyChanges.removeOwnPropertyChangeListener(object, key, listener3);
+                PropertyChanges.removeOwnPropertyChangeListener(object, key, listener5);
+            }
+        };
+        var listener1 = jasmine.createSpyObj("listener1", ["handleFooChange"]);
+        var listener2 = jasmine.createSpyObj("listener2", ["handleFooChange"]);
+        var listener4 = jasmine.createSpyObj("listener4", ["handleFooChange"]);
+        var listener5 = jasmine.createSpyObj("listener5", ["handleFooChange"]);
+
+        PropertyChanges.addOwnPropertyChangeListener(object, "foo", listener1);
+        PropertyChanges.addOwnPropertyChangeListener(object, "foo", listener2);
+        PropertyChanges.addOwnPropertyChangeListener(object, "foo", listener3);
+        PropertyChanges.addOwnPropertyChangeListener(object, "foo", listener4);
+        PropertyChanges.addOwnPropertyChangeListener(object, "foo", listener5);
+
+        object.foo = false;
+        expect(listener1.handleFooChange).toHaveBeenCalled();
+        expect(listener2.handleFooChange).toHaveBeenCalled();
+        expect(listener4.handleFooChange).toHaveBeenCalled();
+
+        var descriptor = PropertyChanges.getOwnPropertyChangeDescriptor(object, "foo");
+        expect(descriptor.changeListeners.ghostCount).toEqual(3);
+
+        object.foo = true;
+        expect(descriptor.changeListeners.ghostCount).toEqual(0);
+
+        expect(listener2.handleFooChange).toHaveBeenCalled();
+        expect(listener4.handleFooChange).toHaveBeenCalled();
+
+    });
+
+});

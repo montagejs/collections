@@ -13,7 +13,10 @@
 */
 
 require("../shim");
-var ObjectChangeDescriptor = require("./change-descriptor").ObjectChangeDescriptor;
+var ChangeDescriptor = require("./change-descriptor"),
+    ObjectChangeDescriptor = ChangeDescriptor.ObjectChangeDescriptor,
+    ListenerGhost = ChangeDescriptor.ListenerGhost;
+
 
 // objectHasOwnProperty.call(myObject, key) will be used instead of
 // myObject.hasOwnProperty(key) to allow myObject have defined
@@ -68,18 +71,18 @@ PropertyChanges.debug = true;
 var ObjectsPropertyChangeListeners = new WeakMap();
 
 PropertyChanges.prototype.getOwnPropertyChangeDescriptor = function (key) {
-    var objectPropertyChangeDescriptors = ObjectsPropertyChangeListeners.get(this);
+    var objectPropertyChangeDescriptors = ObjectsPropertyChangeListeners.get(this), keyChangeDescriptor;
     if (!objectPropertyChangeDescriptors) {
         objectPropertyChangeDescriptors = Object.create(null);
         ObjectsPropertyChangeListeners.set(this,objectPropertyChangeDescriptors);
     }
-    if (objectPropertyChangeDescriptors[key] === void 0) {
+    if ( (keyChangeDescriptor = objectPropertyChangeDescriptors[key]) === void 0) {
         var propertyName = String(key);
 
         propertyName = propertyName && propertyName[0].toUpperCase() + propertyName.slice(1);
-        objectPropertyChangeDescriptors[key] = new ObjectChangeDescriptor().initWithName(propertyName);
+        return objectPropertyChangeDescriptors[key] = new ObjectChangeDescriptor().initWithName(propertyName);
     }
-    return objectPropertyChangeDescriptors[key];
+    return keyChangeDescriptor;
 };
 
 PropertyChanges.prototype.hasOwnPropertyChangeDescriptor = function (key) {
@@ -122,7 +125,7 @@ PropertyChanges.prototype.addBeforeOwnPropertyChangeListener = function (key, li
     return PropertyChanges.addOwnPropertyChangeListener(this, key, listener, true);
 };
 
-PropertyChanges.prototype.removeOwnPropertyChangeListener = function (key, listener, beforeChange) {
+PropertyChanges.prototype.removeOwnPropertyChangeListener = function removeOwnPropertyChangeListener(key, listener, beforeChange) {
     var descriptor = PropertyChanges.getOwnPropertyChangeDescriptor(this, key);
 
     var listeners;
@@ -137,56 +140,58 @@ PropertyChanges.prototype.removeOwnPropertyChangeListener = function (key, liste
         if (index === -1) {
             throw new Error("Can't remove property change listener: does not exist: property name" + JSON.stringify(key));
         }
-        listeners.current.spliceOne(index, 1);
+        if(descriptor.isActive) {
+            listeners.ghostCount = listeners.ghostCount+1;
+            listeners.current[index]=removeOwnPropertyChangeListener.ListenerGhost;
+        }
+        else {
+            listeners.current.spliceOne(index, 1);
+        }
     }
-
 };
+PropertyChanges.prototype.removeOwnPropertyChangeListener.ListenerGhost = ListenerGhost;
 
 PropertyChanges.prototype.removeBeforeOwnPropertyChangeListener = function (key, listener) {
     return PropertyChanges.removeOwnPropertyChangeListener(this, key, listener, true);
 };
 
-PropertyChanges.prototype.dispatchOwnPropertyChange = function (key, value, beforeChange) {
+PropertyChanges.prototype.dispatchOwnPropertyChange = function dispatchOwnPropertyChange(key, value, beforeChange) {
     var descriptor = PropertyChanges.getOwnPropertyChangeDescriptor(this, key),
         listeners;
 
     if (!descriptor.isActive) {
         descriptor.isActive = true;
-        if (beforeChange) {
-            listeners = descriptor._willChangeListeners;
-        } else {
-            listeners = descriptor._changeListeners;
-        }
+        listeners = beforeChange ? descriptor._willChangeListeners: descriptor._changeListeners;
         try {
-            dispatchEach(listeners, key, value, this);
+            dispatchOwnPropertyChange.dispatchEach(listeners, key, value, this);
         } finally {
             descriptor.isActive = false;
         }
     }
 };
+PropertyChanges.prototype.dispatchOwnPropertyChange.dispatchEach = dispatchEach;
 
 function dispatchEach(listeners, key, value, object) {
     if(listeners) {
         // copy snapshot of current listeners to active listeners
-        var active = listeners.active,
-            current = listeners.current,
-            index = current.length,
+        var current,
             listener,
             i,
-            thisp;
+            countI,
+            thisp,
+            specificHandlerMethodName = listeners.specificHandlerMethodName,
+            genericHandlerMethodName = listeners.genericHandlerMethodName,
+            Ghost = ListenerGhost;
 
-        if (active.length > index) {
-            active.length = index;
-        }
-        while (index--) {
-            active[index] = current[index];
-        }
-        for (i = 0; (thisp = active[i]); i++) {
-            //This is fixing the issue causing a regression in Montage's repetition
-            if (!i || current.indexOf(thisp) !== -1) {
+        //removeGostListenersIfNeeded returns listeners.current or a new filtered one when conditions are met
+        current = listeners.removeCurrentGostListenersIfNeeded();
+        //We use a for to guarantee we won't dispatch to listeners that would be added after we started
+        for(i=0, countI = current.length;i<countI;i++) {
+            if ((thisp = current[i]) !== Ghost) {
+                //This is fixing the issue causing a regression in Montage's repetition
                 listener = (
-                    thisp[listeners.specificHandlerMethodName] ||
-                    thisp[listeners.genericHandlerMethodName] ||
+                    thisp[specificHandlerMethodName] ||
+                    thisp[genericHandlerMethodName] ||
                     thisp
                 );
                 if (!listener.call) {
@@ -194,10 +199,12 @@ function dispatchEach(listeners, key, value, object) {
                 }
                 listener.call(thisp, value, key, object);
             }
-
         }
     }
 }
+
+dispatchEach.ListenerGhost = ListenerGhost;
+
 
 PropertyChanges.prototype.dispatchBeforeOwnPropertyChange = function (key, listener) {
     return PropertyChanges.dispatchOwnPropertyChange(this, key, listener, true);
@@ -233,11 +240,11 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
         }
     }
 
-    var state = Objects__state__.get(this);
-    if (typeof state !== "object") {
-        Objects__state__.set(this,(state = {}));
-    }
-    state[key] = this[key];
+    // var state = Objects__state__.get(this);
+    // if (typeof state !== "object") {
+    //     Objects__state__.set(this,(state = {}));
+    // }
+    // state[key] = this[key];
 
 
 
@@ -294,16 +301,14 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
                     overriddenDescriptor = dispatchingSetter.overriddenDescriptor;
 
                 if (value !== overriddenDescriptor.value) {
-                    descriptor = ObjectsPropertyChangeListeners.get(this)[key];
-                    isActive = descriptor.isActive;
-                    if (!isActive) {
+                    descriptor = dispatchingSetter.descriptor;
+                    if (!(isActive = descriptor.isActive)) {
                         descriptor.isActive = true;
                         try {
                             dispatchingSetter.dispatchEach(descriptor._willChangeListeners, key, overriddenDescriptor.value, this);
                         } finally {}
                     }
                     overriddenDescriptor.value = value;
-                    state[key] = value;
                     if (!isActive) {
                         try {
                             dispatchingSetter.dispatchEach(descriptor._changeListeners, key, value, this);
@@ -318,30 +323,39 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
         };
         propertyListener.set.dispatchEach = dispatchEach;
         propertyListener.set.overriddenDescriptor = overriddenDescriptor;
+        propertyListener.set.descriptor = ObjectsPropertyChangeListeners.get(this)[key];
+
     } else { // 'get' or 'set', but not necessarily both
         propertyListener = {
             get: overriddenDescriptor.get,
             set: function dispatchingSetter(value) {
                 var formerValue = this[key],
                     descriptor,
-                    isActive;
+                    isActive,
+                    newValue;
 
 
-                dispatchingSetter.overriddenDescriptor.set.apply(this, arguments);
-                value = this[key];
-                if (value !== formerValue) {
-                    descriptor = ObjectsPropertyChangeListeners.get(this)[key];
-                    isActive = descriptor.isActive;
-                    if (!isActive) {
+                    if(arguments.length === 1) {
+                        dispatchingSetter.overriddenSetter.call(this,value);
+                    }
+                    else if(arguments.length === 2) {
+                        dispatchingSetter.overriddenSetter.call(this,value,arguments[1]);
+                    }
+                    else {
+                        dispatchingSetter.overriddenSetter.apply(this, arguments);
+                    }
+
+                if ((newValue = this[key]) !== formerValue) {
+                    descriptor = dispatchingSetter.descriptor;
+                    if (!(isActive = descriptor.isActive)) {
                         descriptor.isActive = true;
                         try {
                             dispatchingSetter.dispatchEach(descriptor._willChangeListeners, key, formerValue, this);
                         } finally {}
                     }
-                    state[key] = value;
                     if (!isActive) {
                         try {
-                            dispatchingSetter.dispatchEach(descriptor._changeListeners, key, value, this);
+                            dispatchingSetter.dispatchEach(descriptor._changeListeners, key, newValue, this);
                         } finally {
                             descriptor.isActive = false;
                         }
@@ -352,7 +366,8 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
             configurable: true
         };
         propertyListener.set.dispatchEach = dispatchEach;
-        propertyListener.set.overriddenDescriptor = overriddenDescriptor;
+        propertyListener.set.overriddenSetter = overriddenDescriptor.set;
+        propertyListener.set.descriptor = ObjectsPropertyChangeListeners.get(this)[key];
     }
 
     Object.defineProperty(this, key, propertyListener);

@@ -55,6 +55,8 @@ Object.defineProperties(ObjectChangeDescriptor.prototype,{
 
 });
 
+var ListenerGhost = module.exports.ListenerGhost = Object.create(null);
+
  module.exports.ChangeListenersRecord = ChangeListenersRecord;
 function ChangeListenersRecord() {}
 
@@ -77,7 +79,45 @@ Object.defineProperties(ChangeListenersRecord.prototype,{
 		get: function() {
 			return this._current || (this._current = []);
 		},
+        set: function(value) {
+            this._current = value;
+        }
 	},
+    _pendingRemove: {
+		value: null,
+		writable: true
+	},
+	_pendingRemove: {
+		get: function() {
+			return this._pendingRemove || (this._pendingRemove = []);
+		},
+	},
+    ListenerGhost: {
+        value:ListenerGhost,
+        writable: true
+    },
+    ghostCount: {
+        value:0,
+        writable: true
+    },
+    maxListenerGhostRatio: {
+        value:0.3,
+        writable: true
+    },
+    listenerGhostFilter: {
+        value: function listenerGhostFilter(value) {
+          return value !== this.ListenerGhost;
+      }
+    },
+    removeCurrentGostListenersIfNeeded: {
+        value: function() {
+            if(this.ghostCount/this._current.length>this.maxListenerGhostRatio) {
+                this.ghostCount = 0;
+                this._current = this._current.filter(this.listenerGhostFilter,this);
+            }
+            return this._current;
+        }
+    },
     _active: {
 		value: null,
 		writable: true
