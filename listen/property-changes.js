@@ -70,6 +70,8 @@ PropertyChanges.debug = true;
 
 var ObjectsPropertyChangeListeners = new WeakMap();
 
+var ObjectChangeDescriptorName = new Map();
+
 PropertyChanges.prototype.getOwnPropertyChangeDescriptor = function (key) {
     var objectPropertyChangeDescriptors = ObjectsPropertyChangeListeners.get(this), keyChangeDescriptor;
     if (!objectPropertyChangeDescriptors) {
@@ -77,10 +79,13 @@ PropertyChanges.prototype.getOwnPropertyChangeDescriptor = function (key) {
         ObjectsPropertyChangeListeners.set(this,objectPropertyChangeDescriptors);
     }
     if ( (keyChangeDescriptor = objectPropertyChangeDescriptors[key]) === void 0) {
-        var propertyName = String(key);
-
-        propertyName = propertyName && propertyName[0].toUpperCase() + propertyName.slice(1);
-        return objectPropertyChangeDescriptors[key] = new ObjectChangeDescriptor().initWithName(propertyName);
+        var propertyName = ObjectChangeDescriptorName.get(key);
+        if(!propertyName) {
+            propertyName = String(key);
+            propertyName = propertyName && propertyName[0].toUpperCase() + propertyName.slice(1);
+            ObjectChangeDescriptorName.set(key,propertyName);
+        }
+        return objectPropertyChangeDescriptors[key] = new ObjectChangeDescriptor(propertyName);
     }
     return keyChangeDescriptor;
 };
@@ -112,7 +117,16 @@ PropertyChanges.prototype.addOwnPropertyChangeListener = function (key, listener
         listeners = descriptor.changeListeners;
     }
     PropertyChanges.makePropertyObservable(this, key);
-    listeners.current.push(listener);
+
+    if(!listeners._current) {
+        listeners._current = listener;
+    }
+    else if(!Array.isArray(listeners._current)) {
+        listeners._current = [listeners._current,listener]
+    }
+    else {
+        listeners._current.push(listener);
+    }
 
     var self = this;
     return function cancelOwnPropertyChangeListener() {
@@ -136,16 +150,24 @@ PropertyChanges.prototype.removeOwnPropertyChangeListener = function removeOwnPr
     }
 
     if(listeners) {
-        var index = listeners.current.lastIndexOf(listener);
-        if (index === -1) {
-            throw new Error("Can't remove property change listener: does not exist: property name" + JSON.stringify(key));
-        }
-        if(descriptor.isActive) {
-            listeners.ghostCount = listeners.ghostCount+1;
-            listeners.current[index]=removeOwnPropertyChangeListener.ListenerGhost;
-        }
-        else {
-            listeners.current.spliceOne(index, 1);
+        if(listeners._current) {
+            if(listeners._current === listener) {
+                listeners._current = null;
+            }
+            else {
+
+                var index = listeners._current.lastIndexOf(listener);
+                if (index === -1) {
+                    throw new Error("Can't remove property change listener: does not exist: property name" + JSON.stringify(key));
+                }
+                if(descriptor.isActive) {
+                    listeners.ghostCount = listeners.ghostCount+1;
+                    listeners._current[index]=removeOwnPropertyChangeListener.ListenerGhost;
+                }
+                else {
+                    listeners._current.spliceOne(index, 1);
+                }
+            }
         }
     }
 };
@@ -172,7 +194,7 @@ PropertyChanges.prototype.dispatchOwnPropertyChange = function dispatchOwnProper
 PropertyChanges.prototype.dispatchOwnPropertyChange.dispatchEach = dispatchEach;
 
 function dispatchEach(listeners, key, value, object) {
-    if(listeners) {
+    if(listeners && listeners._current) {
         // copy snapshot of current listeners to active listeners
         var current,
             listener,
@@ -183,23 +205,38 @@ function dispatchEach(listeners, key, value, object) {
             genericHandlerMethodName = listeners.genericHandlerMethodName,
             Ghost = ListenerGhost;
 
-        //removeGostListenersIfNeeded returns listeners.current or a new filtered one when conditions are met
-        current = listeners.removeCurrentGostListenersIfNeeded();
-        //We use a for to guarantee we won't dispatch to listeners that would be added after we started
-        for(i=0, countI = current.length;i<countI;i++) {
-            if ((thisp = current[i]) !== Ghost) {
-                //This is fixing the issue causing a regression in Montage's repetition
-                listener = (
-                    thisp[specificHandlerMethodName] ||
-                    thisp[genericHandlerMethodName] ||
-                    thisp
-                );
-                if (!listener.call) {
-                    throw new Error("No event listener for " + listeners.specificHandlerName + " or " + listeners.genericHandlerName + " or call on " + listener);
+        if(Array.isArray(listeners._current)) {
+            //removeGostListenersIfNeeded returns listeners.current or a new filtered one when conditions are met
+            current = listeners.removeCurrentGostListenersIfNeeded();
+            //We use a for to guarantee we won't dispatch to listeners that would be added after we started
+            for(i=0, countI = current.length;i<countI;i++) {
+                if ((thisp = current[i]) !== Ghost) {
+                    //This is fixing the issue causing a regression in Montage's repetition
+                    listener = (
+                        thisp[specificHandlerMethodName] ||
+                        thisp[genericHandlerMethodName] ||
+                        thisp
+                    );
+                    if (!listener.call) {
+                        throw new Error("No event listener for " + listeners.specificHandlerName + " or " + listeners.genericHandlerName + " or call on " + listener);
+                    }
+                    listener.call(thisp, value, key, object);
                 }
-                listener.call(thisp, value, key, object);
             }
         }
+        else {
+            thisp = listeners._current;
+            listener = (
+                thisp[specificHandlerMethodName] ||
+                thisp[genericHandlerMethodName] ||
+                thisp
+            );
+            if (!listener.call) {
+                throw new Error("No event listener for " + listeners.specificHandlerName + " or " + listeners.genericHandlerName + " or call on " + listener);
+            }
+            listener.call(thisp, value, key, object);
+        }
+
     }
 }
 
@@ -221,6 +258,11 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
 
 
     var overriddenPropertyDescriptors = ObjectsOverriddenPropertyDescriptors.get(this);
+    if (overriddenPropertyDescriptors && overriddenPropertyDescriptors[key] !== void 0) {
+        // if we have already recorded an overridden property descriptor,
+        // we have already installed the observer, so short-here
+        return;
+    }
 
     // memoize overridden property descriptor table
     if (!overriddenPropertyDescriptors) {
@@ -232,12 +274,6 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
         }
         overriddenPropertyDescriptors = {};
         ObjectsOverriddenPropertyDescriptors.set(this,overriddenPropertyDescriptors);
-    } else {
-        if (overriddenPropertyDescriptors[key] !== void 0) {
-            // if we have already recorded an overridden property descriptor,
-            // we have already installed the observer, so short-here
-            return;
-        }
     }
 
     // var state = Objects__state__.get(this);
@@ -328,7 +364,7 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
     } else { // 'get' or 'set', but not necessarily both
         propertyListener = {
             get: overriddenDescriptor.get,
-            set: function dispatchingSetter(value) {
+            set: function dispatchingSetter() {
                 var formerValue = this[key],
                     descriptor,
                     isActive,
@@ -336,10 +372,10 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
 
 
                     if(arguments.length === 1) {
-                        dispatchingSetter.overriddenSetter.call(this,value);
+                        dispatchingSetter.overriddenSetter.call(this,arguments[0]);
                     }
                     else if(arguments.length === 2) {
-                        dispatchingSetter.overriddenSetter.call(this,value,arguments[1]);
+                        dispatchingSetter.overriddenSetter.call(this,arguments[0],arguments[1]);
                     }
                     else {
                         dispatchingSetter.overriddenSetter.apply(this, arguments);
@@ -392,11 +428,10 @@ PropertyChanges.hasOwnPropertyChangeDescriptor = function (object, key) {
 };
 
 PropertyChanges.addOwnPropertyChangeListener = function (object, key, listener, beforeChange) {
-    if (!Object.isObject(object)) {
-    } else if (object.addOwnPropertyChangeListener) {
-        return object.addOwnPropertyChangeListener(key, listener, beforeChange);
-    } else {
-        return PropertyChanges.prototype.addOwnPropertyChangeListener.call(object, key, listener, beforeChange);
+    if (Object.isObject(object)) {
+        return object.addOwnPropertyChangeListener
+            ? object.addOwnPropertyChangeListener(key, listener, beforeChange)
+            : this.prototype.addOwnPropertyChangeListener.call(object, key, listener, beforeChange);
     }
 };
 

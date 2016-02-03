@@ -5,19 +5,15 @@
 */
 
 
-var ObjectChangeDescriptor = module.exports.ObjectChangeDescriptor = function ObjectChangeDescriptor() {
+var ObjectChangeDescriptor = module.exports.ObjectChangeDescriptor = function ObjectChangeDescriptor(name) {
+    this.name = name;
+    this.isActive = false;
+    this._willChangeListeners = null;
+    this._changeListeners = null;
 	return this;
 }
 
 Object.defineProperties(ObjectChangeDescriptor.prototype,{
-    initWithName: {
-        value:function(name) {
-            this.name = name;
-        	return this;
-        },
-        configurable: true,
-        writable: true
-    },
     name: {
 		value:null,
 		writable: true
@@ -32,7 +28,7 @@ Object.defineProperties(ObjectChangeDescriptor.prototype,{
 	},
 	willChangeListeners: {
 		get: function() {
-			return this._willChangeListeners || (this._willChangeListeners = new this.willChangeListenersRecordConstructor().initWithName(this.name));
+			return this._willChangeListeners || (this._willChangeListeners = new this.willChangeListenersRecordConstructor(this.name));
 		}
 	},
 	_changeListeners: {
@@ -41,7 +37,7 @@ Object.defineProperties(ObjectChangeDescriptor.prototype,{
 	},
     changeListeners: {
 		get: function() {
-			return this._changeListeners || (this._changeListeners = new this.changeListenersRecordConstructor().initWithName(this.name));
+			return this._changeListeners || (this._changeListeners = new this.changeListenersRecordConstructor(this.name));
 		}
 	},
     changeListenersRecordConstructor: {
@@ -56,41 +52,39 @@ Object.defineProperties(ObjectChangeDescriptor.prototype,{
 });
 
 var ListenerGhost = module.exports.ListenerGhost = Object.create(null);
+var ChangeListenerSpecificHandlerMethodName = new Map();
 
  module.exports.ChangeListenersRecord = ChangeListenersRecord;
-function ChangeListenersRecord() {}
+function ChangeListenersRecord(name) {
+    var specificHandlerMethodName = ChangeListenerSpecificHandlerMethodName.get(name);
+    if(!specificHandlerMethodName) {
+        specificHandlerMethodName = "handle";
+        specificHandlerMethodName += name;
+        specificHandlerMethodName += "Change";
+        ChangeListenerSpecificHandlerMethodName.set(name,specificHandlerMethodName);
+    }
+    this._current = null;
+    this._current = null;
+    this.specificHandlerMethodName = specificHandlerMethodName;
+    return this;
+}
 
 Object.defineProperties(ChangeListenersRecord.prototype,{
-    initWithName: {
-        value:function(name) {
-            this.specificHandlerMethodName = "handle";
-            this.specificHandlerMethodName += name;
-            this.specificHandlerMethodName += "Change";
-        	return this;
-        },
-        configurable: true,
-        writable: true
-    },
     _current: {
 		value: null,
 		writable: true
 	},
 	current: {
 		get: function() {
-			return this._current || (this._current = []);
+            // if(this._current) {
+            //     console.log(this.constructor.name," with ",this._current.length," listeners: ", this._current);
+            // }
+            return this._current;
+            //return this._current || (this._current = []);
 		},
         set: function(value) {
             this._current = value;
         }
-	},
-    _pendingRemove: {
-		value: null,
-		writable: true
-	},
-	_pendingRemove: {
-		get: function() {
-			return this._pendingRemove || (this._pendingRemove = []);
-		},
 	},
     ListenerGhost: {
         value:ListenerGhost,
@@ -111,39 +105,36 @@ Object.defineProperties(ChangeListenersRecord.prototype,{
     },
     removeCurrentGostListenersIfNeeded: {
         value: function() {
-            if(this.ghostCount/this._current.length>this.maxListenerGhostRatio) {
+            if(this._current && this.ghostCount/this._current.length>this.maxListenerGhostRatio) {
                 this.ghostCount = 0;
                 this._current = this._current.filter(this.listenerGhostFilter,this);
             }
             return this._current;
         }
     },
-    _active: {
-		value: null,
-		writable: true
-	},
-    active: {
-		get: function() {
-			return this._active || (this._active = []);
-		}
-	},
     dispatchBeforeChange: {
         value: false,
         writable: true
     },
     genericHandlerMethodName: {
-		value: "handlePropertyChange"
+		value: "handlePropertyChange",
+        writable: true
 	}
 });
 
 module.exports.WillChangeListenersRecord = WillChangeListenersRecord;
-function WillChangeListenersRecord() {}
+var WillChangeListenerSpecificHandlerMethodName = new Map();
+function WillChangeListenersRecord(name) {
+    var specificHandlerMethodName = WillChangeListenerSpecificHandlerMethodName.get(name);
+    if(!specificHandlerMethodName) {
+        specificHandlerMethodName = "handle";
+        specificHandlerMethodName += name;
+        specificHandlerMethodName += "WillChange";
+        WillChangeListenerSpecificHandlerMethodName.set(name,specificHandlerMethodName);
+    }
+    this.specificHandlerMethodName = specificHandlerMethodName;
+	return this;
+}
 WillChangeListenersRecord.prototype = new ChangeListenersRecord();
 WillChangeListenersRecord.prototype.constructor = WillChangeListenersRecord;
 WillChangeListenersRecord.prototype.genericHandlerMethodName = "handlePropertyWillChange";
-WillChangeListenersRecord.prototype.initWithName = function(name) {
-    this.specificHandlerMethodName = "handle" ;
-    this.specificHandlerMethodName += name;
-    this.specificHandlerMethodName += "WillChange";
-	return this;
-};
