@@ -244,22 +244,54 @@ function describeRangeChanges(Collection) {
         spy = jasmine.createSpy();
 
         // mute all listeners
+        // current is now optimized to be an objet when there's only one listener vs an array when there's more than one.
+        //This isn't intended to be a public API
+        var descriptor = collection.getOwnPropertyChangeDescriptor('length'),
+            currentWillChangeListeners = descriptor.willChangeListeners.current,
+            currentChangeListeners = descriptor.changeListeners.current;
 
-        var descriptor = collection.getOwnPropertyChangeDescriptor('length');
-        descriptor.willChangeListeners.current.forEach(function (listener) {
-            collection.removeBeforeOwnPropertyChangeListener('length', listener);
-        });
-        descriptor.changeListeners.current.forEach(function (listener) {
-            collection.removeOwnPropertyChangeListener('length', listener);
-        });
+        if(Array.isArray(currentWillChangeListeners)) {
+            currentWillChangeListeners.forEach(function (listener) {
+                collection.removeBeforeOwnPropertyChangeListener('length', listener);
+            });
+        }
+        else if(currentWillChangeListeners){
+            collection.removeBeforeOwnPropertyChangeListener('length', currentWillChangeListeners);
+        }
 
-        var descriptor = collection.getRangeChangeDescriptor();
-        descriptor.willChangeListeners.forEach(function (listener) {
-            collection.removeBeforeRangeChangeListener(listener);
-        });
-        descriptor.changeListeners.forEach(function (listener) {
-            collection.removeRangeChangeListener(listener);
-        });
+        if(Array.isArray(currentChangeListeners)) {
+            currentChangeListeners.forEach(function (listener) {
+                collection.removeOwnPropertyChangeListener('length', listener);
+            });
+        }
+        else if(currentChangeListeners){
+            collection.removeOwnPropertyChangeListener('length', currentChangeListeners);
+        }
+
+
+        // current is now optimized to be an objet when there's only one listener vs an array when there's more than one.
+        //This isn't intended to be a public API
+        var descriptor = collection.getRangeChangeDescriptor(),
+            currentWillChangeListeners = descriptor.willChangeListeners.current,
+            currentChangeListeners = descriptor.changeListeners.current;
+
+        if(Array.isArray(currentWillChangeListeners)) {
+            currentWillChangeListeners.forEach(function (listener) {
+                collection.removeBeforeRangeChangeListener(listener);
+            });
+        }
+        else if(currentWillChangeListeners) {
+            collection.removeBeforeRangeChangeListener(currentWillChangeListeners);
+        }
+
+        if(Array.isArray(currentChangeListeners)) {
+            currentChangeListeners.forEach(function (listener) {
+                collection.removeRangeChangeListener(listener);
+            });
+        }
+        else if(currentChangeListeners){
+            collection.removeRangeChangeListener(currentChangeListeners);
+        }
 
         // modify
         collection.splice(0, 0, 1, 2, 3);
@@ -300,4 +332,3 @@ function describeRangeChanges(Collection) {
     });
 
 }
-

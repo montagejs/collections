@@ -371,30 +371,79 @@ describe("Array change dispatch", function () {
         spy = jasmine.createSpy();
 
         // mute all listeners
+        // current is now optimized to be an objet when there's only one listener vs an array when there's more than one.
+        //This isn't intended to be a public API
+        var descriptor = array.getOwnPropertyChangeDescriptor('length'),
+            currentWillChangeListeners = descriptor.willChangeListeners.current,
+            currentChangeListeners = descriptor.changeListeners.current;
 
-        var descriptor = array.getOwnPropertyChangeDescriptor('length');
-        descriptor.willChangeListeners.current.forEach(function (listener) {
-            array.removeBeforeOwnPropertyChangeListener('length', listener);
-        });
-        descriptor.changeListeners.current.forEach(function (listener) {
-            array.removeOwnPropertyChangeListener('length', listener);
-        });
+        if(Array.isArray(currentWillChangeListeners)) {
+            currentWillChangeListeners.forEach(function (listener) {
+                array.removeBeforeOwnPropertyChangeListener('length', listener);
+            });
+        }
+        else if(currentWillChangeListeners) {
+            array.removeBeforeOwnPropertyChangeListener('length', currentWillChangeListeners);
+        }
 
-        var descriptor = array.getRangeChangeDescriptor();
-        descriptor.willChangeListeners.forEach(function (listener) {
-            array.removeBeforeRangeChangeListener(listener);
-        });
-        descriptor.changeListeners.forEach(function (listener) {
-            array.removeRangeChangeListener(listener);
-        });
+        if(Array.isArray(currentChangeListeners)) {
+            currentChangeListeners.forEach(function (listener) {
+                array.removeOwnPropertyChangeListener('length', listener);
+            });
+        }
+        else if(currentChangeListeners){
+            array.removeOwnPropertyChangeListener('length', currentChangeListeners);
+        }
 
-        var descriptor = array.getMapChangeDescriptor();
-        descriptor.willChangeListeners.forEach(function (listener) {
-            array.removeBeforeMapChangeListener(listener);
-        });
-        descriptor.changeListeners.forEach(function (listener) {
-            array.removeMapChangeListener(listener);
-        });
+
+        // current is now optimized to be an objet when there's only one listener vs an array when there's more than one.
+        //This isn't intended to be a public API
+        var descriptor = array.getRangeChangeDescriptor(),
+            currentWillChangeListeners = descriptor.willChangeListeners.current,
+            currentChangeListeners = descriptor.changeListeners.current;
+
+        if(Array.isArray(currentWillChangeListeners)) {
+            currentWillChangeListeners.forEach(function (listener) {
+                array.removeBeforeRangeChangeListener(listener);
+            });
+        }
+        else if(currentWillChangeListeners) {
+            array.removeBeforeRangeChangeListener(currentWillChangeListeners);
+        }
+
+        if(Array.isArray(currentChangeListeners)) {
+            currentChangeListeners.forEach(function (listener) {
+                array.removeRangeChangeListener(listener);
+            });
+        }
+        else if(currentChangeListeners){
+            array.removeRangeChangeListener(currentChangeListeners);
+        }
+
+
+        // current is now optimized to be an objet when there's only one listener vs an array when there's more than one.
+        //This isn't intended to be a public API
+        var descriptor = array.getMapChangeDescriptor(),
+            currentWillChangeListeners = descriptor.willChangeListeners.current,
+            currentChangeListeners = descriptor.changeListeners.current;
+
+        if(Array.isArray(currentWillChangeListeners)) {
+            currentWillChangeListeners.forEach(function (listener) {
+                array.removeBeforeMapChangeListener(listener);
+            });
+        }
+        else if(currentWillChangeListeners) {
+            array.removeBeforeMapChangeListener(currentWillChangeListeners);
+        }
+
+        if(Array.isArray(currentChangeListeners)) {
+            currentChangeListeners.forEach(function (listener) {
+                array.removeMapChangeListener(listener);
+            });
+        }
+        else if(currentChangeListeners){
+            array.removeMapChangeListener(currentChangeListeners);
+        }
 
         // modify
         array.splice(0, 0, 1, 2, 3);
@@ -472,4 +521,3 @@ describe("Array change dispatch", function () {
     });
 
 });
-

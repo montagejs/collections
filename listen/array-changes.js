@@ -323,4 +323,3 @@ var observableArrayProperties = {
 
 var ChangeDispatchArray = Object.create(Array.prototype, observableArrayProperties);
 exports.observableArrayProperties = observableArrayProperties;
-
