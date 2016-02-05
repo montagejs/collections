@@ -63,7 +63,7 @@ function RangeWillChangeListenersRecord(name) {
         specificHandlerMethodName += name.slice(0, 1).toUpperCase();
         specificHandlerMethodName += name.slice(1);
         specificHandlerMethodName += "RangeWillChange";
-        RangeChangeListenersSpecificHandlerMethodName.set(name,specificHandlerMethodName);
+        RangeWillChangeListenersSpecificHandlerMethodName.set(name,specificHandlerMethodName);
     }
     this.specificHandlerMethodName = specificHandlerMethodName;
     return this;
