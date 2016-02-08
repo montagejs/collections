@@ -191,7 +191,8 @@ Object.set = function (object, key, value) {
     }
 };
 
-Object.addEach = function (target, source) {
+Object.addEach = function (target, source, overrides) {
+    var overridesExistingProperty = arguments.length === 3 ? overrides : true;
     if (!source) {
     } else if (typeof source.forEach === "function" && !source.hasOwnProperty("forEach")) {
         // copy map-alikes
@@ -213,7 +214,9 @@ Object.addEach = function (target, source) {
     } else {
         // copy other objects as map-alikes
         for(var keys = Object.keys(source), i = 0, key;(key = keys[i]); i++) {
-            target[key] = source[key];
+            if(overridesExistingProperty || !Object.owns(target,key)) {
+                target[key] = source[key];
+            }
         }
     }
     return target;

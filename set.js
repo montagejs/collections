@@ -77,15 +77,16 @@ Set.prototype.add = function (value) {
     var node = new this.order.Node(value);
     if (!this.store.has(node)) {
         var index = this.length;
+        this._dispatchValueArray[0] = value;
         if (this.dispatchesRangeChanges) {
-            this.dispatchBeforeRangeChange([value], [], index);
+            this.dispatchBeforeRangeChange(this._dispatchValueArray, this._dispatchEmptyArray, index);
         }
         this.order.add(value);
         node = this.order.head.prev;
         this.store.add(node);
         this.length++;
         if (this.dispatchesRangeChanges) {
-            this.dispatchRangeChange([value], [], index);
+            this.dispatchRangeChange(this._dispatchValueArray, this._dispatchEmptyArray, index);
         }
         return true;
     }
@@ -99,14 +100,15 @@ Set.prototype["delete"] = function (value, equals) {
     var node = new this.order.Node(value);
     if (this.store.has(node)) {
         node = this.store.get(node);
+        this._dispatchValueArray[0] = value;
         if (this.dispatchesRangeChanges) {
-            this.dispatchBeforeRangeChange([], [value], node.index);
+            this.dispatchBeforeRangeChange(this._dispatchEmptyArray, this._dispatchValueArray, node.index);
         }
         this.store["delete"](node); // removes from the set
         this.order.splice(node, 1); // removes the node from the list
         this.length--;
         if (this.dispatchesRangeChanges) {
-            this.dispatchRangeChange([], [value], node.index);
+            this.dispatchRangeChange(this._dispatchEmptyArray, this._dispatchValueArray, node.index);
         }
         return true;
     }
@@ -135,17 +137,33 @@ Set.prototype.one = function () {
     }
 };
 
+Object.defineProperty(Set.prototype,"__dispatchValueArray", {
+    value: void 0,
+    writable: true,
+    configurable: true
+});
+
+Object.defineProperty(Set.prototype,"_dispatchValueArray", {
+    get: function() {
+        return this.__dispatchValueArray || (this.__dispatchValueArray = []);
+    },
+    configurable: true
+});
+Object.defineProperty(Set.prototype,"_dispatchEmptyArray", {
+    value: []
+});
+
 Set.prototype.clear = function () {
     var clearing;
     if (this.dispatchesRangeChanges) {
         clearing = this.toArray();
-        this.dispatchBeforeRangeChange([], clearing, 0);
+        this.dispatchBeforeRangeChange(this._dispatchEmptyArray, clearing, 0);
     }
     this.store.clear();
     this.order.clear();
     this.length = 0;
     if (this.dispatchesRangeChanges) {
-        this.dispatchRangeChange([], clearing, 0);
+        this.dispatchRangeChange(this._dispatchEmptyArray, clearing, 0);
     }
 };
 
