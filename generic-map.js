@@ -3,6 +3,7 @@
 var Object = require("./shim-object");
 var MapChanges = require("./listen/map-changes");
 var PropertyChanges = require("./listen/property-changes");
+var Iterator = require("./iterator");
 
 module.exports = GenericMap;
 function GenericMap() {
@@ -158,6 +159,14 @@ GenericMap.prototype.entries = function () {
         return [key, value];
     });
 };
+
+GenericMap.prototype.iterate = function() {
+    // v.1 iterator
+    var self = this;
+    return new Iterator(function() {
+        return self.iterator.next().value;
+    });
+}
 
 // XXX deprecated
 GenericMap.prototype.items = function () {

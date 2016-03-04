@@ -19,6 +19,10 @@ function Iterator(iterable) {
 
     if (iterable instanceof Iterator) {
         return iterable;
+    } else if (iterable.reduce) {
+        this.reduce = function() {
+            return iterable.reduce.apply(iterable,arguments);
+        }
     } else if (iterable.next) {
         this.next = function () {
             return iterable.next();
