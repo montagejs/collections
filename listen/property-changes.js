@@ -12,10 +12,6 @@
     necessary for any collection with observable content.
 */
 
-require("../shim");
-var ChangeDescriptor = require("./change-descriptor"),
-    ObjectChangeDescriptor = ChangeDescriptor.ObjectChangeDescriptor,
-    ListenerGhost = ChangeDescriptor.ListenerGhost;
 
 
 // objectHasOwnProperty.call(myObject, key) will be used instead of
@@ -66,11 +62,22 @@ function PropertyChanges() {
     throw new Error("This is an abstract interface. Mix it. Don't construct it");
 }
 
+require("../shim");
+var Map = require("../_map");
+var WeakMap = require("../weak-map");
+var ChangeDescriptor = require("./change-descriptor"),
+    ObjectChangeDescriptor = ChangeDescriptor.ObjectChangeDescriptor,
+    ListenerGhost = ChangeDescriptor.ListenerGhost;
+
 PropertyChanges.debug = true;
 
 var ObjectsPropertyChangeListeners = new WeakMap();
 
 var ObjectChangeDescriptorName = new Map();
+
+PropertyChanges.ObjectChangeDescriptor = function() {
+
+}
 
 PropertyChanges.prototype.getOwnPropertyChangeDescriptor = function (key) {
     var objectPropertyChangeDescriptors = ObjectsPropertyChangeListeners.get(this), keyChangeDescriptor;
@@ -161,7 +168,7 @@ PropertyChanges.prototype.removeOwnPropertyChangeListener = function removeOwnPr
                     listeners._current[index]=removeOwnPropertyChangeListener.ListenerGhost;
                 }
                 else {
-                    listeners._current.spliceOne(index, 1);
+                    listeners._current.spliceOne(index);
                 }
             }
         }

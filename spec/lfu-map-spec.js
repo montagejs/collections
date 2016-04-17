@@ -15,22 +15,22 @@ describe("LfuMap", function () {
         map.get("a");
         map.get("b");
         map.set("d", 40);
-        expect(map.keys()).toEqual(['d', 'a', 'b']);
+        expect(map.keysArray()).toEqual(['d', 'a', 'b']);
         expect(map.length).toBe(3);
     });
 
     it("should not grow when re-adding", function () {
         var map = LfuMap({a: 10, b: 20, c: 30}, 3);
 
-        expect(map.keys()).toEqual(['a', 'b', 'c']);
+        expect(map.keysArray()).toEqual(['a', 'b', 'c']);
         expect(map.length).toBe(3);
 
         map.get("b");
-        expect(map.keys()).toEqual(['a', 'c', 'b']);
+        expect(map.keysArray()).toEqual(['a', 'c', 'b']);
         expect(map.length).toBe(3);
 
         map.set("c", 40);
-        expect(map.keys()).toEqual(['a', 'b', 'c']);
+        expect(map.keysArray()).toEqual(['a', 'b', 'c']);
         expect(map.length).toBe(3);
     });
 
@@ -81,4 +81,3 @@ describe("LfuMap", function () {
         ]);
     });
 });
-

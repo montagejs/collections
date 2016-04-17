@@ -24,6 +24,8 @@ SortedArraySet.prototype.constructor = SortedArraySet;
 Object.addEach(SortedArraySet.prototype, GenericSet.prototype);
 Object.addEach(SortedArraySet.prototype, PropertyChanges.prototype);
 
+SortedArraySet.from = SortedArray.from;
+
 SortedArraySet.prototype.isSorted = true;
 
 SortedArraySet.prototype.add = function (value) {
@@ -50,4 +52,3 @@ SortedArraySet.prototype.reduceRight = function (callback, basis /*, thisp*/) {
         return callback.call(thisp, basis, value, index, self);
     }, basis);
 };
-

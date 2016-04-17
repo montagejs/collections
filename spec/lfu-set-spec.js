@@ -6,16 +6,10 @@ var describeToJson = require("./to-json");
 describe("LfuSet", function () {
 
     // construction, has, add, get, delete
-    function newLfuSet(values) {
-        return new LfuSet(values);
-    }
-
-    [LfuSet, newLfuSet].forEach(function (LfuSet) {
-        describeCollection(LfuSet, [1, 2, 3, 4], true);
-        describeCollection(LfuSet, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
-        describeSet(LfuSet);
-        describeToJson(LfuSet, [1, 2, 3, 4]);
-    });
+    describeCollection(LfuSet, [1, 2, 3, 4], true);
+    describeCollection(LfuSet, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
+    describeSet(LfuSet);
+    describeToJson(LfuSet, [1, 2, 3, 4]);
 
     it("should handle many repeated values", function () {
         var set = new LfuSet([1, 1, 1, 2, 2, 2, 1, 2]);
@@ -61,4 +55,3 @@ describe("LfuSet", function () {
         ]);
     })
 });
-

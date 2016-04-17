@@ -5,6 +5,7 @@ var LfuSet = require("./lfu-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
 var PropertyChanges = require("./listen/property-changes");
+var MapChanges = require("./listen/map-changes");
 
 module.exports = LfuMap;
 
@@ -37,6 +38,10 @@ LfuMap.LfuMap = LfuMap; // hack so require("lfu-map").LfuMap will work in Montag
 Object.addEach(LfuMap.prototype, GenericCollection.prototype);
 Object.addEach(LfuMap.prototype, GenericMap.prototype);
 Object.addEach(LfuMap.prototype, PropertyChanges.prototype);
+Object.addEach(LfuMap.prototype, MapChanges.prototype);
+
+Object.defineProperty(LfuMap.prototype,"size",GenericCollection._sizePropertyDescriptor);
+LfuMap.from = GenericCollection.from;
 
 LfuMap.prototype.constructClone = function (values) {
     return new this.constructor(
@@ -74,6 +79,5 @@ LfuMap.prototype.addMapChangeListener = function () {
             }
         });
     }
-    GenericMap.prototype.addMapChangeListener.apply(this, arguments);
+    MapChanges.prototype.addMapChangeListener.apply(this, arguments);
 };
-

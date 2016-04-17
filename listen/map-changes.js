@@ -1,15 +1,10 @@
 "use strict";
 
 var WeakMap = require("weak-map"),
-    Dict = require("../dict"),
     ChangeDescriptor = require("./change-descriptor"),
     ObjectChangeDescriptor = ChangeDescriptor.ObjectChangeDescriptor,
     ChangeListenersRecord = ChangeDescriptor.ChangeListenersRecord,
     ListenerGhost = ChangeDescriptor.ListenerGhost;
-
-if (typeof window !== "undefined") { // client-side
-    Dict = window.Map || Dict;
-}
 
 module.exports = MapChanges;
 function MapChanges() {
@@ -182,7 +177,7 @@ MapChanges.prototype.removeMapChangeListener = function (listener, token, before
                     listeners._current[index]=ListenerGhost
                 }
                 else {
-                    listeners._current.spliceOne(index, 1);
+                    listeners._current.spliceOne(index);
                 }
             }
         }
@@ -210,7 +205,6 @@ MapChanges.prototype.dispatchMapChange = function (key, value, beforeChange) {
                 //removeGostListenersIfNeeded returns listeners.current or a new filtered one when conditions are met
                 var currentListeners = listeners.removeCurrentGostListenersIfNeeded(),
                     i, countI, listener;
-                console.log("dispatchMapChange() currentListeners",token, currentListeners);
                 descriptor.isActive = true;
 
                 try {

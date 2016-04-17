@@ -26,12 +26,12 @@ function describeCollection(Collection, values, setLike) {
     }
 
     it("should be constructable from an array", function () {
-        var collection = Collection([a, b, c]);
+        var collection = Collection.from([a, b, c]);
         shouldHaveTheUsualContent(collection);
     });
 
     it("should be constructable from an foreachable", function () {
-        var collection = Collection({
+        var collection = Collection.from({
             forEach: function (callback, thisp) {
                 callback.call(thisp, a);
                 callback.call(thisp, b);
@@ -43,10 +43,13 @@ function describeCollection(Collection, values, setLike) {
 
     describe("add", function () {
         it("should add values to a collection", function () {
-            var collection = Collection();
-            expect(collection.add(a)).toBe(true);
-            expect(collection.add(b)).toBe(true);
-            expect(collection.add(c)).toBe(true);
+            var collection = new Collection();
+            // expect(collection.add(a)).toBe(true);
+            // expect(collection.add(b)).toBe(true);
+            // expect(collection.add(c)).toBe(true);
+            collection.add(a);
+            collection.add(b);
+            collection.add(c);
             shouldHaveTheUsualContent(collection);
         });
     });
@@ -54,25 +57,25 @@ function describeCollection(Collection, values, setLike) {
     describe("delete", function () {
 
         it("should remove a value from the beginning of a collection", function () {
-            var collection = Collection([d, a, b, c]);
+            var collection = Collection.from([d, a, b, c]);
             expect(collection.delete(d)).toBe(true);
             shouldHaveTheUsualContent(collection);
         });
 
         it("should remove a value from the middle of a collection", function () {
-            var collection = Collection([a, d, b, c]);
+            var collection = Collection.from([a, d, b, c]);
             expect(collection.delete(d)).toBe(true);
             shouldHaveTheUsualContent(collection);
         });
 
         it("should remove a value from the end of a collection", function () {
-            var collection = Collection([a, b, c, d]);
+            var collection = Collection.from([a, b, c, d]);
             expect(collection.delete(d)).toBe(true);
             shouldHaveTheUsualContent(collection);
         });
 
         it("should fail to remove a value not in a collection", function () {
-            var collection = Collection([a, b, c]);
+            var collection = Collection.from([a, b, c]);
             expect(collection.delete(d)).toBe(false);
             shouldHaveTheUsualContent(collection);
         });
@@ -81,12 +84,12 @@ function describeCollection(Collection, values, setLike) {
 
     describe("one", function () {
         it("should return a value in the collection", function () {
-            var collection = Collection([a, b, c, d]);
+            var collection = Collection.from([a, b, c, d]);
             expect(collection.has(collection.one())).toBe(true);
         });
 
         it("should throw an error for an empty collection", function () {
-            var collection = Collection();
+            var collection = new Collection();
             expect(collection.one()).toBe(undefined);
         });
     });
@@ -94,23 +97,23 @@ function describeCollection(Collection, values, setLike) {
     describe("only", function () {
 
         it("should return a value in the collection", function () {
-            var collection = Collection([a]);
+            var collection = Collection.from([a]);
             expect(collection.only()).toBe(a);
         });
 
         it("should be undefined if there are no values in the collection", function () {
-            expect(Collection().only()).toBeUndefined();
+            expect(new Collection().only()).toBeUndefined();
         });
 
         it("should be undefined if there are many values in the collection", function () {
-            expect(Collection([a, b]).only()).toBeUndefined();
+            expect(Collection.from([a, b]).only()).toBeUndefined();
         });
 
     });
 
     describe("clear", function () {
         it("should delete all values", function () {
-            var collection = Collection([a, b, c, d]);
+            var collection = Collection.from([a, b, c, d]);
             expect(collection.length).toBe(4);
             collection.clear();
             expect(collection.toArray()).toEqual([]);
@@ -119,4 +122,3 @@ function describeCollection(Collection, values, setLike) {
     });
 
 }
-

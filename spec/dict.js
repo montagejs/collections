@@ -4,23 +4,23 @@ module.exports = describeDict;
 function describeDict(Dict) {
 
     it("should be constructable from entry duples", function () {
-        var dict = Dict([['a', 10], ['b', 20]]);
+        var dict = new Dict([['a', 10], ['b', 20]]);
         shouldHaveTheUsualContent(dict);
     });
 
     it("should be constructable from objects", function () {
-        var dict = Dict({a: 10, b: 20});
+        var dict = Dict.from({a: 10, b: 20});
         shouldHaveTheUsualContent(dict);
     });
 
     it("should be constructable from dicts", function () {
-        var dict = Dict(Dict({a: 10, b: 20}));
+        var dict = new Dict(Dict.from({a: 10, b: 20}));
         shouldHaveTheUsualContent(dict);
     });
 
     describe("delete", function () {
         it("should be able to delete keys", function () {
-            var dict = Dict({a: 10, b: 20, c: 30});
+            var dict = Dict.from({a: 10, b: 20, c: 30});
             expect(dict.delete('c')).toBe(true);
             expect(dict.delete('c')).toBe(false);
             shouldHaveTheUsualContent(dict);
@@ -28,8 +28,8 @@ function describeDict(Dict) {
     });
 
     it("should be able to contain hasOwnProperty", function () {
-        var dict = Dict();
-        expect(dict.set("hasOwnProperty", 10)).toBe(true);
+        var dict = new Dict();
+        dict.set("hasOwnProperty", 10);
         expect(dict.get("hasOwnProperty")).toBe(10);
         expect(dict.delete("hasOwnProperty")).toBe(true);
         expect(dict.length).toBe(0);
@@ -37,8 +37,8 @@ function describeDict(Dict) {
     });
 
     it("should be able to contain __proto__", function () {
-        var dict = Dict();
-        expect(dict.set("__proto__", 10)).toBe(true);
+        var dict = new Dict();
+        dict.set("__proto__", 10);
         expect(dict.get("__proto__")).toBe(10);
         expect(dict.delete("__proto__")).toBe(true);
         expect(dict.length).toBe(0);
@@ -46,7 +46,7 @@ function describeDict(Dict) {
     });
 
     it("should send a value for MapChange events", function () {
-        var dict = Dict({a: 1});
+        var dict = Dict.from({a: 1});
 
         var listener = function(value, key) {
             expect(value).toBe(2);
@@ -66,11 +66,15 @@ function shouldHaveTheUsualContent(dict) {
     expect(dict.get('a')).toBe(10);
     expect(dict.get('b')).toBe(20);
     expect(dict.get('c')).toBe(undefined);
-    expect(dict.get('c', 30)).toBe(30);
 
-    expect(dict.keys()).toEqual(['a', 'b']);
-    expect(dict.values()).toEqual([10, 20]);
-    expect(dict.entries()).toEqual([['a', 10], ['b', 20]]);
+    var mapIter = dict.keys(), key, keys = [];
+    while (key = mapIter.next().value) {
+        keys.push(key);
+    }
+    expect(dict.keysArray()).toEqual(['a', 'b']);
+
+    expect(dict.valuesArray()).toEqual([10, 20]);
+    expect(dict.entriesArray()).toEqual([['a', 10], ['b', 20]]);
     expect(dict.reduce(function (basis, value, key) {
         return basis + value;
     }, 0)).toEqual(30);
@@ -80,4 +84,3 @@ function shouldHaveTheUsualContent(dict) {
     }, [])).toEqual(['a', 'b']);
     expect(dict.length).toBe(2);
 }
-

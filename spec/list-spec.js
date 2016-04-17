@@ -61,24 +61,12 @@ describe("List", function () {
     //      splice
     //      swap
 
-    newList.prototype = List;
-
     // push, pop, shift, unshift, slice, splice with numeric indicies
     describeDeque(List);
-    describeDeque(newList);
-    function newList(values) {
-        return new List(values);
-    }
 
     // construction, has, add, get, delete
-    function newList(values) {
-        return new List(values);
-    }
-
-    [List, newList].forEach(function (List) {
-        describeCollection(List, [1, 2, 3, 4], true);
-        describeCollection(List, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
-    });
+    describeCollection(List, [1, 2, 3, 4], true);
+    describeCollection(List, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
 
     describe("equals", function () {
         var list = List();
@@ -224,4 +212,3 @@ describe("List", function () {
     describeToJson(List, [1, 2, 3, 4]);
 
 });
-

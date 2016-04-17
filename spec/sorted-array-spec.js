@@ -7,18 +7,11 @@ var describeToJson = require("./to-json");
 
 describe("SortedArray", function () {
 
-    function newSortedArray(values) {
-        return new SortedArray(values);
-    }
 
-    newSortedArray.prototype = SortedArray.prototype;
-
-    [SortedArray, newSortedArray].forEach(function (SortedArray) {
-        describeDeque(SortedArray);
-        describeCollection(SortedArray, [1, 2, 3, 4]);
-        describeOrder(SortedArray);
-        describeToJson(SortedArray, [1, 2, 3, 4]);
-    });
+    describeDeque(SortedArray);
+    describeCollection(SortedArray, [1, 2, 3, 4]);
+    describeOrder(SortedArray);
+    describeToJson(SortedArray, [1, 2, 3, 4]);
 
     describe("non-uniqueness", function () {
         it("should retain non-unique values", function () {
@@ -47,4 +40,3 @@ describe("SortedArray", function () {
     // TODO test stability
 
 });
-

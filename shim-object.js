@@ -352,6 +352,7 @@ Object.is = function (x, y) {
 */
 Object.equals = function (a, b, equals, memo) {
     equals = equals || Object.equals;
+    //console.log("Object.equals: a:",a, "b:",b, "equals:",equals);
     // unbox objects, but do not confuse object literals
     a = Object.getValueOf(a);
     b = Object.getValueOf(b);

@@ -6,13 +6,11 @@
 
 
 var WeakMap = require("weak-map"),
-    Dict = require("../dict"),
+    Map = require("../_map"),
     ChangeDescriptor = require("./change-descriptor"),
     ObjectChangeDescriptor = ChangeDescriptor.ObjectChangeDescriptor,
     ChangeListenersRecord = ChangeDescriptor.ChangeListenersRecord,
     ListenerGhost = ChangeDescriptor.ListenerGhost;
-
-Dict = global.Map ? global.Map : Dict;
 
 var rangeChangeDescriptors = new WeakMap(); // {isActive, willChangeListeners, changeListeners}
 
@@ -175,7 +173,7 @@ RangeChanges.prototype.removeRangeChangeListener = function (listener, token, be
                     listeners._current[index]=ListenerGhost
                 }
                 else {
-                    listeners._current.spliceOne(index, 1);
+                    listeners._current.spliceOne(index);
                 }
             }
         }

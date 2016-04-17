@@ -3,7 +3,7 @@ module.exports = describeMapChanges;
 function describeMapChanges(Map) {
 
     it("should dispatch addition", function () {
-        var map = Map();
+        var map = new Map();
         var spy = jasmine.createSpy();
         map.addBeforeMapChangeListener(function (value, key) {
             spy('before', key, value);
@@ -19,7 +19,7 @@ function describeMapChanges(Map) {
     });
 
     it("should dispatch alteration", function () {
-        var map = Map([[0, 10]]);
+        var map = new Map([[0, 10]]);
         var spy = jasmine.createSpy();
         map.addBeforeMapChangeListener(function (value, key) {
             spy('before', key, value);
@@ -35,7 +35,7 @@ function describeMapChanges(Map) {
     });
 
     it("should dispatch deletion", function () {
-        var map = Map([[0, 20]]);
+        var map = new Map([[0, 20]]);
         // Arrays do not behave like maps for deletion.
         if (Array.isArray(map)) {
             return;
@@ -55,4 +55,3 @@ function describeMapChanges(Map) {
     });
 
 }
-
