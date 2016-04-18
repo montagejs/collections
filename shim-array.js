@@ -112,7 +112,7 @@ define("add", function (value) {
 define("delete", function (value, equals) {
     var index = this.find(value, equals);
     if (index !== -1) {
-        this.splice(index, 1);
+        this.spliceOne(index);
         return true;
     }
     return false;
@@ -254,7 +254,7 @@ define("compare", function (that, compare) {
         return GenericOrder.prototype.compare.call(this, that, compare);
     }
 
-    length = Math.min(this.length, that.length);
+    length = (this.length < that.length) ? this.length : that.length;
 
     for (i = 0; i < length; i++) {
         if (i in this) {
@@ -336,14 +336,19 @@ define("iterate", function (start, end) {
 });
 
 if(Array.prototype.spliceOne === void 0) {
-    define("spliceOne", function (index) {
+    define("spliceOne", function (index,itemToAdd) {
         var len=this.length;
         if (!len) { return }
-        while (index<len) {
-            this[index] = this[index+1];
-            index++
+        if(arguments.length === 1) {
+            while (index<len) {
+                this[index] = this[index+1];
+                index++
+            }
+            this.length--;
         }
-        this.length--;
+        else {
+            this[index] = itemToAdd;
+        }
     });
 }
 

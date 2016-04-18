@@ -8,6 +8,11 @@ var GenericCollection = require("./generic-collection");
 // upgrades an iterable to a Iterator
 function Iterator(iterable) {
 
+    var values = iterable && iterable.values && iterable.values();
+    if(values && typeof values.next === "function" ) {
+        return values;
+    }
+
     if (!(this instanceof Iterator)) {
         return new Iterator(iterable);
     }

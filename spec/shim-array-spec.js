@@ -34,7 +34,18 @@ describe("Array", function () {
             expect(Date.now() - start < 100).toBe(true);
         });
 
+        it("spliceOne remove", function () {
+            var array = [1, 2, 3];
+            array.spliceOne(1);
+            expect(array).toEqual([1, 3]);
+        });
+
+        it("spliceOne add", function () {
+            var array = [1, 2, 3];
+            array.spliceOne(1, 2.5);
+            expect(array).toEqual([1, 2.5, 3]);
+        });
+
     });
 
 });
-

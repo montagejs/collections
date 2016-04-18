@@ -5,17 +5,18 @@ module.exports = describeSet;
 function describeSet(Set, sorted) {
 
     describe("uniqueness", function () {
-        var set = Set([1, 2, 3, 1, 2, 3]);
+        var set = Set.from([1, 2, 3, 1, 2, 3]);
         expect(set.toArray().sort()).toEqual([1, 2, 3]);
     });
 
     describe("forEach", function () {
-        it("the callback should receive value, index, set", function () {
-            var set = Set([1, 2, 3]);
-            var other = Set([]);
-            var i = 0;
+        it("the callback should receive value, value, set", function () {
+            var set = Set.from([1, 2, 3]);
+            var other = Set.from([]);
+            var i = 1;
             set.forEach(function (value, key, object) {
-                expect(key).toBe(i++);
+                expect(key).toBe(value);
+                i++;
                 other.add(value);
                 expect(object).toBe(set);
             });
@@ -31,7 +32,7 @@ function describeSet(Set, sorted) {
     });
 
     it("cleared set should be empty", function () {
-        var set = new Set([1, 2]);
+        var set = Set.from([1, 2]);
         expect(set.length).toBe(2);
         set.delete(1);
         expect(set.length).toBe(1);
@@ -50,7 +51,7 @@ function describeSet(Set, sorted) {
     });
 
     it("can deleteAll", function () {
-        var set = new Set([0]);
+        var set = Set.from([0]);
         expect(set.deleteAll(0)).toBe(1);
         expect(set.deleteAll(0)).toBe(0);
     });
@@ -87,12 +88,12 @@ function describeSet(Set, sorted) {
     });
 
     it("can be changed to an array", function () {
-        var set = new Set([0]);
+        var set = Set.from([0]);
         expect(set.toArray()).toEqual([0]);
     });
 
     it("is a reducible", function () {
-        var set = new Set([1, 1, 1, 2, 2, 2, 1, 2]);
+        var set = Set.from([1, 1, 1, 2, 2, 2, 1, 2]);
         expect(set.length).toBe(2);
         expect(set.min()).toBe(1);
         expect(set.max()).toBe(2);
@@ -104,32 +105,32 @@ function describeSet(Set, sorted) {
     });
 
     it("is iterable", function () {
-        var set = new Set(['c', 'b', 'a']);
-        var iterator = new Iterator(set);
-        expect(iterator.toArray().sort()).toEqual(['a', 'b', 'c']);
+        var set = Set.from(['c', 'b', 'a']);
+        var valuesArray = set.valuesArray();
+        expect(valuesArray.sort()).toEqual(['a', 'b', 'c']);
     });
 
     it("is concatenatable", function () {
-        var array = new Set([3, 2, 1]).concat([4, 5, 6]).toArray();
+        var array = Set.from([3, 2, 1]).concat([4, 5, 6]).toArray();
         array.sort();
         expect(array).toEqual([1, 2, 3, 4, 5, 6]);
     });
 
     it("should compute unions", function () {
-        expect(Set([1, 2, 3]).union([2, 3, 4]).sorted()).toEqual([1, 2, 3, 4]);
-        expect(Set([1, 2, 3]).union([2, 3, 4]).equals([1, 2, 3, 4])).toBe(true);
+        expect(Set.from([1, 2, 3]).union([2, 3, 4]).sorted()).toEqual([1, 2, 3, 4]);
+        expect(Set.from([1, 2, 3]).union([2, 3, 4]).equals([1, 2, 3, 4])).toBe(true);
     });
 
     it("should compute intersections", function () {
-        expect(Set([1, 2, 3]).intersection([2, 3, 4]).sorted()).toEqual([2, 3]);
+        expect(Set.from([1, 2, 3]).intersection([2, 3, 4]).sorted()).toEqual([2, 3]);
     });
 
     it("should compute differences", function () {
-        expect(Set([1, 2, 3]).difference([2, 3, 4]).sorted()).toEqual([1]);
+        expect(Set.from([1, 2, 3]).difference([2, 3, 4]).sorted()).toEqual([1]);
     });
 
     it("should compute symmetric differences", function () {
-        expect(Set([1, 2, 3]).symmetricDifference([2, 3, 4]).sorted()).toEqual([1, 4]);
+        expect(Set.from([1, 2, 3]).symmetricDifference([2, 3, 4]).sorted()).toEqual([1, 4]);
     });
 
 }

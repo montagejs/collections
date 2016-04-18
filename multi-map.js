@@ -1,6 +1,6 @@
 "use strict";
 
-var Map = require("./map");
+var Map = require("./map").CollectionsMap;
 
 module.exports = MultiMap;
 function MultiMap(values, bucket, equals, hash) {
@@ -38,4 +38,3 @@ MultiMap.prototype.set = function (key, newValues) {
 MultiMap.prototype.bucket = function (key) {
     return [];
 };
-

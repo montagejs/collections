@@ -7,17 +7,10 @@ var describeToJson = require("./to-json");
 describe("LruSet", function () {
 
     // construction, has, add, get, delete
-    function newLruSet(values) {
-        return new LruSet(values);
-    }
-
-    [LruSet, newLruSet].forEach(function (LruSet) {
-        describeCollection(LruSet, [1, 2, 3, 4], true);
-        describeCollection(LruSet, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
-        describeSet(LruSet);
-        describeToJson(LruSet, [1, 2, 3, 4]);
-    });
-
+    describeCollection(LruSet, [1, 2, 3, 4], true);
+    describeCollection(LruSet, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
+    describeSet(LruSet);
+    describeToJson(LruSet, [1, 2, 3, 4]);
 
     it("should remove stale entries", function () {
         var set = LruSet([4, 3, 1, 2, 3], 3);
@@ -58,4 +51,3 @@ describe("LruSet", function () {
         ]);
     })
 });
-

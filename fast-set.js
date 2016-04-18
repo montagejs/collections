@@ -2,7 +2,7 @@
 
 var Shim = require("./shim");
 var Dict = require("./dict");
-var List = require("./list");
+var List = require("./_list");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
 var TreeLog = require("./tree-log");
@@ -35,6 +35,7 @@ FastSet.FastSet = FastSet; // hack so require("fast-set").FastSet will work in M
 Object.addEach(FastSet.prototype, GenericCollection.prototype);
 Object.addEach(FastSet.prototype, GenericSet.prototype);
 Object.addEach(FastSet.prototype, PropertyChanges.prototype);
+FastSet.from = GenericCollection.from;
 
 FastSet.prototype.Buckets = Dict;
 FastSet.prototype.Bucket = List;
@@ -122,7 +123,7 @@ FastSet.prototype.one = function () {
 };
 
 FastSet.prototype.iterate = function () {
-    return this.buckets.values().flatten().iterate();
+    return this.buckets.valuesArray().flatten().iterate();
 };
 
 FastSet.prototype.log = function (charmap, logNode, callback, thisp) {
@@ -134,12 +135,12 @@ FastSet.prototype.log = function (charmap, logNode, callback, thisp) {
     }
     callback = callback.bind(thisp);
 
-    var buckets = this.buckets;
-    var hashes = buckets.keys();
-    hashes.forEach(function (hash, index) {
-        var branch;
-        var leader;
-        if (index === hashes.length - 1) {
+    var buckets = this.buckets, bucketsSize = buckets.size,
+        mapIter = buckets.keys(), hash, index = 0,
+        branch, leader, bucket;
+
+    while (hash = mapIter.next().value) {
+        if (index === bucketsSize - 1) {
             branch = charmap.fromAbove;
             leader = ' ';
         } else if (index === 0) {
@@ -149,10 +150,10 @@ FastSet.prototype.log = function (charmap, logNode, callback, thisp) {
             branch = charmap.fromBoth;
             leader = charmap.strafe;
         }
-        var bucket = buckets.get(hash);
+        bucket = buckets.get(hash);
         callback.call(thisp, branch + charmap.through + charmap.branchDown + ' ' + hash);
         bucket.forEach(function (value, node) {
-            var branch, below;
+            var branch, below, written;
             if (node === bucket.head.prev) {
                 branch = charmap.fromAbove;
                 below = ' ';
@@ -160,7 +161,6 @@ FastSet.prototype.log = function (charmap, logNode, callback, thisp) {
                 branch = charmap.fromBoth;
                 below = charmap.strafe;
             }
-            var written;
             logNode(
                 node,
                 function (line) {
@@ -176,7 +176,51 @@ FastSet.prototype.log = function (charmap, logNode, callback, thisp) {
                 }
             );
         });
-    });
+        index++;
+    }
+
+    //var hashes = buckets.keysArray();
+    // hashes.forEach(function (hash, index) {
+    //     var branch;
+    //     var leader;
+    //     if (index === hashes.length - 1) {
+    //         branch = charmap.fromAbove;
+    //         leader = ' ';
+    //     } else if (index === 0) {
+    //         branch = charmap.branchDown;
+    //         leader = charmap.strafe;
+    //     } else {
+    //         branch = charmap.fromBoth;
+    //         leader = charmap.strafe;
+    //     }
+    //     var bucket = buckets.get(hash);
+    //     callback.call(thisp, branch + charmap.through + charmap.branchDown + ' ' + hash);
+    //     bucket.forEach(function (value, node) {
+    //         var branch, below;
+    //         if (node === bucket.head.prev) {
+    //             branch = charmap.fromAbove;
+    //             below = ' ';
+    //         } else {
+    //             branch = charmap.fromBoth;
+    //             below = charmap.strafe;
+    //         }
+    //         var written;
+    //         logNode(
+    //             node,
+    //             function (line) {
+    //                 if (!written) {
+    //                     callback.call(thisp, leader + ' ' + branch + charmap.through + charmap.through + line);
+    //                     written = true;
+    //                 } else {
+    //                     callback.call(thisp, leader + ' ' + below + '  ' + line);
+    //                 }
+    //             },
+    //             function (line) {
+    //                 callback.call(thisp, leader + ' ' + charmap.strafe + '  ' + line);
+    //             }
+    //         );
+    //     });
+    // });
 };
 
 FastSet.prototype.logNode = function (node, write) {
@@ -189,4 +233,3 @@ FastSet.prototype.logNode = function (node, write) {
         write(" " + value);
     }
 };
-

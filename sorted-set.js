@@ -28,6 +28,8 @@ Object.addEach(SortedSet.prototype, GenericCollection.prototype);
 Object.addEach(SortedSet.prototype, GenericSet.prototype);
 Object.addEach(SortedSet.prototype, PropertyChanges.prototype);
 Object.addEach(SortedSet.prototype, RangeChanges.prototype);
+Object.defineProperty(SortedSet.prototype,"size",GenericCollection._sizePropertyDescriptor);
+SortedSet.from = GenericCollection.from;
 
 SortedSet.prototype.isSorted = true;
 

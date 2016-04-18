@@ -31,16 +31,10 @@ describe("Set", function () {
     // Set().min()
     // Set().max()
 
-    function newSet(values) {
-        return new Set(values);
-    }
-
-    [Set, newSet].forEach(function (Set) {
-        describeCollection(Set, [1, 2, 3, 4], true);
-        describeCollection(Set, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
-        describeSet(Set);
-        describeToJson(Set, [1, 2, 3, 4]);
-    });
+    describeCollection(Set, [1, 2, 3, 4], true);
+    describeCollection(Set, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
+    describeSet(Set);
+    describeToJson(Set, [1, 2, 3, 4]);
 
     it("can use hash delegate methods", function () {
         function Item(key, value) {
@@ -58,7 +52,7 @@ describe("Set", function () {
         set.add(new Item(2, 'c'));
         set.add(new Item(2, 'd'));
 
-        expect(set.buckets.keys().sort()).toEqual(['1', '2', '3']);
+        expect(set.buckets.keysArray().sort()).toEqual(['1', '2', '3']);
 
     });
 
@@ -176,4 +170,3 @@ describe("Set", function () {
         });
     });
 });
-

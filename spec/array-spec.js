@@ -9,8 +9,8 @@ var describeMapChanges = require("./listen/map-changes");
 
 describe("Array", function () {
     describeDeque(Array.from);
-    describeCollection(Array.from, [1, 2, 3, 4]);
-    describeCollection(Array.from, [{id: 0}, {id: 1}, {id: 2}, {id: 3}]);
+    describeCollection(Array, [1, 2, 3, 4]);
+    describeCollection(Array, [{id: 0}, {id: 1}, {id: 2}, {id: 3}]);
     describeOrder(Array.from);
 
     function mapAlike(entries) {
@@ -295,4 +295,3 @@ describe("Array", function () {
     });
 
 });
-

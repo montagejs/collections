@@ -48,6 +48,15 @@ GenericSet.prototype.equals = function (that, equals) {
     );
 };
 
+GenericSet.prototype.forEach = function (callback /*, thisp*/) {
+    var thisp = arguments[1];
+    return this.reduce(function (undefined, value, key, object, depth) {
+        //ECMASCRIPT Sets send value twice in callback to forEach
+        callback.call(thisp, value, value, object, depth);
+    }, undefined);
+};
+
+
 GenericSet.prototype.toJSON = function () {
     return this.toArray();
 };
@@ -70,3 +79,11 @@ GenericSet.prototype.toggle = function (value) {
     }
 };
 
+var _valuesArrayFunction = function(value,key) {return value;};
+GenericSet.prototype.valuesArray = function() {
+    return this.map(_valuesArrayFunction);
+}
+var _entriesArrayFunction = function(value,key) {return [key,value];};
+GenericSet.prototype.entriesArray = function() {
+    return this.map(_entriesArrayFunction);
+}

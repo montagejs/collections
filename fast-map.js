@@ -5,6 +5,7 @@ var Set = require("./fast-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
 var PropertyChanges = require("./listen/property-changes");
+var MapChanges = require("./listen/map-changes");
 
 module.exports = FastMap;
 
@@ -36,7 +37,9 @@ FastMap.FastMap = FastMap; // hack so require("fast-map").FastMap will work in M
 Object.addEach(FastMap.prototype, GenericCollection.prototype);
 Object.addEach(FastMap.prototype, GenericMap.prototype);
 Object.addEach(FastMap.prototype, PropertyChanges.prototype);
+Object.addEach(FastMap.prototype, MapChanges.prototype);
 
+FastMap.from = GenericCollection.from;
 FastMap.prototype.constructClone = function (values) {
     return new this.constructor(
         values,
@@ -54,4 +57,3 @@ FastMap.prototype.log = function (charmap, stringify) {
 FastMap.prototype.stringify = function (item, leader) {
     return leader + JSON.stringify(item.key) + ": " + JSON.stringify(item.value);
 }
-

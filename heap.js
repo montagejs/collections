@@ -31,6 +31,8 @@ Object.addEach(Heap.prototype, PropertyChanges.prototype);
 Object.addEach(Heap.prototype, RangeChanges.prototype);
 Object.addEach(Heap.prototype, MapChanges.prototype);
 
+Heap.from = GenericCollection.from;
+
 Heap.prototype.constructClone = function (values) {
     return new this.constructor(
         values,
@@ -241,4 +243,3 @@ Heap.prototype.handleContentMapChange = function (value, key) {
 Heap.prototype.handleContentMapWillChange = function (value, key) {
     this.dispatchBeforeMapChange(key, value);
 };
-

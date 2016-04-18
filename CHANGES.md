@@ -1,3 +1,14 @@
+## v5.0.0
+- Some backward compatibility breaking changes:
+    - Native Maps, WeakMaps and Sets are now used when available
+    - Aligns Map with latest standard with PR #137
+        - Use of a second argument for default value in get() is deprecated
+        - keys(), values() and entries() now return an iterator per standards,
+          methods returning an array are now keysArray(), valuesArray(), entriesArray()
+        - It's not possible to create a Map by passing an anonymous object to the constructor, that feature is now available as Map.from();
+   - Introduces .from() method on constructors.
+
+
 ## v3.0.0
 
 - Aligns iterations with latest standard with PR #137

@@ -6,7 +6,10 @@ var List = require("../list");
 debugger;
 var map = new MultiMap({a: [1, 2, 3]}, List);
 console.log(map);
-console.log(map.keys());
+var mapIter = map.keys(), key;
+while (key = mapIter.next().value) {
+    console.log(key);
+}
 console.log(map.get("a"));
 console.log(map.get("a").toArray());
 var before = map.get("a");
@@ -15,4 +18,3 @@ console.log(map.get("a").toArray());
 map.set("a", []);
 console.log(map.get("a").toArray());
 console.log(map.get("a") === before);
-
