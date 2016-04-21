@@ -222,6 +222,77 @@ Object.addEach = function (target, source, overrides) {
     return target;
 };
 
+
+/*
+var defineEach = function defineEach(target, prototype) {
+    // console.log("Map defineEach: ",Object.keys(prototype));
+    var proto = Map.prototype;
+    for (var name in prototype) {
+        if(!proto.hasOwnProperty(name)) {
+            Object.defineProperty(proto, name, {
+                value: prototype[name],
+                writable: writable,
+                configurable: configurable,
+                enumerable: enumerable
+            });
+        }
+    }
+}
+*/
+Object.defineEach = function (target, source, overrides, configurable, enumerable, writable) {
+    var overridesExistingProperty = arguments.length === 3 ? overrides : true;
+    if (!source) {
+    } else if (typeof source.forEach === "function" && !source.hasOwnProperty("forEach")) {
+        // copy map-alikes
+        if (source.isMap === true) {
+            source.forEach(function (value, key) {
+                Object.defineProperty(target, key, {
+                    value: value,
+                    writable: writable,
+                    configurable: configurable,
+                    enumerable: enumerable
+                });
+            });
+        // iterate key value pairs of other iterables
+        } else {
+            source.forEach(function (pair) {
+                Object.defineProperty(target, pair[0], {
+                    value: pair[1],
+                    writable: writable,
+                    configurable: configurable,
+                    enumerable: enumerable
+                });
+
+            });
+        }
+    } else if (typeof source.length === "number") {
+        // arguments, strings
+        for (var index = 0; index < source.length; index++) {
+            Object.defineProperty(target, index, {
+                value: source[index],
+                writable: writable,
+                configurable: configurable,
+                enumerable: enumerable
+            });
+
+        }
+    } else {
+        // copy other objects as map-alikes
+        for(var keys = Object.keys(source), i = 0, key;(key = keys[i]); i++) {
+            if(overridesExistingProperty || !Object.owns(target,key)) {
+                Object.defineProperty(target, key, {
+                    value: source[key],
+                    writable: writable,
+                    configurable: configurable,
+                    enumerable: enumerable
+                });
+
+            }
+        }
+    }
+    return target;
+};
+
 /**
     Iterates over the owned properties of an object.
 

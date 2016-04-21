@@ -12,21 +12,6 @@ if(global.Map === void 0) {
 }
 else {
 
-    function defineEach(prototype) {
-        // console.log("Map defineEach: ",Object.keys(prototype));
-        var proto = Map.prototype;
-        for (var name in prototype) {
-            if(!proto.hasOwnProperty(name)) {
-                Object.defineProperty(proto, name, {
-                    value: prototype[name],
-                    writable: true,
-                    configurable: true,
-                    enumerable: false
-                });
-            }
-        }
-    }
-
-    defineEach(PropertyChanges.prototype);
-    defineEach(MapChanges.prototype);
+    Object.defineEach(Map.prototype, PropertyChanges.prototype, false, /*configurable*/true, /*enumerable*/ false, /*writable*/true);
+    Object.defineEach(Map.prototype, MapChanges.prototype, false, /*configurable*/true, /*enumerable*/ false, /*writable*/true);
 }
