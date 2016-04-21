@@ -42,18 +42,6 @@ Object.defineProperty(Array.prototype, "makeObservable", {
     enumerable: false
 });
 
-function defineEach(prototype) {
-    for (var name in prototype) {
-        Object.defineProperty(Array.prototype, name, {
-            value: prototype[name],
-            writable: true,
-            configurable: true,
-            enumerable: false
-        });
-    }
-}
-
-
 //This is a no-op test in property-changes.js - PropertyChanges.prototype.makePropertyObservable, so might as well not pay the price every time....
 Object.defineProperty(Array.prototype, "makePropertyObservable", {
     value: function(){},
@@ -375,6 +363,7 @@ exports.observableArrayProperties = observableArrayProperties;
 var PropertyChanges = require("./property-changes");
 var RangeChanges = require("./range-changes");
 var MapChanges = require("./map-changes");
-defineEach(PropertyChanges.prototype);
-defineEach(RangeChanges.prototype);
-defineEach(MapChanges.prototype);
+
+Object.defineEach(Array.prototype, PropertyChanges.prototype, false, /*configurable*/true, /*enumerable*/ false, /*writable*/true);
+Object.defineEach(Array.prototype, RangeChanges.prototype, false, /*configurable*/true, /*enumerable*/ false, /*writable*/true);
+Object.defineEach(Array.prototype, MapChanges.prototype, false, /*configurable*/true, /*enumerable*/ false, /*writable*/true);
