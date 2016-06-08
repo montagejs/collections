@@ -7,30 +7,10 @@ var Set, GlobalSet, CollectionsSet;
 
 
 if(global.Set !== void 0) {
+
     GlobalSet = module.exports = global.Set;
     GlobalSet.Set = GlobalSet; // hack so require("set").Set will work in MontageJS
 
-    // use different strategies for making sets observable between Internet
-    // Explorer and other browsers.
-    var protoIsSupported = {}.__proto__ === Object.prototype,
-        set_makeObservable;
-
-    if (protoIsSupported) {
-        set_makeObservable = function () {
-            this.__proto__ = ChangeDispatchSet;
-        };
-    } else {
-        set_makeObservable = function () {
-            Object.defineProperties(this, observableSetProperties);
-        };
-    }
-
-    Object.defineProperty(GlobalSet.prototype, "makeObservable", {
-        value: set_makeObservable,
-        writable: true,
-        configurable: true,
-        enumerable: false
-    });
 
     GlobalSet.prototype.reduce = function (callback, basis /*, thisp*/) {
         var thisp = arguments[2];
@@ -115,120 +95,37 @@ if(global.Set !== void 0) {
         return result;
     };
 
-
-    var set_clear = GlobalSet.prototype.clear,
-        set_add = GlobalSet.prototype.add,
-        set_delete = GlobalSet.prototype.delete;
-
-    var observableSetProperties = {
-        "__dispatchValueArray": {
-            value: void 0,
-            writable: true,
-            configurable: true
-        },
-        "_dispatchValueArray": {
-            get: function() {
-                return this.__dispatchValueArray || (this.__dispatchValueArray = []);
-            }
-        },
-        "_dispatchEmptyArray": {
-            value: []
-        },
-        clear : {
-            value: function () {
-                var clearing;
-                if (this.dispatchesRangeChanges) {
-                    clearing = this.toArray();
-                    this.dispatchBeforeRangeChange(this._dispatchEmptyArray, clearing, 0);
-                }
-
-                set_clear.call(this);
-
-                if (this.dispatchesRangeChanges) {
-                    this.dispatchRangeChange(this._dispatchEmptyArray, clearing, 0);
-                }
-            },
-            writable: true,
-            configurable: true
-
-        },
-        add : {
-            value: function (value) {
-                if (!this.has(value)) {
-                    var index = this.size;
-                    this._dispatchValueArray[0] = value;
-                    if (this.dispatchesRangeChanges) {
-                        this.dispatchBeforeRangeChange(this._dispatchValueArray, this._dispatchEmptyArray, index);
-                    }
-
-                    set_add.call(this,value);
-
-                    if (this.dispatchesRangeChanges) {
-                        this.dispatchRangeChange(this._dispatchValueArray, this._dispatchEmptyArray, index);
-                    }
-                    return true;
-                }
-                return false;
-            },
-            writable: true,
-            configurable: true
-        },
-
-        "delete": {
-            value: function (value,index) {
-                if (this.has(value)) {
-                    if(index === undefined) {
-                        var setIterator = this.values();
-                        index = 0
-                        while(setIterator.next().value !== value) {
-                            index++;
-                        }
-                    }
-                    this._dispatchValueArray[0] = value;
-                    if (this.dispatchesRangeChanges) {
-                        this.dispatchBeforeRangeChange(this._dispatchEmptyArray, this._dispatchValueArray, index);
-                    }
-
-                    set_delete.call(this,value);
-
-                    if (this.dispatchesRangeChanges) {
-                        this.dispatchRangeChange(this._dispatchEmptyArray, this._dispatchValueArray, index);
-                    }
-                    return true;
-                }
-                return false;
-            }
-        }
-    };
-
-
-
     Object.addEach(GlobalSet.prototype, GenericCollection.prototype, false);
     Object.addEach(GlobalSet.prototype, GenericSet.prototype, false);
 
-    var ChangeDispatchSet = Object.create(GlobalSet.prototype, observableSetProperties);
 }
 
+
+
     var List = require("./_list");
-    var FastSet = require("./fast-set");
+    var FastSet = require("./_fast-set");
     var Iterator = require("./iterator");
 
     CollectionsSet = function CollectionsSet(values, equals, hash, getDefault) {
-        if (!(this instanceof CollectionsSet)) {
-            return new CollectionsSet(values, equals, hash, getDefault);
+        return CollectionsSet._init(CollectionsSet, this, values, equals, hash, getDefault);
+    }
+
+    CollectionsSet._init = function (constructor, object, values, equals, hash, getDefault) {
+        if (!(object instanceof constructor)) {
+            return new constructor(values, equals, hash, getDefault);
         }
         equals = equals || Object.equals;
         hash = hash || Object.hash;
         getDefault = getDefault || Function.noop;
-        this.contentEquals = equals;
-        this.contentHash = hash;
-        this.getDefault = getDefault;
+        object.contentEquals = equals;
+        object.contentHash = hash;
+        object.getDefault = getDefault;
         // a list of values in insertion order, used for all operations that depend
         // on iterating in insertion order
-        this.order = new this.Order(undefined, equals);
+        object.order = new object.Order(undefined, equals);
         // a set of nodes from the order list, indexed by the corresponding value,
         // used for all operations that need to quickly seek  value in the list
-        this.store = new this.Store(
+        object.store = new object.Store(
             undefined,
             function (a, b) {
                 return equals(a.value, b.value);
@@ -237,8 +134,9 @@ if(global.Set !== void 0) {
                 return hash(node.value);
             }
         );
-        this.length = 0;
-        this.addEach(values);
+        object.length = 0;
+        object.addEach(values);
+
     }
 
     CollectionsSet.Set = CollectionsSet; // hack so require("set").Set will work in MontageJS
@@ -284,17 +182,10 @@ if(global.Set !== void 0) {
         var node = new this.order.Node(value);
         if (!this.store.has(node)) {
             var index = this.length;
-            this._dispatchValueArray[0] = value;
-            if (this.dispatchesRangeChanges) {
-                this.dispatchBeforeRangeChange(this._dispatchValueArray, this._dispatchEmptyArray, index);
-            }
             this.order.add(value);
             node = this.order.head.prev;
             this.store.add(node);
             this.length++;
-            if (this.dispatchesRangeChanges) {
-                this.dispatchRangeChange(this._dispatchValueArray, this._dispatchEmptyArray, index);
-            }
             return true;
         }
         return false;
@@ -307,16 +198,9 @@ if(global.Set !== void 0) {
         var node = new this.order.Node(value);
         if (this.store.has(node)) {
             node = this.store.get(node);
-            this._dispatchValueArray[0] = value;
-            if (this.dispatchesRangeChanges) {
-                this.dispatchBeforeRangeChange(this._dispatchEmptyArray, this._dispatchValueArray, node.index);
-            }
             this.store["delete"](node); // removes from the set
             this.order.splice(node, 1); // removes the node from the list
             this.length--;
-            if (this.dispatchesRangeChanges) {
-                this.dispatchRangeChange(this._dispatchEmptyArray, this._dispatchValueArray, node.index);
-            }
             return true;
         }
         return false;
@@ -344,35 +228,14 @@ if(global.Set !== void 0) {
         }
     };
 
-    Object.defineProperty(CollectionsSet.prototype,"__dispatchValueArray", {
-        value: void 0,
-        writable: true,
-        configurable: true
-    });
-
-    Object.defineProperty(CollectionsSet.prototype,"_dispatchValueArray", {
-        get: function() {
-            return this.__dispatchValueArray || (this.__dispatchValueArray = []);
-        },
-        configurable: true
-    });
-    Object.defineProperty(CollectionsSet.prototype,"_dispatchEmptyArray", {
-        value: []
-    });
-
     CollectionsSet.prototype.clear = function () {
-        var clearing;
-        if (this.dispatchesRangeChanges) {
-            clearing = this.toArray();
-            this.dispatchBeforeRangeChange(this._dispatchEmptyArray, clearing, 0);
-        }
         this.store.clear();
         this.order.clear();
         this.length = 0;
-        if (this.dispatchesRangeChanges) {
-            this.dispatchRangeChange(this._dispatchEmptyArray, clearing, 0);
-        }
     };
+    Object.defineProperty(CollectionsSet.prototype,"_clear", {
+        value: CollectionsSet.prototype.clear
+    });
 
     CollectionsSet.prototype.reduce = function (callback, basis /*, thisp*/) {
         var thisp = arguments[2];
@@ -405,9 +268,6 @@ if(global.Set !== void 0) {
         return set.log.apply(set, arguments);
     };
 
-    CollectionsSet.prototype.makeObservable = function () {
-        this.order.makeObservable();
-    };
 
 
 if(!GlobalSet) {
