@@ -131,8 +131,8 @@ RangeChanges.prototype.addRangeChangeListener = function addRangeChangeListener(
         listeners._current.push(listener);
     }
 
-    if(Object.getOwnPropertyDescriptor(this.__proto__,dispatchesChangesMethodName) === void 0) {
-        Object.defineProperty(this.__proto__, dispatchesChangesMethodName, dispatchesChangesPropertyDescriptor);
+    if(Object.getOwnPropertyDescriptor((this.__proto__||Object.getPrototypeOf(this)),dispatchesChangesMethodName) === void 0) {
+        Object.defineProperty((this.__proto__||Object.getPrototypeOf(this)), dispatchesChangesMethodName, dispatchesChangesPropertyDescriptor);
     }
     this.dispatchesRangeChanges = true;
 

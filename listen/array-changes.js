@@ -273,10 +273,21 @@ var observableArrayProperties = {
         writable: true,
         configurable: true
     },
-
+    _setSwapBuffer: {
+        get: function() {
+            return this.__setSwapBuffer || (Object.defineProperty(this,"__setSwapBuffer",{
+                value: [],
+                writable: true,
+                configurable: true,
+                enumerable: false
+            })).__setSwapBuffer;
+        },
+        enumerable: false
+    },
     set: {
         value: function set(index, value) {
-            this.swap(index, index >= this.length ? 0 : 1, [value]);
+            this._setSwapBuffer[0] = value
+            this.swap(index, index >= this.length ? 0 : 1, this._setSwapBuffer);
             return true;
         },
         writable: true,

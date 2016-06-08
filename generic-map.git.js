@@ -1,19 +1,22 @@
 "use strict";
 
 var Object = require("./shim-object");
-var Iterator = require("./iterator");
+var MapChanges = require("./listen/map-changes");
+var PropertyChanges = require("./listen/property-changes");
 
 module.exports = GenericMap;
 function GenericMap() {
     throw new Error("Can't construct. GenericMap is a mixin.");
 }
 
+Object.addEach(GenericMap.prototype, MapChanges.prototype);
+Object.addEach(GenericMap.prototype, PropertyChanges.prototype);
+
 // all of these methods depend on the constructor providing a `store` set
 
 GenericMap.prototype.isMap = true;
 
 GenericMap.prototype.addEach = function (values) {
-    var i;
     if (values && Object(values) === values) {
         if (typeof values.forEach === "function") {
             // copy map-alikes
@@ -30,7 +33,7 @@ GenericMap.prototype.addEach = function (values) {
         } else if (typeof values.length === "number") {
             // Array-like objects that do not implement forEach, ergo,
             // Arguments
-            for (i = 0; i < values.length; i++) {
+            for (var i = 0; i < values.length; i++) {
                 this.add(values[i], i);
             }
         } else {
@@ -41,19 +44,18 @@ GenericMap.prototype.addEach = function (values) {
         }
     } else if (values && typeof values.length === "number") {
         // String
-        for (i = 0; i < values.length; i++) {
+        for (var i = 0; i < values.length; i++) {
             this.add(values[i], i);
         }
     }
     return this;
-};
+}
 
 GenericMap.prototype.get = function (key, defaultValue) {
     var item = this.store.get(new this.Item(key));
     if (item) {
         return item.value;
     } else if (arguments.length > 1) {
-        console.log("Use of a second argument as default value is deprecated to match standards");
         return defaultValue;
     } else {
         return this.getDefault(key);
@@ -113,22 +115,19 @@ GenericMap.prototype['delete'] = function (key) {
 };
 
 GenericMap.prototype.clear = function () {
-    var keys, key;
+    var keys;
     if (this.dispatchesMapChanges) {
         this.forEach(function (value, key) {
             this.dispatchBeforeMapChange(key, value);
         }, this);
-        keys = this.keysArray();
+        keys = this.keys();
     }
     this.store.clear();
     this.length = 0;
     if (this.dispatchesMapChanges) {
-        for(var i=0;(key = keys[i]);i++) {
+        keys.forEach(function (key) {
             this.dispatchMapChange(key);
-        }
-        // keys.forEach(function (key) {
-        //     this.dispatchMapChange(key);
-        // }, this);
+        }, this);
     }
 };
 
@@ -144,34 +143,25 @@ GenericMap.prototype.reduceRight = function (callback, basis, thisp) {
     }, basis, this);
 };
 
-GenericMap.prototype.keysArray = function () {
+GenericMap.prototype.keys = function () {
     return this.map(function (value, key) {
         return key;
     });
 };
-GenericMap.prototype.keys = function () {
-    return new Iterator(this.keysArray());
-};
 
-GenericMap.prototype.valuesArray = function () {
+GenericMap.prototype.values = function () {
     return this.map(Function.identity);
 };
-GenericMap.prototype.values = function () {
-    return new Iterator(this.valuesArray());
-};
 
-GenericMap.prototype.entriesArray = function () {
+GenericMap.prototype.entries = function () {
     return this.map(function (value, key) {
         return [key, value];
     });
 };
-GenericMap.prototype.entries = function () {
-    return new Iterator(this.entriesArray());
-};
 
 // XXX deprecated
 GenericMap.prototype.items = function () {
-    return this.entriesArray();
+    return this.entries();
 };
 
 GenericMap.prototype.equals = function (that, equals) {
@@ -191,9 +181,8 @@ GenericMap.prototype.equals = function (that, equals) {
 };
 
 GenericMap.prototype.toJSON = function () {
-    return this.entriesArray();
+    return this.entries();
 };
-
 
 GenericMap.prototype.Item = Item;
 
@@ -209,3 +198,4 @@ Item.prototype.equals = function (that) {
 Item.prototype.compare = function (that) {
     return Object.compare(this.key, that.key);
 };
+
