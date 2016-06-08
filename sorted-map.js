@@ -46,6 +46,9 @@ SortedMap.prototype.constructClone = function (values) {
         this.getDefault
     );
 };
+SortedMap.prototype.iterate = function () {
+    return this.store.iterate();
+};
 
 SortedMap.prototype.log = function (charmap, logNode, callback, thisp) {
     logNode = logNode || this.logNode
