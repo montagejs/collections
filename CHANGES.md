@@ -7,7 +7,8 @@
           methods returning an array are now keysArray(), valuesArray(), entriesArray()
         - It's not possible to create a Map by passing an anonymous object to the constructor, that feature is now available as Map.from();
    - Introduces .from() method on constructors.
-
+- Fix for issue #149
+- Changes to work in IE10, involving splitting pure implementations as private from the public API that support listening,
 
 ## v3.0.0
 
