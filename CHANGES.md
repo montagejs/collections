@@ -1,3 +1,7 @@
+## v5.0.1
+- Changes to make IE11 use set and map polyfills
+
+
 ## v5.0.0
 - Some backward compatibility breaking changes:
     - Native Maps, WeakMaps and Sets are now used when available
