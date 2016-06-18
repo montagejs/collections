@@ -4,11 +4,12 @@ var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
 var Map, GlobalMap, CollectionsMap;
 
-if(global.Map !== void 0) {
+if((global.Map !== void 0) && (typeof global.Set.prototype.values === "function")) {
 
     Map = module.exports = global.Map,
     GlobalMap = Map;
     Map.Map = Map; // hack so require("map").Map will work in MontageJS
+
     // use different strategies for making sets observable between Internet
     // Explorer and other browsers.
     var protoIsSupported = {}.__proto__ === Object.prototype,

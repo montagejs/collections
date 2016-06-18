@@ -6,11 +6,10 @@ var GenericSet = require("./generic-set");
 var Set, GlobalSet, CollectionsSet;
 
 
-if(global.Set !== void 0) {
+if((global.Set !== void 0) && (typeof global.Set.prototype.values === "function")) {
 
     GlobalSet = module.exports = global.Set;
     GlobalSet.Set = GlobalSet; // hack so require("set").Set will work in MontageJS
-
 
     GlobalSet.prototype.reduce = function (callback, basis /*, thisp*/) {
         var thisp = arguments[2];
