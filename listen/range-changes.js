@@ -194,32 +194,34 @@ RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, befor
         var listeners = beforeChange ? descriptor._willChangeListeners : descriptor._changeListeners;
         if(listeners && listeners._current) {
             var tokenName = listeners.specificHandlerMethodName;
-            if(Array.isArray(listeners._current) && listeners._current.length) {
-                // notably, defaults to "handleRangeChange" or "handleRangeWillChange"
-                // if token is "" (the default)
+            if(Array.isArray(listeners._current)) {
+                if(listeners._current.length) {
+                    // notably, defaults to "handleRangeChange" or "handleRangeWillChange"
+                    // if token is "" (the default)
 
-                descriptor.isActive = true;
-                // dispatch each listener
-                try {
-                    var i,
-                        countI,
-                        listener,
-                        //removeGostListenersIfNeeded returns listeners.current or a new filtered one when conditions are met
-                        currentListeners = listeners.removeCurrentGostListenersIfNeeded(),
-                        Ghost = ListenerGhost;
-                    for(i=0, countI = currentListeners.length;i<countI;i++) {
-                        if ((listener = currentListeners[i]) !== Ghost) {
-                            if (listener[tokenName]) {
-                                listener[tokenName](plus, minus, index, this, beforeChange);
-                            } else if (listener.call) {
-                                listener.call(this, plus, minus, index, this, beforeChange);
-                            } else {
-                                throw new Error("Handler " + listener + " has no method " + tokenName + " and is not callable");
+                    descriptor.isActive = true;
+                    // dispatch each listener
+                    try {
+                        var i,
+                            countI,
+                            listener,
+                            //removeGostListenersIfNeeded returns listeners.current or a new filtered one when conditions are met
+                            currentListeners = listeners.removeCurrentGostListenersIfNeeded(),
+                            Ghost = ListenerGhost;
+                        for(i=0, countI = currentListeners.length;i<countI;i++) {
+                            if ((listener = currentListeners[i]) !== Ghost) {
+                                if (listener[tokenName]) {
+                                    listener[tokenName](plus, minus, index, this, beforeChange);
+                                } else if (listener.call) {
+                                    listener.call(this, plus, minus, index, this, beforeChange);
+                                } else {
+                                    throw new Error("Handler " + listener + " has no method " + tokenName + " and is not callable");
+                                }
                             }
                         }
+                    } finally {
+                        descriptor.isActive = false;
                     }
-                } finally {
-                    descriptor.isActive = false;
                 }
             }
             else {
