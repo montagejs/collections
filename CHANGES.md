@@ -1,6 +1,8 @@
+## v5.0.2
+- Addresses a bug in range listening that happened when the number of listeners went beyond 1 and back to 0
+
 ## v5.0.1
 - Changes to make IE11 use set and map polyfills
-
 
 ## v5.0.0
 - Some backward compatibility breaking changes:
