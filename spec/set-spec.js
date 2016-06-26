@@ -1,8 +1,10 @@
 
 var Set = require("../set");
-var CollectionsSet = Set.CollectionsSet;
 var describeCollection = require("./collection");
 var describeSet = require("./set");
+
+Set._setupCollectionSet();
+var CollectionsSet = Set.CollectionsSet;
 
 describe("CollectionsSet", function () {
     var Set = CollectionsSet;

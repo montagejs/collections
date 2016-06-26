@@ -1,5 +1,7 @@
 "use strict";
 
+console.log("global.Set is ",global.Set );
+
 var Set = require("./_set");
 var PropertyChanges = require("./listen/property-changes");
 var RangeChanges = require("./listen/range-changes");
@@ -7,7 +9,7 @@ var MapChanges = require("./listen/map-changes");
 var GlobalSet;
 
 
-if(global.Set !== void 0) {
+if( (global.Set !== void 0) && (typeof global.Set.prototype.values === "function")) {
     GlobalSet = global.Set;
     module.exports = Set
 
@@ -123,10 +125,23 @@ if(global.Set !== void 0) {
     Object.defineEach(Set.prototype, RangeChanges.prototype, false, /*configurable*/true, /*enumerable*/ false, /*writable*/true);
     Object.defineEach(Set.prototype, MapChanges.prototype, false, /*configurable*/true, /*enumerable*/ false, /*writable*/true);
 
+    //This is really only for testing
+    Object.defineProperty(Set, "_setupCollectionSet", {
+        value: setupCollectionSet,
+        writable: true,
+        configurable: true,
+        enumerable: false
+    });
+
 }
+else {
+    setupCollectionSet();
+}
+
+function setupCollectionSet() {
     var _CollectionsSet = Set.CollectionsSet;
 
-    function CollectionsSet(values, equals, hash, getDefault) {
+    var CollectionsSet = function CollectionsSet(values, equals, hash, getDefault) {
         return _CollectionsSet._init(CollectionsSet, this, values, equals, hash, getDefault);
     }
 
@@ -199,13 +214,14 @@ if(global.Set !== void 0) {
         }
     };
 
-if(global.Set === void 0) {
+    Object.addEach(Set.CollectionsSet.prototype, PropertyChanges.prototype);
+    Object.addEach(Set.CollectionsSet.prototype, RangeChanges.prototype);
+    Set.CollectionsSet.prototype.makeObservable = function () {
+        this.order.makeObservable();
+    };
+
     module.exports = CollectionsSet
 }
 
 
-Object.addEach(Set.CollectionsSet.prototype, PropertyChanges.prototype);
-Object.addEach(Set.CollectionsSet.prototype, RangeChanges.prototype);
-Set.CollectionsSet.prototype.makeObservable = function () {
-    this.order.makeObservable();
-};
+
