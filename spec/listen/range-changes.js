@@ -331,4 +331,13 @@ function describeRangeChanges(Collection) {
         expect(spy).toHaveBeenCalled();
     });
 
+    it("does not throw an error when dispatching a range change on a collection with no range change listeners that previously had more than one listener", function () {
+        var collection = new Collection([1, 2, 3]);
+        // Adding two range change listeners to trigger the behavior of change listeners being stored in an array
+        var cancelRangeChangeListenerA = collection.addRangeChangeListener(Function.noop);
+        var cancelRangeChangeListenerB = collection.addRangeChangeListener(Function.noop);
+        cancelRangeChangeListenerA();
+        cancelRangeChangeListenerB();
+        collection.push(5);
+    });
 }
