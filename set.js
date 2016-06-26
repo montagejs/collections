@@ -1,7 +1,5 @@
 "use strict";
 
-console.log("global.Set is ",global.Set );
-
 var Set = require("./_set");
 var PropertyChanges = require("./listen/property-changes");
 var RangeChanges = require("./listen/range-changes");
