@@ -259,7 +259,7 @@ if((global.Set !== void 0) && (typeof global.Set.prototype.values === "function"
     };
 
     CollectionsSet.prototype.values = function () {
-        return new Iterator(this);
+        return new Iterator(this.valuesArray());
     };
 
     CollectionsSet.prototype.log = function () {
