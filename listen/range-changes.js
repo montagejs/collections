@@ -182,9 +182,13 @@ RangeChanges.prototype.removeRangeChangeListener = function (listener, token, be
 };
 
 RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, beforeChange) {
-    var descriptors = this.getAllRangeChangeDescriptors();
+    var descriptors = this.getAllRangeChangeDescriptors(),
+        descriptor,
+        mapIter  = descriptors.values();
+
     descriptors.dispatchBeforeChange = beforeChange;
-    descriptors.forEach(function (descriptor, token, descriptors) {
+
+     while (descriptor = mapIter.next().value) {
 
         if (descriptor.isActive) {
             return;
@@ -243,7 +247,7 @@ RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, befor
             }
         }
 
-    }, this);
+    }
 };
 
 RangeChanges.prototype.addBeforeRangeChangeListener = function (listener, token) {
