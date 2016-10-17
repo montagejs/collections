@@ -84,7 +84,7 @@ GenericMap.prototype.set = function (key, value) {
             this.dispatchMapChange(key, value);
         }
     }
-    return grew;
+    return this;
 };
 
 GenericMap.prototype.add = function (value, key) {
