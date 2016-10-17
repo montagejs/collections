@@ -335,8 +335,8 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
     // assignment semantics, where we get the value from up the
     // prototype chain, and set as an owned property.
     if ('value' in overriddenDescriptor) {
-        propertyListener.get = function () {
-            return overriddenDescriptor.value;
+        propertyListener.get = function dispatchingGetter() {
+            return dispatchingGetter.overriddenDescriptor.value;
         };
         propertyListener.set = function dispatchingSetter(value) {
             var descriptor,
@@ -348,13 +348,13 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
                 if (!(isActive = descriptor.isActive)) {
                     descriptor.isActive = true;
                     try {
-                        dispatchingSetter.dispatchEach(descriptor._willChangeListeners, key, overriddenDescriptor.value, this);
+                        dispatchingSetter.dispatchEach(descriptor._willChangeListeners, dispatchingSetter.key, overriddenDescriptor.value, this);
                     } finally {}
                 }
                 overriddenDescriptor.value = value;
                 if (!isActive) {
                     try {
-                        dispatchingSetter.dispatchEach(descriptor._changeListeners, key, value, this);
+                        dispatchingSetter.dispatchEach(descriptor._changeListeners, dispatchingSetter.key, value, this);
                     } finally {
                         descriptor.isActive = false;
                     }
@@ -362,7 +362,8 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
             }
         };
         propertyListener.set.dispatchEach = dispatchEach;
-        propertyListener.set.overriddenDescriptor = overriddenDescriptor;
+        propertyListener.set.key = key;
+        propertyListener.get.overriddenDescriptor = propertyListener.set.overriddenDescriptor = overriddenDescriptor;
         propertyListener.set.descriptor = ObjectsPropertyChangeListeners.get(this)[key];
 
         propertyListener.enumerable = overriddenDescriptor.enumerable;
