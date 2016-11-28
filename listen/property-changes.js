@@ -94,7 +94,7 @@ PropertyChanges.prototype.getOwnPropertyChangeDescriptor = function (key) {
         }
         return objectPropertyChangeDescriptors[key] = new ObjectChangeDescriptor(propertyName);
     }
-    return keyChangeDescriptor;
+    else return keyChangeDescriptor;
 };
 
 PropertyChanges.prototype.hasOwnPropertyChangeDescriptor = function (key) {
@@ -344,8 +344,7 @@ PropertyChanges.prototype.makePropertyObservable = function (key) {
                 overriddenDescriptor = dispatchingSetter.overriddenDescriptor;
 
             if (value !== overriddenDescriptor.value) {
-                descriptor = dispatchingSetter.descriptor;
-                if (!(isActive = descriptor.isActive)) {
+                if (!(isActive = (descriptor = dispatchingSetter.descriptor).isActive)) {
                     descriptor.isActive = true;
                     try {
                         dispatchingSetter.dispatchEach(descriptor._willChangeListeners, dispatchingSetter.key, overriddenDescriptor.value, this);
