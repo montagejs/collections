@@ -184,7 +184,14 @@ RangeChanges.prototype.removeRangeChangeListener = function (listener, token, be
 RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, beforeChange) {
     var descriptors = this.getAllRangeChangeDescriptors(),
         descriptor,
-        mapIter  = descriptors.values();
+        mapIter  = descriptors.values(),
+        listeners,
+        tokenName,
+        i,
+        countI,
+        listener,
+        currentListeners,
+        Ghost;
 
     descriptors.dispatchBeforeChange = beforeChange;
 
@@ -195,9 +202,9 @@ RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, befor
         }
 
         // before or after
-        var listeners = beforeChange ? descriptor._willChangeListeners : descriptor._changeListeners;
+        listeners = beforeChange ? descriptor._willChangeListeners : descriptor._changeListeners;
         if(listeners && listeners._current) {
-            var tokenName = listeners.specificHandlerMethodName;
+            tokenName = listeners.specificHandlerMethodName;
             if(Array.isArray(listeners._current)) {
                 if(listeners._current.length) {
                     // notably, defaults to "handleRangeChange" or "handleRangeWillChange"
@@ -206,11 +213,8 @@ RangeChanges.prototype.dispatchRangeChange = function (plus, minus, index, befor
                     descriptor.isActive = true;
                     // dispatch each listener
                     try {
-                        var i,
-                            countI,
-                            listener,
                             //removeGostListenersIfNeeded returns listeners.current or a new filtered one when conditions are met
-                            currentListeners = listeners.removeCurrentGostListenersIfNeeded(),
+                            currentListeners = listeners.removeCurrentGostListenersIfNeeded();
                             Ghost = ListenerGhost;
                         for(i=0, countI = currentListeners.length;i<countI;i++) {
                             if ((listener = currentListeners[i]) !== Ghost) {
