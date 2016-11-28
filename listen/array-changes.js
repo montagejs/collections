@@ -13,18 +13,20 @@
  */
 
 require("../shim");
-var array_splice = Array.prototype.splice;
-var array_spliceOne = Array.prototype.spliceOne;
-var array_slice = Array.prototype.slice;
-var array_reverse = Array.prototype.reverse;
-var array_sort = Array.prototype.sort;
-var array_swap = Array.prototype.swap;
-var array_push = Array.prototype.push;
+var array_splice = Array.prototype.splice,
+    array_spliceOne = Array.prototype.spliceOne,
+    array_slice = Array.prototype.slice,
+    array_reverse = Array.prototype.reverse,
+    array_sort = Array.prototype.sort,
+    array_swap = Array.prototype.swap,
+    array_push = Array.prototype.push,
 
 // use different strategies for making arrays observable between Internet
 // Explorer and other browsers.
-var protoIsSupported = {}.__proto__ === Object.prototype;
-var array_makeObservable;
+    protoIsSupported = {}.__proto__ === Object.prototype,
+    array_makeObservable,
+    LENGTH = "length";
+
 if (protoIsSupported) {
     array_makeObservable = function () {
         this.__proto__ = ChangeDispatchArray;
@@ -165,7 +167,7 @@ var observableArrayProperties = {
             var longest = (oldLength > newLength) ? oldLength : newLength;
             // dispatch before change events
             if (diff) {
-                PropertyChanges.dispatchBeforeOwnPropertyChange(this, "length", this.length);
+                PropertyChanges.dispatchBeforeOwnPropertyChange(this, LENGTH, this.length);
             }
             this.dispatchBeforeRangeChange(plus, minus, start);
             if (diff === 0) { // substring replacement
@@ -194,7 +196,7 @@ var observableArrayProperties = {
             }
             this.dispatchRangeChange(plus, minus, start);
             if (diff) {
-                this.dispatchOwnPropertyChange("length", this.length);
+                this.dispatchOwnPropertyChange(LENGTH, this.length);
             }
 
             return result;
@@ -225,7 +227,7 @@ var observableArrayProperties = {
             //Nothhing to add so length will go down by one.
             var plus, minus, oldLength = this.length, newLength, longest, argumentsLength = arguments.length, hasOwnPropertyChangeDescriptor;
             if(argumentsLength === 1) {
-                PropertyChanges.dispatchBeforeOwnPropertyChange(this, "length", this.length);
+                PropertyChanges.dispatchBeforeOwnPropertyChange(this, LENGTH, this.length);
                 newLength = this.length - 1;
                 plus = Array.empty;
             }
@@ -266,7 +268,7 @@ var observableArrayProperties = {
             this.dispatchRangeChange(plus, minus, start);
 
             if(argumentsLength === 1) {
-                this.dispatchOwnPropertyChange("length", this.length);
+                this.dispatchOwnPropertyChange(LENGTH, this.length);
             }
 
         },
@@ -286,8 +288,55 @@ var observableArrayProperties = {
     },
     set: {
         value: function set(index, value) {
-            this._setSwapBuffer[0] = value
-            this.swap(index, index >= this.length ? 0 : 1, this._setSwapBuffer);
+            var hasValue = typeof value !== undefined,
+                diff ,
+                plus = hasValue ? [] : Array.empty,
+                minus,
+                start,
+                hasOwnPropertyChangeDescriptor;
+
+
+            if(index >= this.length) {
+                plus[index - this.length] = value;
+                diff = (index + 1) - this.length;
+                start = this.length;
+            }
+            else {
+                plus[0] = value;
+                diff = 0;
+                start = index;
+            }
+            minus = diff === 0 ? [this[index]] : Array.empty;
+
+
+            if(diff>0) {
+                PropertyChanges.dispatchBeforeOwnPropertyChange(this, LENGTH, this.length);
+            }
+            this.dispatchBeforeRangeChange(plus, minus, start);
+            if (diff === 0) { // substring replacement
+                this._dispatchBeforeOwnPropertyChange(start, 1);
+            } else if ((hasOwnPropertyChangeDescriptor = PropertyChanges.hasOwnPropertyChangeDescriptor(this))) {
+                // all subsequent values changed or shifted.
+                // avoid (longest - start) long walks if there are no
+                // registered descriptors.
+                this._dispatchBeforeOwnPropertyChange(start, diff);
+            }
+
+            this[index] = value;
+
+            // dispatch after change events
+            if (diff === 0) { // substring replacement
+                this._dispatchOwnPropertyChange(start,1);
+            } else if (hasOwnPropertyChangeDescriptor) {
+                // all subsequent values changed or shifted.
+                // avoid (longest - start) long walks if there are no
+                // registered descriptors.
+                this._dispatchOwnPropertyChange(start,diff);
+            }
+            this.dispatchRangeChange(plus, minus, start);
+            if (diff) {
+                this.dispatchOwnPropertyChange(LENGTH, this.length);
+            }
             return true;
         },
         writable: true,
@@ -322,7 +371,7 @@ var observableArrayProperties = {
             argArray = addedCount === 1 ? [arguments[0]] : Array.apply(null, arguments);
 
             if(addedCount > 0) {
-                PropertyChanges.dispatchBeforeOwnPropertyChange(this, "length", start);
+                PropertyChanges.dispatchBeforeOwnPropertyChange(this, LENGTH, start);
                 this.dispatchBeforeRangeChange(argArray, Array.empty, start);
 
                 if(hasOwnPropertyChangeDescriptor = PropertyChanges.hasOwnPropertyChangeDescriptor(this)) {
@@ -337,7 +386,7 @@ var observableArrayProperties = {
                     this._dispatchOwnPropertyChange(start,addedCount);
                 }
                 this.dispatchRangeChange(argArray,Array.empty, start);
-                this.dispatchOwnPropertyChange("length", this.length);
+                this.dispatchOwnPropertyChange(LENGTH, this.length);
             }
 
         },
