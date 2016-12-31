@@ -37,6 +37,59 @@ describe("SortedArray-spec", function () {
         });
     });
 
+    describe("incomparable values", function () {
+        function customEquals(one, two) {
+            return one.id === two.id;
+        }
+
+        function customCompare(left, right) {
+            if (left.position < right.position) {
+                return -1;
+            }
+            if (left.position > right.position) {
+                return 1;
+            }
+            return 0;
+        }
+
+        var a1 = {id: 'A', position: 1};
+        var b1 = {id: 'B', position: 1};
+        var c1 = {id: 'C', position: 1};
+
+        function createCustomArray(backingArray) {
+            // The ordering of incomparable elements is undefined.
+            // To control the underlying array it's set directly here.
+            var array = new SortedArray([], customEquals, customCompare);
+            array.array = backingArray;
+            return array;
+        }
+
+        it("should find the correct incomparable value in a streak", function () {
+            var array = createCustomArray([a1, b1, c1]);
+            expect(array.indexOf(a1)).toEqual(0);
+            expect(array.indexOf(b1)).toEqual(1);
+            expect(array.indexOf(c1)).toEqual(2);
+        });
+
+        it("should respect search direction", function () {
+            var array = createCustomArray([a1, a1, a1]);
+            expect(array.indexOf(a1)).toEqual(0);
+            expect(array.lastIndexOf(a1)).toEqual(2);
+        });
+
+        it("should work regardless of array size", function () {
+            var array = createCustomArray([]);
+            expect(array.indexOf(a1)).toEqual(-1);
+
+            array = createCustomArray([a1]);
+            expect(array.indexOf(a1)).toEqual(0);
+
+            array = createCustomArray([a1, b1]);
+            expect(array.indexOf(a1)).toEqual(0);
+            expect(array.indexOf(b1)).toEqual(1);
+        });
+    });
+
     // TODO test stability
 
 });
