@@ -17,40 +17,47 @@ module.exports = Array;
 var array_splice = Array.prototype.splice;
 var array_slice = Array.prototype.slice;
 
-Array.empty = [];
+if (!Array.empty) {
+    Array.empty = [];
 
-if (Object.freeze) {
-    Object.freeze(Array.empty);
+    if (Object.freeze) {
+        Object.freeze(Array.empty);
+    }
 }
 
-Array.from = function (values) {
-    var array = [];
-    array.addEach(values);
-    return array;
-};
+if (!Array.from) {
+    // Does not compatible with iterators
+    Array.from = function (values) {
+        var array = [];
+        array.addEach(values);
+        return array;
+    };
+}
 
-Array.unzip = function (table) {
-    var transpose = [];
-    var length = Infinity;
-    // compute shortest row
-    for (var i = 0; i < table.length; i++) {
-        var row = table[i];
-        table[i] = row.toArray();
-        if (row.length < length) {
-            length = row.length;
-        }
-    }
-    for (var i = 0; i < table.length; i++) {
-        var row = table[i];
-        for (var j = 0; j < row.length; j++) {
-            if (j < length && j in row) {
-                transpose[j] = transpose[j] || [];
-                transpose[j][i] = row[j];
+if (!Array.unzip) {
+    Array.unzip = function (table) {
+        var transpose = [];
+        var length = Infinity;
+        // compute shortest row
+        for (var i = 0; i < table.length; i++) {
+            var row = table[i];
+            table[i] = row.toArray();
+            if (row.length < length) {
+                length = row.length;
             }
         }
-    }
-    return transpose;
-};
+        for (var i = 0; i < table.length; i++) {
+            var row = table[i];
+            for (var j = 0; j < row.length; j++) {
+                if (j < length && j in row) {
+                    transpose[j] = transpose[j] || [];
+                    transpose[j][i] = row[j];
+                }
+            }
+        }
+        return transpose;
+    };
+}
 
 function define(key, value) {
     Object.defineProperty(Array.prototype, key, {
