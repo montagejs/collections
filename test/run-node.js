@@ -27,7 +27,7 @@ var consoleReporter = new JasmineConsoleReporter({
 jasmineEnv.addReporter(consoleReporter);
 
 // Execute
-var mrRequire = require('../node_modules/mr/bootstrap-node');
+var mrRequire = require('../node_modules/montage-testing/node_modules/mr/bootstrap-node');
 var PATH = require("path");
 
 mrRequire.loadPackage(PATH.join(__dirname, ".")).then(function (mr) {
