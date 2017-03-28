@@ -1,10 +1,13 @@
 language: node_js
 node_js:
-  - "0.10"
+  - "4.8.0"
+script: npm run $COMMAND
+env:
+  - COMMAND=test
 notifications:
-  irc: 
-    channels: 
+  irc:
+    channels:
       - "chat.freenode.net#montage"
     on_success: false
-    template: 
+    template:
       - "%{author} broke the %{repository} tests on %{branch}: %{build_url}"
