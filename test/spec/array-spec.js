@@ -6,7 +6,7 @@ var describeCollection = require("./collection");
 var describeOrder = require("./order");
 var describeMapChanges = require("./listen/map-changes");
 
-describe("Array", function () {
+describe("Array-spec", function () {
     describeDeque(Array.from);
     describeCollection(Array, [1, 2, 3, 4]);
     describeCollection(Array, [{id: 0}, {id: 1}, {id: 2}, {id: 3}]);

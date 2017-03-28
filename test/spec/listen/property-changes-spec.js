@@ -21,7 +21,9 @@ describe("PropertyChanges", function () {
         });
         object.x = 10;
         expect(object.x).toEqual(10);
-        expect(spy.argsForCall).toEqual([
+        
+        var argsForCall = spy.calls.all().map(function (call) { return call.args });
+        expect(argsForCall).toEqual([
             ['from', undefined, 'x'],
             ['to', 10, 'x'],
         ]);
@@ -54,7 +56,9 @@ describe("PropertyChanges", function () {
         });
         object.x = 20;
         expect(object.x).toEqual(20);
-        expect(spy.argsForCall).toEqual([
+
+        var argsForCall = spy.calls.all().map(function (call) { return call.args });
+        expect(argsForCall).toEqual([
             ['from', 10, 'x'],
             ['to', 20, 'x'], // reports no change
         ]);
@@ -129,7 +133,7 @@ describe("PropertyChanges", function () {
                 expect(key).toBe("foo");
             }
         };
-        spyOn(object, "handlePropertyChange").andCallThrough();
+        spyOn(object, "handlePropertyChange").and.callThrough();
         PropertyChanges.addOwnPropertyChangeListener(object, "foo", object);
         object.foo = 10;
         expect(object.handlePropertyChange).toHaveBeenCalled();
@@ -141,7 +145,7 @@ describe("PropertyChanges", function () {
                 expect(value).toBe(10);
             }
         };
-        spyOn(object, "handleFooChange").andCallThrough();
+        spyOn(object, "handleFooChange").and.callThrough();
         PropertyChanges.addOwnPropertyChangeListener(object, "foo", object);
         object.foo = 10;
         expect(object.handleFooChange).toHaveBeenCalled();

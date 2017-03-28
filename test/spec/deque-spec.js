@@ -4,7 +4,7 @@ var describeDeque = require("./deque");
 var describeOrder = require("./order");
 var describeToJson = require("./to-json");
 
-describe("Deque", function () {
+describe("Deque-spec", function () {
 
     it("just the facts", function () {
         var deque = new Deque();
@@ -70,7 +70,9 @@ describe("Deque", function () {
         deque.unshift(4, 5);
         deque.removeRangeChangeListener(handler);
         deque.shift();
-        expect(spy.argsForCall).toEqual([
+        
+        var argsForCall = spy.calls.all().map(function (call) { return call.args });
+        expect(argsForCall).toEqual([
             [[1], [], 0],
             [[2, 3], [], 1],
             [[], [3], 2],

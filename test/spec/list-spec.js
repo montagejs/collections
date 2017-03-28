@@ -5,7 +5,7 @@ var describeCollection = require("./collection");
 var describeRangeChanges = require("./listen/range-changes");
 var describeToJson = require("./to-json");
 
-describe("List", function () {
+describe("List-spec", function () {
     // new List()
     // List()
     // List(values)

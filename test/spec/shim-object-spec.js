@@ -11,7 +11,7 @@ require("collections/shim");
 var Dict = require("collections/dict");
 var Set = require("collections/set");
 
-describe("Object", function () {
+describe("ObjectShim-spec", function () {
 
     it("should have no enumerable properties", function () {
         expect(Object.keys(Object.prototype)).toEqual([]);
@@ -201,7 +201,9 @@ describe("Object", function () {
             });
             var instance = Object.create(Type);
             Object.set(instance, "a", 10);
-            expect(spy.argsForCall).toEqual([
+
+            var argsForCall = spy.calls.all().map(function (call) { return call.args });
+            expect(argsForCall).toEqual([
                 ["a", 10]
             ]);
         });
@@ -214,7 +216,8 @@ describe("Object", function () {
             var spy = jasmine.createSpy();
             var object = {a: 10, b: 20, c: 30};
             Object.forEach(object, spy);
-            expect(spy.argsForCall).toEqual([
+            var argsForCall = spy.calls.all().map(function (call) { return call.args });
+            expect(argsForCall).toEqual([
                 [10, "a", object],
                 [20, "b", object],
                 [30, "c", object]

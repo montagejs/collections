@@ -58,26 +58,22 @@ function describeMap(Map, values) {
         ]);
     });
 
-    describe("delete", function () {
-        it("should remove one entry", function () {
-            var map = new Map([[a, 10], [b, 20], [c, 30]]);
-            expect(map.delete(c)).toBe(true);
-            shouldHaveTheUsualContent(map);
-        });
+    it("should remove one entry", function () {
+        var map = new Map([[a, 10], [b, 20], [c, 30]]);
+        expect(map.delete(c)).toBe(true);
+        shouldHaveTheUsualContent(map);
     });
 
-    describe("clear", function () {
-        it("should be able to delete all content", function () {
-            var map = Map.from({a: 10, b: 20, c: 30});
-            map.clear();
-            expect(map.length).toBe(0);
-            expect(map.keysArray()).toEqual([]);
-            expect(map.valuesArray()).toEqual([]);
-            expect(map.entriesArray()).toEqual([]);
-        });
+    it("should be able to delete all content", function () {
+        var map = Map.from({a: 10, b: 20, c: 30});
+        map.clear();
+        expect(map.length).toBe(0);
+        expect(map.keysArray()).toEqual([]);
+        expect(map.valuesArray()).toEqual([]);
+        expect(map.entriesArray()).toEqual([]);
     });
 
-    describe("equals", function () {
+    it("should equals", function () {
         var map = Map.from({a: 10, b: 20});
         expect(Object.equals(map, map)).toBe(true);
         expect(map.equals(map)).toBe(true);
@@ -87,7 +83,7 @@ function describeMap(Map, values) {
         expect(Object.equals(Map.from({b: 20, a: 10}), Map.from({a: 10, b: 20}))).toBe(true);
     });
 
-    describe("clone", function () {
+    it("should clone", function () {
         var map = Map.from({a: 10, b: 20});
         var clone = Object.clone(map);
         expect(map).not.toBe(clone);

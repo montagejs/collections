@@ -1,7 +1,7 @@
 
 var Iterator = require("collections/iterator");
 
-describe("Iterator", function () {
+describe("Iterator-spec", function () {
 
     shouldWorkWithConstructor(function withoutNew(iterable) {
         return Iterator(iterable);

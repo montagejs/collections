@@ -3,7 +3,7 @@ var Heap = require("collections/heap");
 var permute = require("./permute");
 var describeToJson = require("./to-json");
 
-describe("Heap", function () {
+describe("Heap-spec", function () {
 
     describeToJson(Heap, [4, 3, 2, 1]);
 

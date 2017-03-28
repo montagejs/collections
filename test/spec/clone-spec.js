@@ -2,7 +2,7 @@
 var Set = require("collections/set");
 var Map = require("collections/map");
 
-describe("clone", function () {
+describe("Clone-spec", function () {
 
     it("should deeply clone custom collections", function () {
         var a = new Set([new Map([["a",{}]])]);

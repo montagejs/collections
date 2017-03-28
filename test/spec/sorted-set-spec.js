@@ -8,7 +8,7 @@ var describeSet = require("./set");
 var describeToJson = require("./to-json");
 var Fuzz = require("./fuzz");
 
-describe("SortedSet", function () {
+describe("SortedSet-spec", function () {
 
 
     // TODO SortedSet compare and equals argument overrides

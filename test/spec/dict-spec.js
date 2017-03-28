@@ -3,7 +3,7 @@ var Dict = require("collections/dict");
 var describeDict = require("./dict");
 var describeToJson = require("./to-json");
 
-describe("Dict", function () {
+describe("Dict-spec", function () {
     describeDict(Dict);
     describeToJson(Dict, {a: 1, b: 2, c: 3});
 

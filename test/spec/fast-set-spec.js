@@ -8,7 +8,7 @@ var describeCollection = require("./collection");
 var describeSet = require("./set");
 var describeToJson = require("./to-json");
 
-describe("Set", function () {
+describe("Set-spec", function () {
     // new Set()
     // Set()
     // Set(values)

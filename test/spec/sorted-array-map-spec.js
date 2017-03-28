@@ -5,7 +5,7 @@ var describeMap = require("./map");
 var describeMapChanges = require("./listen/map-changes");
 var describeToJson = require("./to-json");
 
-describe("SortedArrayMap", function () {
+describe("SortedArrayMap-spec", function () {
     describeDict(SortedArrayMap);
     describeMap(SortedArrayMap, [1, 2, 3]);
     describeMapChanges(SortedArrayMap);

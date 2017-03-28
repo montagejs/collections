@@ -1,7 +1,7 @@
 
 require("collections/shim-array");
 
-describe("Array", function () {
+describe("ArrayShim-spec", function () {
 
     describe("clone", function () {
 

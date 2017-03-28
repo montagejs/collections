@@ -245,29 +245,10 @@ function describeDeque(Deque) {
         });
     });
 
+    
     if (!Deque.prototype.isSorted) {
-        //fuzzDeque(Deque);
+        fuzzDeque(Deque);
     }
-
-    describe("peek and poke", function () {
-        if (!Deque.prototype.poke && !Deque.prototype.peek)
-            return;
-        var deque = Deque([1, 2, 3, 4, 5, 6, 7, 8]);
-        expect(deque.peek()).toBe(1);
-        expect(deque.poke(2)).toBe(undefined);
-        expect(deque.shift()).toBe(2);
-        expect(deque.peek()).toBe(2);
-    });
-
-    describe("peekBack and pokeBack", function () {
-        if (!Deque.prototype.pokeBack && !Deque.prototype.peekBack)
-            return;
-        var deque = Deque([1, 2, 3, 4, 5, 6, 7, 8]);
-        expect(deque.peekBack()).toBe(8);
-        expect(deque.pokeBack(9)).toBe(undefined);
-        expect(deque.pop()).toBe(9);
-        expect(deque.peekBack()).toBe(7);
-    });
 
     // TODO peekBack
     // TODO pokeBack
@@ -275,6 +256,28 @@ function describeDeque(Deque) {
     // from https://github.com/petkaantonov/deque
 
     describe("peek", function () {
+
+
+        if (Deque.prototype.poke && Deque.prototype.peek) {
+            it("peek and poke", function () {
+                var deque = Deque([1, 2, 3, 4, 5, 6, 7, 8]);
+                expect(deque.peek()).toBe(1);
+                expect(deque.poke(2)).toBe(undefined);
+                expect(deque.shift()).toBe(2);
+                expect(deque.peek()).toBe(2);
+            });
+        }
+
+        if (Deque.prototype.pokeBack && Deque.prototype.peekBack) {
+            it("peekBack and pokeBack", function () {
+                var deque = Deque([1, 2, 3, 4, 5, 6, 7, 8]);
+                expect(deque.peekBack()).toBe(8);
+                expect(deque.pokeBack(9)).toBe(undefined);
+                expect(deque.pop()).toBe(9);
+                expect(deque.peekBack()).toBe(7);
+            });
+        }
+
         if (!Deque.prototype.peek)
             return;
 

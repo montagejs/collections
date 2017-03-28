@@ -6,7 +6,7 @@ var describeMap = require("./map");
 var describeMapChanges = require("./listen/map-changes");
 var describeToJson = require("./to-json");
 
-describe("Map", function () {
+describe("Map-spec", function () {
     describeDict(Map);
     describeMap(Map);
     describeMapChanges(Map);

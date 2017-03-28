@@ -4,27 +4,25 @@ var Iterator = require("collections/iterator");
 module.exports = describeSet;
 function describeSet(Set, sorted) {
 
-    describe("uniqueness", function () {
+    it("uniqueness", function () {
         var set = Set.from([1, 2, 3, 1, 2, 3]);
         expect(set.toArray().sort()).toEqual([1, 2, 3]);
     });
 
-    describe("forEach", function () {
-        it("the callback should receive value, value, set", function () {
-            var set = Set.from([1, 2, 3]);
-            var other = Set.from([]);
-            var i = 1;
-            set.forEach(function (value, key, object) {
-                expect(key).toBe(value);
-                i++;
-                other.add(value);
-                expect(object).toBe(set);
-            });
-            expect(other.length).toBe(3);
-            expect(other.union(set).length).toBe(3);
-            expect(other.intersection(set).length).toBe(3);
-            expect(other.difference(set).length).toBe(0);
+    it("the callback should receive value, value, set", function () {
+        var set = Set.from([1, 2, 3]);
+        var other = Set.from([]);
+        var i = 1;
+        set.forEach(function (value, key, object) {
+            expect(key).toBe(value);
+            i++;
+            other.add(value);
+            expect(object).toBe(set);
         });
+        expect(other.length).toBe(3);
+        expect(other.union(set).length).toBe(3);
+        expect(other.intersection(set).length).toBe(3);
+        expect(other.difference(set).length).toBe(0);
     });
 
     it("should be initially empty", function () {

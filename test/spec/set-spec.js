@@ -6,7 +6,7 @@ var describeSet = require("./set");
 Set._setupCollectionSet();
 var CollectionsSet = Set.CollectionsSet;
 
-describe("CollectionsSet", function () {
+describe("CollectionsSet-spec", function () {
     var Set = CollectionsSet;
     describeCollection(Set, [1, 2, 3, 4], true);
     describeCollection(Set, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
@@ -94,7 +94,7 @@ describe("CollectionsSet", function () {
 
 });
 
-describe("Set", function () {
+describe("Set-spec", function () {
     describeCollection(Set, [1, 2, 3, 4], false);
     describeCollection(Set, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], false);
     describeSet(Set);

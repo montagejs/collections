@@ -3,11 +3,11 @@ var SortedMap = require("collections/sorted-map");
 var describeDict = require("./dict");
 var describeToJson = require("./to-json");
 
-describe("SortedMap", function () {
+describe("SortedMap-spec", function () {
     describeDict(SortedMap);
     describeToJson(SortedMap, [[1, 10], [2, 20], [3, 30]]);
 
-    describe("reduceRight", function () {
+    it("should reduceRight", function () {
         var map = SortedMap([
             [1, 2],
             [2, 4],
@@ -19,7 +19,7 @@ describe("SortedMap", function () {
         }, true)).toBe(true);
     });
 
-    describe("iterator", function () {
+    it("should iterate", function () {
         var map = SortedMap([
             [1, 2],
             [2, 4],
@@ -39,7 +39,5 @@ describe("SortedMap", function () {
         expect(c.value).toEqual(6);
         expect(d.key).toEqual(4);
         expect(d.value).toEqual(8);
-
     });
-
 });

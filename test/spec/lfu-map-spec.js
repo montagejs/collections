@@ -4,7 +4,7 @@ var describeDict = require("./dict");
 var describeMap = require("./map");
 var describeToJson = require("./to-json");
 
-describe("LfuMap", function () {
+describe("LfuMap-spec", function () {
 
     describeDict(LfuMap);
     describeMap(LfuMap);
@@ -73,7 +73,9 @@ describe("LfuMap", function () {
             spy('after', key, value);
         });
         map.set('d', 40);
-        expect(spy.argsForCall).toEqual([
+        
+        var argsForCall = spy.calls.all().map(function (call) { return call.args });
+        expect(argsForCall).toEqual([
             ['before', 'd', undefined], // d will be added
             ['before', 'a', undefined], // then a is pruned (stale)
             ['after', 'a', undefined],  // afterwards a is still pruned

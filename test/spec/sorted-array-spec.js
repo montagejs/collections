@@ -5,7 +5,7 @@ var describeDeque = require("./deque");
 var describeOrder = require("./order");
 var describeToJson = require("./to-json");
 
-describe("SortedArray", function () {
+describe("SortedArray-spec", function () {
 
 
     describeDeque(SortedArray);

@@ -4,7 +4,7 @@ var describeCollection = require("./collection");
 var describeSet = require("./set");
 var describeToJson = require("./to-json");
 
-describe("LruSet", function () {
+describe("LruSet-spec", function () {
 
     // construction, has, add, get, delete
     describeCollection(LruSet, [1, 2, 3, 4], true);
@@ -43,7 +43,9 @@ describe("LruSet", function () {
             spy('after-minus', minus);
         });
         expect(set.add(4)).toBe(false);
-        expect(spy.argsForCall).toEqual([
+
+        var argsForCall = spy.calls.all().map(function (call) { return call.args });
+        expect(argsForCall).toEqual([
             ['before-plus', [4]],
             ['before-minus', [1]],
             ['after-plus', [4]],
