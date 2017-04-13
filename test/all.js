@@ -1,5 +1,5 @@
 console.log('montage-testing', 'Start');
-require("montage-testing").run(require, [
+module.exports = require("montage-testing").run(require, [
     "spec/array-spec",
 	"spec/clone-spec",
 	"spec/deque-spec",

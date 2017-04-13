@@ -36,7 +36,7 @@
     "weak-map": "~1.0.x"
   },
   "devDependencies": {
-    "montage-testing": "hthetiot/montage-testing#upgrade",
+    "montage-testing": "git://github.com/montagejs/montage-testing#master",
     "jasmine-console-reporter": "^1.2.7",
     "jasmine-core": "^2.5.2",
     "karma": "^1.5.0",

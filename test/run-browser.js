@@ -1,5 +1,12 @@
+/* global global:true,  __dirname, jasmineRequire */
+
+/*jshint evil:true */
+// reassigning causes eval to not use lexical scope.
+var globalEval = eval,
+    global = globalEval('this');
+/*jshint evil:false */
+
 // Init
-var global = typeof window !== 'undefined' ? window : eval('this');
 var jasmine = jasmineRequire.core(jasmineRequire);
 var jasmineEnv = jasmine.getEnv();
 
@@ -7,7 +14,9 @@ var jasmineEnv = jasmine.getEnv();
 var jasmineInterface = jasmineRequire.interface(jasmine, jasmineEnv);
 global.jasmine = jasmine;
 for (var property in jasmineInterface) {
-    global[property] = jasmineInterface[property];
+    if (jasmineInterface.hasOwnProperty(property)) {
+       global[property] = jasmineInterface[property];
+    }
 }   
 
 //
@@ -22,21 +31,21 @@ function queryString(parameter) {
         equalSign = params[i].indexOf('=');
         if (equalSign < 0) {
             key = params[i];
-            if (key == parameter) {
+            if (key === parameter) {
                 value = true;
                 break;
             }
         }
         else {
             key = params[i].substring(0, equalSign);
-            if (key == parameter) {
+            if (key === parameter) {
                 value = decodeURIComponent(params[i].substring(equalSign+1));
                 break;
             }
         }
     }
     return value;
-};
+}
 
 function insertParam(key, value) {
     key = encodeURI(key); 
