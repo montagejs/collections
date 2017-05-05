@@ -1,0 +1,32 @@
+{
+    "bitwise": true,
+    "camelcase": true,
+    "curly": true,
+    "eqeqeq": true,
+    "forin": true,
+    "noarg": true,
+    "noempty": true,
+    "nonew": true,
+    "undef": true,
+    "unused": "paramsignore",
+    "trailing": true,
+    "indent": 4,
+    "boss": true,
+    "eqnull": true,
+    "browser": true,
+    "globals": {
+        "CustomEvent": true,
+        "WebSocket": false,
+
+        "require": false,
+        "exports": false,
+        "module": false,
+        "global": false,
+
+        "WeakMap": true,
+        "Map": true,
+        "Set": true,
+
+        "console": false
+    }
+}
