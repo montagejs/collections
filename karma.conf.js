@@ -15,7 +15,7 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-
+        'test/run-karma.js',
         {
             pattern: 'package.json',
             included: false
@@ -51,8 +51,7 @@ module.exports = function(config) {
         {
             pattern: 'node_modules/**/*.js',
             included: false
-        },
-        'test/run-karma.js'
+        }
     ],
 
     // list of files to exclude
@@ -90,8 +89,23 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
+    //browsers: ['PhantomJS', 'Chrome', 'Firefox', 'Safari'],
     browsers: ['PhantomJS'],
-    //browsers: [],
+
+    // you can define custom flags
+    customLaunchers: {
+      'PhantomJS_debug': {
+        base: 'PhantomJS',
+        options: {
+          windowName: 'my-window',
+          settings: {
+            webSecurityEnabled: false
+          },
+        },
+        flags: ['--load-images=true'],
+        debug: true
+      }
+    },
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
