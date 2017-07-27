@@ -5,7 +5,7 @@
 //Use ObjectChangeDescriptor to avoid creating useless arrays and benefit from similar gains made in property-changes
 
 
-var WeakMap = require("weak-map"),
+var WeakMap = require("../weak-map"),
     Map = require("../_map"),
     ChangeDescriptor = require("./change-descriptor"),
     ObjectChangeDescriptor = ChangeDescriptor.ObjectChangeDescriptor,

@@ -1,1 +1,2 @@
-module.exports = (global.WeakMap !== void 0) ? global.WeakMap : require("weak-map");
+
+module.exports = (typeof WeakMap !== 'undefined') ? WeakMap : require("weak-map");

@@ -8,5 +8,5 @@ collections.cat.js
 collections.min.js
 /coverage
 /demo
-/minify
-/spec
+/test
+/report
