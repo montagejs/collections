@@ -55,9 +55,9 @@
     "test": "node test/run-node.js",
     "integration": "mop-integration",
     "test:karma": "karma start --no-auto-watch --single-run",
-    "test:karma-debug": "karma start --no-auto-watch --single-run --browsers=PhantomJS_debug",
     "test:karma-firefox": "karma start --no-auto-watch --single-run --browsers=Firefox",
     "test:karma-chrome": "karma start --no-auto-watch --single-run --browsers=Chrome",
+    "test:karma-debug": "karma start --auto-watch --no-single-run --browsers=PhantomJS_debug",
     "test:karma-dev": "karma start --auto-watch --no-single-run --capture",
     "test:jasmine": "concurrently \"http-server -a localhost -p 8085\" \"open http://localhost:8085/test/run.html\""
   }
