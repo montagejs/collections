@@ -1,7 +1,5 @@
 #!/usr/bin/env node --harmony_collections
 
-var WeakMap = require("../weak-map");
-
 if (/native/.test(WeakMap.toString())) {
     console.log("Using native WeakMap");
 } else {

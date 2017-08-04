@@ -4,7 +4,7 @@
     https://github.com/montagejs/montage/blob/master/LICENSE.md
 */
 
-var Map = require("../_map");
+require("../shim");
 
 var ObjectChangeDescriptor = module.exports.ObjectChangeDescriptor = function ObjectChangeDescriptor(name) {
     this.name = name;

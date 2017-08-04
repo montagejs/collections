@@ -5,11 +5,18 @@
   "homepage": "http://www.collectionsjs.com",
   "author": "Kris Kowal <kris@cixar.com> (http://github.com/kriskowal)",
   "contributors": [
-   {
-     "name": "Benoit Marchant"
-   }
- ],
- "keywords": [
+    {
+      "name": "Benoit Marchant"
+    },
+    {
+      "name": "Harold Thetiot"
+    }
+  ],
+  "engines": {
+    "node": "4.8.0",
+    "npm": "2.15.11"
+  },
+  "keywords": [
     "collections",
     "data structures",
     "observable",
@@ -33,27 +40,28 @@
     "type": "git",
     "url": "http://github.com/montagejs/collections.git"
   },
-  "dependencies": {
-    "weak-map": "~1.0.x"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "montage-testing": "git://github.com/montagejs/montage-testing#master",
+    "concurrently": "^3.4.0",
+    "http-server": "^0.9.0",
     "jasmine-console-reporter": "^1.2.7",
     "jasmine-core": "^2.5.2",
+    "jshint": "^2.9.5",
     "karma": "^1.5.0",
     "karma-chrome-launcher": "^2.0.0",
     "karma-coverage": "^1.1.1",
     "karma-firefox-launcher": "^1.0.1",
     "karma-jasmine": "^1.1.0",
     "karma-phantomjs-launcher": "^1.0.2",
+    "montage-testing": "git://github.com/montagejs/montage-testing#master",
     "mop-integration": "git://github.com/montagejs/mop-integration.git#master",
-    "concurrently": "^3.4.0",
-    "http-server": "^0.9.0",
+    "mr": "^17.0.7",
     "open": "0.0.5"
   },
   "scripts": {
     "test": "node test/run-node.js",
     "integration": "mop-integration",
+    "lint": "jshint .",
     "test:karma": "karma start --no-auto-watch --single-run",
     "test:karma-firefox": "karma start --no-auto-watch --single-run --browsers=Firefox",
     "test:karma-chrome": "karma start --no-auto-watch --single-run --browsers=Chrome",

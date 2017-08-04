@@ -63,8 +63,7 @@ function PropertyChanges() {
 }
 
 require("../shim");
-var Map = require("../_map");
-var WeakMap = require("../weak-map");
+
 var ChangeDescriptor = require("./change-descriptor"),
     ObjectChangeDescriptor = ChangeDescriptor.ObjectChangeDescriptor,
     ListenerGhost = ChangeDescriptor.ListenerGhost;

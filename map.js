@@ -1,6 +1,6 @@
 "use strict";
 
-var Map = require("./_map");
+require("./shim");
 var PropertyChanges = require("./listen/property-changes");
 var MapChanges = require("./listen/map-changes");
 

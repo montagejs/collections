@@ -34,7 +34,6 @@
             sorted-map.js \
             sorted-set.js \
             tree-log.js \
-            weak-map.js \
 
     echo '})(this);'
 ) > collections.cat.js

@@ -1,7 +1,5 @@
 "use strict";
 
-var WeakMap = require("./weak-map");
-
 module.exports = Object;
 
 /*

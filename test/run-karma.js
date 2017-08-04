@@ -76,7 +76,7 @@ function injectScript(src, module, callback) {
     var script = document.createElement('script');
     script.async = true;
     script.src = src;
-    script.setAttribute('data-promise-location', "../node_modules/montage-testing/node_modules/montage/node_modules/bluebird/js/browser/bluebird.js")
+    script.setAttribute('data-promise-location', "../node_modules/mr/node_modules/bluebird/js/browser/bluebird.js");
     script.setAttribute('data-module', module);
     script.addEventListener('load', function () {
         callback(null, module);
@@ -97,7 +97,7 @@ function injectBase(href) {
 }
 
 injectBase('/base/test/');
-injectScript('../node_modules/montage-testing/node_modules/montage/node_modules/mr/bootstrap.js', 'all', function (err) {
+injectScript('../node_modules/node_modules/mr/bootstrap.js', 'all', function (err) {
     if (err) {
         throw err;
     }
