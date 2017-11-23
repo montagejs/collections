@@ -1,1 +1,2 @@
-module.exports = require("weak-map");
+
+module.exports = (typeof WeakMap !== 'undefined') ? WeakMap : require("weak-map");

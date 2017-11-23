@@ -5,8 +5,19 @@ function GenericCollection() {
     throw new Error("Can't construct. GenericCollection is a mixin.");
 }
 
+var DOMTokenList = global.DOMTokenList || function(){};
+
+GenericCollection.EmptyArray = Object.freeze([]);
+
+/* TODO: optimize for DOMTokenList and Array to use for() instead of forEach */
 GenericCollection.prototype.addEach = function (values) {
-    if (values && Object(values) === values) {
+    //We want to eliminate everything but array like: Strings, Arrays, DOMTokenList
+    if(values && (values instanceof Array || (values instanceof DOMTokenList) || values instanceof String)) {
+        for (var i = 0; i < values.length; i++) {
+            this.add(values[i], i);
+        }
+    }
+    else if (values && Object(values) === values) {
         if (typeof values.forEach === "function") {
             values.forEach(this.add, this);
         } else if (typeof values.length === "number") {
@@ -19,11 +30,6 @@ GenericCollection.prototype.addEach = function (values) {
             Object.keys(values).forEach(function (key) {
                 this.add(values[key], key);
             }, this);
-        }
-    } else if (values && typeof values.length === "number") {
-        // Strings
-        for (var i = 0; i < values.length; i++) {
-            this.add(values[i], i);
         }
     }
     return this;
@@ -102,6 +108,10 @@ GenericCollection.prototype.toObject = function () {
         object[key] = value;
     }, undefined);
     return object;
+};
+
+GenericCollection.from = function () {
+    return this.apply(this,arguments);
 };
 
 GenericCollection.prototype.filter = function (callback /*, thisp*/) {
@@ -267,5 +277,14 @@ GenericCollection.prototype.iterator = function () {
     return this.iterate.apply(this, arguments);
 };
 
-require("./shim-array");
+GenericCollection._sizePropertyDescriptor = {
+    get: function() {
+        return this.length;
+    },
+    enumerable: false,
+    configurable: true
+};
 
+Object.defineProperty(GenericCollection.prototype,"size",GenericCollection._sizePropertyDescriptor);
+
+require("./shim-array");

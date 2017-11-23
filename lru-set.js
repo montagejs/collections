@@ -1,7 +1,7 @@
 "use strict";
 
 var Shim = require("./shim");
-var Set = require("./set");
+var Set = require("./set").CollectionsSet;
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
 var PropertyChanges = require("./listen/property-changes");
@@ -32,6 +32,8 @@ Object.addEach(LruSet.prototype, GenericCollection.prototype);
 Object.addEach(LruSet.prototype, GenericSet.prototype);
 Object.addEach(LruSet.prototype, PropertyChanges.prototype);
 Object.addEach(LruSet.prototype, RangeChanges.prototype);
+Object.defineProperty(LruSet.prototype,"size",GenericCollection._sizePropertyDescriptor);
+LruSet.from = GenericCollection.from;
 
 LruSet.prototype.constructClone = function (values) {
     return new this.constructor(
@@ -145,4 +147,3 @@ LruSet.prototype.reduceRight = function (callback, basis /*, thisp*/) {
 LruSet.prototype.iterate = function () {
     return this.store.iterate();
 };
-

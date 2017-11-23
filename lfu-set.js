@@ -3,7 +3,7 @@
 // Based on http://dhruvbird.com/lfu.pdf
 
 var Shim = require("./shim");
-var Set = require("./set");
+var Set = require("./set").CollectionsSet;
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
 var PropertyChanges = require("./listen/property-changes");
@@ -46,6 +46,8 @@ Object.addEach(LfuSet.prototype, GenericCollection.prototype);
 Object.addEach(LfuSet.prototype, GenericSet.prototype);
 Object.addEach(LfuSet.prototype, PropertyChanges.prototype);
 Object.addEach(LfuSet.prototype, RangeChanges.prototype);
+Object.defineProperty(LfuSet.prototype,"size",GenericCollection._sizePropertyDescriptor);
+LfuSet.from = GenericCollection.from;
 
 LfuSet.prototype.constructClone = function (values) {
     return new this.constructor(
@@ -243,4 +245,3 @@ function FrequencyNode(frequency, prev, next) {
         next.prev = this;
     }
 }
-

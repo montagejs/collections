@@ -28,6 +28,8 @@ Object.addEach(Deque.prototype, GenericCollection.prototype);
 Object.addEach(Deque.prototype, GenericOrder.prototype);
 Object.addEach(Deque.prototype, RangeChanges.prototype);
 
+Deque.from = GenericCollection.from;
+
 Deque.prototype.maxCapacity = (1 << 30) | 0;
 Deque.prototype.minCapacity = 16;
 
@@ -439,4 +441,3 @@ function pow2AtLeast(n) {
     n = n | (n >> 16);
     return n + 1;
 }
-

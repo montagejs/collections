@@ -1,72 +1,40 @@
 "use strict";
 
-module.exports = List;
 
-var Shim = require("./shim");
-var GenericCollection = require("./generic-collection");
-var GenericOrder = require("./generic-order");
+var _List = require("./_list");
 var PropertyChanges = require("./listen/property-changes");
 var RangeChanges = require("./listen/range-changes");
 
+module.exports = List;
+
 function List(values, equals, getDefault) {
-    if (!(this instanceof List)) {
-        return new List(values, equals, getDefault);
-    }
-    var head = this.head = new this.Node();
-    head.next = head;
-    head.prev = head;
-    this.contentEquals = equals || Object.equals;
-    this.getDefault = getDefault || Function.noop;
-    this.length = 0;
-    this.addEach(values);
+    return _List._init(List, this, values, equals, getDefault);
 }
-
+List.prototype = new _List();
+List.prototype.constructor = List;
 List.List = List; // hack so require("list").List will work in MontageJS
+List.from = _List.from;
 
-Object.addEach(List.prototype, GenericCollection.prototype);
-Object.addEach(List.prototype, GenericOrder.prototype);
 Object.addEach(List.prototype, PropertyChanges.prototype);
 Object.addEach(List.prototype, RangeChanges.prototype);
 
-List.prototype.constructClone = function (values) {
-    return new this.constructor(values, this.contentEquals, this.getDefault);
+List.prototype.makeObservable = function () {
+    this.head.index = -1;
+    this.updateIndexes(this.head.next, 0);
+    this.dispatchesRangeChanges = true;
 };
 
-List.prototype.find = function (value, equals, index) {
-    equals = equals || this.contentEquals;
-    var head = this.head;
-    var at = this.scan(index, head.next);
-    while (at !== head) {
-        if (equals(at.value, value)) {
-            return at;
-        }
-        at = at.next;
+Object.defineProperties(List.prototype, {
+    "_dispatchEmptyArray": {
+        value: []
     }
-};
+});
 
-List.prototype.findLast = function (value, equals, index) {
-    equals = equals || this.contentEquals;
-    var head = this.head;
-    var at = this.scan(index, head.prev);
-    while (at !== head) {
-        if (equals(at.value, value)) {
-            return at;
-        }
-        at = at.prev;
-    }
-};
-
-List.prototype.has = function (value, equals) {
-    return !!this.find(value, equals);
-};
-
-List.prototype.get = function (value, equals) {
-    var found = this.find(value, equals);
-    if (found) {
-        return found.value;
-    }
-    return this.getDefault(value);
-};
+/*
+var list_clear = _List.prototype.clear,
+    set_add = GlobalSet.prototype.add,
+    set_delete = GlobalSet.prototype.delete;
+*/
 
 // LIFO (delete removes the most recently added equivalent value)
 List.prototype["delete"] = function (value, equals) {
@@ -88,22 +56,12 @@ List.prototype["delete"] = function (value, equals) {
     return false;
 };
 
-List.prototype.deleteAll = function (value, equals) {
-    equals = equals || this.contentEquals;
-    var head = this.head;
-    var at = head.next;
-    var count = 0;
-    while (at !== head) {
-        if (equals(value, at.value)) {
-            at["delete"]();
-            count++;
-        }
-        at = at.next;
-    }
-    this.length -= count;
-    return count;
-};
-
+Object.defineProperty(List.prototype, "superClear", {
+    value: _List.prototype.clear,
+    enumerable: false,
+    configurable: true,
+    writable:true
+});
 List.prototype.clear = function () {
     var plus, minus;
     if (this.dispatchesRangeChanges) {
@@ -111,8 +69,7 @@ List.prototype.clear = function () {
         plus = [];
         this.dispatchBeforeRangeChange(plus, minus, 0);
     }
-    this.head.next = this.head.prev = this.head;
-    this.length = 0;
+    this.superClear();
     if (this.dispatchesRangeChanges) {
         this.dispatchRangeChange(plus, minus, 0);
     }
@@ -124,16 +81,23 @@ List.prototype.add = function (value) {
         node.index = this.length;
         this.dispatchBeforeRangeChange([value], [], node.index);
     }
-    this.head.addBefore(node);
-    this.length++;
+
+    this._addNode(node);
+
     if (this.dispatchesRangeChanges) {
         this.dispatchRangeChange([value], [], node.index);
     }
     return true;
 };
 
+Object.defineProperty(List.prototype, "superPush", {
+    value: _List.prototype.push,
+    enumerable: false,
+    configurable: true,
+    writable:true
+});
+
 List.prototype.push = function () {
-    var head = this.head;
     if (this.dispatchesRangeChanges) {
         var plus = Array.prototype.slice.call(arguments);
         var minus = []
@@ -141,17 +105,25 @@ List.prototype.push = function () {
         this.dispatchBeforeRangeChange(plus, minus, index);
         var start = this.head.prev;
     }
-    for (var i = 0; i < arguments.length; i++) {
-        var value = arguments[i];
-        var node = new this.Node(value);
-        head.addBefore(node);
-    }
-    this.length += arguments.length;
+
+    arguments.length === 1
+    ? this.superPush.call(this, arguments[0])
+    : (arguments.length === 2)
+        ? this.superPush.call(this, arguments[0],  arguments[1])
+        : this.superPush.apply(this, arguments);
+
     if (this.dispatchesRangeChanges) {
         this.updateIndexes(start.next, start.index === undefined ? 0 : start.index + 1);
         this.dispatchRangeChange(plus, minus, index);
     }
 };
+
+Object.defineProperty(List.prototype, "superUnshift", {
+    value: _List.prototype.unshift,
+    enumerable: false,
+    configurable: true,
+    writable:true
+});
 
 List.prototype.unshift = function () {
     if (this.dispatchesRangeChanges) {
@@ -159,301 +131,140 @@ List.prototype.unshift = function () {
         var minus = [];
         this.dispatchBeforeRangeChange(plus, minus, 0);
     }
-    var at = this.head;
-    for (var i = 0; i < arguments.length; i++) {
-        var value = arguments[i];
-        var node = new this.Node(value);
-        at.addAfter(node);
-        at = node;
-    }
-    this.length += arguments.length;
+
+    arguments.length === 1
+    ? this.superUnshift.call(this, arguments[0])
+    : (arguments.length === 2)
+        ? this.superUnshift.call(this, arguments[0],  arguments[1])
+        : this.superUnshift.apply(this, arguments);
+
     if (this.dispatchesRangeChanges) {
         this.updateIndexes(this.head.next, 0);
         this.dispatchRangeChange(plus, minus, 0);
     }
 };
 
+Object.defineProperty(List.prototype, "_beforePop", {
+    value: function(value, index) {
+        var popDispatchValueArray;
+        if (this.dispatchesRangeChanges) {
+            popDispatchValueArray = [value];
+            this.dispatchBeforeRangeChange(/*plus*/this._dispatchEmptyArray, /*minus*/popDispatchValueArray, index);
+        }
+        return popDispatchValueArray;
+    },
+    enumerable: false,
+    configurable: true,
+    writable:true
+});
+Object.defineProperty(List.prototype, "_afterPop", {
+    value: function(value, index, popDispatchValueArray) {
+        if (this.dispatchesRangeChanges) {
+            this.dispatchRangeChange(/*plus*/this._dispatchEmptyArray, /*minus*/popDispatchValueArray, index);
+        }
+    },
+    enumerable: false,
+    configurable: true,
+    writable:true
+});
+Object.defineProperty(List.prototype, "superPop", {
+    value: _List.prototype.pop,
+    enumerable: false,
+    configurable: true,
+    writable:true
+});
+
 List.prototype.pop = function () {
-    var value;
-    var head = this.head;
-    if (head.prev !== head) {
-        value = head.prev.value;
-        if (this.dispatchesRangeChanges) {
-            var plus = [];
-            var minus = [value];
-            var index = this.length - 1;
-            this.dispatchBeforeRangeChange(plus, minus, index);
-        }
-        head.prev['delete']();
-        this.length--;
-        if (this.dispatchesRangeChanges) {
-            this.dispatchRangeChange(plus, minus, index);
-        }
-    }
-    return value;
+    return this.superPop(this._beforePop,this._afterPop);
 };
 
+Object.defineProperty(List.prototype, "_beforeShift", {
+    value: function(value, index) {
+        var dispatchValueArray;
+        if (this.dispatchesRangeChanges) {
+            dispatchValueArray = [value];
+            this.dispatchBeforeRangeChange(/*plus*/this._dispatchEmptyArray, /*minus*/dispatchValueArray, index);
+        }
+        return dispatchValueArray;
+    },
+    enumerable: false,
+    configurable: true,
+    writable:true
+});
+Object.defineProperty(List.prototype, "_afterShift", {
+    value: function(value, index, dispatchValueArray) {
+        if (this.dispatchesRangeChanges) {
+            this.updateIndexes(this.head.next, index);
+            this.dispatchRangeChange(/*plus*/this._dispatchEmptyArray, /*minus*/dispatchValueArray, index);
+        }
+    },
+    enumerable: false,
+    configurable: true,
+    writable:true
+});
+Object.defineProperty(List.prototype, "superShift", {
+    value: _List.prototype.shift,
+    enumerable: false,
+    configurable: true,
+    writable:true
+});
 List.prototype.shift = function () {
-    var value;
-    var head = this.head;
-    if (head.prev !== head) {
-        value = head.next.value;
-        if (this.dispatchesRangeChanges) {
-            var plus = [];
-            var minus = [value];
-            this.dispatchBeforeRangeChange(plus, minus, 0);
-        }
-        head.next['delete']();
-        this.length--;
-        if (this.dispatchesRangeChanges) {
-            this.updateIndexes(this.head.next, 0);
-            this.dispatchRangeChange(plus, minus, 0);
-        }
-    }
-    return value;
+    return this.superShift(this._beforeShift,this._afterShift);
 };
 
-List.prototype.peek = function () {
-    if (this.head !== this.head.next) {
-        return this.head.next.value;
-    }
-};
-
-List.prototype.poke = function (value) {
-    if (this.head !== this.head.next) {
-        this.head.next.value = value;
-    } else {
-        this.push(value);
-    }
-};
-
-List.prototype.one = function () {
-    return this.peek();
-};
-
-// TODO
-// List.prototype.indexOf = function (value) {
-// };
-
-// TODO
-// List.prototype.lastIndexOf = function (value) {
-// };
-
-// an internal utility for coercing index offsets to nodes
-List.prototype.scan = function (at, fallback) {
-    var head = this.head;
-    if (typeof at === "number") {
-        var count = at;
-        if (count >= 0) {
-            at = head.next;
-            while (count) {
-                count--;
-                at = at.next;
-                if (at == head) {
-                    break;
-                }
-            }
-        } else {
-            at = head;
-            while (count < 0) {
-                count++;
-                at = at.prev;
-                if (at == head) {
-                    break;
-                }
-            }
-        }
-        return at;
-    } else {
-        return at || fallback;
-    }
-};
-
-// at and end may both be positive or negative numbers (in which cases they
-// correspond to numeric indicies, or nodes)
-List.prototype.slice = function (at, end) {
-    var sliced = [];
-    var head = this.head;
-    at = this.scan(at, head.next);
-    end = this.scan(end, head);
-
-    while (at !== end && at !== head) {
-        sliced.push(at.value);
-        at = at.next;
-    }
-
-    return sliced;
-};
-
-List.prototype.splice = function (at, length /*...plus*/) {
-    return this.swap(at, length, Array.prototype.slice.call(arguments, 2));
-};
-
+Object.defineProperty(List.prototype, "superSwap", {
+    value: _List.prototype.swap,
+    enumerable: false,
+    configurable: true,
+    writable:true
+});
 List.prototype.swap = function (start, length, plus) {
-    var initial = start;
-    // start will be head if start is null or -1 (meaning from the end), but
-    // will be head.next if start is 0 (meaning from the beginning)
-    start = this.scan(start, this.head);
-    if (length == null) {
-        length = Infinity;
-    }
-    plus = Array.from(plus);
-
-    // collect the minus array
-    var minus = [];
-    var at = start;
-    while (length-- && length >= 0 && at !== this.head) {
-        minus.push(at.value);
-        at = at.next;
-    }
 
     // before range change
     var index, startNode;
-    if (this.dispatchesRangeChanges) {
-        if (start === this.head) {
-            index = this.length;
-        } else if (start.prev === this.head) {
-            index = 0;
-        } else {
-            index = start.index;
+    var _beforeSwap = function(start, plus, minus) {
+        if (this.dispatchesRangeChanges) {
+            if (start === this.head) {
+                index = this.length;
+            } else if (start.prev === this.head) {
+                index = 0;
+            } else {
+                index = start.index;
+            }
+            startNode = start.prev;
+            this.dispatchBeforeRangeChange(plus, minus, index);
         }
-        startNode = start.prev;
-        this.dispatchBeforeRangeChange(plus, minus, index);
-    }
-
-    // delete minus
-    var at = start;
-    for (var i = 0, at = start; i < minus.length; i++, at = at.next) {
-        at["delete"]();
-    }
-    // add plus
-    if (initial == null && at === this.head) {
-        at = this.head.next;
-    }
-    for (var i = 0; i < plus.length; i++) {
-        var node = new this.Node(plus[i]);
-        at.addBefore(node);
-    }
-    // adjust length
-    this.length += plus.length - minus.length;
-
-    // after range change
-    if (this.dispatchesRangeChanges) {
-        if (start === this.head) {
-            this.updateIndexes(this.head.next, 0);
-        } else {
-            this.updateIndexes(startNode.next, startNode.index + 1);
+    };
+    var _afterSwap = function(start, plus, minus) {
+        // after range change
+        if (this.dispatchesRangeChanges) {
+            if (start === this.head) {
+                this.updateIndexes(this.head.next, 0);
+            } else {
+                this.updateIndexes(startNode.next, startNode.index + 1);
+            }
+            this.dispatchRangeChange(plus, minus, index);
         }
-        this.dispatchRangeChange(plus, minus, index);
-    }
+    };
 
-    return minus;
+    return this.superSwap(start, length, plus, _beforeSwap, _afterSwap);
 };
 
+Object.defineProperty(List.prototype, "superReverse", {
+    value: _List.prototype.reverse,
+    enumerable: false,
+    configurable: true,
+    writable:true
+});
 List.prototype.reverse = function () {
     if (this.dispatchesRangeChanges) {
         var minus = this.toArray();
         var plus = minus.reversed();
         this.dispatchBeforeRangeChange(plus, minus, 0);
     }
-    var at = this.head;
-    do {
-        var temp = at.next;
-        at.next = at.prev;
-        at.prev = temp;
-        at = at.next;
-    } while (at !== this.head);
+    this.superReverse();
     if (this.dispatchesRangeChanges) {
         this.dispatchRangeChange(plus, minus, 0);
     }
     return this;
 };
-
-List.prototype.sort = function () {
-    this.swap(0, this.length, this.sorted());
-};
-
-// TODO account for missing basis argument
-List.prototype.reduce = function (callback, basis /*, thisp*/) {
-    var thisp = arguments[2];
-    var head = this.head;
-    var at = head.next;
-    while (at !== head) {
-        basis = callback.call(thisp, basis, at.value, at, this);
-        at = at.next;
-    }
-    return basis;
-};
-
-List.prototype.reduceRight = function (callback, basis /*, thisp*/) {
-    var thisp = arguments[2];
-    var head = this.head;
-    var at = head.prev;
-    while (at !== head) {
-        basis = callback.call(thisp, basis, at.value, at, this);
-        at = at.prev;
-    }
-    return basis;
-};
-
-List.prototype.updateIndexes = function (node, index) {
-    while (node !== this.head) {
-        node.index = index++;
-        node = node.next;
-    }
-};
-
-List.prototype.makeObservable = function () {
-    this.head.index = -1;
-    this.updateIndexes(this.head.next, 0);
-    this.dispatchesRangeChanges = true;
-};
-
-List.prototype.iterate = function () {
-    return new ListIterator(this.head);
-};
-
-function ListIterator(head) {
-    this.head = head;
-    this.at = head.next;
-};
-
-ListIterator.prototype.next = function () {
-    if (this.at === this.head) {
-        throw StopIteration;
-    } else {
-        var value = this.at.value;
-        this.at = this.at.next;
-        return value;
-    }
-};
-
-List.prototype.Node = Node;
-
-function Node(value) {
-    this.value = value;
-    this.prev = null;
-    this.next = null;
-};
-
-Node.prototype["delete"] = function () {
-    this.prev.next = this.next;
-    this.next.prev = this.prev;
-};
-
-Node.prototype.addBefore = function (node) {
-    var prev = this.prev;
-    this.prev = node;
-    node.prev = prev;
-    prev.next = node;
-    node.next = this;
-};
-
-Node.prototype.addAfter = function (node) {
-    var next = this.next;
-    this.next = node;
-    node.next = next;
-    next.prev = node;
-    node.prev = this;
-};
-

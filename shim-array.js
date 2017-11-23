@@ -10,7 +10,7 @@
 var Function = require("./shim-function");
 var GenericCollection = require("./generic-collection");
 var GenericOrder = require("./generic-order");
-var WeakMap = require("weak-map");
+var WeakMap = require("./weak-map");
 
 module.exports = Array;
 
@@ -112,7 +112,7 @@ define("add", function (value) {
 define("delete", function (value, equals) {
     var index = this.find(value, equals);
     if (index !== -1) {
-        this.splice(index, 1);
+        this.spliceOne(index);
         return true;
     }
     return false;
@@ -254,7 +254,7 @@ define("compare", function (that, compare) {
         return GenericOrder.prototype.compare.call(this, that, compare);
     }
 
-    length = Math.min(this.length, that.length);
+    length = (this.length < that.length) ? this.length : that.length;
 
     for (i = 0; i < length; i++) {
         if (i in this) {
@@ -335,6 +335,23 @@ define("iterate", function (start, end) {
     return new ArrayIterator(this, start, end);
 });
 
+if(Array.prototype.spliceOne === void 0) {
+    define("spliceOne", function (index,itemToAdd) {
+        var len=this.length;
+        if (!len) { return }
+        if(arguments.length === 1) {
+            while (index<len) {
+                this[index] = this[index+1];
+                index++
+            }
+            this.length--;
+        }
+        else {
+            this[index] = itemToAdd;
+        }
+    });
+}
+
 define("Iterator", ArrayIterator);
 
 function ArrayIterator(array, start, end) {
@@ -342,12 +359,19 @@ function ArrayIterator(array, start, end) {
     this.start = start == null ? 0 : start;
     this.end = end;
 };
+ArrayIterator.prototype.__iterationObject = null;
+Object.defineProperty(ArrayIterator.prototype,"_iterationObject", {
+    get: function() {
+        return this.__iterationObject || (this.__iterationObject = { done: false, value:null});
+    }
+});
 
 ArrayIterator.prototype.next = function () {
     if (this.start === (this.end == null ? this.array.length : this.end)) {
-        throw StopIteration;
+        this._iterationObject.done = true;
+        this._iterationObject.value = void 0;
     } else {
-        return this.array[this.start++];
+        this._iterationObject.value = this.array[this.start++];
     }
+    return this._iterationObject;
 };
-

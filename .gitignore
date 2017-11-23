@@ -1,3 +1,9 @@
-node_modules
+.npmignore
 .tmp
-coverage
+.idea
+.DS_Store
+atlassian-ide-plugin.xml
+npm-debug.log
+report/
+node_modules/
+out/

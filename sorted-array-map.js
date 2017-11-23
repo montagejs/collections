@@ -5,6 +5,7 @@ var SortedArraySet = require("./sorted-array-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
 var PropertyChanges = require("./listen/property-changes");
+var MapChanges = require("./listen/map-changes");
 
 module.exports = SortedArrayMap;
 
@@ -37,6 +38,9 @@ SortedArrayMap.SortedArrayMap = SortedArrayMap;
 Object.addEach(SortedArrayMap.prototype, GenericCollection.prototype);
 Object.addEach(SortedArrayMap.prototype, GenericMap.prototype);
 Object.addEach(SortedArrayMap.prototype, PropertyChanges.prototype);
+Object.addEach(SortedArrayMap.prototype, MapChanges.prototype);
+
+SortedArrayMap.from = GenericCollection.from;
 
 SortedArrayMap.prototype.isSorted = true;
 
@@ -48,4 +52,3 @@ SortedArrayMap.prototype.constructClone = function (values) {
         this.getDefault
     );
 };
-

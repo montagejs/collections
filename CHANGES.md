@@ -1,3 +1,38 @@
+## v5.0.2
+- Addresses a bug in range listening that happened when the number of listeners went beyond 1 and back to 0
+
+## v5.0.1
+- Changes to make IE11 use set and map polyfills
+
+## v5.0.0
+- Some backward compatibility breaking changes:
+    - Native Maps, WeakMaps and Sets are now used when available
+    - Aligns Map with latest standard with PR #137
+        - Use of a second argument for default value in get() is deprecated
+        - keys(), values() and entries() now return an iterator per standards,
+          methods returning an array are now keysArray(), valuesArray(), entriesArray()
+        - It's not possible to create a Map by passing an anonymous object to the constructor, that feature is now available as Map.from();
+   - Introduces .from() method on constructors.
+- Fix for issue #149
+- Changes to work in IE10, involving splitting pure implementations as private from the public API that support listening,
+
+## v3.0.0
+
+- Aligns iterations with latest standard with PR #137
+
+## v1.2.4
+
+- Optimise performance of PropertyChanges with PR#126 and avoid unnecessary calls to require in Map Changes with PR #129
+
+## v1.2.3
+
+- Dict Optimization to remove the need to mangle/unmangle keys. This minimize the amount of string creation and therefore garbage collection
+
+## v1.2.2
+
+- Vlad Alexandru Ionescu fixed a bug in dictionaries with single character keys.
+- Optimizations for push to avoid creating unnecessary arrays through splice
+- Fixes for a few regressions in listen and impacting Montage
 
 ## v1.2.0
 
@@ -169,4 +204,3 @@
 -   The `observable` module provides generics methods for observables.
     New collections need only call the appropriate dispatch functions if
     `isObservable` is true.
-

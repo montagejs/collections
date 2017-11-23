@@ -1,6 +1,6 @@
 "use strict";
 
-var WeakMap = require("weak-map");
+var WeakMap = require("./weak-map");
 
 module.exports = Object;
 
@@ -191,7 +191,8 @@ Object.set = function (object, key, value) {
     }
 };
 
-Object.addEach = function (target, source) {
+Object.addEach = function (target, source, overrides) {
+    var overridesExistingProperty = arguments.length === 3 ? overrides : true;
     if (!source) {
     } else if (typeof source.forEach === "function" && !source.hasOwnProperty("forEach")) {
         // copy map-alikes
@@ -212,9 +213,82 @@ Object.addEach = function (target, source) {
         }
     } else {
         // copy other objects as map-alikes
-        Object.keys(source).forEach(function (key) {
-            target[key] = source[key];
-        });
+        for(var keys = Object.keys(source), i = 0, key;(key = keys[i]); i++) {
+            if(overridesExistingProperty || !Object.owns(target,key)) {
+                target[key] = source[key];
+            }
+        }
+    }
+    return target;
+};
+
+
+/*
+var defineEach = function defineEach(target, prototype) {
+    // console.log("Map defineEach: ",Object.keys(prototype));
+    var proto = Map.prototype;
+    for (var name in prototype) {
+        if(!proto.hasOwnProperty(name)) {
+            Object.defineProperty(proto, name, {
+                value: prototype[name],
+                writable: writable,
+                configurable: configurable,
+                enumerable: enumerable
+            });
+        }
+    }
+}
+*/
+Object.defineEach = function (target, source, overrides, configurable, enumerable, writable) {
+    var overridesExistingProperty = arguments.length === 3 ? overrides : true;
+    if (!source) {
+    } else if (typeof source.forEach === "function" && !source.hasOwnProperty("forEach")) {
+        // copy map-alikes
+        if (source.isMap === true) {
+            source.forEach(function (value, key) {
+                Object.defineProperty(target, key, {
+                    value: value,
+                    writable: writable,
+                    configurable: configurable,
+                    enumerable: enumerable
+                });
+            });
+        // iterate key value pairs of other iterables
+        } else {
+            source.forEach(function (pair) {
+                Object.defineProperty(target, pair[0], {
+                    value: pair[1],
+                    writable: writable,
+                    configurable: configurable,
+                    enumerable: enumerable
+                });
+
+            });
+        }
+    } else if (typeof source.length === "number") {
+        // arguments, strings
+        for (var index = 0; index < source.length; index++) {
+            Object.defineProperty(target, index, {
+                value: source[index],
+                writable: writable,
+                configurable: configurable,
+                enumerable: enumerable
+            });
+
+        }
+    } else {
+        // copy other objects as map-alikes
+        for(var keys = Object.keys(source), i = 0, key;(key = keys[i]); i++) {
+            if(overridesExistingProperty || !Object.owns(target,key)) {
+                Object.defineProperty(target, key, {
+                    value: source[key],
+                    writable: writable,
+                    configurable: configurable,
+                    enumerable: enumerable
+                });
+
+            }
+        }
     }
     return target;
 };
@@ -231,9 +305,12 @@ Object.addEach = function (target, source) {
     callback
 */
 Object.forEach = function (object, callback, thisp) {
-    Object.keys(object).forEach(function (key) {
-        callback.call(thisp, object[key], key, object);
-    });
+
+    var keys = Object.keys(object), i = 0, iKey;
+    for(;(iKey = keys[i]);i++) {
+        callback.call(thisp, object[iKey], iKey, object);
+    }
+
 };
 
 /**
@@ -251,9 +328,11 @@ Object.forEach = function (object, callback, thisp) {
     item in the object.
 */
 Object.map = function (object, callback, thisp) {
-    return Object.keys(object).map(function (key) {
-        return callback.call(thisp, object[key], key, object);
-    });
+    var keys = Object.keys(object), i = 0, result = [], iKey;
+    for(;(iKey = keys[i]);i++) {
+        result.push(callback.call(thisp, object[iKey], iKey, object));
+    }
+    return result;
 };
 
 /**
@@ -344,6 +423,7 @@ Object.is = function (x, y) {
 */
 Object.equals = function (a, b, equals, memo) {
     equals = equals || Object.equals;
+    //console.log("Object.equals: a:",a, "b:",b, "equals:",equals);
     // unbox objects, but do not confuse object literals
     a = Object.getValueOf(a);
     b = Object.getValueOf(b);
@@ -517,4 +597,3 @@ Object.clear = function (object) {
     }
     return object;
 };
-

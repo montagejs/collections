@@ -3,11 +3,17 @@
 
 var Shim = require("./shim");
 
+/*jshint evil:true */
+// reassigning causes eval to not use lexical scope.
+var globalEval = eval,
+    global = globalEval('this');
+/*jshint evil:false */
+
 global.List = require("./list");
 global.Set = require("./set");
 global.Map = require("./map");
 global.MultiMap = require("./multi-map");
-global.WeakMap = require("weak-map");
+global.WeakMap = require("./weak-map");
 global.SortedSet = require("./sorted-set");
 global.SortedMap = require("./sorted-map");
 global.LruSet = require("./lru-set");
