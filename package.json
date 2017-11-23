@@ -5,11 +5,11 @@
   "homepage": "http://www.collectionsjs.com",
   "author": "Kris Kowal <kris@cixar.com> (http://github.com/kriskowal)",
   "contributors": [
-   {
-     "name": "Benoit Marchant"
-   }
- ],
- "keywords": [
+    {
+      "name": "Benoit Marchant"
+    }
+  ],
+  "keywords": [
     "collections",
     "data structures",
     "observable",
@@ -59,6 +59,8 @@
     "test:karma-chrome": "karma start --no-auto-watch --single-run --browsers=Chrome",
     "test:karma-debug": "karma start --auto-watch --no-single-run --browsers=PhantomJS_debug",
     "test:karma-dev": "karma start --auto-watch --no-single-run --capture",
-    "test:jasmine": "concurrently \"http-server -a localhost -p 8085\" \"open http://localhost:8085/test/run.html\""
+    "test:jasmine": "concurrently \"http-server -a localhost -p 8085\" \"open http://localhost:8085/test/run.html\"",
+    "preversion:bower": "sed 's/\"version\": \"[^,]*\"/\"version\": \"'$npm_package_version'\"/' bower.json  > output &&  mv output bower.json",
+    "version": "npm run preversion:bower && git add -A bower.json"
   }
 }

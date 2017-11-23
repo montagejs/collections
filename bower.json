@@ -1,0 +1,34 @@
+{
+  "name": "collections",
+  "main": "collections.min.js",
+  "version": "5.0.7",
+  "homepage": "http://www.collectionsjs.com/",
+  "author": "Kris Kowal <kris@cixar.com> (http://github.com/kriskowal)",
+  "description": "data structures with idiomatic JavaScript collection interfaces",
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "collections",
+    "data structures",
+    "observable",
+    "list",
+    "set",
+    "map",
+    "splay"
+  ],
+  "license": "BSD-3-Clause",
+  "ignore": [
+    ".*",
+    "*.js",
+    "minify",
+    "!collections.min.js",
+    "bench",
+    "demo",
+    "karma.conf.js",
+    "node_modules",
+    "bower_components",
+    "listen",
+    "test"
+  ]
+}
