@@ -40,6 +40,8 @@ copy(SortedArrayMap.prototype, GenericCollection.prototype);
 copy(SortedArrayMap.prototype, GenericMap.prototype);
 copy(SortedArrayMap.prototype, ObservableObject.prototype);
 
+SortedArrayMap.prototype.isSorted = true;
+
 SortedArrayMap.prototype.constructClone = function (values) {
     return new this.constructor(
         values,

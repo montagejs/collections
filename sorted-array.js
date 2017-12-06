@@ -159,6 +159,34 @@ SortedArray.prototype["delete"] = function (value) {
     }
 };
 
+SortedArray.prototype.deleteAll = function (value, equals) {
+    if (equals) {
+        var count = this.array.deleteAll(value, equals);
+        this.length -= count;
+        return count;
+    } else {
+        var start = searchFirst(this.array, value, this.contentCompare, this.contentEquals);
+        if (start !== -1) {
+            var end = start;
+            while (this.contentEquals(value, this.array[end])) {
+                end++;
+            }
+            var minus = this.slice(start, end);
+            if (this.dispatchesRangeChanges) {
+                this.dispatchBeforeRangeChange([], minus, start);
+            }
+            this.array.splice(start, minus.length);
+            this.length -= minus.length;
+            if (this.dispatchesRangeChanges) {
+                this.dispatchRangeChange([], minus, start);
+            }
+            return minus.length;
+        } else {
+            return 0;
+        }
+    }
+};
+
 SortedArray.prototype.indexOf = function (value) {
     return searchFirst(this.array, value, this.contentCompare, this.contentEquals);
 };
