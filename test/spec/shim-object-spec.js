@@ -7,13 +7,10 @@
     https://github.com/motorola-mobility/montage/blob/master/LICENSE.md
 */
 
-var extendSpyExpectation = require("./spy-expectation");
 require("collections/shim");
 var Dict = require("collections/dict");
 
 describe("Object", function () {
-
-    extendSpyExpectation();
 
     it("should have no enumerable properties", function () {
         expect(Object.keys(Object.prototype)).toEqual([]);

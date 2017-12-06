@@ -1,5 +1,4 @@
 
-var extendSpyExpectation = require("./spy-expectation");
 var Set = require("collections/set");
 var describeCollection = require("./collection");
 var describeSet = require("./set");
@@ -7,8 +6,6 @@ var describeSet = require("./set");
 describe("Set", function () {
 
     describe("as Set", function () {
-
-        extendSpyExpectation();
 
         function newSet(values) {
             return new Set(values);
