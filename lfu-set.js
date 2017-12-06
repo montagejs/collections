@@ -2,12 +2,15 @@
 
 // Based on http://dhruvbird.com/lfu.pdf
 
-var Shim = require("./shim");
-var Set = require("./set").CollectionsSet;
+var Set = require("./set");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
-var PropertyChanges = require("./listen/property-changes");
-var RangeChanges = require("./listen/range-changes");
+var ObservableRange = require("pop-observe/observable-range");
+var ObservableObject = require("pop-observe/observable-object");
+var equalsOperator = require("pop-equals");
+var hashOperator = require("pop-hash");
+var iterateOperator = require("pop-iterate");
+var copy = require("./copy");
 
 module.exports = LfuSet;
 
@@ -16,9 +19,9 @@ function LfuSet(values, capacity, equals, hash, getDefault) {
         return new LfuSet(values, capacity, equals, hash, getDefault);
     }
     capacity = capacity || Infinity;
-    equals = equals || Object.equals;
-    hash = hash || Object.hash;
-    getDefault = getDefault || Function.noop;
+    equals = equals || equalsOperator;
+    hash = hash || hashOperator;
+    getDefault = getDefault || noop;
 
     // TODO
     this.store = new Set(
@@ -40,14 +43,12 @@ function LfuSet(values, capacity, equals, hash, getDefault) {
     this.addEach(values);
 }
 
-LfuSet.LfuSet = LfuSet; // hack so require("lfu-set").LfuSet will work in MontageJS
+LfuSet.LfuSet = LfuSet; // hack for MontageJS
 
-Object.addEach(LfuSet.prototype, GenericCollection.prototype);
-Object.addEach(LfuSet.prototype, GenericSet.prototype);
-Object.addEach(LfuSet.prototype, PropertyChanges.prototype);
-Object.addEach(LfuSet.prototype, RangeChanges.prototype);
-Object.defineProperty(LfuSet.prototype,"size",GenericCollection._sizePropertyDescriptor);
-LfuSet.from = GenericCollection.from;
+copy(LfuSet.prototype, GenericCollection.prototype);
+copy(LfuSet.prototype, GenericSet.prototype);
+copy(LfuSet.prototype, ObservableRange.prototype);
+copy(LfuSet.prototype, ObservableObject.prototype);
 
 LfuSet.prototype.constructClone = function (values) {
     return new this.constructor(
@@ -107,7 +108,7 @@ LfuSet.prototype.add = function (value) {
             minus.push(leastFrequent.value);
         }
         if (this.dispatchesRangeChanges) {
-            this.dispatchBeforeRangeChange(plus, minus, 0);
+            this.dispatchRangeWillChange(plus, minus, 0);
         }
 
         // removal must happen before addition, otherwise we could remove
@@ -152,7 +153,7 @@ LfuSet.prototype["delete"] = function (value, equals) {
     var found = !!node;
     if (found) {
         if (this.dispatchesRangeChanges) {
-            this.dispatchBeforeRangeChange([], [value], 0);
+            this.dispatchRangeWillChange([], [value], 0);
         }
         var frequencyNode = node.frequencyNode;
 
@@ -219,9 +220,9 @@ LfuSet.prototype.reduceRight = function (callback, basis /*, thisp*/) {
 };
 
 LfuSet.prototype.iterate = function () {
-    return this.store.map(function (node) {
+    return iterateOperator(this.store.map(function (node) {
         return node.value;
-    }).iterate();
+    }));
 };
 
 LfuSet.prototype.Node = Node;
@@ -245,3 +246,6 @@ function FrequencyNode(frequency, prev, next) {
         next.prev = this;
     }
 }
+
+function noop() {}
+

@@ -1,6 +1,6 @@
 "use strict";
 
-var Map = require("./map").CollectionsMap;
+var Map = require("./map");
 
 module.exports = MultiMap;
 function MultiMap(values, bucket, equals, hash) {
@@ -9,13 +9,13 @@ function MultiMap(values, bucket, equals, hash) {
     }
     this.bucket = bucket || this.bucket;
     Map.call(this, values, equals, hash, function getDefault(key) {
-        var bucket = this.bucket(key);
+        var bucket = this.bucket();
         Map.prototype.set.call(this, key, bucket);
         return bucket;
     });
 }
 
-MultiMap.MultiMap = MultiMap; // hack so require("multi-map").MultiMap will work in MontageJS
+MultiMap.MultiMap = MultiMap; // hack for MontageJS
 
 MultiMap.prototype = Object.create(Map.prototype);
 
@@ -38,3 +38,4 @@ MultiMap.prototype.set = function (key, newValues) {
 MultiMap.prototype.bucket = function (key) {
     return [];
 };
+

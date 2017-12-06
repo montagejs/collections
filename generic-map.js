@@ -1,19 +1,25 @@
 "use strict";
 
-var Object = require("./shim-object");
+var ObservableMap = require("pop-observe/observable-map");
+var ObservableObject = require("pop-observe/observable-object");
 var Iterator = require("./iterator");
+var equalsOperator = require("pop-equals");
+var compareOperator = require("pop-compare");
+var copy = require("./copy");
 
 module.exports = GenericMap;
 function GenericMap() {
     throw new Error("Can't construct. GenericMap is a mixin.");
 }
 
+copy(GenericMap.prototype, ObservableMap.prototype);
+copy(GenericMap.prototype, ObservableObject.prototype);
+
 // all of these methods depend on the constructor providing a `store` set
 
 GenericMap.prototype.isMap = true;
 
 GenericMap.prototype.addEach = function (values) {
-    var i;
     if (values && Object(values) === values) {
         if (typeof values.forEach === "function") {
             // copy map-alikes
@@ -27,37 +33,28 @@ GenericMap.prototype.addEach = function (values) {
                     this.set(pair[0], pair[1]);
                 }, this);
             }
-        } else if (typeof values.length === "number") {
-            // Array-like objects that do not implement forEach, ergo,
-            // Arguments
-            for (i = 0; i < values.length; i++) {
-                this.add(values[i], i);
-            }
         } else {
             // copy other objects as map-alikes
             Object.keys(values).forEach(function (key) {
                 this.set(key, values[key]);
             }, this);
         }
-    } else if (values && typeof values.length === "number") {
-        // String
-        for (i = 0; i < values.length; i++) {
-            this.add(values[i], i);
-        }
     }
     return this;
-};
+}
 
 GenericMap.prototype.get = function (key, defaultValue) {
     var item = this.store.get(new this.Item(key));
     if (item) {
         return item.value;
     } else if (arguments.length > 1) {
-        console.log("Use of a second argument as default value is deprecated to match standards");
         return defaultValue;
     } else {
         return this.getDefault(key);
     }
+};
+
+GenericMap.prototype.getDefault = function () {
 };
 
 GenericMap.prototype.set = function (key, value) {
@@ -65,26 +62,28 @@ GenericMap.prototype.set = function (key, value) {
     var found = this.store.get(item);
     var grew = false;
     if (found) { // update
+        var from;
         if (this.dispatchesMapChanges) {
-            this.dispatchBeforeMapChange(key, found.value);
+            from = found.value;
+            this.dispatchMapWillChange("update", key, value, from);
         }
         found.value = value;
         if (this.dispatchesMapChanges) {
-            this.dispatchMapChange(key, value);
+            this.dispatchMapChange("update", key, value, from);
         }
     } else { // create
         if (this.dispatchesMapChanges) {
-            this.dispatchBeforeMapChange(key, undefined);
+            this.dispatchMapWillChange("create", key, value);
         }
         if (this.store.add(item)) {
             this.length++;
             grew = true;
         }
         if (this.dispatchesMapChanges) {
-            this.dispatchMapChange(key, value);
+            this.dispatchMapChange("create", key, value);
         }
     }
-    return this;
+    return grew;
 };
 
 GenericMap.prototype.add = function (value, key) {
@@ -98,14 +97,15 @@ GenericMap.prototype.has = function (key) {
 GenericMap.prototype['delete'] = function (key) {
     var item = new this.Item(key);
     if (this.store.has(item)) {
-        var from = this.store.get(item).value;
+        var from;
         if (this.dispatchesMapChanges) {
-            this.dispatchBeforeMapChange(key, from);
+            from = this.store.get(item).value;
+            this.dispatchMapWillChange("delete", key, void 0, from);
         }
         this.store["delete"](item);
         this.length--;
         if (this.dispatchesMapChanges) {
-            this.dispatchMapChange(key, undefined);
+            this.dispatchMapChange("delete", key, void 0, from);
         }
         return true;
     }
@@ -113,23 +113,24 @@ GenericMap.prototype['delete'] = function (key) {
 };
 
 GenericMap.prototype.clear = function () {
-    var keys, key;
+    var from;
     if (this.dispatchesMapChanges) {
         this.forEach(function (value, key) {
-            this.dispatchBeforeMapChange(key, value);
+            this.dispatchMapWillChange("delete", key, void 0, value);
         }, this);
-        keys = this.keysArray();
+        from = this.constructClone(this);
     }
     this.store.clear();
     this.length = 0;
     if (this.dispatchesMapChanges) {
-        for(var i=0;(key = keys[i]);i++) {
-            this.dispatchMapChange(key);
-        }
-        // keys.forEach(function (key) {
-        //     this.dispatchMapChange(key);
-        // }, this);
+        from.forEach(function (value, key) {
+            this.dispatchMapChange("delete", key, void 0, value);
+        }, this);
     }
+};
+
+GenericMap.prototype.iterate = function () {
+    return new this.Iterator(this);
 };
 
 GenericMap.prototype.reduce = function (callback, basis, thisp) {
@@ -144,38 +145,24 @@ GenericMap.prototype.reduceRight = function (callback, basis, thisp) {
     }, basis, this);
 };
 
-GenericMap.prototype.keysArray = function () {
+GenericMap.prototype.keys = function () {
     return this.map(function (value, key) {
         return key;
     });
 };
-GenericMap.prototype.keys = function () {
-    return new Iterator(this.keysArray());
-};
 
-GenericMap.prototype.valuesArray = function () {
-    return this.map(Function.identity);
-};
 GenericMap.prototype.values = function () {
-    return new Iterator(this.valuesArray());
+    return this.map(identity);
 };
 
-GenericMap.prototype.entriesArray = function () {
+GenericMap.prototype.entries = function () {
     return this.map(function (value, key) {
         return [key, value];
     });
 };
-GenericMap.prototype.entries = function () {
-    return new Iterator(this.entriesArray());
-};
-
-// XXX deprecated
-GenericMap.prototype.items = function () {
-    return this.entriesArray();
-};
 
 GenericMap.prototype.equals = function (that, equals) {
-    equals = equals || Object.equals;
+    equals = equals || equalsOperator;
     if (this === that) {
         return true;
     } else if (that && typeof that.every === "function") {
@@ -190,12 +177,8 @@ GenericMap.prototype.equals = function (that, equals) {
     }
 };
 
-GenericMap.prototype.toJSON = function () {
-    return this.entriesArray();
-};
-
-
 GenericMap.prototype.Item = Item;
+GenericMap.prototype.Iterator = GenericMapIterator;
 
 function Item(key, value) {
     this.key = key;
@@ -203,9 +186,30 @@ function Item(key, value) {
 }
 
 Item.prototype.equals = function (that) {
-    return Object.equals(this.key, that.key) && Object.equals(this.value, that.value);
+    return equalsOperator(this.key, that.key) && equalsOperator(this.value, that.value);
 };
 
 Item.prototype.compare = function (that) {
-    return Object.compare(this.key, that.key);
+    return compareOperator(this.key, that.key);
 };
+
+function GenericMapIterator(map) {
+    this.storeIterator = new Iterator(map.store);
+}
+
+GenericMapIterator.prototype = Object.create(Iterator.prototype);
+GenericMapIterator.prototype.constructor = GenericMapIterator;
+
+GenericMapIterator.prototype.next = function () {
+    var iteration = this.storeIterator.next();
+    if (iteration.done) {
+        return iteration;
+    } else {
+        return new Iterator.Iteration(
+            iteration.value.value,
+            iteration.value.key
+        );
+    }
+};
+
+function identity(value) { return value; }

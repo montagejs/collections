@@ -6,9 +6,8 @@ var TreeLog = require("collections/tree-log");
 
 var describeCollection = require("./collection");
 var describeSet = require("./set");
-var describeToJson = require("./to-json");
 
-describe("Set-spec", function () {
+describe("Set", function () {
     // new Set()
     // Set()
     // Set(values)
@@ -31,10 +30,15 @@ describe("Set-spec", function () {
     // Set().min()
     // Set().max()
 
-    describeCollection(Set, [1, 2, 3, 4], true);
-    describeCollection(Set, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
-    describeSet(Set);
-    describeToJson(Set, [1, 2, 3, 4]);
+    function newSet(values) {
+        return new Set(values);
+    }
+
+    [Set, newSet].forEach(function (Set) {
+        describeCollection(Set, [1, 2, 3, 4], true);
+        describeCollection(Set, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
+        describeSet(Set);
+    });
 
     it("can use hash delegate methods", function () {
         function Item(key, value) {
@@ -52,7 +56,7 @@ describe("Set-spec", function () {
         set.add(new Item(2, 'c'));
         set.add(new Item(2, 'd'));
 
-        expect(set.buckets.keysArray().sort()).toEqual(['1', '2', '3']);
+        expect(set.buckets.keys().sort()).toEqual(['1', '2', '3']);
 
     });
 
@@ -169,4 +173,6 @@ describe("Set-spec", function () {
             });
         });
     });
+
 });
+

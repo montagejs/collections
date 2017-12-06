@@ -1,35 +1,34 @@
 
+var sinon = require("sinon");
 var LruMap = require("collections/lru-map");
 var describeDict = require("./dict");
 var describeMap = require("./map");
-var describeToJson = require("./to-json");
 
-describe("LruMap-spec", function () {
+describe("LruMap", function () {
 
     describeDict(LruMap);
     describeMap(LruMap);
-    describeToJson(LruMap, [[{a: 1}, 10], [{b: 2}, 20], [{c: 3}, 30]]);
 
     it("should remove stale entries", function () {
         var map = LruMap({a: 10, b: 20, c: 30}, 3);
         map.get("b");
         map.set("d", 40);
-        expect(map.keysArray()).toEqual(['c', 'b', 'd']);
+        expect(map.keys()).toEqual(['c', 'b', 'd']);
         expect(map.length).toBe(3);
     });
 
     it("should not grow when re-adding", function () {
         var map = LruMap({a: 10, b: 20, c: 30}, 3);
 
-        expect(map.keysArray()).toEqual(['a', 'b', 'c']);
+        expect(map.keys()).toEqual(['a', 'b', 'c']);
         expect(map.length).toBe(3);
 
         map.get("b");
-        expect(map.keysArray()).toEqual(['a', 'c', 'b']);
+        expect(map.keys()).toEqual(['a', 'c', 'b']);
         expect(map.length).toBe(3);
 
         map.set("c", 40);
-        expect(map.keysArray()).toEqual(['a', 'b', 'c']);
+        expect(map.keys()).toEqual(['a', 'b', 'c']);
         expect(map.length).toBe(3);
     });
 
@@ -64,21 +63,15 @@ describe("LruMap-spec", function () {
 
     it("should dispatch deletion for stale entries", function () {
         var map = LruMap({a: 10, b: 20, c: 30}, 3);
-        var spy = jasmine.createSpy();
-        map.addBeforeMapChangeListener(function (value, key) {
-            spy('before', key, value);
-        });
-        map.addMapChangeListener(function (value, key) {
-            spy('after', key, value);
+        var spy = sinon.spy();
+        map.observeMapChange(function (plus, minus, key, type) {
+            spy(plus, minus, key, type);
         });
         map.set('d', 40);
-        
-        var argsForCall = spy.calls.all().map(function (call) { return call.args });
-        expect(argsForCall).toEqual([
-            ['before', 'd', undefined], // d will be added
-            ['before', 'a', undefined], // then a is pruned (stale)
-            ['after', 'a', undefined],  // afterwards a is still pruned
-            ['after', 'd', 40]          // and now d has a value
+        expect(spy.args).toEqual([
+            [undefined, 10, "a", "delete"], // a pruned
+            [40, undefined, "d", "create"] // d added
         ]);
     });
 });
+

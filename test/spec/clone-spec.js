@@ -2,10 +2,10 @@
 var Set = require("collections/set");
 var Map = require("collections/map");
 
-describe("Clone-spec", function () {
+describe("clone", function () {
 
     it("should deeply clone custom collections", function () {
-        var a = new Set([new Map([["a",{}]])]);
+        var a = Set([Map({a: {}})]);
         var b = Object.clone(a);
 
         // equal maps are not consistently hashed
@@ -19,3 +19,4 @@ describe("Clone-spec", function () {
     });
 
 });
+

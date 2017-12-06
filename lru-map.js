@@ -1,27 +1,29 @@
 "use strict";
 
-var Shim = require("./shim");
 var LruSet = require("./lru-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
-var PropertyChanges = require("./listen/property-changes");
-var MapChanges = require("./listen/map-changes");
+var ObservableObject = require("pop-observe/observable-object");
+var equalsOperator = require("pop-equals");
+var hashOperator = require("pop-hash");
+var copy = require("./copy");
 
 module.exports = LruMap;
 
-function LruMap(values, maxLength, equals, hash, getDefault) {
+function LruMap(values, capacity, equals, hash, getDefault) {
     if (!(this instanceof LruMap)) {
-        return new LruMap(values, maxLength, equals, hash, getDefault);
+        return new LruMap(values, capacity, equals, hash, getDefault);
     }
-    equals = equals || Object.equals;
-    hash = hash || Object.hash;
-    getDefault = getDefault || Function.noop;
+    equals = equals || equalsOperator;
+    hash = hash || hashOperator;
+    getDefault = getDefault || this.getDefault;
+    this.capacity = capacity || Infinity;
     this.contentEquals = equals;
     this.contentHash = hash;
     this.getDefault = getDefault;
     this.store = new LruSet(
         undefined,
-        maxLength,
+        capacity,
         function keysEqual(a, b) {
             return equals(a.key, b.key);
         },
@@ -33,20 +35,16 @@ function LruMap(values, maxLength, equals, hash, getDefault) {
     this.addEach(values);
 }
 
-LruMap.LruMap = LruMap; // hack so require("lru-map").LruMap will work in MontageJS
+LruMap.LruMap = LruMap; // hack for MontageJS
 
-Object.addEach(LruMap.prototype, GenericCollection.prototype);
-Object.addEach(LruMap.prototype, GenericMap.prototype);
-Object.addEach(LruMap.prototype, PropertyChanges.prototype);
-Object.addEach(LruMap.prototype, MapChanges.prototype);
-
-Object.defineProperty(LruMap.prototype,"size",GenericCollection._sizePropertyDescriptor);
-LruMap.from = GenericCollection.from;
+copy(LruMap.prototype, GenericCollection.prototype);
+copy(LruMap.prototype, GenericMap.prototype);
+copy(LruMap.prototype, ObservableObject.prototype);
 
 LruMap.prototype.constructClone = function (values) {
     return new this.constructor(
         values,
-        this.maxLength,
+        this.capacity,
         this.contentEquals,
         this.contentHash,
         this.getDefault
@@ -62,22 +60,26 @@ LruMap.prototype.stringify = function (item, leader) {
     return leader + JSON.stringify(item.key) + ": " + JSON.stringify(item.value);
 };
 
-LruMap.prototype.addMapChangeListener = function () {
+LruMap.prototype.observeMapChange = function () {
     if (!this.dispatchesMapChanges) {
         // Detect LRU deletions in the LruSet and emit as MapChanges.
         // Array and Heap have no store.
         // Dict and FastMap define no listeners on their store.
-        var self = this;
-        this.store.addBeforeRangeChangeListener(function(plus, minus) {
-            if (plus.length && minus.length) {  // LRU item pruned
-                self.dispatchBeforeMapChange(minus[0].key, undefined);
-            }
-        });
-        this.store.addRangeChangeListener(function(plus, minus) {
-            if (plus.length && minus.length) {
-                self.dispatchMapChange(minus[0].key, undefined);
-            }
-        });
+        this.store.observeRangeWillChange(this, "store");
+        this.store.observeRangeChange(this, "store");
     }
-    MapChanges.prototype.addMapChangeListener.apply(this, arguments);
+    return GenericMap.prototype.observeMapChange.apply(this, arguments);
 };
+
+LruMap.prototype.handleStoreRangeWillChange = function (plus, minus, index) {
+    if (plus.length && minus.length) {  // LRU item pruned
+        this.dispatchMapWillChange("delete", minus[0].key, undefined, minus[0].value);
+    }
+};
+
+LruMap.prototype.handleStoreRangeChange = function (plus, minus, index) {
+    if (plus.length && minus.length) {
+        this.dispatchMapChange("delete", minus[0].key, undefined, minus[0].value);
+    }
+};
+

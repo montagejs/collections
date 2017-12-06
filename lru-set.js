@@ -1,44 +1,44 @@
 "use strict";
 
-var Shim = require("./shim");
-var Set = require("./set").CollectionsSet;
+var Set = require("./set");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
-var PropertyChanges = require("./listen/property-changes");
-var RangeChanges = require("./listen/range-changes");
+var ObservableObject = require("pop-observe/observable-object");
+var ObservableRange = require("pop-observe/observable-range");
+var equalsOperator = require("pop-equals");
+var hashOperator = require("pop-hash");
+var copy = require("./copy");
 
 module.exports = LruSet;
 
-function LruSet(values, capacity, equals, hash, getDefault) {
+function LruSet(values, maxLength, equals, hash, getDefault) {
     if (!(this instanceof LruSet)) {
-        return new LruSet(values, capacity, equals, hash, getDefault);
+        return new LruSet(values, maxLength, equals, hash, getDefault);
     }
-    capacity = capacity || Infinity;
-    equals = equals || Object.equals;
-    hash = hash || Object.hash;
-    getDefault = getDefault || Function.noop;
+    maxLength = maxLength || Infinity;
+    equals = equals || equalsOperator;
+    hash = hash || hashOperator;
+    getDefault = getDefault || noop;
     this.store = new Set(undefined, equals, hash);
     this.contentEquals = equals;
     this.contentHash = hash;
     this.getDefault = getDefault;
-    this.capacity = capacity;
+    this.maxLength = maxLength;
     this.length = 0;
     this.addEach(values);
 }
 
-LruSet.LruSet = LruSet; // hack so require("lru-set").LruSet will work in MontageJS
+LruSet.LruSet = LruSet; // hack for MontageJS
 
-Object.addEach(LruSet.prototype, GenericCollection.prototype);
-Object.addEach(LruSet.prototype, GenericSet.prototype);
-Object.addEach(LruSet.prototype, PropertyChanges.prototype);
-Object.addEach(LruSet.prototype, RangeChanges.prototype);
-Object.defineProperty(LruSet.prototype,"size",GenericCollection._sizePropertyDescriptor);
-LruSet.from = GenericCollection.from;
+copy(LruSet.prototype, GenericCollection.prototype);
+copy(LruSet.prototype, GenericSet.prototype);
+copy(LruSet.prototype, ObservableObject.prototype);
+copy(LruSet.prototype, ObservableRange.prototype);
 
 LruSet.prototype.constructClone = function (values) {
     return new this.constructor(
         values,
-        this.capacity,
+        this.maxLength,
         this.contentEquals,
         this.contentHash,
         this.getDefault
@@ -49,10 +49,7 @@ LruSet.prototype.has = function (value) {
     return this.store.has(value);
 };
 
-LruSet.prototype.get = function (value, equals) {
-    if (equals) {
-        throw new Error("LruSet#get does not support second argument: equals");
-    }
+LruSet.prototype.get = function (value) {
     value = this.store.get(value);
     if (value !== undefined) {
         this.store["delete"](value);
@@ -71,16 +68,16 @@ LruSet.prototype.add = function (value) {
     if (found) {    // update
         this.store["delete"](value);
         this.store.add(value);
-    } else if (this.capacity > 0) {    // add
+    } else if (this.maxLength > 0) {    // add
         // because minus is constructed before adding value, we must ensure the
-        // set has positive length. hence the capacity check.
+        // set has positive length. hence the maxLength check.
         plus.push(value);
-        if (this.length >= this.capacity) {
+        if (this.length >= this.maxLength) {
             eldest = this.store.order.head.next;
             minus.push(eldest.value);
         }
         if (this.dispatchesRangeChanges) {
-            this.dispatchBeforeRangeChange(plus, minus, 0);
+            this.dispatchRangeWillChange(plus, minus, 0);
         }
         this.store.add(value);
         if (minus.length > 0) {
@@ -97,14 +94,11 @@ LruSet.prototype.add = function (value) {
     return plus.length !== minus.length;
 };
 
-LruSet.prototype["delete"] = function (value, equals) {
-    if (equals) {
-        throw new Error("LruSet#delete does not support second argument: equals");
-    }
+LruSet.prototype["delete"] = function (value) {
     var found = this.store.has(value);
     if (found) {
         if (this.dispatchesRangeChanges) {
-            this.dispatchBeforeRangeChange([], [value], 0);
+            this.dispatchRangeWillChange([], [value], 0);
         }
         this.store["delete"](value);
         this.length--;
@@ -147,3 +141,5 @@ LruSet.prototype.reduceRight = function (callback, basis /*, thisp*/) {
 LruSet.prototype.iterate = function () {
     return this.store.iterate();
 };
+
+function noop() {}

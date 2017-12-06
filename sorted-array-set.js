@@ -1,11 +1,11 @@
 "use strict";
 
-module.exports = SortedArraySet;
-
-var Shim = require("./shim");
 var SortedArray = require("./sorted-array");
 var GenericSet = require("./generic-set");
-var PropertyChanges = require("./listen/property-changes");
+var ObservableObject = require("pop-observe/observable-object");
+var copy = require("./copy");
+
+module.exports = SortedArraySet;
 
 function SortedArraySet(values, equals, compare, getDefault) {
     if (!(this instanceof SortedArraySet)) {
@@ -14,17 +14,15 @@ function SortedArraySet(values, equals, compare, getDefault) {
     SortedArray.call(this, values, equals, compare, getDefault);
 }
 
-// hack so require("sorted-array-set".SortedArraySet works in MontageJS
+// hack for MontageJS
 SortedArraySet.SortedArraySet = SortedArraySet;
 
 SortedArraySet.prototype = Object.create(SortedArray.prototype);
 
 SortedArraySet.prototype.constructor = SortedArraySet;
 
-Object.addEach(SortedArraySet.prototype, GenericSet.prototype);
-Object.addEach(SortedArraySet.prototype, PropertyChanges.prototype);
-
-SortedArraySet.from = SortedArray.from;
+copy(SortedArraySet.prototype, GenericSet.prototype);
+copy(SortedArraySet.prototype, ObservableObject.prototype);
 
 SortedArraySet.prototype.isSorted = true;
 
@@ -52,3 +50,4 @@ SortedArraySet.prototype.reduceRight = function (callback, basis /*, thisp*/) {
         return callback.call(thisp, basis, value, index, self);
     }, basis);
 };
+

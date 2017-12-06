@@ -1,9 +1,13 @@
 "use strict";
 
-require("./shim-object");
 var GenericCollection = require("./generic-collection");
 var GenericOrder = require("./generic-order");
-var RangeChanges = require("./listen/range-changes");
+var GenericOrder = require("./generic-order");
+var ObservableRange = require("pop-observe/observable-range");
+var ObservableObject = require("pop-observe/observable-object");
+var Iterator = require("./iterator");
+var copyProperties = require("./copy");
+var equalsOperator = require("pop-equals");
 
 // by Petka Antonov
 // https://github.com/petkaantonov/deque/blob/master/js/deque.js
@@ -24,11 +28,10 @@ function Deque(values, capacity) {
     this.addEach(values);
 }
 
-Object.addEach(Deque.prototype, GenericCollection.prototype);
-Object.addEach(Deque.prototype, GenericOrder.prototype);
-Object.addEach(Deque.prototype, RangeChanges.prototype);
-
-Deque.from = GenericCollection.from;
+copyProperties(Deque.prototype, GenericCollection.prototype);
+copyProperties(Deque.prototype, GenericOrder.prototype);
+copyProperties(Deque.prototype, ObservableRange.prototype);
+copyProperties(Deque.prototype, ObservableObject.prototype);
 
 Deque.prototype.maxCapacity = (1 << 30) | 0;
 Deque.prototype.minCapacity = 16;
@@ -39,6 +42,7 @@ Deque.prototype.constructClone = function (values) {
 
 Deque.prototype.add = function (value) {
     this.push(value);
+    return true;
 };
 
 Deque.prototype.push = function (value /* or ...values */) {
@@ -51,7 +55,7 @@ Deque.prototype.push = function (value /* or ...values */) {
             plus[argIndex] = arguments[argIndex];
         }
         var minus = [];
-        this.dispatchBeforeRangeChange(plus, minus, length);
+        this.dispatchRangeWillChange(plus, minus, length);
     }
 
     if (argsLength > 1) {
@@ -97,7 +101,7 @@ Deque.prototype.pop = function () {
     var result = this[index];
 
     if (this.dispatchesRangeChanges) {
-        this.dispatchBeforeRangeChange([], [result], length - 1);
+        this.dispatchRangeWillChange([], [result], length - 1);
     }
 
     this[index] = void 0;
@@ -116,7 +120,7 @@ Deque.prototype.shift = function () {
         var result = this[front];
 
         if (this.dispatchesRangeChanges) {
-            this.dispatchBeforeRangeChange([], [result], 0);
+            this.dispatchRangeWillChange([], [result], 0);
         }
 
         this[front] = void 0;
@@ -141,7 +145,7 @@ Deque.prototype.unshift = function (value /* or ...values */) {
             plus[argIndex] = arguments[argIndex];
         }
         var minus = [];
-        this.dispatchBeforeRangeChange(plus, minus, 0);
+        this.dispatchRangeWillChange(plus, minus, 0);
     }
 
     if (argsLength > 1) {
@@ -239,7 +243,7 @@ Deque.prototype.grow = function (capacity) {
 
 Deque.prototype.init = function () {
     for (var index = 0; index < this.capacity; ++index) {
-        this[index] = "nil"; // TODO void 0
+        this[index] = void 0;
     }
 };
 
@@ -346,9 +350,8 @@ Deque.prototype.lastIndexOf = function (value, index) {
     return -1;
 }
 
-// TODO rename findValue
-Deque.prototype.find = function (value, equals, index) {
-    equals = equals || Object.equals;
+Deque.prototype.findValue = function (value, equals, index) {
+    equals = equals || equalsOperator;
     // Default start index at beginning
     if (index == null) {
         index = 0;
@@ -368,9 +371,8 @@ Deque.prototype.find = function (value, equals, index) {
     return -1;
 };
 
-// TODO rename findLastValue
-Deque.prototype.findLast = function (value, equals, index) {
-    equals = equals || Object.equals;
+Deque.prototype.findLastValue = function (value, equals, index) {
+    equals = equals || equalsOperator;
     // Default start position at the end
     if (index == null) {
         index = this.length - 1;
@@ -391,12 +393,12 @@ Deque.prototype.findLast = function (value, equals, index) {
 };
 
 Deque.prototype.has = function (value, equals) {
-    equals = equals || Object.equals;
+    equals = equals || equalsOperator;
     // Left to right walk
     var mask = this.capacity - 1;
     for (var index = 0; index < this.length; index++) {
         var offset = (this.front + index) & mask;
-        if (this[offset] === value) {
+        if (equals(value, this[offset])) {
             return true;
         }
     }
@@ -425,6 +427,52 @@ Deque.prototype.reduceRight = function (callback, basis /*, thisp*/) {
     return basis;
 };
 
+Deque.prototype.iterate = function (start, stop, step) {
+    if (step == null) {
+        step = 1;
+    }
+    if (stop == null) {
+        stop = start;
+        start = 0;
+    }
+    if (start == null) {
+        start = 0;
+    }
+    if (step == null) {
+        step = 1;
+    }
+    if (stop == null) {
+        stop = this.length;
+    }
+    return new DequeIterator(this, start, stop, step);
+};
+
+function DequeIterator(deque, start, stop, step) {
+    this.deque = deque;
+    this.start = start;
+    this.stop = stop;
+    this.step = step;
+}
+
+DequeIterator.prototype = Object.create(Iterator.prototype);
+DequeIterator.prototype.constructor = DequeIterator;
+
+DequeIterator.prototype.next = function () {
+    if (this.start < this.stop) {
+        var deque = this.deque;
+        var mask = deque.capacity - 1;
+        var offset = (deque.front + this.start) & mask;
+        var iteration = new Iterator.Iteration(
+            deque[offset],
+            this.start
+        );
+        this.start += this.step;
+        return iteration;
+    } else {
+        return Iterator.done;
+    }
+};
+
 function copy(source, sourceIndex, target, targetIndex, length) {
     for (var index = 0; index < length; ++index) {
         target[index + targetIndex] = source[index + sourceIndex];
@@ -441,3 +489,4 @@ function pow2AtLeast(n) {
     n = n | (n >> 16);
     return n + 1;
 }
+

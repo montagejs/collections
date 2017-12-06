@@ -1,11 +1,12 @@
 "use strict";
 
-var Shim = require("./shim");
 var SortedSet = require("./sorted-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
-var PropertyChanges = require("./listen/property-changes");
-var MapChanges = require("./listen/map-changes");
+var ObservableObject = require("pop-observe/observable-object");
+var equalsOperator = require("pop-equals");
+var compareOperator = require("pop-compare");
+var copy = require("./copy");
 
 module.exports = SortedMap;
 
@@ -13,9 +14,9 @@ function SortedMap(values, equals, compare, getDefault) {
     if (!(this instanceof SortedMap)) {
         return new SortedMap(values, equals, compare, getDefault);
     }
-    equals = equals || Object.equals;
-    compare = compare || Object.compare;
-    getDefault = getDefault || Function.noop;
+    equals = equals || equalsOperator;
+    compare = compare || compareOperator;
+    getDefault = getDefault || this.getDefault;
     this.contentEquals = equals;
     this.contentCompare = compare;
     this.getDefault = getDefault;
@@ -32,16 +33,12 @@ function SortedMap(values, equals, compare, getDefault) {
     this.addEach(values);
 }
 
-// hack so require("sorted-map").SortedMap will work in MontageJS
+// hack for MontageJS
 SortedMap.SortedMap = SortedMap;
 
-SortedMap.from = GenericCollection.from;
-
-Object.addEach(SortedMap.prototype, GenericCollection.prototype);
-Object.addEach(SortedMap.prototype, GenericMap.prototype);
-Object.addEach(SortedMap.prototype, PropertyChanges.prototype);
-Object.addEach(SortedMap.prototype, MapChanges.prototype);
-Object.defineProperty(SortedMap.prototype,"size",GenericCollection._sizePropertyDescriptor);
+copy(SortedMap.prototype, GenericCollection.prototype);
+copy(SortedMap.prototype, GenericMap.prototype);
+copy(SortedMap.prototype, ObservableObject.prototype);
 
 SortedMap.prototype.constructClone = function (values) {
     return new this.constructor(
@@ -50,9 +47,6 @@ SortedMap.prototype.constructClone = function (values) {
         this.contentCompare,
         this.getDefault
     );
-};
-SortedMap.prototype.iterate = function () {
-    return this.store.iterate();
 };
 
 SortedMap.prototype.log = function (charmap, logNode, callback, thisp) {
@@ -66,3 +60,4 @@ SortedMap.prototype.logNode = function (node, log) {
     log(" key: " + node.key);
     log(" value: " + node.value);
 };
+

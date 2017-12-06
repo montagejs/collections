@@ -2,21 +2,20 @@
 var List = require("collections/list");
 var describeDeque = require("./deque");
 var describeCollection = require("./collection");
-var describeRangeChanges = require("./listen/range-changes");
-var describeToJson = require("./to-json");
+var describeRangeChanges = Function.noop; /// TODO
 
-describe("List-spec", function () {
+describe("List", function () {
     // new List()
     // List()
     // List(values)
     // List(values, equals)
     // List(values, null, content)
-    // List(values).find(value)
-    // List(values, equals).find(value)
-    // List(values, equals).find(value, equals)
-    // List(values).findLast(value)
-    // List(values, equals).findLast(value)
-    // List(values, equals).findLast(value, equals)
+    // List(values).findValue(value)
+    // List(values, equals).findValue(value)
+    // List(values, equals).findValue(value, equals)
+    // List(values).findLastValue(value)
+    // List(values, equals).findLastValue(value)
+    // List(values, equals).findLastValue(value, equals)
     // List(values).has(value)
     // List(values).has(value, equals)
     // List(values).get(value)
@@ -61,12 +60,24 @@ describe("List-spec", function () {
     //      splice
     //      swap
 
+    newList.prototype = List;
+
     // push, pop, shift, unshift, slice, splice with numeric indicies
     describeDeque(List);
+    describeDeque(newList);
+    function newList(values) {
+        return new List(values);
+    }
 
     // construction, has, add, get, delete
-    describeCollection(List, [1, 2, 3, 4], true);
-    describeCollection(List, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
+    function newList(values) {
+        return new List(values);
+    }
+
+    [List, newList].forEach(function (List) {
+        describeCollection(List, [1, 2, 3, 4], true);
+        describeCollection(List, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
+    });
 
     describe("equals", function () {
         var list = List();
@@ -94,66 +105,46 @@ describe("List-spec", function () {
 
     });
 
-    describe("find", function () {
+    describe("findValue", function () {
 
         it("should find every value in a list", function () {
             var list = List([1, 2, 3, 4]);
-            expect(list.find(1)).toBe(list.head.next);
-            expect(list.find(2)).toBe(list.head.next.next);
-            expect(list.find(3)).toBe(list.head.next.next.next);
-            expect(list.find(4)).toBe(list.head.next.next.next.next);
-            expect(list.find(4)).toBe(list.head.prev);
-            expect(list.find(3)).toBe(list.head.prev.prev);
-            expect(list.find(2)).toBe(list.head.prev.prev.prev);
-            expect(list.find(1)).toBe(list.head.prev.prev.prev.prev);
+            expect(list.findValue(1)).toBe(list.head.next);
+            expect(list.findValue(2)).toBe(list.head.next.next);
+            expect(list.findValue(3)).toBe(list.head.next.next.next);
+            expect(list.findValue(4)).toBe(list.head.next.next.next.next);
+            expect(list.findValue(4)).toBe(list.head.prev);
+            expect(list.findValue(3)).toBe(list.head.prev.prev);
+            expect(list.findValue(2)).toBe(list.head.prev.prev.prev);
+            expect(list.findValue(1)).toBe(list.head.prev.prev.prev.prev);
         });
 
         it("should the first of equivalent values", function () {
             var list = List([0, 1, 1, 0]);
-            expect(list.find(0)).toBe(list.head.next);
-            expect(list.find(1)).toBe(list.head.next.next);
-        });
-
-        it("should find values before startIndex", function () {
-            var list = List([2, 3, 2, 3]);
-            expect(list.find(2, null, 1)).toBe(list.head.next.next.next);
-        });
-
-        it("should use startIndex inclusively", function () {
-            var list = List([2, 3, 2, 3]);
-            expect(list.find(3, null, 1)).toBe(list.head.next.next);
+            expect(list.findValue(0)).toBe(list.head.next);
+            expect(list.findValue(1)).toBe(list.head.next.next);
         });
 
     });
 
-    describe("findLast", function () {
+    describe("findLastValue", function () {
 
         it("should find every value in a list", function () {
             var list = List([1, 2, 3, 4]);
-            expect(list.findLast(1)).toBe(list.head.next);
-            expect(list.findLast(2)).toBe(list.head.next.next);
-            expect(list.findLast(3)).toBe(list.head.next.next.next);
-            expect(list.findLast(4)).toBe(list.head.next.next.next.next);
-            expect(list.findLast(4)).toBe(list.head.prev);
-            expect(list.findLast(3)).toBe(list.head.prev.prev);
-            expect(list.findLast(2)).toBe(list.head.prev.prev.prev);
-            expect(list.findLast(1)).toBe(list.head.prev.prev.prev.prev);
+            expect(list.findLastValue(1)).toBe(list.head.next);
+            expect(list.findLastValue(2)).toBe(list.head.next.next);
+            expect(list.findLastValue(3)).toBe(list.head.next.next.next);
+            expect(list.findLastValue(4)).toBe(list.head.next.next.next.next);
+            expect(list.findLastValue(4)).toBe(list.head.prev);
+            expect(list.findLastValue(3)).toBe(list.head.prev.prev);
+            expect(list.findLastValue(2)).toBe(list.head.prev.prev.prev);
+            expect(list.findLastValue(1)).toBe(list.head.prev.prev.prev.prev);
         });
 
         it("should prefer later equivalent values", function () {
             var list = List([0, 1, 1, 0]);
-            expect(list.findLast(0)).toBe(list.head.prev);
-            expect(list.findLast(1)).toBe(list.head.prev.prev);
-        });
-
-        it("should find values before endIndex", function () {
-            var list = List([2, 3, 2, 3]);
-            expect(list.findLast(2, null, 1)).toBe(list.head.next);
-        });
-
-        it("should use endIndex inclusively", function () {
-            var list = List([2, 3, 2, 3]);
-            expect(list.findLast(3, null, 1)).toBe(list.head.next.next);
+            expect(list.findLastValue(0)).toBe(list.head.prev);
+            expect(list.findLastValue(1)).toBe(list.head.prev.prev);
         });
 
     });
@@ -164,19 +155,19 @@ describe("List-spec", function () {
 
         it("should splice to end with only an offset argument", function () {
             var collection = List([1, 2, 3, 4]);
-            expect(collection.splice(collection.find(3))).toEqual([3, 4]);
+            expect(collection.splice(collection.findValue(3))).toEqual([3, 4]);
             expect(collection.toArray()).toEqual([1, 2]);
         });
 
         it("should splice nothing with no length", function () {
             var collection = List([1, 2, 3, 4]);
-            expect(collection.splice(collection.find(3), 0)).toEqual([]);
+            expect(collection.splice(collection.findValue(3), 0)).toEqual([]);
             expect(collection.toArray()).toEqual([1, 2, 3, 4]);
         });
 
         it("should splice one value", function () {
             var collection = List([1, 2, 3, 4]);
-            expect(collection.splice(collection.find(3), 1)).toEqual([3]);
+            expect(collection.splice(collection.findValue(3), 1)).toEqual([3]);
             expect(collection.toArray()).toEqual([1, 2, 4]);
         });
 
@@ -194,21 +185,7 @@ describe("List-spec", function () {
 
     });
 
-    describe("deleteAll", function () {
-        it("deletes all equivalent values", function () {
-            var anyEven = {
-                equals: function (that) {
-                    return that % 2 === 0;
-                }
-            };
-            var collection = List([1, 2, 3, 4, 5]);
-            expect(collection.deleteAll(anyEven)).toBe(2);
-            expect(collection.toArray()).toEqual([1, 3, 5]);
-            expect(collection.length).toBe(3);
-        });
-    });
-
     describeRangeChanges(List);
-    describeToJson(List, [1, 2, 3, 4]);
 
 });
+

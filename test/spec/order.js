@@ -1,5 +1,6 @@
 
 var GenericCollection = require("collections/generic-collection");
+var Iterator = require("collections/iterator");
 
 module.exports = describeOrder;
 function describeOrder(Collection) {
@@ -50,7 +51,8 @@ function describeOrder(Collection) {
 
         // contains 10, 20, 30
         it("a fake array should be equal to collection", function () {
-            expect(Object.compare(fakeArray, Collection([10, 20, 30]))).toEqual(-0);
+            // The oddest thing happens here because of a negative zero
+            expect(-Object.compare(fakeArray, Collection([10, 20, 30]))).toEqual(0);
         });
 
         it("a fake array should be less than a collection", function () {
@@ -147,22 +149,22 @@ function describeOrder(Collection) {
 
     });
 
-    describe("find", function () {
+    describe("findValue", function () {
 
         it("finds equivalent values", function () {
-            expect(Collection([10, 10, 10]).find(10)).toEqual(0);
+            expect(Collection([10, 10, 10]).findValue(10)).toEqual(0);
         });
 
         it("finds equivalent values", function () {
-            expect(Collection([10, 10, 10]).find(10)).toEqual(0);
+            expect(Collection([10, 10, 10]).findValue(10)).toEqual(0);
         });
 
     });
 
-    describe("findLast", function () {
+    describe("findLastValue", function () {
 
         it("finds equivalent values", function () {
-            expect(Collection([10, 10, 10]).findLast(10)).toEqual(2);
+            expect(Collection([10, 10, 10]).findLastValue(10)).toEqual(2);
         });
 
     });
@@ -219,7 +221,7 @@ function describeOrder(Collection) {
 
         tests.forEach(function (test) {
             it(JSON.stringify(test[0]) + ".any() should be " + test[1], function () {
-                expect(Collection(test[0]).any()).toEqual(test[1]);
+                expect(Collection(test[0]).some(Boolean)).toEqual(test[1]);
             });
         });
 
@@ -237,7 +239,7 @@ function describeOrder(Collection) {
 
         tests.forEach(function (test) {
             it(JSON.stringify(test[0]) + ".all() should be " + test[1], function () {
-                expect(Collection(test[0]).all()).toEqual(test[1]);
+                expect(Collection(test[0]).every(Boolean)).toEqual(test[1]);
             });
         });
 
@@ -352,6 +354,23 @@ function describeOrder(Collection) {
             expect(collection.clone(2).one()).toEqual(collection.one());
         });
 
+    });
+
+    describe("iterate", function () {
+        it("iterates a slice", function () {
+            var collection = Collection([1, 2, 3, 4]);
+            expect(collection.toArray()).toEqual([1, 2, 3, 4]);
+            var iterator = collection.iterate(1, 3);
+
+            for (var index = 1; index < 3; index++) {
+                var iteration = iterator.next();
+                expect(iteration.value).toBe(index + 1);
+                expect(iteration.index).toBe(index);
+                expect(iteration.done).toBe(false);
+            }
+            expect(iterator.next()).toEqual(Iterator.done);
+            expect(iterator.next()).toEqual(Iterator.done);
+        });
     });
 
 }

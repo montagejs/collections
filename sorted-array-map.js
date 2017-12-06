@@ -1,11 +1,12 @@
 "use strict";
 
-var Shim = require("./shim");
 var SortedArraySet = require("./sorted-array-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
-var PropertyChanges = require("./listen/property-changes");
-var MapChanges = require("./listen/map-changes");
+var ObservableObject = require("pop-observe/observable-object");
+var equalsOperator = require("pop-equals");
+var compareOperator = require("pop-compare");
+var copy = require("./copy");
 
 module.exports = SortedArrayMap;
 
@@ -13,9 +14,9 @@ function SortedArrayMap(values, equals, compare, getDefault) {
     if (!(this instanceof SortedArrayMap)) {
         return new SortedArrayMap(values, equals, compare, getDefault);
     }
-    equals = equals || Object.equals;
-    compare = compare || Object.compare;
-    getDefault = getDefault || Function.noop;
+    equals = equals || equalsOperator;
+    compare = compare || compareOperator;
+    getDefault = getDefault || this.getDefault;
     this.contentEquals = equals;
     this.contentCompare = compare;
     this.getDefault = getDefault;
@@ -32,17 +33,12 @@ function SortedArrayMap(values, equals, compare, getDefault) {
     this.addEach(values);
 }
 
-// hack so require("sorted-array-map").SortedArrayMap will work in MontageJS
+// hack for MontageJS
 SortedArrayMap.SortedArrayMap = SortedArrayMap;
 
-Object.addEach(SortedArrayMap.prototype, GenericCollection.prototype);
-Object.addEach(SortedArrayMap.prototype, GenericMap.prototype);
-Object.addEach(SortedArrayMap.prototype, PropertyChanges.prototype);
-Object.addEach(SortedArrayMap.prototype, MapChanges.prototype);
-
-SortedArrayMap.from = GenericCollection.from;
-
-SortedArrayMap.prototype.isSorted = true;
+copy(SortedArrayMap.prototype, GenericCollection.prototype);
+copy(SortedArrayMap.prototype, GenericMap.prototype);
+copy(SortedArrayMap.prototype, ObservableObject.prototype);
 
 SortedArrayMap.prototype.constructClone = function (values) {
     return new this.constructor(
@@ -52,3 +48,4 @@ SortedArrayMap.prototype.constructClone = function (values) {
         this.getDefault
     );
 };
+

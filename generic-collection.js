@@ -1,23 +1,17 @@
 "use strict";
 
+var equalsOperator = require("pop-equals");
+var compareOperator = require("pop-compare");
+var cloneOperator = require("pop-clone");
+var unzipOperator = require("pop-zip/pop-unzip");
+
 module.exports = GenericCollection;
 function GenericCollection() {
     throw new Error("Can't construct. GenericCollection is a mixin.");
 }
 
-var DOMTokenList = global.DOMTokenList || function(){};
-
-GenericCollection.EmptyArray = Object.freeze([]);
-
-/* TODO: optimize for DOMTokenList and Array to use for() instead of forEach */
 GenericCollection.prototype.addEach = function (values) {
-    //We want to eliminate everything but array like: Strings, Arrays, DOMTokenList
-    if(values && (values instanceof Array || (values instanceof DOMTokenList) || values instanceof String)) {
-        for (var i = 0; i < values.length; i++) {
-            this.add(values[i], i);
-        }
-    }
-    else if (values && Object(values) === values) {
+    if (values && Object(values) === values) {
         if (typeof values.forEach === "function") {
             values.forEach(this.add, this);
         } else if (typeof values.length === "number") {
@@ -75,7 +69,7 @@ GenericCollection.prototype.enumerate = function (start) {
 };
 
 GenericCollection.prototype.group = function (callback, thisp, equals) {
-    equals = equals || Object.equals;
+    equals = equals || equalsOperator;
     var groups = [];
     var keys = [];
     this.forEach(function (value, key, object) {
@@ -95,7 +89,7 @@ GenericCollection.prototype.group = function (callback, thisp, equals) {
 };
 
 GenericCollection.prototype.toArray = function () {
-    return this.map(Function.identity);
+    return this.map(identity);
 };
 
 // this depends on stringable keys, which apply to Array and Iterator
@@ -108,10 +102,6 @@ GenericCollection.prototype.toObject = function () {
         object[key] = value;
     }, undefined);
     return object;
-};
-
-GenericCollection.from = function () {
-    return this.apply(this,arguments);
 };
 
 GenericCollection.prototype.filter = function (callback /*, thisp*/) {
@@ -127,28 +117,32 @@ GenericCollection.prototype.filter = function (callback /*, thisp*/) {
 
 GenericCollection.prototype.every = function (callback /*, thisp*/) {
     var thisp = arguments[1];
-    return this.reduce(function (result, value, key, object, depth) {
-        return result && callback.call(thisp, value, key, object, depth);
-    }, true);
+    var iterator = this.iterate();
+    while (true) {
+        var iteration = iterator.next();
+        if (iteration.done) {
+            return true;
+        } else if (!callback.call(thisp, iteration.value, iteration.index, this)) {
+            return false;
+        }
+    }
 };
 
 GenericCollection.prototype.some = function (callback /*, thisp*/) {
     var thisp = arguments[1];
-    return this.reduce(function (result, value, key, object, depth) {
-        return result || callback.call(thisp, value, key, object, depth);
-    }, false);
-};
-
-GenericCollection.prototype.all = function () {
-    return this.every(Boolean);
-};
-
-GenericCollection.prototype.any = function () {
-    return this.some(Boolean);
+    var iterator = this.iterate();
+    while (true) {
+        var iteration = iterator.next();
+        if (iteration.done) {
+            return false;
+        } else if (callback.call(thisp, iteration.value, iteration.index, this)) {
+            return true;
+        }
+    }
 };
 
 GenericCollection.prototype.min = function (compare) {
-    compare = compare || this.contentCompare || Object.compare;
+    compare = compare || this.contentCompare || compareOperator;
     var first = true;
     return this.reduce(function (result, value) {
         if (first) {
@@ -161,7 +155,7 @@ GenericCollection.prototype.min = function (compare) {
 };
 
 GenericCollection.prototype.max = function (compare) {
-    compare = compare || this.contentCompare || Object.compare;
+    compare = compare || this.contentCompare || compareOperator;
     var first = true;
     return this.reduce(function (result, value) {
         if (first) {
@@ -211,28 +205,23 @@ GenericCollection.prototype.flatten = function () {
 GenericCollection.prototype.zip = function () {
     var table = Array.prototype.slice.call(arguments);
     table.unshift(this);
-    return Array.unzip(table);
+    return unzipOperator(table);
 }
 
 GenericCollection.prototype.join = function (delimiter) {
     return this.reduce(function (result, string) {
-        // work-around for reduce that does not support no-basis form
-        if (result === void 0) {
-            return string;
-        } else {
-            return result + delimiter + string;
-        }
-    }, void 0);
+        return result + delimiter + string;
+    });
 };
 
 GenericCollection.prototype.sorted = function (compare, by, order) {
-    compare = compare || this.contentCompare || Object.compare;
+    compare = compare || this.contentCompare || compareOperator;
     // account for comparators generated by Function.by
     if (compare.by) {
         by = compare.by;
-        compare = compare.compare || this.contentCompare || Object.compare;
+        compare = compare.compare || this.contentCompare || compareOperator;
     } else {
-        by = by || Function.identity;
+        by = by || identity;
     }
     if (order === undefined)
         order = 1;
@@ -254,17 +243,18 @@ GenericCollection.prototype.reversed = function () {
     return this.constructClone(this).reverse();
 };
 
-GenericCollection.prototype.clone = function (depth, memo) {
+GenericCollection.prototype.clone = function (depth, memo, clone) {
     if (depth === undefined) {
         depth = Infinity;
     } else if (depth === 0) {
         return this;
     }
-    var clone = this.constructClone();
+    clone = clone || cloneOperator;
+    var collection = this.constructClone();
     this.forEach(function (value, key) {
-        clone.add(Object.clone(value, depth - 1, memo), key);
+        collection.add(clone(value, depth - 1, memo), key);
     }, this);
-    return clone;
+    return collection;
 };
 
 GenericCollection.prototype.only = function () {
@@ -273,18 +263,4 @@ GenericCollection.prototype.only = function () {
     }
 };
 
-GenericCollection.prototype.iterator = function () {
-    return this.iterate.apply(this, arguments);
-};
-
-GenericCollection._sizePropertyDescriptor = {
-    get: function() {
-        return this.length;
-    },
-    enumerable: false,
-    configurable: true
-};
-
-Object.defineProperty(GenericCollection.prototype,"size",GenericCollection._sizePropertyDescriptor);
-
-require("./shim-array");
+function identity(value) { return value; }

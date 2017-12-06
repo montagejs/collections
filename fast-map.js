@@ -1,11 +1,12 @@
 "use strict";
 
-var Shim = require("./shim");
 var Set = require("./fast-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
-var PropertyChanges = require("./listen/property-changes");
-var MapChanges = require("./listen/map-changes");
+var ObservableObject = require("pop-observe/observable-object");
+var equalsOperator = require("pop-equals");
+var hashOperator = require("pop-hash");
+var copy = require("./copy");
 
 module.exports = FastMap;
 
@@ -13,9 +14,9 @@ function FastMap(values, equals, hash, getDefault) {
     if (!(this instanceof FastMap)) {
         return new FastMap(values, equals, hash, getDefault);
     }
-    equals = equals || Object.equals;
-    hash = hash || Object.hash;
-    getDefault = getDefault || Function.noop;
+    equals = equals || equalsOperator;
+    hash = hash || hashOperator;
+    getDefault = getDefault || this.getDefault;
     this.contentEquals = equals;
     this.contentHash = hash;
     this.getDefault = getDefault;
@@ -32,14 +33,12 @@ function FastMap(values, equals, hash, getDefault) {
     this.addEach(values);
 }
 
-FastMap.FastMap = FastMap; // hack so require("fast-map").FastMap will work in MontageJS
+FastMap.FastMap = FastMap; // hack for MontageJS
 
-Object.addEach(FastMap.prototype, GenericCollection.prototype);
-Object.addEach(FastMap.prototype, GenericMap.prototype);
-Object.addEach(FastMap.prototype, PropertyChanges.prototype);
-Object.addEach(FastMap.prototype, MapChanges.prototype);
+copy(FastMap.prototype, GenericCollection.prototype);
+copy(FastMap.prototype, GenericMap.prototype);
+copy(FastMap.prototype, ObservableObject.prototype);
 
-FastMap.from = GenericCollection.from;
 FastMap.prototype.constructClone = function (values) {
     return new this.constructor(
         values,
@@ -57,3 +56,4 @@ FastMap.prototype.log = function (charmap, stringify) {
 FastMap.prototype.stringify = function (item, leader) {
     return leader + JSON.stringify(item.key) + ": " + JSON.stringify(item.value);
 }
+

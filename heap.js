@@ -2,12 +2,14 @@
 // Adapted from Eloquent JavaScript by Marijn Haverbeke
 // http://eloquentjavascript.net/appendix2.html
 
-var ArrayChanges = require("./listen/array-changes");
-var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
-var MapChanges = require("./listen/map-changes");
-var RangeChanges = require("./listen/range-changes");
-var PropertyChanges = require("./listen/property-changes");
+var ObservableObject = require("pop-observe/observable-object");
+var ObservableRange = require("pop-observe/observable-range");
+var ObservableMap = require("pop-observe/observable-map");
+var O = require("pop-observe");
+var equalsOperator = require("pop-equals");
+var compareOperator = require("pop-compare");
+var copy = require("./copy");
 
 // Max Heap by default.  Comparison can be reversed to produce a Min Heap.
 
@@ -17,21 +19,19 @@ function Heap(values, equals, compare) {
     if (!(this instanceof Heap)) {
         return new Heap(values, equals, compare);
     }
-    this.contentEquals = equals || Object.equals;
-    this.contentCompare = compare || Object.compare;
+    this.contentEquals = equals || equalsOperator;
+    this.contentCompare = compare || compareOperator;
     this.content = [];
     this.length = 0;
     this.addEach(values);
 }
 
-Heap.Heap = Heap; // hack so require("heap").Heap will work in MontageJS
+Heap.Heap = Heap; // hack for MontageJS
 
-Object.addEach(Heap.prototype, GenericCollection.prototype);
-Object.addEach(Heap.prototype, PropertyChanges.prototype);
-Object.addEach(Heap.prototype, RangeChanges.prototype);
-Object.addEach(Heap.prototype, MapChanges.prototype);
-
-Heap.from = GenericCollection.from;
+copy(Heap.prototype, GenericCollection.prototype);
+copy(Heap.prototype, ObservableObject.prototype);
+copy(Heap.prototype, ObservableRange.prototype);
+copy(Heap.prototype, ObservableMap.prototype);
 
 Heap.prototype.constructClone = function (values) {
     return new this.constructor(
@@ -41,7 +41,6 @@ Heap.prototype.constructClone = function (values) {
     );
 };
 
-// TODO variadic
 Heap.prototype.push = function (value) {
     this.content.push(value);
     this.float(this.content.length - 1);
@@ -60,7 +59,11 @@ Heap.prototype.pop = function () {
     // If there are any values remaining, put the last value on the top and
     // let it sink back down.
     if (this.content.length > 0) {
-        this.content.set(0, top);
+        if (this.content.set) {
+            this.content.set(0, top);
+        } else {
+            this.content[0] = top;
+        }
         this.sink(0);
     }
     this.length--;
@@ -84,10 +87,7 @@ Heap.prototype.indexOf = function (value) {
     return -1;
 };
 
-Heap.prototype["delete"] = function (value, equals) {
-    if (equals) {
-        throw new Error("Heap#delete does not support second argument: equals");
-    }
+Heap.prototype.delete = function (value) {
     var index = this.indexOf(value);
     if (index === -1)
         return false;
@@ -95,7 +95,11 @@ Heap.prototype["delete"] = function (value, equals) {
     this.length = this.content.length;
     if (index === this.content.length)
         return true;
-    this.content.set(index, top);
+    if (this.content.set) {
+        this.content.set(index, top);
+    } else {
+        this.content[index] = top;
+    }
     var comparison = this.contentCompare(top, value);
     if (comparison > 0) {
         this.float(index);
@@ -130,8 +134,13 @@ Heap.prototype.float = function (index) {
         var parent = this.content[parentIndex];
         // If the parent is less than it
         if (this.contentCompare(parent, value) < 0) {
-            this.content.set(parentIndex, value);
-            this.content.set(index, parent);
+            if (this.content.set) {
+                this.content.set(parentIndex, value);
+                this.content.set(index, parent);
+            } else {
+                this.content[parentIndex] = value;
+                this.content[index] = parent;
+            }
         } else {
             // Stop propagating if the parent is greater than the value.
             break;
@@ -184,8 +193,13 @@ Heap.prototype.sink = function (index) {
         // if there is a child that is less than the value, float the child and
         // sink the value.
         if (needsSwap) {
-            this.content.set(index, this.content[swapIndex]);
-            this.content.set(swapIndex, value);
+            if (this.content.set) {
+                this.content.set(index, this.content[swapIndex]);
+                this.content.set(swapIndex, value);
+            } else {
+                this.content[index] = this.content[swapIndex];
+                this.content[swapIndex] = value;
+            }
             index = swapIndex;
             // and continue sinking
         } else {
@@ -216,16 +230,23 @@ Heap.prototype.reduceRight = function (callback, basis /*, thisp*/) {
     }, basis, this);
 };
 
-Heap.prototype.toJSON = function () {
-    return this.toArray();
+Heap.prototype.makeMapChangesObservable = function () {
+    this.makeChangesObservable();
+    this.dispatchesMapChanges = true;
 };
 
-Heap.prototype.makeObservable = function () {
-    // TODO refactor dispatchers to allow direct forwarding
-    this.content.addRangeChangeListener(this, "content");
-    this.content.addBeforeRangeChangeListener(this, "content");
-    this.content.addMapChangeListener(this, "content");
-    this.content.addBeforeMapChangeListener(this, "content");
+Heap.prototype.makeRangeChangesObservable = function () {
+    this.makeChangesObservable();
+    this.dispatchesRangeChanges = true;
+};
+
+Heap.prototype.makeChangesObservable = function () {
+    if (this.dispatchesChanges) {
+        return;
+    }
+    O.observeMapChange(this.content, this, "content");
+    O.observeMapWillChange(this.content, this, "content");
+    this.dispatchesChanges = true;
 };
 
 Heap.prototype.handleContentRangeChange = function (plus, minus, index) {
@@ -233,13 +254,14 @@ Heap.prototype.handleContentRangeChange = function (plus, minus, index) {
 };
 
 Heap.prototype.handleContentRangeWillChange = function (plus, minus, index) {
-    this.dispatchBeforeRangeChange(plus, minus, index);
+    this.dispatchRangeWillChange(plus, minus, index);
 };
 
-Heap.prototype.handleContentMapChange = function (value, key) {
-    this.dispatchMapChange(key, value);
+Heap.prototype.handleContentMapChange = function (plus, minus, key, type) {
+    this.dispatchMapChange(type, key, plus, minus);
 };
 
-Heap.prototype.handleContentMapWillChange = function (value, key) {
-    this.dispatchBeforeMapChange(key, value);
+Heap.prototype.handleContentMapWillChange = function (plus, minus, key, type) {
+    this.dispatchMapWillChange(type, key, plus, minus);
 };
+

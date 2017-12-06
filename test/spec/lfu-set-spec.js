@@ -1,15 +1,21 @@
+
+var sinon = require("sinon");
 var LfuSet = require("collections/lfu-set");
 var describeCollection = require("./collection");
 var describeSet = require("./set");
-var describeToJson = require("./to-json");
 
-describe("LfuSet-spec", function () {
+describe("LfuSet", function () {
 
     // construction, has, add, get, delete
-    describeCollection(LfuSet, [1, 2, 3, 4], true);
-    describeCollection(LfuSet, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
-    describeSet(LfuSet);
-    describeToJson(LfuSet, [1, 2, 3, 4]);
+    function newLfuSet(values) {
+        return new LfuSet(values);
+    }
+
+    [LfuSet, newLfuSet].forEach(function (LfuSet) {
+        describeCollection(LfuSet, [1, 2, 3, 4], true);
+        describeCollection(LfuSet, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
+        describeSet(LfuSet);
+    });
 
     it("should handle many repeated values", function () {
         var set = new LfuSet([1, 1, 1, 2, 2, 2, 1, 2]);
@@ -28,7 +34,7 @@ describe("LfuSet-spec", function () {
     it("should emit LFU changes as singleton operation", function () {
         var a = 1, b = 2, c = 3, d = 4;
         var lfuset = LfuSet([d, c, a, b, c], 3);
-        lfuset.addRangeChangeListener(function(plus, minus) {
+        lfuset.observeRangeChange(function(plus, minus) {
             expect(plus).toEqual([d]);
             expect(minus).toEqual([a]);
         });
@@ -37,20 +43,17 @@ describe("LfuSet-spec", function () {
 
     it("should dispatch LRU changes as singleton operation", function () {
         var set = LfuSet([4, 3, 1, 2, 3], 3);
-        var spy = jasmine.createSpy();
-        set.addBeforeRangeChangeListener(function (plus, minus) {
+        var spy = sinon.spy();
+        set.observeRangeChange(function (plus, minus) {
             spy('before-plus', plus);
             spy('before-minus', minus);
         });
-        set.addRangeChangeListener(function (plus, minus) {
+        set.observeRangeChange(function (plus, minus) {
             spy('after-plus', plus);
             spy('after-minus', minus);
         });
         expect(set.add(4)).toBe(false);
-
-        
-        var argsForCall = spy.calls.all().map(function (call) { return call.args });
-        expect(argsForCall).toEqual([
+        expect(spy.args).toEqual([
             ['before-plus', [4]],
             ['before-minus', [1]],
             ['after-plus', [4]],
@@ -58,3 +61,4 @@ describe("LfuSet-spec", function () {
         ]);
     })
 });
+

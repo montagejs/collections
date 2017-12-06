@@ -5,18 +5,14 @@ var prng = require("./prng");
 
 exports.fuzzDeque = fuzzDeque;
 function fuzzDeque(Deque) {
-    describe('fuzz', function () {
-        it ("should pass deque fuzz", function () {
-            for (var biasWeight = .3; biasWeight < .8; biasWeight += .2) {
-                for (var maxAddLength = 1; maxAddLength < 5; maxAddLength += 3) {
-                    for (var seed = 0; seed < 10; seed++) {
-                        var plan = makePlan(100, seed, biasWeight, maxAddLength);
-                            execute(Deque, plan.ops); 
-                    }
-                }
-            } 
-        });
-    });
+    for (var biasWeight = .3; biasWeight < .8; biasWeight += .2) {
+        for (var maxAddLength = 1; maxAddLength < 5; maxAddLength += 3) {
+            for (var seed = 0; seed < 10; seed++) {
+                var plan = makePlan(100, seed, biasWeight, maxAddLength);
+                execute(Deque, plan.ops);
+            }
+        }
+    }
 }
 
 exports.makePlan = makePlan;

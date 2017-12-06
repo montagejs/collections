@@ -2,7 +2,7 @@
 require("collections/shim-object");
 require("collections/shim-function");
 
-describe("FunctionShim-spec", function () {
+describe("Function", function () {
 
     describe("identity", function () {
 

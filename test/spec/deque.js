@@ -4,6 +4,7 @@
 // SortedSet, all of these tests maintain the sorted order of the collection.
 
 var fuzzDeque = require("./deque-fuzz").fuzzDeque;
+var Iterator = require("collections/iterator");
 
 module.exports = describeDeque;
 function describeDeque(Deque) {
@@ -245,10 +246,35 @@ function describeDeque(Deque) {
         });
     });
 
-    
     if (!Deque.prototype.isSorted) {
-        fuzzDeque(Deque);
+        it("survives fuzz", function () {
+            fuzzDeque(Deque);
+        });
     }
+
+    describe("peek and poke", function () {
+        if (!Deque.prototype.poke && !Deque.prototype.peek)
+            return;
+        it("should operate on the first value in the deque", function () {
+            var deque = Deque([1, 2, 3, 4, 5, 6, 7, 8]);
+            expect(deque.peek()).toBe(1);
+            expect(deque.poke(2)).toBe(undefined);
+            expect(deque.shift()).toBe(2);
+            expect(deque.peek()).toBe(2);
+        });
+    });
+
+    describe("peekBack and pokeBack", function () {
+        if (!Deque.prototype.pokeBack && !Deque.prototype.peekBack)
+            return;
+        var deque = Deque([1, 2, 3, 4, 5, 6, 7, 8]);
+        it("should operate on the last value in the deque", function () {
+            expect(deque.peekBack()).toBe(8);
+            expect(deque.pokeBack(9)).toBe(undefined);
+            expect(deque.pop()).toBe(9);
+            expect(deque.peekBack()).toBe(7);
+        });
+    });
 
     // TODO peekBack
     // TODO pokeBack
@@ -256,28 +282,6 @@ function describeDeque(Deque) {
     // from https://github.com/petkaantonov/deque
 
     describe("peek", function () {
-
-
-        if (Deque.prototype.poke && Deque.prototype.peek) {
-            it("peek and poke", function () {
-                var deque = Deque([1, 2, 3, 4, 5, 6, 7, 8]);
-                expect(deque.peek()).toBe(1);
-                expect(deque.poke(2)).toBe(undefined);
-                expect(deque.shift()).toBe(2);
-                expect(deque.peek()).toBe(2);
-            });
-        }
-
-        if (Deque.prototype.pokeBack && Deque.prototype.peekBack) {
-            it("peekBack and pokeBack", function () {
-                var deque = Deque([1, 2, 3, 4, 5, 6, 7, 8]);
-                expect(deque.peekBack()).toBe(8);
-                expect(deque.pokeBack(9)).toBe(undefined);
-                expect(deque.pop()).toBe(9);
-                expect(deque.peekBack()).toBe(7);
-            });
-        }
-
         if (!Deque.prototype.peek)
             return;
 
@@ -330,9 +334,30 @@ function describeDeque(Deque) {
 
     describe("clear", function () {
         it("should clear the deque", function() {
-            var a = new Deque([1,2,3,4]);
+            var a = Deque([1,2,3,4]);
             a.clear();
             expect(a.length).toBe(0);
+        });
+    });
+
+    describe("iterate", function () {
+        it("iterates", function () {
+            var deque = Deque();
+            deque.push(3, 4, 5);
+            deque.unshift(0, 1, 2);
+            deque.pop();
+            deque.shift();
+            expect(deque.toArray()).toEqual([1, 2, 3, 4]);
+            var iterator = deque.iterate();
+
+            for (var index = 0; index < 4; index++) {
+                var iteration = iterator.next();
+                expect(iteration.value).toBe(index + 1);
+                expect(iteration.index).toBe(index);
+                expect(iteration.done).toBe(false);
+            }
+            expect(iterator.next()).toEqual(Iterator.done);
+            expect(iterator.next()).toEqual(Iterator.done);
         });
     });
 

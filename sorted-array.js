@@ -2,10 +2,16 @@
 
 module.exports = SortedArray;
 
-var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
-var PropertyChanges = require("./listen/property-changes");
-var RangeChanges = require("./listen/range-changes");
+var ObservableObject = require("pop-observe/observable-object");
+var ObservableRange = require("pop-observe/observable-range");
+var equalsOperator = require("pop-equals");
+var compareOperator = require("pop-compare");
+var hasOperator = require("pop-has");
+var iterateOperator = require("pop-iterate");
+var clear = require("pop-clear");
+var swap = require("pop-swap/swap");
+var copy = require("./copy");
 
 function SortedArray(values, equals, compare, getDefault) {
     if (!(this instanceof SortedArray)) {
@@ -17,22 +23,20 @@ function SortedArray(values, equals, compare, getDefault) {
     } else {
         this.array = [];
     }
-    this.contentEquals = equals || Object.equals;
-    this.contentCompare = compare || Object.compare;
-    this.getDefault = getDefault || Function.noop;
+    this.contentEquals = equals || equalsOperator;
+    this.contentCompare = compare || compareOperator;
+    this.getDefault = getDefault || noop;
 
     this.length = 0;
     this.addEach(values);
 }
 
-// hack so require("sorted-array").SortedArray will work in MontageJS
+// hack for MontageJS
 SortedArray.SortedArray = SortedArray;
 
-SortedArray.from = GenericCollection.from;
-
-Object.addEach(SortedArray.prototype, GenericCollection.prototype);
-Object.addEach(SortedArray.prototype, PropertyChanges.prototype);
-Object.addEach(SortedArray.prototype, RangeChanges.prototype);
+copy(SortedArray.prototype, GenericCollection.prototype);
+copy(SortedArray.prototype, ObservableObject.prototype);
+copy(SortedArray.prototype, ObservableRange.prototype);
 
 SortedArray.prototype.isSorted = true;
 
@@ -109,16 +113,14 @@ SortedArray.prototype.constructClone = function (values) {
 
 SortedArray.prototype.has = function (value, equals) {
     if (equals) {
-        throw new Error("SortedSet#has does not support second argument: equals");
+        return hasOperator(this.array, value, equals);
+    } else {
+        var index = search(this.array, value, this.contentCompare);
+        return index >= 0 && this.contentEquals(this.array[index], value);
     }
-    var index = search(this.array, value, this.contentCompare);
-    return index >= 0 && this.contentEquals(this.array[index], value);
 };
 
-SortedArray.prototype.get = function (value, equals) {
-    if (equals) {
-        throw new Error("SortedArray#get does not support second argument: equals");
-    }
+SortedArray.prototype.get = function (value) {
     var index = searchFirst(this.array, value, this.contentCompare, this.contentEquals);
     if (index !== -1) {
         return this.array[index];
@@ -130,29 +132,26 @@ SortedArray.prototype.get = function (value, equals) {
 SortedArray.prototype.add = function (value) {
     var index = searchForInsertionIndex(this.array, value, this.contentCompare);
     if (this.dispatchesRangeChanges) {
-        this.dispatchBeforeRangeChange([value], Array.empty, index);
+        this.dispatchRangeWillChange([value], [], index);
     }
     this.array.splice(index, 0, value);
     this.length++;
     if (this.dispatchesRangeChanges) {
-        this.dispatchRangeChange([value], Array.empty, index);
+        this.dispatchRangeChange([value], [], index);
     }
     return true;
 };
 
-SortedArray.prototype["delete"] = function (value, equals) {
-    if (equals) {
-        throw new Error("SortedArray#delete does not support second argument: equals");
-    }
+SortedArray.prototype["delete"] = function (value) {
     var index = searchFirst(this.array, value, this.contentCompare, this.contentEquals);
     if (index !== -1) {
         if (this.dispatchesRangeChanges) {
-            this.dispatchBeforeRangeChange(Array.empty, [value], index);
+            this.dispatchRangeWillChange([], [value], index);
         }
-        this.array.spliceOne(index);
+        this.array.splice(index, 1);
         this.length--;
         if (this.dispatchesRangeChanges) {
-            this.dispatchRangeChange(Array.empty, [value], index);
+            this.dispatchRangeChange([], [value], index);
         }
         return true;
     } else {
@@ -160,64 +159,19 @@ SortedArray.prototype["delete"] = function (value, equals) {
     }
 };
 
-SortedArray.prototype.deleteAll = function (value, equals) {
-    if (equals) {
-        var count = this.array.deleteAll(value, equals);
-        this.length -= count;
-        return count;
-    } else {
-        var start = searchFirst(this.array, value, this.contentCompare, this.contentEquals);
-        if (start !== -1) {
-            var end = start;
-            while (this.contentEquals(value, this.array[end])) {
-                end++;
-            }
-            var minus = this.slice(start, end);
-            if (this.dispatchesRangeChanges) {
-                this.dispatchBeforeRangeChange(Array.empty, minus, start);
-            }
-            this.array.splice(start, minus.length);
-            this.length -= minus.length;
-            if (this.dispatchesRangeChanges) {
-                this.dispatchRangeChange(Array.empty, minus, start);
-            }
-            return minus.length;
-        } else {
-            return 0;
-        }
-    }
-};
-
 SortedArray.prototype.indexOf = function (value) {
-    // TODO throw error if provided a start index
     return searchFirst(this.array, value, this.contentCompare, this.contentEquals);
 };
 
 SortedArray.prototype.lastIndexOf = function (value) {
-    // TODO throw error if provided a start index
     return searchLast(this.array, value, this.contentCompare, this.contentEquals);
 };
 
-SortedArray.prototype.find = function (value, equals, index) {
-    // TODO throw error if provided a start index
-    if (equals) {
-        throw new Error("SortedArray#find does not support second argument: equals");
-    }
-    if (index) {
-        throw new Error("SortedArray#find does not support third argument: index");
-    }
-    // TODO support initial partition index
+SortedArray.prototype.findValue = function (value) {
     return searchFirst(this.array, value, this.contentCompare, this.contentEquals);
 };
 
-SortedArray.prototype.findLast = function (value, equals, index) {
-    if (equals) {
-        throw new Error("SortedArray#findLast does not support second argument: equals");
-    }
-    if (index) {
-        throw new Error("SortedArray#findLast does not support third argument: index");
-    }
-    // TODO support initial partition index
+SortedArray.prototype.findLastValue = function (value) {
     return searchLast(this.array, value, this.contentCompare, this.contentEquals);
 };
 
@@ -230,15 +184,15 @@ SortedArray.prototype.unshift = function () {
 };
 
 SortedArray.prototype.pop = function () {
-    var val = this.array.pop();
+    var value = this.array.pop();
     this.length = this.array.length;
-    return val;
+    return value;
 };
 
 SortedArray.prototype.shift = function () {
-    var val = this.array.shift();
+    var value = this.array.shift();
     this.length = this.array.length;
-    return val;
+    return value;
 };
 
 SortedArray.prototype.slice = function () {
@@ -251,7 +205,7 @@ SortedArray.prototype.splice = function (index, length /*...plus*/) {
 
 SortedArray.prototype.swap = function (index, length, plus) {
     if (index === undefined && length === undefined) {
-        return Array.empty;
+        return [];
     }
     index = index || 0;
     if (index < 0) {
@@ -261,15 +215,15 @@ SortedArray.prototype.swap = function (index, length, plus) {
         length = Infinity;
     }
     var minus = this.slice(index, index + length);
+    plus = plus || [];
     if (this.dispatchesRangeChanges) {
-        this.dispatchBeforeRangeChange(plus, minus, index);
+        this.dispatchRangeWillChange(plus, minus, index);
     }
-    this.array.splice(index, length);
-    this.length -= minus.length;
+    swap(this.array, index, length, plus);
+    this.length += plus.length - length;
     if (this.dispatchesRangeChanges) {
-        this.dispatchRangeChange(Array.empty, minus, index);
+        this.dispatchRangeChange(plus, minus, index);
     }
-    this.addEach(plus);
     return minus;
 };
 
@@ -300,36 +254,33 @@ SortedArray.prototype.max = function () {
 };
 
 SortedArray.prototype.one = function () {
-    return this.array.one();
+    return this.array[0];
 };
 
 SortedArray.prototype.clear = function () {
     var minus;
     if (this.dispatchesRangeChanges) {
         minus = this.array.slice();
-        this.dispatchBeforeRangeChange(Array.empty, minus, 0);
+        this.dispatchRangeWillChange([], minus, 0);
     }
     this.length = 0;
-    this.array.clear();
+    clear(this.array);
     if (this.dispatchesRangeChanges) {
-        this.dispatchRangeChange(Array.empty, minus, 0);
+        this.dispatchRangeChange([], minus, 0);
     }
 };
 
 SortedArray.prototype.equals = function (that, equals) {
-    return this.array.equals(that, equals);
+    return equalsOperator(this.array, that, equals);
 };
 
 SortedArray.prototype.compare = function (that, compare) {
-    return this.array.compare(that, compare);
+    return compareOperator(this.array, that, compare);
 };
 
-SortedArray.prototype.iterate = function (start, end) {
-    return new this.Iterator(this.array, start, end);
+SortedArray.prototype.iterate = function (start, stop, step) {
+    return iterateOperator(this.array, start, stop, step);
 };
 
-SortedArray.prototype.toJSON = function () {
-    return this.toArray();
-};
+function noop() {}
 
-SortedArray.prototype.Iterator = Array.prototype.Iterator;

@@ -11,8 +11,6 @@ module.exports = require("montage-testing").run(require, [
 	"spec/lfu-map-spec",
 	"spec/lfu-set-spec",
 	"spec/list-spec",
-	"spec/listen/array-changes-spec",
-	"spec/listen/property-changes-spec",
 	"spec/lru-map-spec",
 	"spec/lru-set-spec",
 	"spec/map-spec",

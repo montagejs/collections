@@ -1,13 +1,15 @@
 
 var Dict = require("collections/dict");
 var describeDict = require("./dict");
-var describeToJson = require("./to-json");
+var describeObservableMap = require("./observable-map");
 
-describe("Dict-spec", function () {
+describe("Dict", function () {
+
     describeDict(Dict);
-    describeToJson(Dict, {a: 1, b: 2, c: 3});
+    describeObservableMap(Dict);
 
     it("should throw errors for non-string keys", function () {
+
         var dict = Dict();
         expect(function () {
             dict.get(0);
@@ -21,6 +23,7 @@ describe("Dict-spec", function () {
         expect(function () {
             dict.delete(0);
         }).toThrow();
+
     });
 
 });

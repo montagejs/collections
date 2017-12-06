@@ -5,39 +5,46 @@ var TreeLog = require("collections/tree-log");
 var describeDeque = require("./deque");
 var describeCollection = require("./collection");
 var describeSet = require("./set");
-var describeToJson = require("./to-json");
 var Fuzz = require("./fuzz");
 
-describe("SortedSet-spec", function () {
+describe("SortedSet", function () {
 
-
-    // TODO SortedSet compare and equals argument overrides
-
-    // construction, has, add, get, delete
-    describeCollection(SortedSet, [1, 2, 3, 4], true);
-
-    // comparable objects
-    function Value(value) {
-        this.value = value;
+    function newSortedSet(values) {
+        return new SortedSet(values);
     }
-    Value.prototype.compare = function (that) {
-        return Object.compare(this.value, that.value);
-    }
-    var a = new Value(1);
-    var b = new Value(2);
-    var c = new Value(3);
-    var d = new Value(4);
-    var values = [a, b, c, d];
-    describeCollection(SortedSet, values, true);
 
-    // Happens to qualify as a deque, since the tests keep the content in
-    // sorted order.  SortedSet has meaningful pop and shift operations, but
-    // push and unshift just add the arguments into their proper sorted
-    // positions rather than the ends.
-    describeDeque(SortedSet);
+    newSortedSet.prototype.isSorted = true;
 
-    describeSet(SortedSet, "sorted");
-    describeToJson(SortedSet, [1, 2, 3, 4]);
+    [SortedSet, newSortedSet].forEach(function (SortedSet) {
+
+        // TODO SortedSet compare and equals argument overrides
+
+        // construction, has, add, get, delete
+        describeCollection(SortedSet, [1, 2, 3, 4], true);
+
+        // comparable objects
+        function Value(value) {
+            this.value = value;
+        }
+        Value.prototype.compare = function (that) {
+            return Object.compare(this.value, that.value);
+        }
+        var a = new Value(1);
+        var b = new Value(2);
+        var c = new Value(3);
+        var d = new Value(4);
+        var values = [a, b, c, d];
+        describeCollection(SortedSet, values, true);
+
+        // Happens to qualify as a deque, since the tests keep the content in
+        // sorted order.  SortedSet has meaningful pop and shift operations, but
+        // push and unshift just add the arguments into their proper sorted
+        // positions rather than the ends.
+        describeDeque(SortedSet);
+
+        describeSet(SortedSet, "sorted");
+
+    });
 
     describe("splay", function () {
 
@@ -197,17 +204,17 @@ describe("SortedSet-spec", function () {
         describe("find", function() {
 
             it("should find the node for existing values", function() {
-                expect(set.find(1).value).toBe(1);
-                expect(set.find(5).value).toBe(5);
-                expect(set.find(9).value).toBe(9);
-                expect(set.find(30).value).toBe(30);
-                expect(set.find(34).value).toBe(34);
+                expect(set.findValue(1).value).toBe(1);
+                expect(set.findValue(5).value).toBe(5);
+                expect(set.findValue(9).value).toBe(9);
+                expect(set.findValue(30).value).toBe(30);
+                expect(set.findValue(34).value).toBe(34);
             });
 
             it("should return undefined for non-existent values", function() {
-                expect(set.find(4)).toBe(undefined);
-                expect(set.find(13)).toBe(undefined);
-                expect(set.find(31)).toBe(undefined);
+                expect(set.findValue(4)).toBe(undefined);
+                expect(set.findValue(13)).toBe(undefined);
+                expect(set.findValue(31)).toBe(undefined);
             });
 
         });
@@ -325,7 +332,7 @@ describe("SortedSet-spec", function () {
 
     });
 
-    describe("addRangeChangeListener", function () {
+    describe("observeRangeChange", function () {
         // fuzz cases
         for (var seed = 0; seed < 20; seed++) {
             (function (seed) {
@@ -337,7 +344,7 @@ describe("SortedSet-spec", function () {
                 it("should bind content changes to an array for " + numbers.join(", "), function () {
                     var mirror = [];
                     var set = SortedSet();
-                    set.addRangeChangeListener(function (plus, minus, index) {
+                    set.observeRangeChange(function (plus, minus, index) {
                         mirror.swap(index, minus.length, plus);
                     });
                     set.addEach(numbers);
@@ -455,3 +462,4 @@ describe("SortedSet-spec", function () {
     });
 
 });
+
