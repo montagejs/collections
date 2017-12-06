@@ -1,7 +1,7 @@
 
 require("collections/shim-regexp");
 
-describe("RegExp", function () {
+describe("RegExp-spec", function () {
     describe("escape", function () {
 
         [
@@ -31,4 +31,3 @@ describe("RegExp", function () {
 
     });
 });
-

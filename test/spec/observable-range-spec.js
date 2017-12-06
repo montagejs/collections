@@ -1,13 +1,10 @@
 "use strict";
 
-var extendSpyExpectation = require("./spy-expectation");
 var ObservableRange = require("collections/observable-range");
 
 describe("ObservableRange", function () {
 
     describe("observeRangeChange", function () {
-
-        extendSpyExpectation();
 
         it("observe, dispatch", function () {
             var range = Object.create(ObservableRange.prototype);

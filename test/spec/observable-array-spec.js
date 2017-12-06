@@ -1,10 +1,7 @@
 
-var extendSpyExpectation = require("./spy-expectation");
 require("collections/observable-array");
 // TODO var describeObservableRange = require("./observable-range");
 // TODO make Array.from consistent with List
-
-extendSpyExpectation();
 
 describe("Array", function () {
     it("change dispatch properties should not be enumerable", function () {

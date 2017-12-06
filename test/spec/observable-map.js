@@ -1,10 +1,6 @@
 
-var extendSpyExpectation = require("./spy-expectation");
-
 module.exports = describeObservableMap;
 function describeObservableMap(Map) {
-
-    extendSpyExpectation();
 
     it("create, update, delete", function () {
         var map = new Map();

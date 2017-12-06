@@ -9,7 +9,6 @@
 // TODO observePropertyWillChange
 // TODO access observer notes
 
-var extendSpyExpectation = require("./spy-expectation");
 var ObservableObject = require("collections/observable-object");
 var observePropertyChange = ObservableObject.observePropertyChange;
 var makePropertyObservable = ObservableObject.makePropertyObservable;
@@ -17,8 +16,6 @@ var preventPropertyObserver = ObservableObject.preventPropertyObserver;
 var dispatchPropertyChange = ObservableObject.dispatchPropertyChange;
 
 describe("ObservableObject", function () {
-
-    extendSpyExpectation();
 
     describe("observePropertyChange", function () {
 

@@ -1,9 +1,14 @@
 // TODO test insertion order
 
 var Map = require("collections/map");
+var describeDict = require("./dict");
 var describeMap = require("./map");
+var describeObservableMap = require("./observable-map");
+var describeToJson = require("./to-json");
 
-describe("Map", function () {
-    describeMap(Map); // Subsumes describeDict
+describe("Map-spec", function () {
+    describeDict(Map);
+    describeMap(Map);
+    describeObservableMap(Map);
+    describeToJson(Map, [[{a: 1}, 10], [{b: 2}, 20], [{c: 3}, 30]]);
 });
-

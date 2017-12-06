@@ -1,11 +1,8 @@
 "use strict";
 
-var extendSpyExpectation = require("./spy-expectation");
 var ObservableMap = require("collections/observable-map");
 
 describe("ObservableMap", function () {
-
-    extendSpyExpectation();
 
     describe("observeMapChange", function () {
         it("observe, dispatch", function () {

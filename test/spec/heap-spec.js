@@ -1,8 +1,11 @@
 
 var Heap = require("collections/heap");
 var permute = require("./permute");
+var describeToJson = require("./to-json");
 
-describe("Heap", function () {
+describe("Heap-spec", function () {
+
+    describeToJson(Heap, [4, 3, 2, 1]);
 
     describe("always tracks the max value", function () {
 
@@ -53,9 +56,9 @@ describe("Heap", function () {
 
         var heap = new Heap([1,2,3,4,5]);
         var top;
-        heap.observeMapChange(function (plus, minus, key, type) {
+        heap.addMapChangeListener(function (value, key) {
             if (key === 0) {
-                top = plus;
+                top = value;
             }
         });
 
