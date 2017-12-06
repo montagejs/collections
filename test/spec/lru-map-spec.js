@@ -1,5 +1,4 @@
 
-var sinon = require("sinon");
 var LruMap = require("collections/lru-map");
 var describeDict = require("./dict");
 var describeMap = require("./map");
@@ -63,7 +62,7 @@ describe("LruMap", function () {
 
     it("should dispatch deletion for stale entries", function () {
         var map = LruMap({a: 10, b: 20, c: 30}, 3);
-        var spy = sinon.spy();
+        var spy = jasmine.createSpy();
         map.observeMapChange(function (plus, minus, key, type) {
             spy(plus, minus, key, type);
         });

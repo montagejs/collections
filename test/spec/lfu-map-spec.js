@@ -1,5 +1,4 @@
 
-var sinon = require("sinon");
 var LfuMap = require("collections/lfu-map");
 var describeDict = require("./dict");
 var describeMap = require("./map");
@@ -63,7 +62,7 @@ describe("LfuMap", function () {
 
     it("should dispatch deletion for stale entries", function () {
         var map = LfuMap({a: 10, b: 20, c: 30}, 3);
-        var spy = sinon.spy();
+        var spy = jasmine.createSpy();
         map.observeMapWillChange(function (plus, minus, key) {
             spy('before', key, minus);
         });

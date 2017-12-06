@@ -7,7 +7,6 @@
     https://github.com/motorola-mobility/montage/blob/master/LICENSE.md
 */
 
-var sinon = require("sinon");
 var extendSpyExpectation = require("./spy-expectation");
 require("collections/shim");
 var Dict = require("collections/dict");
@@ -197,7 +196,7 @@ describe("Object", function () {
         });
 
         it("should delegate to a 'set' method", function () {
-            var spy = sinon.spy();
+            var spy = jasmine.createSpy();
             var Type = Object.create(Object.prototype, {
                 set: {
                     value: spy
@@ -215,7 +214,7 @@ describe("Object", function () {
     describe("forEach", function () {
 
         it("should iterate the owned properties of an object", function () {
-            var spy = sinon.spy();
+            var spy = jasmine.createSpy();
             var object = {a: 10, b: 20, c: 30};
             Object.forEach(object, spy);
             expect(spy.args).toEqual([

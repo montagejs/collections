@@ -1,5 +1,4 @@
 
-var sinon = require("sinon");
 var extendSpyExpectation = require("./spy-expectation");
 
 module.exports = describeObservableMap;
@@ -9,8 +8,8 @@ function describeObservableMap(Map) {
 
     it("create, update, delete", function () {
         var map = new Map();
-        var changeSpy = sinon.spy();
-        var willChangeSpy = sinon.spy();
+        var changeSpy = jasmine.createSpy();
+        var willChangeSpy = jasmine.createSpy();
         var willChangeObserver = map.observeMapWillChange(function (plus, minus, key, type) {
             willChangeSpy(plus, minus, key, type);
         });
@@ -26,13 +25,13 @@ function describeObservableMap(Map) {
         map.delete("a");
         expect(changeSpy).toHaveBeenCalledWith(undefined, 20, "a", "delete");
 
-        changeSpy = sinon.spy();
+        changeSpy = jasmine.createSpy();
         map.set("a", 30);
         expect(changeSpy).toHaveBeenCalledWith(30, undefined, "a", "create");
         map.set("a", undefined);
         expect(changeSpy).toHaveBeenCalledWith(undefined, 30, "a", "update");
 
-        changeSpy = sinon.spy();
+        changeSpy = jasmine.createSpy();
         changeObserver.cancel();
         willChangeObserver.cancel();
 

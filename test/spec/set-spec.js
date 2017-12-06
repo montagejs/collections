@@ -1,5 +1,4 @@
 
-var sinon = require("sinon");
 var extendSpyExpectation = require("./spy-expectation");
 var Set = require("collections/set");
 var describeCollection = require("./collection");
@@ -36,7 +35,7 @@ describe("Set", function () {
 
         it("should dispatch range change on clear", function () {
             var set = Set([1, 2, 3]);
-            var spy = sinon.spy();
+            var spy = jasmine.createSpy();
             set.observeRangeChange(function (plus, minus, index, _set) {
                 spy(plus, minus, index);
                 expect(_set).toBe(set);
@@ -47,7 +46,7 @@ describe("Set", function () {
 
         it("should dispatch range change on add", function () {
             var set = Set([1, 3]);
-            var spy = sinon.spy();
+            var spy = jasmine.createSpy();
             set.observeRangeChange(function (plus, minus, index, _set) {
                 spy(plus, minus, index);
                 expect(_set).toBe(set);
@@ -59,7 +58,7 @@ describe("Set", function () {
 
         it("should dispatch range change on delete", function () {
             var set = Set([1, 2, 3]);
-            var spy = sinon.spy();
+            var spy = jasmine.createSpy();
             set.observeRangeChange(function (plus, minus, index, _set) {
                 spy(plus, minus, index);
                 expect(_set).toBe(set);
@@ -71,7 +70,7 @@ describe("Set", function () {
 
         it("should dispatch range change on pop", function () {
             var set = Set([1, 3, 2]);
-            var spy = sinon.spy();
+            var spy = jasmine.createSpy();
             set.observeRangeChange(function (plus, minus, index, _set) {
                 spy(plus, minus, index);
                 expect(_set).toBe(set);
@@ -83,7 +82,7 @@ describe("Set", function () {
 
         it("should dispatch range change on shift", function () {
             var set = Set([1, 3, 2]);
-            var spy = sinon.spy();
+            var spy = jasmine.createSpy();
             set.observeRangeChange(function (plus, minus, index, _set) {
                 spy(plus, minus, index);
                 expect(_set).toBe(set);
@@ -102,22 +101,22 @@ describe("Set", function () {
                 expect(_set).toBe(set);
             });
 
-            var spy = sinon.spy();
+            var spy = jasmine.createSpy();
             expect(set.add(2)).toEqual(true);
             expect(set.toArray()).toEqual([1, 3, 2]);
             expect(spy).toHaveBeenCalledWith([2], [], 2);
 
-            var spy = sinon.spy();
+            var spy = jasmine.createSpy();
             expect(set.shift()).toEqual(1);
             expect(set.toArray()).toEqual([3, 2]);
             expect(spy).toHaveBeenCalledWith([], [1], 0);
 
-            var spy = sinon.spy();
+            var spy = jasmine.createSpy();
             expect(set.pop()).toEqual(2);
             expect(set.toArray()).toEqual([3]);
             expect(spy).toHaveBeenCalledWith([], [2], 1);
 
-            var spy = sinon.spy();
+            var spy = jasmine.createSpy();
             expect(set.delete(3)).toEqual(true);
             expect(set.toArray()).toEqual([]);
             expect(spy).toHaveBeenCalledWith([], [3], 0);

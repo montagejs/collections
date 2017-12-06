@@ -1,6 +1,5 @@
 "use strict";
 
-var sinon = require("sinon");
 var extendSpyExpectation = require("./spy-expectation");
 var ObservableRange = require("collections/observable-range");
 
@@ -18,7 +17,7 @@ describe("ObservableRange", function () {
                 spy(plus, minus, index);
             });
 
-            spy = sinon.spy();
+            spy = jasmine.createSpy();
             range.dispatchRangeChange([1, 2, 3], [], 0);
             expect(spy).toHaveBeenCalledWith([1, 2, 3], [], 0);
         });
