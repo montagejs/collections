@@ -1,3 +1,8 @@
+## v5.1
+- Addresses a bug with Array#find and deprecate findValue|findLastValue API in collections.
+
+...
+
 ## v5.0.2
 - Addresses a bug in range listening that happened when the number of listeners went beyond 1 and back to 0
 
@@ -19,6 +24,10 @@
 ## v3.0.0
 
 - Aligns iterations with latest standard with PR #137
+
+## v2.0.x
+
+- This version (v2 branch) does not have issue with Array.#find and expose only findValue|findLastValue API in collections.
 
 ## v1.2.4
 

@@ -1,12 +1,15 @@
 {
   "name": "collections",
-  "version": "5.0.7",
+  "version": "5.1.0",
   "description": "data structures with idiomatic JavaScript collection interfaces",
   "homepage": "http://www.collectionsjs.com",
   "author": "Kris Kowal <kris@cixar.com> (http://github.com/kriskowal)",
   "contributors": [
     {
       "name": "Benoit Marchant"
+    },
+    {
+      "name": "Harold Thetiot"
     }
   ],
   "keywords": [
