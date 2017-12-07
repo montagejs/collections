@@ -347,7 +347,10 @@ Deque.prototype.lastIndexOf = function (value, index) {
 }
 
 Deque.prototype.find = function () {
-    if (typeof console.warn === 'function') {
+    if (
+        typeof console !== 'undefined' &&
+            typeof console.warn === 'function'
+    ) {
         console.warn('.find function is deprecated please use findValue instead.');
     }  
     return Deque.prototype.findValue.apply(this, arguments);
@@ -375,7 +378,10 @@ Deque.prototype.findValue = function (value, equals, index) {
 };
 
 Deque.prototype.findLast = function () {
-    if (typeof console.warn === 'function') {
+    if (
+        typeof console !== 'undefined' &&
+            typeof console.warn === 'function'
+    ) {
         console.warn('.findLast function is deprecated please use findLastValue instead.');
     }  
     return Deque.prototype.findLastValue.apply(this, arguments);
