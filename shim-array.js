@@ -53,17 +53,6 @@ Array.unzip = function (table) {
 };
 
 function define(key, value) {
-
-    if (Array.prototype.hasOwnProperty(key)) {
-        if (
-            typeof console !== 'undefined' &&
-                typeof console.warn === 'function'
-        ) {
-            console.warn('Overrided Array.prototype.' + key, "Saved into _" + key);
-        }
-        define("_" + key, Object.getOwnPropertyDescriptor(Array.prototype, key).value);
-    }
-
     Object.defineProperty(Array.prototype, key, {
         value: value,
         writable: true,
@@ -142,76 +131,81 @@ define("deleteAll", function (value, equals) {
     }
     return count;
 });
-// https://tc39.github.io/ecma262/#sec-array.prototype.find
-if (!Array.prototype.find) {
-  Object.defineProperty(Array.prototype, 'find', {
-    value: function(predicate) {
-     // 1. Let O be ? ToObject(this value).
-      if (this == null) {
-        throw new TypeError('"this" is null or not defined');
-      }
-
-      var o = Object(this);
-
-      // 2. Let len be ? ToLength(? Get(O, "length")).
-      var len = o.length >>> 0;
-
-      // 3. If IsCallable(predicate) is false, throw a TypeError exception.
-      if (typeof predicate !== 'function') {
-        throw new TypeError('predicate must be a function');
-      }
-
-      // 4. If thisArg was supplied, let T be thisArg; else let T be undefined.
-      var thisArg = arguments[1];
-
-      // 5. Let k be 0.
-      var k = 0;
-
-      // 6. Repeat, while k < len
-      while (k < len) {
-        // a. Let Pk be ! ToString(k).
-        // b. Let kValue be ? Get(O, Pk).
-        // c. Let testResult be ToBoolean(? Call(predicate, T, « kValue, k, O »)).
-        // d. If testResult is true, return kValue.
-        var kValue = o[k];
-        if (predicate.call(thisArg, kValue, k, o)) {
-          return kValue;
-        }
-        // e. Increase k by 1.
-        k++;
-      }
-
-      // 7. Return undefined.
-      return undefined;
-    }
-  });
-}
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
+// https://tc39.github.io/ecma262/#sec-array.prototype.find
+if (!Array.prototype.find) {
+    Object.defineProperty(Array.prototype, 'find', {
+        value: function(predicate) {
+            // 1. Let O be ? ToObject(this value).
+            if (this == null) {
+                throw new TypeError('"this" is null or not defined');
+            }
+
+            var o = Object(this);
+
+            // 2. Let len be ? ToLength(? Get(O, "length")).
+            var len = o.length >>> 0;
+
+            // 3. If IsCallable(predicate) is false, throw a TypeError exception.
+            if (typeof predicate !== 'function') {
+                throw new TypeError('predicate must be a function');
+            }
+
+            // 4. If thisArg was supplied, let T be thisArg; else let T be undefined.
+            var thisArg = arguments[1];
+
+            // 5. Let k be 0.
+            var k = 0;
+
+            // 6. Repeat, while k < len
+            while (k < len) {
+                // a. Let Pk be ! ToString(k).
+                // b. Let kValue be ? Get(O, Pk).
+                // c. Let testResult be ToBoolean(? Call(predicate, T, « kValue, k, O »)).
+                // d. If testResult is true, return kValue.
+                var kValue = o[k];
+                if (predicate.call(thisArg, kValue, k, o)) {
+                    return kValue;
+                }
+                // e. Increase k by 1.
+                k++;
+            }
+        }
+    });
+}
+
+// TODO remove in v6 (not present in v2)
+var deprecatedWarnNonce = {};
+function deprecatedWarn(msg, notOnce) {
+    if (
+        typeof console !== 'undefined' &&
+            typeof console.warn === 'function' &&
+                (notOnce !== true && deprecatedWarnNonce.hasOwnProperty(msg) === false)
+    ) {
+        console.warn(msg);
+        deprecatedWarnNonce[msg]++;
+    }
+}
+
+// Save Array.prototype.find in order to support legacy and display warning.
+// TODO remove in v6 (not present in v2)
+var ArrayFindPrototype = Object.getOwnPropertyDescriptor(Array.prototype, 'find').value;
 define("find", function (value, equals, index) {
     if (
-        typeof arguments[0] === 'function' 
-            && this instanceof Array
+        typeof arguments[0] === 'function' && 
+            this instanceof Array
     ) {
-        return Array.prototype._find.apply(this, arguments);
+        return ArrayFindPrototype.apply(this, arguments);
     } else {
-        if (index) {
-            throw new Error("SortedArray#findLast does not support third argument: index");
-        }
-        if (
-            typeof console !== 'undefined' &&
-                typeof console.warn === 'function'
-        ) {
-            console.warn('This find() usage is deprecated please use findValue()');
-        }
-        return Array.prototype.findValue.apply(this, arguments);
+        deprecatedWarn('Array#find usage is deprecated please use Array#findValue');
+        return this.findValue.apply(this, arguments);
     }
 });
 
-
 define("findValue", function (value, equals, index) {
     if (index) {
-        throw new Error("SortedArray#findLast does not support third argument: index");
+        throw new Error("Array#findValue does not support third argument: index");
     }
     equals = equals || this.contentEquals || Object.equals;
     for (var index = 0; index < this.length; index++) {
@@ -222,14 +216,10 @@ define("findValue", function (value, equals, index) {
     return -1;
 });
 
+// TODO remove in v6 (not present in v2)
 define("findLast", function (value, equals) {
-    if (
-        typeof console !== 'undefined' &&
-            typeof console.warn === 'function'
-    ) {
-        console.warn('.findLast function is deprecated please use findLastValue instead.');
-    }  
-    return Array.prototype.findLastValue.apply(this, arguments);
+    deprecatedWarn('Array#findLast function is deprecated please use Array#findLastValue instead.');
+    return this.findLastValue.apply(this, arguments);
 });
 
 define("findLastValue", function (value, equals) {

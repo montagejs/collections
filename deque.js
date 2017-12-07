@@ -12,19 +12,6 @@ var RangeChanges = require("./listen/range-changes");
 // 1. Incrementally maintained length
 // 2. Modulus avoided by using only powers of two for the capacity
 
-var deprecatedWarnNonce = {};
-function deprecatedWarn(msg, notOnce) {
-    if (
-        typeof console !== 'undefined' &&
-            typeof console.warn === 'function' &&
-                (notOnce !== true && deprecatedWarnNonce.hasOwnProperty(msg) === false)
-    ) {
-        console.warn(msg);
-        deprecatedWarnNonce[msg]++;
-        debugger;
-    }
-}
-
 module.exports = Deque;
 function Deque(values, capacity) {
     if (!(this instanceof Deque)) {
@@ -359,8 +346,21 @@ Deque.prototype.lastIndexOf = function (value, index) {
     return -1;
 }
 
+var deprecatedWarnNonce = {};
+function deprecatedWarn(msg, notOnce) {
+    if (
+        typeof console !== 'undefined' &&
+            typeof console.warn === 'function' &&
+                (notOnce !== true && deprecatedWarnNonce.hasOwnProperty(msg) === false)
+    ) {
+        console.warn(msg);
+        deprecatedWarnNonce[msg]++;
+    }
+}
+
+// TODO remove in v6 (not present in v2)
 Deque.prototype.find = function () {
-    deprecatedWarn('.find function is deprecated please use findValue instead.');
+    deprecatedWarn('Deque#find function is deprecated please use Deque#findValue instead.');
     return this.findValue.apply(this, arguments);
 };
 
@@ -385,8 +385,9 @@ Deque.prototype.findValue = function (value, equals, index) {
     return -1;
 };
 
+// TODO remove in v6 (not present in v2)
 Deque.prototype.findLast = function () {
-    deprecatedWarn('.findLast function is deprecated please use findLastValue instead.');
+    deprecatedWarn('Deque#findLast function is deprecated please use Deque#findLastValue instead.');
     return this.findLastValue.apply(this, arguments);
 };
 
