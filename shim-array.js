@@ -53,6 +53,14 @@ Array.unzip = function (table) {
 };
 
 function define(key, value) {
+
+    if (Array.prototype.hasOwnProperty(key)) {
+        if (typeof console.warn === 'function') {
+            console.warn('Overrided Array.prototype.' + key, "Saved into _" + key);
+        }
+        define("_" + key, Object.getOwnPropertyDescriptor(Array.prototype, key).value);
+    }
+
     Object.defineProperty(Array.prototype, key, {
         value: value,
         writable: true,
@@ -86,13 +94,13 @@ define("constructClone", function (values) {
 });
 
 define("has", function (value, equals) {
-    return this.find(value, equals) !== -1;
+    return this.findValue(value, equals) !== -1;
 });
 
 define("get", function (index, defaultValue) {
-    if (+index !== index)
+    if (+index !== index) {
         throw new Error("Indicies must be numbers");
-    if (!index in this) {
+    } else if (!index in this) {
         return defaultValue;
     } else {
         return this[index];
@@ -110,7 +118,7 @@ define("add", function (value) {
 });
 
 define("delete", function (value, equals) {
-    var index = this.find(value, equals);
+    var index = this.findValue(value, equals);
     if (index !== -1) {
         this.spliceOne(index);
         return true;
@@ -132,7 +140,20 @@ define("deleteAll", function (value, equals) {
     return count;
 });
 
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
 define("find", function (value, equals) {
+    if (typeof arguments[0] === 'function' && this instanceof Array) {
+        return Array.prototype._find.apply(this, arguments);
+    } else {
+        if (typeof console.warn === 'function') {
+            console.warn('This find() usage is deprecated please use findValue()');
+        }
+        return Array.prototype.findValue.apply(this, arguments);
+    }
+});
+
+
+define("findValue", function (value, equals) {
     equals = equals || this.contentEquals || Object.equals;
     for (var index = 0; index < this.length; index++) {
         if (index in this && equals(value, this[index])) {
@@ -143,6 +164,13 @@ define("find", function (value, equals) {
 });
 
 define("findLast", function (value, equals) {
+    if (typeof console.warn === 'function') {
+        console.warn('.findLast function is deprecated please use findLastValue instead.');
+    }  
+    return Array.prototype.findLastValue.apply(this, arguments);
+});
+
+define("findLastValue", function (value, equals) {
     equals = equals || this.contentEquals || Object.equals;
     var index = this.length;
     do {
@@ -358,7 +386,8 @@ function ArrayIterator(array, start, end) {
     this.array = array;
     this.start = start == null ? 0 : start;
     this.end = end;
-};
+}
+
 ArrayIterator.prototype.__iterationObject = null;
 Object.defineProperty(ArrayIterator.prototype,"_iterationObject", {
     get: function() {

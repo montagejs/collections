@@ -346,8 +346,14 @@ Deque.prototype.lastIndexOf = function (value, index) {
     return -1;
 }
 
-// TODO rename findValue
-Deque.prototype.find = function (value, equals, index) {
+Deque.prototype.find = function () {
+    if (typeof console.warn === 'function') {
+        console.warn('.find function is deprecated please use findValue instead.');
+    }  
+    return Deque.prototype.findValue.apply(this, arguments);
+};
+
+Deque.prototype.findValue = function (value, equals, index) {
     equals = equals || Object.equals;
     // Default start index at beginning
     if (index == null) {
@@ -368,8 +374,14 @@ Deque.prototype.find = function (value, equals, index) {
     return -1;
 };
 
-// TODO rename findLastValue
-Deque.prototype.findLast = function (value, equals, index) {
+Deque.prototype.findLast = function () {
+    if (typeof console.warn === 'function') {
+        console.warn('.findLast function is deprecated please use findLastValue instead.');
+    }  
+    return Deque.prototype.findLastValue.apply(this, arguments);
+};
+
+Deque.prototype.findLastValue = function (value, equals, index) {
     equals = equals || Object.equals;
     // Default start position at the end
     if (index == null) {
