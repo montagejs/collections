@@ -2,45 +2,40 @@
 
 module.exports = Iterator;
 
-var Object = require("./shim-object");
+var WeakMap = require("weak-map");
 var GenericCollection = require("./generic-collection");
 
 // upgrades an iterable to a Iterator
-function Iterator(iterable) {
-
-    var values = iterable && iterable.values && iterable.values();
-    if(values && typeof values.next === "function" ) {
-        return values;
-    }
-
-    if (!(this instanceof Iterator)) {
-        return new Iterator(iterable);
-    }
-
-    if (Array.isArray(iterable) || typeof iterable === "string")
-        return Iterator.iterate(iterable);
-
-    iterable = Object(iterable);
-
-    if (iterable instanceof Iterator) {
+function Iterator(iterable, start, stop, step) {
+    if (!iterable) {
+        return Iterator.empty;
+    } else if (iterable instanceof Iterator) {
         return iterable;
-    } else if (iterable.next) {
-        this.next = function () {
-            return iterable.next();
-        };
+    } else if (!(this instanceof Iterator)) {
+        return new Iterator(iterable, start, stop, step);
+    } else if (Array.isArray(iterable) || typeof iterable === "string") {
+        iterators.set(this, new IndexIterator(iterable, start, stop, step));
+        return;
+    }
+    iterable = Object(iterable);
+    if (iterable.next) {
+        iterators.set(this, iterable);
     } else if (iterable.iterate) {
-        var iterator = iterable.iterate();
-        this.next = function () {
-            return iterator.next();
-        };
+        iterators.set(this, iterable.iterate(start, stop, step));
     } else if (Object.prototype.toString.call(iterable) === "[object Function]") {
         this.next = iterable;
+    } else if (Object.getPrototypeOf(iterable) === Object.prototype) {
+        iterators.set(this, new ObjectIterator(iterable));
     } else {
         throw new TypeError("Can't iterate " + iterable);
     }
-
 }
 
+// Using iterators as a hidden table associating a full-fledged Iterator with
+// an underlying, usually merely "nextable", iterator.
+var iterators = new WeakMap();
+
+// Selectively apply generic methods of GenericCollection
 Iterator.prototype.forEach = GenericCollection.prototype.forEach;
 Iterator.prototype.map = GenericCollection.prototype.map;
 Iterator.prototype.filter = GenericCollection.prototype.filter;
@@ -62,23 +57,95 @@ Iterator.prototype.toArray = GenericCollection.prototype.toArray;
 Iterator.prototype.toObject = GenericCollection.prototype.toObject;
 Iterator.prototype.iterator = GenericCollection.prototype.iterator;
 
-Iterator.prototype.__iterationObject = null;
-Object.defineProperty(Iterator.prototype,"_iterationObject", {
-    get: function() {
-        return this.__iterationObject || (this.__iterationObject = { done: false, value:void 0});
-    }
-});
-
-
-// this is a bit of a cheat so flatten and such work with the generic
-// reducible
+// This is a bit of a cheat so flatten and such work with the generic reducible
 Iterator.prototype.constructClone = function (values) {
     var clone = [];
     clone.addEach(values);
     return clone;
 };
 
+// A level of indirection so a full-interface iterator can proxy for a simple
+// nextable iterator.
+Iterator.prototype.next = function () {
+    var nextable = iterators.get(this);
+    if (nextable) {
+        return nextable.next();
+    } else {
+        return Iterator.done;
+    }
+};
+
+Iterator.prototype.iterateMap = function (callback /*, thisp*/) {
+    var self = Iterator(this),
+        thisp = arguments[1];
+    return new MapIterator(self, callback, thisp);
+};
+
+function MapIterator(iterator, callback, thisp) {
+    this.iterator = iterator;
+    this.callback = callback;
+    this.thisp = thisp;
+}
+
+MapIterator.prototype = Object.create(Iterator.prototype);
+MapIterator.prototype.constructor = MapIterator;
+MapIterator.prototype.next = function () {
+    var iteration = this.iterator.next();
+    if (iteration.done) {
+        return iteration;
+    } else {
+        return new Iteration(
+            this.callback.call(
+                this.thisp,
+                iteration.value,
+                iteration.index,
+                this.iteration
+            ),
+            iteration.index
+        );
+    }
+};
+
+Iterator.prototype.iterateFilter = function (callback /*, thisp*/) {
+    var self = Iterator(this),
+        thisp = arguments[1],
+        index = 0;
+
+    return new FilterIterator(self, callback, thisp);
+};
+
+function FilterIterator(iterator, callback, thisp) {
+    this.iterator = iterator;
+    this.callback = callback;
+    this.thisp = thisp;
+}
+
+FilterIterator.prototype = Object.create(Iterator.prototype);
+FilterIterator.prototype.constructor = FilterIterator;
+
+FilterIterator.prototype.next = function () {
+    var iteration;
+    while (true) {
+        iteration = this.iterator.next();
+        if (iteration.done || this.callback.call(
+            this.thisp,
+            iteration.value,
+            iteration.index,
+            this.iteration
+        )) {
+            return iteration;
+        }
+    }
+};
+
+
+Iterator.prototype.iterate = function () {
+    return Iterator(this);  
+};
+
 Iterator.prototype.mapIterator = function (callback /*, thisp*/) {
+    throw new Error('TODO');
+    return;
     var self = Iterator(this),
         thisp = arguments[1],
         i = 0;
@@ -96,6 +163,8 @@ Iterator.prototype.mapIterator = function (callback /*, thisp*/) {
 };
 
 Iterator.prototype.filterIterator = function (callback /*, thisp*/) {
+    throw new Error('TODO');
+    return;
     var self = Iterator(this),
         thisp = arguments[1],
         i = 0;
@@ -123,37 +192,43 @@ Iterator.prototype.reduce = function (callback /*, initial, thisp*/) {
     var self = Iterator(this),
         result = arguments[1],
         thisp = arguments[2],
-        i = 0,
-        nextEntry;
+        iteration;
 
-    if (Object.prototype.toString.call(callback) != "[object Function]")
-        throw new TypeError();
-
-    // first iteration unrolled
-    nextEntry = self.next();
-    if(nextEntry.done === true) {
+    // First iteration unrolled
+    iteration = self.next();
+    if (iteration.done) {
         if (arguments.length > 1) {
-            return arguments[1]; // initial
+            return arguments[1];
         } else {
-            throw TypeError("cannot reduce a value from an empty iterator with no initial value");
+            throw TypeError("Reduce of empty iterator with no initial value");
         }
-    }
-    if (arguments.length > 1) {
-        result = callback.call(thisp, result, nextEntry.value, i, self);
+    } else if (arguments.length > 1) {
+        result = callback.call(
+            thisp,
+            result,
+            iteration.value,
+            iteration.index,
+            self
+        );
     } else {
-        result = nextEntry.value;
-    }
-    i++;
-    // remaining entries
-    while (true) {
-        nextEntry = self.next();
-        if(nextEntry.done === true) {
-            return result;
-        }
-        result = callback.call(thisp, result, nextEntry.value, i, self);
-        i++;
+        result = iteration.value;
     }
 
+    // Remaining entries
+    while (true) {
+        iteration = self.next();
+        if (iteration.done) {
+            return result;
+        } else {
+            result = callback.call(
+                thisp,
+                result,
+                iteration.value,
+                iteration.index,
+                self
+            );
+        }
+    }
 };
 
 Iterator.prototype.concat = function () {
@@ -165,67 +240,173 @@ Iterator.prototype.concat = function () {
 Iterator.prototype.dropWhile = function (callback /*, thisp */) {
     var self = Iterator(this),
         thisp = arguments[1],
-        stopped = false,
-        stopValue,
-        nextEntry,
-        i = 0;
-
-    if (Object.prototype.toString.call(callback) != "[object Function]")
-        throw new TypeError();
+        iteration;
 
     while (true) {
-        nextEntry = self.next();
-        if(nextEntry.done === true) {
-            break;
+        iteration = self.next();
+        if (iteration.done) {
+            return Iterator.empty;
+        } else if (!callback.call(thisp, iteration.value, iteration.index, self)) {
+            return new DropWhileIterator(iteration, self);
         }
-        if (!callback.call(thisp, nextEntry.value, i, self)) {
-            stopped = true;
-            stopValue = nextEntry.value;
-            break;
-        }
-        i++;
     }
+};
 
-    if (stopped) {
-        return self.constructor([stopValue]).concat(self);
+function DropWhileIterator(iteration, iterator) {
+    this.iteration = iteration;
+    this.iterator = iterator;
+    this.parent = null;
+}
+
+DropWhileIterator.prototype = Object.create(Iterator.prototype);
+DropWhileIterator.prototype.constructor = DropWhileIterator;
+
+DropWhileIterator.prototype.next = function () {
+    var result = this.iteration;
+    if (result) {
+        this.iteration = null;
+        return result;
     } else {
-        return self.constructor([]);
+        return this.iterator.next();
     }
 };
 
 Iterator.prototype.takeWhile = function (callback /*, thisp*/) {
     var self = Iterator(this),
-        thisp = arguments[1],
-        nextEntry,
-        i = 0;
+        thisp = arguments[1];
+    return new TakeWhileIterator(self, callback, thisp);
+};
 
-    if (Object.prototype.toString.call(callback) != "[object Function]")
-        throw new TypeError();
+function TakeWhileIterator(iterator, callback, thisp) {
+    this.iterator = iterator;
+    this.callback = callback;
+    this.thisp = thisp;
+}
 
-    return new self.constructor(function () {
-        if(self._iterationObject.done !== true) {
-            var value = self.next().value;
-            if(callback.call(thisp, value, i++, self)) {
-                self._iterationObject.value = value;
-            }
-            else {
-                self._iterationObject.done = true;
-                self._iterationObject.value = void 0;
+TakeWhileIterator.prototype = Object.create(Iterator.prototype);
+TakeWhileIterator.prototype.constructor = TakeWhileIterator;
+
+TakeWhileIterator.prototype.next = function () {
+    var iteration = this.iterator.next();
+    if (iteration.done) {
+        return iteration;
+    } else if (this.callback.call(
+        this.thisp,
+        iteration.value,
+        iteration.index,
+        this.iterator
+    )) {
+        return iteration;
+    } else {
+        return Iterator.done;
+    }
+};
+
+
+Iterator.prototype.zipIterator = Iterator.prototype.iterateZip = function () {
+    return Iterator.unzip(Array.prototype.concat.apply(this, arguments));
+};
+
+Iterator.prototype.iterateUnzip = function () {
+    return Iterator.unzip(this);
+};
+
+
+Iterator.prototype.enumerateIterator = Iterator.prototype.iterateEnumerate = function (start) {
+    return Iterator.count(start).iterateZip(this);
+};
+
+Iterator.prototype.iterateConcat = function () {
+    return Iterator.flatten(Array.prototype.concat.apply(this, arguments));
+};
+
+Iterator.prototype.iterateFlatten = function () {
+    return Iterator.flatten(this);
+};
+
+Iterator.prototype.recount = function (start) {
+    return new RecountIterator(this, start);
+};
+
+function RecountIterator(iterator, start) {
+    this.iterator = iterator;
+    this.index = start || 0;
+}
+
+RecountIterator.prototype = Object.create(Iterator.prototype);
+RecountIterator.prototype.constructor = RecountIterator;
+
+RecountIterator.prototype.next = function () {
+    var iteration = this.iterator.next();
+    if (iteration.done) {
+        return iteration;
+    } else {
+        return new Iteration(
+            iteration.value,
+            this.index++
+        );
+    }
+};
+
+// creates an iterator for Array and String
+function IndexIterator(iterable, start, stop, step) {
+    if (step == null) {
+        step = 1;
+    }
+    if (stop == null) {
+        stop = start;
+        start = 0;
+    }
+    if (start == null) {
+        start = 0;
+    }
+    if (step == null) {
+        step = 1;
+    }
+    if (stop == null) {
+        stop = iterable.length;
+    }
+    this.iterable = iterable;
+    this.start = start;
+    this.stop = stop;
+    this.step = step;
+}
+
+IndexIterator.prototype.next = function () {
+    // Advance to next owned entry
+    if (typeof this.iterable === "object") { // as opposed to string
+        while (!(this.start in this.iterable)) {
+            if (this.start >= this.stop) {
+                return Iterator.done;
+            } else {
+                this.start += this.step;
             }
         }
-        return self._iterationObject;
-    });
-
-};
-
-Iterator.prototype.zipIterator = function () {
-    return Iterator.unzip(
-        Array.prototype.concat.apply(this, arguments)
+    }
+    if (this.start >= this.stop) { // end of string
+        return Iterator.done;
+    }
+    var iteration = new Iteration(
+        this.iterable[this.start],
+        this.start
     );
+    this.start += this.step;
+    return iteration;
 };
 
-Iterator.prototype.enumerateIterator = function (start) {
-    return Iterator.count(start).zipIterator(this);
+function ObjectIterator(object) {
+    this.object = object;
+    this.iterator = new Iterator(Object.keys(object));
+}
+
+ObjectIterator.prototype.next = function () {
+    var iteration = this.iterator.next();
+    if (iteration.done) {
+        return iteration;
+    } else {
+        var key = iteration.value;
+        return new Iteration(this.object[key], key);
+    }
 };
 
 // creates an iterator for Array and String
@@ -258,86 +439,102 @@ Iterator.iterate = function (iterable) {
 };
 
 Iterator.cycle = function (cycle, times) {
-    var next;
-    if (arguments.length < 2)
+    if (arguments.length < 2) {
         times = Infinity;
-    //cycle = Iterator(cycle).toArray();
-    return new Iterator(function () {
-        var iteration, nextEntry;
-
-        if(next) {
-            nextEntry = next();
-        }
-
-        if(!next || nextEntry.done === true) {
-            if (times > 0) {
-                times--;
-                iteration = Iterator.iterate(cycle);
-                nextEntry = (next = iteration.next.bind(iteration))();
-            }
-            else {
-                this._iterationObject.done = true;
-                nextEntry = this._iterationObject;            }
-        }
-        return nextEntry;
-    });
+    }
+    return new CycleIterator(cycle, times);
 };
 
-Iterator.concat = function (iterators) {
-    iterators = Iterator(iterators);
-    var next;
-    return new Iterator(function (){
-        var iteration, nextEntry;
-        if(next) nextEntry = next();
-        if(!nextEntry || nextEntry.done === true) {
-            nextEntry = iterators.next();
-            if(nextEntry.done === false) {
-                iteration = Iterator(nextEntry.value);
-                next = iteration.next.bind(iteration);
-                return next();
-            }
-            else {
-                return nextEntry;
-            }
+function CycleIterator(cycle, times) {
+    this.cycle = cycle;
+    this.times = times;
+    this.iterator = Iterator.empty;
+}
+
+CycleIterator.prototype = Object.create(Iterator.prototype);
+CycleIterator.prototype.constructor = CycleIterator;
+
+CycleIterator.prototype.next = function () {
+    var iteration = this.iterator.next();
+    if (iteration.done) {
+        if (this.times > 0) {
+            this.times--;
+            this.iterator = new Iterator(this.cycle);
+            return this.iterator.next();
+        } else {
+            return iteration;
         }
-        else return nextEntry;
-    });
+    } else {
+        return iteration;
+    }
+};
+
+Iterator.concat = function (/* ...iterators */) {
+    return Iterator.flatten(Array.prototype.slice.call(arguments));
+};
+
+Iterator.flatten = function (iterators) {
+    iterators = Iterator(iterators);
+    return new ChainIterator(iterators);
+};
+
+function ChainIterator(iterators) {
+    this.iterators = iterators;
+    this.iterator = Iterator.empty;
+}
+
+ChainIterator.prototype = Object.create(Iterator.prototype);
+ChainIterator.prototype.constructor = ChainIterator;
+
+ChainIterator.prototype.next = function () {
+    var iteration = this.iterator.next();
+    if (iteration.done) {
+        var iteratorIteration = this.iterators.next();
+        if (iteratorIteration.done) {
+            return Iterator.done;
+        } else {
+            this.iterator = new Iterator(iteratorIteration.value);
+            return this.iterator.next();
+        }
+    } else {
+        return iteration;
+    }
 };
 
 Iterator.unzip = function (iterators) {
     iterators = Iterator(iterators).map(Iterator);
     if (iterators.length === 0)
-        return new Iterator([]);
-    return new Iterator(function () {
-        var stopped, nextEntry;
-        var result = iterators.map(function (iterator) {
-            nextEntry = iterator.next();
-            if (nextEntry.done === true ) {
-                stopped = true;
-            }
-            return nextEntry.value;
-        });
-        if (stopped) {
-            this._iterationObject.done = true;
-            this._iterationObject.value = void 0;
+        return new Iterator.empty;
+    return new UnzipIterator(iterators);
+};
+
+function UnzipIterator(iterators) {
+    this.iterators = iterators;
+    this.index = 0;
+}
+
+UnzipIterator.prototype = Object.create(Iterator.prototype);
+UnzipIterator.prototype.constructor = UnzipIterator;
+
+UnzipIterator.prototype.next = function () {
+    var done = false
+    var result = this.iterators.map(function (iterator) {
+        var iteration = iterator.next();
+        if (iteration.done) {
+            done = true;
+        } else {
+            return iteration.value;
         }
-        else {
-            this._iterationObject.value = result;
-        }
-        return this._iterationObject;
     });
+    if (done) {
+        return Iterator.done;
+    } else {
+        return new Iteration(result, this.index++);
+    }
 };
 
 Iterator.zip = function () {
-    return Iterator.unzip(
-        Array.prototype.slice.call(arguments)
-    );
-};
-
-Iterator.chain = function () {
-    return Iterator.concat(
-        Array.prototype.slice.call(arguments)
-    );
+    return Iterator.unzip(Array.prototype.slice.call(arguments));
 };
 
 Iterator.range = function (start, stop, step) {
@@ -350,25 +547,101 @@ Iterator.range = function (start, stop, step) {
     }
     start = start || 0;
     step = step || 1;
-    return new Iterator(function () {
-        if (start >= stop) {
-            this._iterationObject.done = true;
-            this._iterationObject.value = void 0;
-        }
-        var result = start;
-        start += step;
-        this._iterationObject.value = result;
-
-        return this._iterationObject;
-    });
+    return new RangeIterator(start, stop, step);
 };
 
 Iterator.count = function (start, step) {
     return Iterator.range(start, Infinity, step);
 };
 
-Iterator.repeat = function (value, times) {
-    return new Iterator.range(times).mapIterator(function () {
-        return value;
-    });
+function RangeIterator(start, stop, step) {
+    this.start = start;
+    this.stop = stop;
+    this.step = step;
+    this.index = 0;
+}
+
+RangeIterator.prototype = Object.create(Iterator.prototype);
+RangeIterator.prototype.constructor = RangeIterator;
+
+RangeIterator.prototype.next = function () {
+    if (this.start >= this.stop) {
+        return Iterator.done;
+    } else {
+        var result = this.start;
+        this.start += this.step;
+        return new Iteration(result, this.index++);
+    }
 };
+
+Iterator.repeat = function (value, times) {
+    if (times == null) {
+        times = Infinity;
+    }
+    return new RepeatIterator(value, times);
+};
+
+function RepeatIterator(value, times) {
+    this.value = value;
+    this.times = times;
+    this.index = 0;
+}
+
+RepeatIterator.prototype = Object.create(Iterator.prototype);
+RepeatIterator.prototype.constructor = RepeatIterator;
+
+RepeatIterator.prototype.next = function () {
+    if (this.index < this.times) {
+        return new Iteration(this.value, this.index++);
+    } else {
+        return Iterator.done;
+    }
+};
+
+Iterator.enumerate = function (values, start) {
+    return Iterator.count(start).iterateZip(new Iterator(values));
+};
+
+function EmptyIterator() {}
+
+EmptyIterator.prototype = Object.create(Iterator.prototype);
+EmptyIterator.prototype.constructor = EmptyIterator;
+
+EmptyIterator.prototype.next = function () {
+    return Iterator.done;
+};
+
+Iterator.empty = new EmptyIterator();
+
+// Iteration and DoneIteration exist here only to encourage hidden classes.
+// Otherwise, iterations are merely duck-types.
+
+function Iteration(value, index) {
+    this.value = value;
+    this.index = index;
+}
+
+Iteration.prototype.done = false;
+
+Iteration.prototype.equals = function (that, equals, memo) {
+    if (!that) return false;
+    return (
+        equals(this.value, that.value, equals, memo) &&
+        this.index === that.index &&
+        this.done === that.done
+    );
+
+};
+
+function DoneIteration(value) {
+    Iteration.call(this, value);
+    this.done = true; // reflected on the instance to make it more obvious
+}
+
+DoneIteration.prototype = Object.create(Iteration.prototype);
+DoneIteration.prototype.constructor = DoneIteration;
+DoneIteration.prototype.done = true;
+
+Iterator.Iteration = Iteration;
+Iterator.DoneIteration = DoneIteration;
+Iterator.done = new DoneIteration();

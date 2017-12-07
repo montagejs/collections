@@ -3,13 +3,9 @@ var Set = require("collections/set");
 var describeCollection = require("./collection");
 var describeSet = require("./set");
 
-Set._setupCollectionSet();
-var CollectionsSet = Set.CollectionsSet;
-
-describe("CollectionsSet-spec", function () {
-    var Set = CollectionsSet;
-    describeCollection(Set, [1, 2, 3, 4], true);
-    describeCollection(Set, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
+describe("Set-spec", function () {
+    describeCollection(Set.from, [1, 2, 3, 4], true);
+    describeCollection(Set.from, [{id: 0}, {id: 1}, {id: 2}, {id: 3}], true);
     describeSet(Set);
 
     it("should pop and shift", function () {

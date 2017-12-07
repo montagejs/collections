@@ -1,11 +1,12 @@
 "use strict";
 
-var Shim = require("./shim");
 var SortedSet = require("./sorted-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
-var PropertyChanges = require("./listen/property-changes");
-var MapChanges = require("./listen/map-changes");
+var ObservableObject = require("./observable-object");
+var equalsOperator = require("./operators/equals");
+var compareOperator = require("./operators/compare");
+var addEach = require("./operators/add-each");
 
 module.exports = SortedMap;
 
@@ -13,9 +14,9 @@ function SortedMap(values, equals, compare, getDefault) {
     if (!(this instanceof SortedMap)) {
         return new SortedMap(values, equals, compare, getDefault);
     }
-    equals = equals || Object.equals;
-    compare = compare || Object.compare;
-    getDefault = getDefault || Function.noop;
+    equals = equals || equalsOperator;
+    compare = compare || compareOperator;
+    getDefault = getDefault || this.getDefault;
     this.contentEquals = equals;
     this.contentCompare = compare;
     this.getDefault = getDefault;
@@ -37,10 +38,9 @@ SortedMap.SortedMap = SortedMap;
 
 SortedMap.from = GenericCollection.from;
 
-Object.addEach(SortedMap.prototype, GenericCollection.prototype);
-Object.addEach(SortedMap.prototype, GenericMap.prototype);
-Object.addEach(SortedMap.prototype, PropertyChanges.prototype);
-Object.addEach(SortedMap.prototype, MapChanges.prototype);
+addEach(SortedMap.prototype, GenericCollection.prototype);
+addEach(SortedMap.prototype, GenericMap.prototype);
+addEach(SortedMap.prototype, ObservableObject.prototype);
 Object.defineProperty(SortedMap.prototype,"size",GenericCollection._sizePropertyDescriptor);
 
 SortedMap.prototype.constructClone = function (values) {

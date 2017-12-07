@@ -4,8 +4,10 @@ var Iterator = require("collections/iterator");
 module.exports = describeSet;
 function describeSet(Set, sorted) {
 
-    it("uniqueness", function () {
-        var set = Set.from([1, 2, 3, 1, 2, 3]);
+    //  TODO describe("Set constructor", function () {
+
+    it("should establish uniqueness of values", function () {
+        var set = Set([1, 2, 3, 1, 2, 3]);
         expect(set.toArray().sort()).toEqual([1, 2, 3]);
     });
 

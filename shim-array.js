@@ -7,10 +7,11 @@
     https://github.com/motorola-mobility/montage/blob/master/LICENSE.md
 */
 
-var Function = require("./shim-function");
 var GenericCollection = require("./generic-collection");
 var GenericOrder = require("./generic-order");
 var WeakMap = require("./weak-map");
+var Iterator = require("./iterator");
+var swap = require("./operators/swap");
 
 module.exports = Array;
 
@@ -23,34 +24,38 @@ if (Object.freeze) {
     Object.freeze(Array.empty);
 }
 
-Array.from = function (values) {
-    var array = [];
-    array.addEach(values);
-    return array;
-};
+if (!Array.from) {
+    Array.from = function (values) {
+        var array = [];
+        array.addEach(values);
+        return array;
+    };
+}
 
-Array.unzip = function (table) {
-    var transpose = [];
-    var length = Infinity;
-    // compute shortest row
-    for (var i = 0; i < table.length; i++) {
-        var row = table[i];
-        table[i] = row.toArray();
-        if (row.length < length) {
-            length = row.length;
-        }
-    }
-    for (var i = 0; i < table.length; i++) {
-        var row = table[i];
-        for (var j = 0; j < row.length; j++) {
-            if (j < length && j in row) {
-                transpose[j] = transpose[j] || [];
-                transpose[j][i] = row[j];
+if (!Array.unzip) {
+    Array.unzip = function (table) {
+        var transpose = [];
+        var length = Infinity;
+        // compute shortest row
+        for (var i = 0; i < table.length; i++) {
+            var row = table[i];
+            table[i] = row.toArray();
+            if (row.length < length) {
+                length = row.length;
             }
         }
-    }
-    return transpose;
-};
+        for (var i = 0; i < table.length; i++) {
+            var row = table[i];
+            for (var j = 0; j < row.length; j++) {
+                if (j < length && j in row) {
+                    transpose[j] = transpose[j] || [];
+                    transpose[j][i] = row[j];
+                }
+            }
+        }
+        return transpose;
+    };
+}
 
 function define(key, value) {
     Object.defineProperty(Array.prototype, key, {
@@ -65,8 +70,6 @@ define("addEach", GenericCollection.prototype.addEach);
 define("deleteEach", GenericCollection.prototype.deleteEach);
 define("toArray", GenericCollection.prototype.toArray);
 define("toObject", GenericCollection.prototype.toObject);
-define("all", GenericCollection.prototype.all);
-define("any", GenericCollection.prototype.any);
 define("min", GenericCollection.prototype.min);
 define("max", GenericCollection.prototype.max);
 define("sum", GenericCollection.prototype.sum);
@@ -86,7 +89,7 @@ define("constructClone", function (values) {
 });
 
 define("has", function (value, equals) {
-    return this.find(value, equals) !== -1;
+    return this.findValue(value, equals) !== -1;
 });
 
 define("get", function (index, defaultValue) {
@@ -100,8 +103,13 @@ define("get", function (index, defaultValue) {
 });
 
 define("set", function (index, value) {
-    this[index] = value;
-    return true;
+    // Whether we use splice or swap, we're going to allocate an
+    // unnecessary array. "swap" works in cases where the index
+    // exceeds the length of the array, whereas splice would
+    // truncate.
+    // The swap implementation is overridden by observable arrays.
+    this.swap(index, 1, [value]);
+    return this;
 });
 
 define("add", function (value) {
@@ -110,7 +118,7 @@ define("add", function (value) {
 });
 
 define("delete", function (value, equals) {
-    var index = this.find(value, equals);
+    var index = this.findValue(value, equals);
     if (index !== -1) {
         this.spliceOne(index);
         return true;
@@ -132,7 +140,7 @@ define("deleteAll", function (value, equals) {
     return count;
 });
 
-define("find", function (value, equals) {
+define("findValue", function (value, equals) {
     equals = equals || this.contentEquals || Object.equals;
     for (var index = 0; index < this.length; index++) {
         if (index in this && equals(value, this[index])) {
@@ -142,7 +150,7 @@ define("find", function (value, equals) {
     return -1;
 });
 
-define("findLast", function (value, equals) {
+define("findLastValue", function (value, equals) {
     equals = equals || this.contentEquals || Object.equals;
     var index = this.length;
     do {
@@ -154,51 +162,8 @@ define("findLast", function (value, equals) {
     return -1;
 });
 
-define("swap", function (start, length, plus) {
-    var args, plusLength, i, j, returnValue;
-    if (start > this.length) {
-        this.length = start;
-    }
-    if (typeof plus !== "undefined") {
-        args = [start, length];
-        if (!Array.isArray(plus)) {
-            plus = array_slice.call(plus);
-        }
-        i = 0;
-        plusLength = plus.length;
-        // 1000 is a magic number, presumed to be smaller than the remaining
-        // stack length. For swaps this small, we take the fast path and just
-        // use the underlying Array splice. We could measure the exact size of
-        // the remaining stack using a try/catch around an unbounded recursive
-        // function, but this would defeat the purpose of short-circuiting in
-        // the common case.
-        if (plusLength < 1000) {
-            for (i; i < plusLength; i++) {
-                args[i+2] = plus[i];
-            }
-            return array_splice.apply(this, args);
-        } else {
-            // Avoid maximum call stack error.
-            // First delete the desired entries.
-            returnValue = array_splice.apply(this, args);
-            // Second batch in 1000s.
-            for (i; i < plusLength;) {
-                args = [start+i, 0];
-                for (j = 2; j < 1002 && i < plusLength; j++, i++) {
-                    args[j] = plus[i];
-                }
-                array_splice.apply(this, args);
-            }
-            return returnValue;
-        }
-    // using call rather than apply to cut down on transient objects
-    } else if (typeof length !== "undefined") {
-        return array_splice.call(this, start, length);
-    }  else if (typeof start !== "undefined") {
-        return array_splice.call(this, start);
-    } else {
-        return [];
-    }
+define("swap", function (start, minusLength, plus) {
+    return swap(this, start, minusLength, plus);
 });
 
 define("peek", function () {
@@ -276,7 +241,7 @@ define("compare", function (that, compare) {
     return this.length - that.length;
 });
 
-define("equals", function (that, equals) {
+define("equals", function (that, equals, memo) {
     equals = equals || Object.equals;
     var i = 0;
     var length = this.length;
@@ -300,7 +265,7 @@ define("equals", function (that, equals) {
                 }
                 left = this[i];
                 right = that[i];
-                if (!equals(left, right)) {
+                if (!equals(left, right, equals, memo)) {
                     return false;
                 }
             } else {

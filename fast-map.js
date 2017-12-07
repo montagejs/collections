@@ -1,11 +1,12 @@
 "use strict";
 
-var Shim = require("./shim");
 var Set = require("./fast-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
-var PropertyChanges = require("./listen/property-changes");
-var MapChanges = require("./listen/map-changes");
+var ObservableObject = require("./observable-object");
+var equalsOperator = require("./operators/equals");
+var hashOperator = require("./operators/hash");
+var addEach = require("./operators/add-each");
 
 module.exports = FastMap;
 
@@ -13,9 +14,9 @@ function FastMap(values, equals, hash, getDefault) {
     if (!(this instanceof FastMap)) {
         return new FastMap(values, equals, hash, getDefault);
     }
-    equals = equals || Object.equals;
-    hash = hash || Object.hash;
-    getDefault = getDefault || Function.noop;
+    equals = equals || equalsOperator;
+    hash = hash || hashOperator;
+    getDefault = getDefault || this.getDefault;
     this.contentEquals = equals;
     this.contentHash = hash;
     this.getDefault = getDefault;
@@ -34,10 +35,9 @@ function FastMap(values, equals, hash, getDefault) {
 
 FastMap.FastMap = FastMap; // hack so require("fast-map").FastMap will work in MontageJS
 
-Object.addEach(FastMap.prototype, GenericCollection.prototype);
-Object.addEach(FastMap.prototype, GenericMap.prototype);
-Object.addEach(FastMap.prototype, PropertyChanges.prototype);
-Object.addEach(FastMap.prototype, MapChanges.prototype);
+addEach(FastMap.prototype, GenericCollection.prototype);
+addEach(FastMap.prototype, GenericMap.prototype);
+addEach(FastMap.prototype, ObservableObject.prototype);
 
 FastMap.from = GenericCollection.from;
 FastMap.prototype.constructClone = function (values) {

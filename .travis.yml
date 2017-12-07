@@ -1,8 +1,11 @@
 language: node_js
 node_js:
-  - "4.8.0"
+  - "4."
+  - "6"
+  - "8"
 script: npm run $COMMAND
 env:
+  - COMMAND=lint
   - COMMAND=test
 notifications:
   irc:

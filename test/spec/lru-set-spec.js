@@ -24,7 +24,7 @@ describe("LruSet-spec", function () {
     it("should emit LRU changes as singleton operation", function () {
         var a = 1, b = 2, c = 3, d = 4;
         var lruset = LruSet([d, c, a, b, c], 3);
-        lruset.addRangeChangeListener(function(plus, minus) {
+        lruset.observeRangeChange(function(plus, minus) {
             expect(plus).toEqual([d]);
             expect(minus).toEqual([a]);
         });
@@ -34,11 +34,11 @@ describe("LruSet-spec", function () {
     it("should dispatch LRU changes as singleton operation", function () {
         var set = LruSet([4, 3, 1, 2, 3], 3);
         var spy = jasmine.createSpy();
-        set.addBeforeRangeChangeListener(function (plus, minus) {
+        set.observeRangeWillChange(function (plus, minus) {
             spy('before-plus', plus);
             spy('before-minus', minus);
         });
-        set.addRangeChangeListener(function (plus, minus) {
+        set.observeRangeChange(function (plus, minus) {
             spy('after-plus', plus);
             spy('after-minus', minus);
         });

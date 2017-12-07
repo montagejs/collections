@@ -39,7 +39,7 @@ Item.prototype.hash = function () {
 };
 
 console.log("\niterate");
-console.log(Iterator(set.iterate()).mapIterator(function (item) {
+console.log(set.iterate().iterateMap(function (item) {
     return item.value;
 }).toArray());
 

@@ -1,11 +1,13 @@
 "use strict";
 
-var Shim = require("./shim");
-var Set = require("./set").CollectionsSet;
+var Set = require("./set");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
-var PropertyChanges = require("./listen/property-changes");
-var RangeChanges = require("./listen/range-changes");
+var ObservableObject = require("./observable-object");
+var ObservableRange = require("./observable-range");
+var equalsOperator = require("./operators/equals");
+var hashOperator = require("./operators/hash");
+var addEach = require("./operators/add-each");
 
 module.exports = LruSet;
 
@@ -13,9 +15,9 @@ function LruSet(values, capacity, equals, hash, getDefault) {
     if (!(this instanceof LruSet)) {
         return new LruSet(values, capacity, equals, hash, getDefault);
     }
-    capacity = capacity || Infinity;
-    equals = equals || Object.equals;
-    hash = hash || Object.hash;
+    maxLength = maxLength || Infinity;
+    equals = equals || equalsOperator;
+    hash = hash || hashOperator;
     getDefault = getDefault || Function.noop;
     this.store = new Set(undefined, equals, hash);
     this.contentEquals = equals;
@@ -28,12 +30,13 @@ function LruSet(values, capacity, equals, hash, getDefault) {
 
 LruSet.LruSet = LruSet; // hack so require("lru-set").LruSet will work in MontageJS
 
-Object.addEach(LruSet.prototype, GenericCollection.prototype);
-Object.addEach(LruSet.prototype, GenericSet.prototype);
-Object.addEach(LruSet.prototype, PropertyChanges.prototype);
-Object.addEach(LruSet.prototype, RangeChanges.prototype);
-Object.defineProperty(LruSet.prototype,"size",GenericCollection._sizePropertyDescriptor);
 LruSet.from = GenericCollection.from;
+
+addEach(LruSet.prototype, GenericCollection.prototype);
+addEach(LruSet.prototype, GenericSet.prototype);
+addEach(LruSet.prototype, ObservableObject.prototype);
+addEach(LruSet.prototype, ObservableRange.prototype);
+Object.defineProperty(LruSet.prototype,"size",GenericCollection._sizePropertyDescriptor);
 
 LruSet.prototype.constructClone = function (values) {
     return new this.constructor(
@@ -80,7 +83,7 @@ LruSet.prototype.add = function (value) {
             minus.push(eldest.value);
         }
         if (this.dispatchesRangeChanges) {
-            this.dispatchBeforeRangeChange(plus, minus, 0);
+            this.dispatchRangeWillChange(plus, minus, 0);
         }
         this.store.add(value);
         if (minus.length > 0) {
@@ -104,7 +107,7 @@ LruSet.prototype["delete"] = function (value, equals) {
     var found = this.store.has(value);
     if (found) {
         if (this.dispatchesRangeChanges) {
-            this.dispatchBeforeRangeChange([], [value], 0);
+            this.dispatchRangeWillChange([], [value], 0);
         }
         this.store["delete"](value);
         this.length--;

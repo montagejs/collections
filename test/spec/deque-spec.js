@@ -56,7 +56,7 @@ describe("Deque-spec", function () {
         expect(deque.shift()).toBe(4);
     });
 
-    it("dispatches range changes", function () {
+    xit("dispatches range changes", function () {
         var spy = jasmine.createSpy();
         var handler = function (plus, minus, value) {
             spy(plus, minus, value); // ignore last arg

@@ -3,7 +3,6 @@ var MultiMap = require("../multi-map");
 require("../shim-array"); // for Array#swap
 var List = require("../list");
 
-debugger;
 var map = new MultiMap({a: [1, 2, 3]}, List);
 console.log(map);
 var mapIter = map.keys(), key;

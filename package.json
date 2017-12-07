@@ -1,6 +1,9 @@
 {
   "name": "collections",
-  "version": "5.0.7",
+  "version": "6.0.0",
+  "publishConfig": {
+    "tag": "future"
+  },
   "description": "data structures with idiomatic JavaScript collection interfaces",
   "homepage": "http://www.collectionsjs.com",
   "author": "Kris Kowal <kris@cixar.com> (http://github.com/kriskowal)",
@@ -37,23 +40,27 @@
     "weak-map": "~1.0.x"
   },
   "devDependencies": {
-    "montage-testing": "git://github.com/montagejs/montage-testing#master",
+    "concurrently": "^3.4.0",
+    "http-server": "^0.9.0",
+    "istanbul": "^0.2.4",
     "jasmine-console-reporter": "^1.2.7",
     "jasmine-core": "^2.5.2",
+    "jshint": "^2.9.5",
     "karma": "^1.5.0",
     "karma-chrome-launcher": "^2.0.0",
     "karma-coverage": "^1.1.1",
     "karma-firefox-launcher": "^1.0.1",
     "karma-jasmine": "^1.1.0",
     "karma-phantomjs-launcher": "^1.0.2",
+    "montage-testing": "git://github.com/montagejs/montage-testing#master",
     "mop-integration": "git://github.com/montagejs/mop-integration.git#master",
-    "concurrently": "^3.4.0",
-    "http-server": "^0.9.0",
     "open": "0.0.5"
   },
   "scripts": {
+    "lint": "jshint .", 
     "test": "node test/run-node.js",
     "integration": "mop-integration",
+    "cover": "istanbul cover spec/index.js spec && istanbul report html && open coverage/index.html",
     "test:karma": "karma start --no-auto-watch --single-run",
     "test:karma-firefox": "karma start --no-auto-watch --single-run --browsers=Firefox",
     "test:karma-chrome": "karma start --no-auto-watch --single-run --browsers=Chrome",

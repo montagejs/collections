@@ -1,5 +1,6 @@
 
-var Object = require("./shim-object");
+var equalsOperator = require("./operators/equals");
+var compareOperator = require("./operators/compare");
 
 module.exports = GenericOrder;
 function GenericOrder() {
@@ -7,7 +8,7 @@ function GenericOrder() {
 }
 
 GenericOrder.prototype.equals = function (that, equals) {
-    equals = equals || this.contentEquals || Object.equals;
+    equals = equals || this.contentEquals || equalsOperator;
 
     if (this === that) {
         return true;
@@ -26,7 +27,7 @@ GenericOrder.prototype.equals = function (that, equals) {
 };
 
 GenericOrder.prototype.compare = function (that, compare) {
-    compare = compare || this.contentCompare || Object.compare;
+    compare = compare || this.contentCompare || compareOperator;
 
     if (this === that) {
         return 0;
