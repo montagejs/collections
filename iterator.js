@@ -138,6 +138,11 @@ FilterIterator.prototype.next = function () {
     }
 };
 
+
+Iterator.prototype.iterate = function () {
+    return Iterator(this);  
+};
+
 Iterator.prototype.mapIterator = function (callback /*, thisp*/) {
     throw new Error('TODO');
     return;

@@ -142,10 +142,6 @@ GenericMap.prototype.clear = function () {
     }
 };
 
-GenericMap.prototype.iterate = function () {
-    return new this.Iterator(this);
-};
-
 GenericMap.prototype.reduce = function (callback, basis, thisp) {
     return this.store.reduce(function (basis, item) {
         return callback.call(thisp, basis, item.value, item.key, this);
