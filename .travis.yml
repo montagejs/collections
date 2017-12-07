@@ -1,13 +1,12 @@
 language: node_js
 node_js:
-<<<<<<< HEAD
-  - "4.8.0"
+  - "4."
+  - "6"
+  - "8"
 script: npm run $COMMAND
 env:
+  - COMMAND=lint
   - COMMAND=test
-=======
-  - "0.10"
->>>>>>> v2
 notifications:
   irc:
     channels:
