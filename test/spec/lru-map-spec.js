@@ -1,4 +1,3 @@
-
 var LruMap = require("collections/lru-map");
 var describeDict = require("./dict");
 var describeMap = require("./map");
@@ -65,11 +64,8 @@ describe("LruMap-spec", function () {
     it("should dispatch deletion for stale entries", function () {
         var map = LruMap({a: 10, b: 20, c: 30}, 3);
         var spy = jasmine.createSpy();
-        map.addBeforeMapChangeListener(function (value, key) {
-            spy('before', key, value);
-        });
-        map.addMapChangeListener(function (value, key) {
-            spy('after', key, value);
+        map.observeMapChange(function (plus, minus, key, type) {
+            spy(plus, minus, key, type);
         });
         map.set('d', 40);
         

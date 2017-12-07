@@ -2,10 +2,14 @@
 
 module.exports = SortedArray;
 
-var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
-var PropertyChanges = require("./listen/property-changes");
-var RangeChanges = require("./listen/range-changes");
+var ObservableObject = require("./observable-object");
+var ObservableRange = require("./observable-range");
+var Iterator = require("./iterator");
+var equalsOperator = require("./operators/equals");
+var compareOperator = require("./operators/compare");
+var noop = require("./operators/noop");
+var addEach = require("./operators/add-each");
 
 function SortedArray(values, equals, compare, getDefault) {
     if (!(this instanceof SortedArray)) {
@@ -17,9 +21,9 @@ function SortedArray(values, equals, compare, getDefault) {
     } else {
         this.array = [];
     }
-    this.contentEquals = equals || Object.equals;
-    this.contentCompare = compare || Object.compare;
-    this.getDefault = getDefault || Function.noop;
+    this.contentEquals = equals || equalsOperator;
+    this.contentCompare = compare || compareOperator;
+    this.getDefault = getDefault || noop;
 
     this.length = 0;
     this.addEach(values);
@@ -30,9 +34,9 @@ SortedArray.SortedArray = SortedArray;
 
 SortedArray.from = GenericCollection.from;
 
-Object.addEach(SortedArray.prototype, GenericCollection.prototype);
-Object.addEach(SortedArray.prototype, PropertyChanges.prototype);
-Object.addEach(SortedArray.prototype, RangeChanges.prototype);
+addEach(SortedArray.prototype, GenericCollection.prototype);
+addEach(SortedArray.prototype, ObservableObject.prototype);
+addEach(SortedArray.prototype, ObservableRange.prototype);
 
 SortedArray.prototype.isSorted = true;
 
@@ -198,26 +202,11 @@ SortedArray.prototype.lastIndexOf = function (value) {
     return searchLast(this.array, value, this.contentCompare, this.contentEquals);
 };
 
-SortedArray.prototype.find = function (value, equals, index) {
-    // TODO throw error if provided a start index
-    if (equals) {
-        throw new Error("SortedArray#find does not support second argument: equals");
-    }
-    if (index) {
-        throw new Error("SortedArray#find does not support third argument: index");
-    }
-    // TODO support initial partition index
+SortedArray.prototype.findValue = function (value) {
     return searchFirst(this.array, value, this.contentCompare, this.contentEquals);
 };
 
-SortedArray.prototype.findLast = function (value, equals, index) {
-    if (equals) {
-        throw new Error("SortedArray#findLast does not support second argument: equals");
-    }
-    if (index) {
-        throw new Error("SortedArray#findLast does not support third argument: index");
-    }
-    // TODO support initial partition index
+SortedArray.prototype.findLastValue = function (value) {
     return searchLast(this.array, value, this.contentCompare, this.contentEquals);
 };
 
@@ -236,9 +225,9 @@ SortedArray.prototype.pop = function () {
 };
 
 SortedArray.prototype.shift = function () {
-    var val = this.array.shift();
+    var value = this.array.shift();
     this.length = this.array.length;
-    return val;
+    return value;
 };
 
 SortedArray.prototype.slice = function () {
@@ -324,12 +313,13 @@ SortedArray.prototype.compare = function (that, compare) {
     return this.array.compare(that, compare);
 };
 
-SortedArray.prototype.iterate = function (start, end) {
-    return new this.Iterator(this.array, start, end);
+SortedArray.prototype.iterate = function (start, stop, step) {
+    return new this.Iterator(this.array, start, stop, step);
 };
 
 SortedArray.prototype.toJSON = function () {
     return this.toArray();
 };
 
-SortedArray.prototype.Iterator = Array.prototype.Iterator;
+SortedArray.prototype.Iterator = Iterator;
+

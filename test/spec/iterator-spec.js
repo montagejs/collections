@@ -1,141 +1,147 @@
 
 var Iterator = require("collections/iterator");
 
-describe("Iterator-spec", function () {
+describe("Iterator", function () {
 
-    shouldWorkWithConstructor(function withoutNew(iterable) {
-        return Iterator(iterable);
-    });
-
-    shouldWorkWithConstructor(function withNew(iterable) {
-        return new Iterator(iterable);
-    });
-
-    describe("Iterator.cycle", function () {
-
-        it("should work", function () {
-            var iterator = Iterator.cycle([1, 2, 3]);
-            for (var i = 0; i < 10; i++) {
-                expect(iterator.next().value).toBe(1);
-                expect(iterator.next().value).toBe(2);
-                expect(iterator.next().value).toBe(3);
-            }
-        });
-
-        it("should work with specified number of times", function () {
-            var iterator = Iterator.cycle([1, 2, 3], 2);
-            for (var i = 0; i < 2; i++) {
-                expect(iterator.next().value).toBe(1);
-                expect(iterator.next().value).toBe(2);
-                expect(iterator.next().value).toBe(3);
-            }
-            expect(iterator.next().done).toBe(true);
-            expect(iterator.next().done).toBe(true);
-        });
-
-        it("should work with specified 0 times", function () {
-            var iterator = Iterator.cycle([1, 2, 3], 0);
-            expect(iterator.next().done).toBe(true);
-            expect(iterator.next().done).toBe(true);
-        });
-
-        it("should work with specified -1 times", function () {
-            var iterator = Iterator.cycle([1, 2, 3], 0);
-            expect(iterator.next().done).toBe(true);
-            expect(iterator.next().done).toBe(true);
-        });
-
-    });
-
-    describe("Iterator.repeat", function () {
-
-        it("should repeat a value indefinite times by default", function () {
-            var iterator = Iterator.repeat(1);
-            for (var i = 0; i < 10; i++) {
-                expect(iterator.next().value).toEqual(1);
-            }
-        });
-
-        it("should repeat a value specified times", function () {
-            var iterator = Iterator.repeat(1, 3);
-            for (var i = 0; i < 3; i++) {
-                expect(iterator.next().value).toEqual(1);
-            }
-            expect(iterator.next().done).toBe(true);
-            expect(iterator.next().done).toBe(true);
-        });
-
-    });
-
-    describe("Iterator.concat", function () {
-        it("should work", function () {
-            var iterator = Iterator.concat([
-               Iterator([1, 2, 3]),
-               Iterator([4, 5, 6]),
-               Iterator([7, 8, 9])
-            ]);
-            for (var i = 0; i < 9; i++) {
-                expect(iterator.next().value).toEqual(i + 1);
-            }
-            expect(iterator.next().done).toBe(true);
-            expect(iterator.next().done).toBe(true);
+    describe('should work without constructor', function () {
+        shouldWorkWithConstructor(function withoutNew(iterable) {
+            return Iterator(iterable);
         });
     });
 
-    describe("Iterator.chain", function () {
-        it("should work", function () {
-            var iterator = Iterator.chain(
-               Iterator([1, 2, 3]),
-               Iterator([4, 5, 6]),
-               Iterator([7, 8, 9])
-            );
-            for (var i = 0; i < 9; i++) {
-                expect(iterator.next().value).toEqual(i + 1);
-            }
-            expect(iterator.next().done).toBe(true);
-            expect(iterator.next().done).toBe(true);
-        });
+    describe('should work with constructor', function () {
+        shouldWorkWithConstructor(function withNew(iterable) {
+            return new Iterator(iterable);
+        });  
+    })
+});
+
+function expectCommonIterator(iterator) {
+    expect(Object.equals(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
+    expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+    expect(Object.equals(iterator.next(), {value: 3, index: 2, done: false})).toBe(true);
+    expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+    expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+}
+
+describe("Iterator.cycle", function () {
+
+    it("should work", function () {
+        var iterator = Iterator.cycle([1, 2, 3]);
+        for (var i = 0; i < 10; i++) {
+            expect(iterator.next().value).toBe(1);
+            expect(iterator.next().value).toBe(2);
+            expect(iterator.next().value).toBe(3);
+        }
     });
 
-    describe("Iterator.unzip", function () {
-        it("should work", function () {
-            var iterator = Iterator.unzip([
-                Iterator([0, 'A', 'x']),
-                Iterator([1, 'B', 'y', 'I']),
-                Iterator([2, 'C'])
-            ]);
-
-            expect(iterator.next().value).toEqual([0, 1, 2]);
-            expect(iterator.next().value).toEqual(['A', 'B', 'C']);
-
-            expect(iterator.next().done).toBe(true);
-            expect(iterator.next().done).toBe(true);
-        });
+    it("should work with specified number of times", function () {
+        var iterator = Iterator.cycle([1, 2, 3], 2);
+        for (var i = 0; i < 2; i++) {
+            expect(iterator.next().value).toBe(1);
+            expect(iterator.next().value).toBe(2);
+            expect(iterator.next().value).toBe(3);
+        }
+        expect(iterator.next().done).toBe(true);
+        expect(iterator.next().done).toBe(true);
     });
 
-    describe("Iterator.zip", function () {
-        it("should work", function () {
-            var iterator = Iterator.zip(
-                Iterator([0, 'A', 'x']),
-                Iterator([1, 'B', 'y', 'I']),
-                Iterator([2, 'C'])
-            );
-
-            expect(iterator.next().value).toEqual([0, 1, 2]);
-            expect(iterator.next().value).toEqual(['A', 'B', 'C']);
-
-            expect(iterator.next().done).toBe(true);
-            expect(iterator.next().done).toBe(true);
-        });
+    it("should work with specified 0 times", function () {
+        var iterator = Iterator.cycle([1, 2, 3], 0);
+        expect(iterator.next().done).toBe(true);
+        expect(iterator.next().done).toBe(true);
     });
 
-    describe("Iterator.range", function () {
-    });
-
-    describe("Iterator.count", function () {
+    it("should work with specified -1 times", function () {
+        var iterator = Iterator.cycle([1, 2, 3], 0);
+        expect(iterator.next().done).toBe(true);
+        expect(iterator.next().done).toBe(true);
     });
 
 });
+
+describe("Iterator.repeat", function () {
+
+    it("should repeat a value indefinite times by default", function () {
+        var iterator = Iterator.repeat(1);
+        for (var i = 0; i < 10; i++) {
+            expect(iterator.next().value).toEqual(1);
+        }
+    });
+
+    it("should repeat a value specified times", function () {
+        var iterator = Iterator.repeat(1, 3);
+        for (var i = 0; i < 3; i++) {
+            expect(iterator.next().value).toEqual(1);
+        }
+        expect(iterator.next().done).toBe(true);
+        expect(iterator.next().done).toBe(true);
+    });
+
+});
+
+describe("Iterator.concat", function () {
+    it("should work", function () {
+        var iterator = Iterator.concat([
+           Iterator([1, 2, 3]),
+           Iterator([4, 5, 6]),
+           Iterator([7, 8, 9])
+        ]);
+        for (var i = 0; i < 9; i++) {
+            expect(iterator.next().value).toEqual(i + 1);
+        }
+        expect(iterator.next().done).toBe(true);
+        expect(iterator.next().done).toBe(true);
+    });
+});
+
+describe("Iterator.chain", function () {
+    it("should work", function () {
+        var iterator = Iterator.chain(
+           Iterator([1, 2, 3]),
+           Iterator([4, 5, 6]),
+           Iterator([7, 8, 9])
+        );
+        for (var i = 0; i < 9; i++) {
+            expect(iterator.next().value).toEqual(i + 1);
+        }
+        expect(iterator.next().done).toBe(true);
+        expect(iterator.next().done).toBe(true);
+    });
+});
+
+describe("Iterator.unzip", function () {
+    it("should work", function () {
+        var iterator = Iterator.unzip([
+            Iterator([0, 'A', 'x']),
+            Iterator([1, 'B', 'y', 'I']),
+            Iterator([2, 'C'])
+        ]);
+
+        expect(iterator.next().value).toEqual([0, 1, 2]);
+        expect(iterator.next().value).toEqual(['A', 'B', 'C']);
+
+        expect(iterator.next().done).toBe(true);
+        expect(iterator.next().done).toBe(true);
+    });
+});
+
+describe("Iterator.zip", function () {
+    it("should work", function () {
+        var iterator = Iterator.zip(
+            Iterator([0, 'A', 'x']),
+            Iterator([1, 'B', 'y', 'I']),
+            Iterator([2, 'C'])
+        );
+
+        expect(iterator.next().value).toEqual([0, 1, 2]);
+        expect(iterator.next().value).toEqual(['A', 'B', 'C']);
+
+        expect(iterator.next().done).toBe(true);
+        expect(iterator.next().done).toBe(true);
+    });
+});
+
 
 function shouldWorkWithConstructor(Iterator) {
 
@@ -647,3 +653,217 @@ function shouldWorkWithConstructor(Iterator) {
     });
 
 }
+
+describe("Iterator.cycle", function () {
+
+    it("cycles an array", function () {
+        var iterator = Iterator.cycle([1, 2, 3]);
+        expect(Object.equals(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 3, index: 2, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 3, index: 2, done: false})).toBe(true);
+    });
+
+    it("cycles an array twice", function () {
+        var iterator = Iterator.cycle([1, 2], 2);
+        expect(Object.equals(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+    });
+
+    it("cycles zero times", function () {
+        var iterator = Iterator.cycle([1, 2, 3], 0);
+        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+    });
+
+});
+
+describe("Iterator.concat", function () {
+
+    it("concats iterators", function () {
+        var iterator = Iterator.concat(
+            Iterator([1, 2]),
+            Iterator([3, 4]),
+            Iterator([5, 6])
+        );
+        expect(Object.equals(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 3, index: 0, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 4, index: 1, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 5, index: 0, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 6, index: 1, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+    });
+     describe("concat", function () {
+        it("should work", function () {
+            var iterator = definiteIterator().concat(definiteIterator());
+            expect(iterator.next().value).toBe(1);
+            expect(iterator.next().value).toBe(2);
+            expect(iterator.next().value).toBe(3);
+            expect(iterator.next().value).toBe(1);
+            expect(iterator.next().value).toBe(2);
+            expect(iterator.next().value).toBe(3);
+            expect(iterator.next().done).toBe(true);
+        });
+    });
+
+});
+
+describe("Iterator.flatten", function () {
+
+    it("flattens iterators", function () {
+        var iterator = Iterator.flatten([
+            Iterator([1, 2]),
+            Iterator([3, 4]),
+            Iterator([5, 6])
+        ]);
+        expect(Object.equals(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 3, index: 0, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 4, index: 1, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 5, index: 0, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 6, index: 1, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+    });
+
+});
+
+describe("Iterator.unzip", function () {
+
+    it("unzips iterators", function () {
+        var iterator = Iterator.unzip([
+            Iterator([0, 'A', 'x']),
+            Iterator([1, 'B', 'y', 'I']),
+            Iterator([2, 'C'])
+        ]);
+        expect(Object.equals(iterator.next(), {
+            value: [0, 1, 2],
+            index: 0, done: false
+        })).toBe(true);
+        expect(Object.equals(iterator.next(), {
+            value: ["A", "B", "C"],
+            index: 1, done: false
+        })).toBe(true);
+        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+    });
+
+});
+
+describe("Iterator.zip", function () {
+
+    it("zips iterators", function () {
+        var iterator = Iterator.zip(
+            Iterator([0, 'A', 'x']),
+            Iterator([1, 'B', 'y', 'I']),
+            Iterator([2, 'C'])
+        );
+        expect(Object.equals(iterator.next(), {
+            value: [0, 1, 2],
+            index: 0, done: false
+        })).toBe(true);
+        expect(Object.equals(iterator.next(), {
+            value: ["A", "B", "C"],
+            index: 1, done: false
+        })).toBe(true);
+        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+    });
+
+});
+
+describe("Iterator.range", function () {
+
+    it("iterates a range", function () {
+        var iterator = new Iterator.range(3);
+        expect(Object.equals(iterator.next(), {value: 0, index: 0, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 1, index: 1, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 2, index: 2, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+    });
+
+    it("iterates an offset range", function () {
+        var iterator = new Iterator.range(1, 4);
+        expectCommonIterator(iterator);
+    });
+
+    it("iterates an offset, strided range", function () {
+        var iterator = new Iterator.range(0, 5, 2);
+        expect(Object.equals(iterator.next(), {value: 0, index: 0, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 4, index: 2, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+    });
+
+});
+
+describe("Iterator.count", function () {
+
+    it("iterates an open range", function () {
+        var iterator = new Iterator.count();
+        expect(Object.equals(iterator.next(), {value: 0, index: 0, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 1, index: 1, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 2, index: 2, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 3, index: 3, done: false})).toBe(true);
+    });
+
+    it("iterates an open range starting with one", function () {
+        var iterator = new Iterator.count(1);
+        expect(Object.equals(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 3, index: 2, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 4, index: 3, done: false})).toBe(true);
+    });
+
+    it("iterates an open range with stride", function () {
+        var iterator = new Iterator.count(0, 2);
+        expect(Object.equals(iterator.next(), {value: 0, index: 0, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 2, index: 1, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 4, index: 2, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 6, index: 3, done: false})).toBe(true);
+    });
+
+});
+
+describe("Iterator.repeat", function () {
+
+    it("repeats a value indefinitely", function () {
+        var iterator = Iterator.repeat(1);
+        for (var index = 0; index < 10; index++) {
+            expect(Object.equals(iterator.next(), {value: 1, index: index, done: false})).toBe(true);
+        }
+    });
+
+    it("repeats a value some times", function () {
+        var iterator = Iterator.repeat(1, 3);
+        expect(Object.equals(iterator.next(), {value: 1, index: 0, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 1, index: 1, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: 1, index: 2, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+    });
+
+});
+
+describe("Iterator.enumerate", function () {
+
+    it("should enumerate an array", function () {
+        var iterator = Iterator.enumerate([1, 2, 3]);
+        expect(Object.equals(iterator.next(), {value: [0, 1], index: 0, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: [1, 2], index: 1, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: [2, 3], index: 2, done: false})).toBe(true);
+        expect(Object.equals(iterator.next(), {value: undefined, index: undefined, done: true})).toBe(true);
+    });
+
+});
+

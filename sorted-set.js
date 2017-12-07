@@ -2,19 +2,22 @@
 
 module.exports = SortedSet;
 
-var Shim = require("./shim");
 var GenericCollection = require("./generic-collection");
 var GenericSet = require("./generic-set");
-var PropertyChanges = require("./listen/property-changes");
-var RangeChanges = require("./listen/range-changes");
+var ObservableObject = require("./observable-object");
+var ObservableRange = require("./observable-range");
+var Iterator = require("./iterator");
 var TreeLog = require("./tree-log");
+var equalsOperator = require("./operators/equals");
+var compareOperator = require("./operators/compare");
+var addEach = require("./operators/add-each");
 
 function SortedSet(values, equals, compare, getDefault) {
     if (!(this instanceof SortedSet)) {
         return new SortedSet(values, equals, compare, getDefault);
     }
-    this.contentEquals = equals || Object.equals;
-    this.contentCompare = compare || Object.compare;
+    this.contentEquals = equals || equalsOperator;
+    this.contentCompare = compare || compareOperator;
     this.getDefault = getDefault || Function.noop;
     this.root = null;
     this.length = 0;
@@ -24,10 +27,10 @@ function SortedSet(values, equals, compare, getDefault) {
 // hack so require("sorted-set").SortedSet will work in MontageJS
 SortedSet.SortedSet = SortedSet;
 
-Object.addEach(SortedSet.prototype, GenericCollection.prototype);
-Object.addEach(SortedSet.prototype, GenericSet.prototype);
-Object.addEach(SortedSet.prototype, PropertyChanges.prototype);
-Object.addEach(SortedSet.prototype, RangeChanges.prototype);
+addEach(SortedSet.prototype, GenericCollection.prototype);
+addEach(SortedSet.prototype, GenericSet.prototype);
+addEach(SortedSet.prototype, ObservableObject.prototype);
+addEach(SortedSet.prototype, ObservableRange.prototype);
 Object.defineProperty(SortedSet.prototype,"size",GenericCollection._sizePropertyDescriptor);
 SortedSet.from = GenericCollection.from;
 
@@ -77,7 +80,7 @@ SortedSet.prototype.add = function (value) {
                 throw new Error("SortedSet cannot contain incomparable but inequal values: " + value + " and " + this.root.value);
             }
             if (this.dispatchesRangeChanges) {
-                this.dispatchBeforeRangeChange([value], [], this.root.index);
+                this.dispatchRangeWillChange([value], [], this.root.index);
             }
             if (comparison < 0) {
                 // rotate right
@@ -114,7 +117,7 @@ SortedSet.prototype.add = function (value) {
         }
     } else {
         if (this.dispatchesRangeChanges) {
-            this.dispatchBeforeRangeChange([value], [], 0);
+            this.dispatchRangeWillChange([value], [], 0);
         }
         this.root = node;
         this.length++;
@@ -135,7 +138,7 @@ SortedSet.prototype['delete'] = function (value, equals) {
         if (this.contentEquals(value, this.root.value)) {
             var index = this.root.index;
             if (this.dispatchesRangeChanges) {
-                this.dispatchBeforeRangeChange([], [value], index);
+                this.dispatchRangeWillChange([], [value], index);
             }
             if (!this.root.left) {
                 this.root = this.root.right;
@@ -185,6 +188,10 @@ SortedSet.prototype.find = function (value, equals, index) {
         // which to search.
         throw new Error("SortedSet#find does not support third argument: index");
     }
+    return SortedSet.prototype.findValue.call(this, arguments);
+};
+
+SortedSet.prototype.findValue = function (value) {
     if (this.root) {
         this.splay(value);
         if (this.contentEquals(value, this.root.value)) {
@@ -528,7 +535,7 @@ SortedSet.prototype.clear = function () {
     var minus;
     if (this.dispatchesRangeChanges) {
         minus = this.toArray();
-        this.dispatchBeforeRangeChange([], minus, 0);
+        this.dispatchRangeWillChange([], minus, 0);
     }
     this.root = null;
     this.length = 0;
@@ -541,7 +548,7 @@ SortedSet.prototype.iterate = function (start, end) {
     return new this.Iterator(this, start, end);
 };
 
-SortedSet.prototype.Iterator = Iterator;
+SortedSet.prototype.Iterator = SortedSetIterator;
 
 SortedSet.prototype.summary = function () {
     if (this.root) {
@@ -558,7 +565,14 @@ SortedSet.prototype.log = function (charmap, logNode, callback, thisp) {
         callback = console.log;
         thisp = console;
     }
-    callback = callback.bind(thisp);
+
+    // Bind is unavailable in PhantomJS, the only environment of consequence
+    // that does not implement it yet.
+    var originalCallback = callback;
+    callback = function () {
+        return originalCallback.apply(thisp, arguments);
+    };
+
     if (this.root) {
         this.root.log(charmap, logNode, callback, callback);
     }
@@ -732,7 +746,7 @@ Node.prototype.log = function (charmap, logNode, log, logAbove) {
     );
 };
 
-function Iterator(set, start, end) {
+function SortedSetIterator(set, start, end) {
     this.set = set;
     this.prev = null;
     this.end = end;
@@ -743,6 +757,7 @@ function Iterator(set, start, end) {
             this.prev = next.getPrevious();
         }
     }
+    this.index = 0;
 }
 Iterator.prototype.__iterationObject = null;
 Object.defineProperty(Iterator.prototype,"_iterationObject", {
@@ -751,7 +766,10 @@ Object.defineProperty(Iterator.prototype,"_iterationObject", {
     }
 });
 
-Iterator.prototype.next = function () {
+SortedSetIterator.prototype = Object.create(SortedSetIterator.prototype);
+SortedSetIterator.prototype.constructor = SortedSetIterator;
+
+SortedSetIterator.prototype.next = function () {
     var next;
     if (this.prev) {
         next = this.set.findLeastGreaterThan(this.prev.value);
@@ -759,22 +777,17 @@ Iterator.prototype.next = function () {
         next = this.set.findLeast();
     }
     if (!next) {
-        this._iterationObject.done = true;
-        this._iterationObject.value = void 0;
+        return Iterator.done;
     }
-    else {
-        if (
-            this.end !== undefined &&
-            this.set.contentCompare(next.value, this.end) >= 0
-        ) {
-            this._iterationObject.done = true;
-            this._iterationObject.value = void 0;
-        }
-        else {
-            this.prev = next;
-            this._iterationObject.value =  next.value;
-        }
-
+    if (
+        this.end !== undefined &&
+        this.set.contentCompare(next.value, this.end) >= 0
+    ) {
+        return Iterator.done;
     }
-    return this._iterationObject;
+    this.prev = next;
+    return new Iterator.Iteration(
+        next.value,
+        this.index++
+    );
 };

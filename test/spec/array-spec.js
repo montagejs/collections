@@ -1,28 +1,15 @@
 require("collections/shim");
-require("collections/listen/array-changes");
+require("collections/observable-array");
 var GenericCollection = require("collections/generic-collection");
 var describeDeque = require("./deque");
 var describeCollection = require("./collection");
 var describeOrder = require("./order");
-var describeMapChanges = require("./listen/map-changes");
 
 describe("Array-spec", function () {
-    describeDeque(Array.from);
-    describeCollection(Array, [1, 2, 3, 4]);
-    describeCollection(Array, [{id: 0}, {id: 1}, {id: 2}, {id: 3}]);
-    describeOrder(Array.from);
-
-    function mapAlike(entries) {
-        var array = [];
-        if (entries) {
-            entries.forEach(function (pair) {
-                array.set(pair[0], pair[1]);
-            });
-        }
-        return array;
-    }
-
-    describeMapChanges(mapAlike);
+    //describeDeque(Array);
+    //describeCollection(Array, [1, 2, 3, 4]);
+    //describeCollection(Array, [{id: 0}, {id: 1}, {id: 2}, {id: 3}]);
+    //describeOrder(Array);
 
     /*
         The following tests are from Montage.
@@ -73,31 +60,31 @@ describe("Array-spec", function () {
     // for arrays, like they would for a SortedArray.  These tests would apply
     // to lists as well, but lists do not have indicies.
 
-    describe("find", function () {
+    describe("findValue", function () {
 
         it("should find equivalent objects", function () {
-            expect([{a:10}].find({a:10})).toEqual(0);
+            expect([{a:10}].findValue({a:10})).toEqual(0);
         });
 
         it("should allow equality comparison override", function () {
-            expect([{a:10}].find({a:10}, Object.is)).toEqual(-1);
+            expect([{a:10}].findValue({a:10}, Object.is)).toEqual(-1);
         });
 
     });
 
-    describe("findLast", function () {
+    describe("findLastValue", function () {
 
         it("should find equivalent objects", function () {
-            expect([{a:10}].findLast({a:10})).toEqual(0);
+            expect([{a:10}].findLastValue({a:10})).toEqual(0);
         });
 
         it("should allow equality comparison override", function () {
-            expect([{a:10}].findLast({a:10}, Object.is)).toEqual(-1);
+            expect([{a:10}].findLastValue({a:10}, Object.is)).toEqual(-1);
         });
 
         it("should find the last of equivalent objects", function () {
             var object = {a: 10};
-            expect([object, {a: 10}].findLast(object)).toEqual(1);
+            expect([object, {a: 10}].findLastValue(object)).toEqual(1);
         });
 
     });
@@ -224,7 +211,58 @@ describe("Array-spec", function () {
         beforeEach(function () {
             array = [1, 2, 3];
         });
-        it("should be able to replace content with content of another arraylike", function () {
+
+        it("grows", function () {
+            array.swap(3, 0, [4, 5, 6]);
+            expect(array).toEqual([1, 2, 3, 4, 5, 6]);
+        });
+
+        it("grows with some removed", function () {
+            array.swap(1, 2, [4, 5, 6]);
+            expect(array).toEqual([1, 4, 5, 6]);
+        });
+
+        it("grows from beyond length", function () {
+            array.swap(4, 0, [1]);
+            expect(array).toEqual([1, 2, 3, , 1]);
+        });
+
+        it("grows from beyond length truncating removal", function () {
+            array.swap(4, 1, [1]);
+            expect(array).toEqual([1, 2, 3, , 1]);
+        });
+
+        it("shrinks", function () {
+            array.swap(1, 1);
+            expect(array).toEqual([1, 3]);
+        });
+
+        it("shrinks with some added", function () {
+            array.swap(1, 2, [4]);
+            expect(array).toEqual([1, 4]);
+        });
+
+        it("copies a hole", function () {
+            array.swap(1, 1, [,]);
+            expect(array).toEqual([1, , 3]);
+        });
+
+        it("copies holes", function () {
+            array.swap(1, 1, [,,]);
+            expect(array).toEqual([1, , , 3]);
+        });
+
+        it("sets within", function () {
+            array.set(1, 4);
+            expect(array).toEqual([1, 4, 3]);
+        });
+
+        it("sets without", function () {
+            array.set(4, 4);
+            expect(array).toEqual([1, 2, 3, , 4]);
+        });
+
+        it("can replace content with content of another arraylike", function () {
             otherArray = { __proto__ : Array.prototype };
             otherArray[0] = 4;
             otherArray[1] = 5;
@@ -232,23 +270,26 @@ describe("Array-spec", function () {
             array.swap(0, array.length, otherArray);
             expect(array).toEqual([4, 5]);
         });
+
         it("should ignore non array like plus value", function () {
             array.swap(0, array.length, 4);
             expect(array).toEqual([]);
 
         });
+
         it("should ignore extra arguments", function () {
             array.swap(0, array.length, 4, 5, 6);
             expect(array).toEqual([]);
-
         });
-        it("should work with large arrays", function () {
+
+        it("works with large arrays", function () {
             otherArray = new Array(200000);
             expect(function () {
                 array.swap(0, array.length, otherArray);
             }).not.toThrow();
             expect(array.length).toEqual(200000);
         });
+
         it("swaps at an outer index", function () {
             array.swap(4, 0, [5]);
             expect(array).toEqual([1, 2, 3, , 5]);
@@ -265,7 +306,6 @@ describe("Array-spec", function () {
 
        it("sets an inner index of an observed array", function () {
            var array = [1, 2, 3];
-           array.makeObservable();
            array.set(1, 10);
            expect(array).toEqual([1, 10, 3]);
        });
@@ -278,7 +318,6 @@ describe("Array-spec", function () {
 
        it("sets an outer index of an observed array", function () {
            var array = [];
-           array.makeObservable();
            array.set(4, 10);
            expect(array).toEqual([ , , , , 10]);
        });

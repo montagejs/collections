@@ -1,6 +1,9 @@
 {
   "name": "collections",
-  "version": "5.0.7",
+  "version": "6.0.0",
+  "publishConfig": {
+      "tag": "future"
+  },
   "description": "data structures with idiomatic JavaScript collection interfaces",
   "homepage": "http://www.collectionsjs.com",
   "author": "Kris Kowal <kris@cixar.com> (http://github.com/kriskowal)",
@@ -49,11 +52,13 @@
     "mop-integration": "git://github.com/montagejs/mop-integration.git#master",
     "concurrently": "^3.4.0",
     "http-server": "^0.9.0",
-    "open": "0.0.5"
+    "open": "0.0.5",
+    "istanbul": "^0.2.4"
   },
   "scripts": {
     "test": "node test/run-node.js",
     "integration": "mop-integration",
+    "cover": "istanbul cover spec/index.js spec && istanbul report html && open coverage/index.html",
     "test:karma": "karma start --no-auto-watch --single-run",
     "test:karma-firefox": "karma start --no-auto-watch --single-run --browsers=Firefox",
     "test:karma-chrome": "karma start --no-auto-watch --single-run --browsers=Chrome",

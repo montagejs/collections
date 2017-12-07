@@ -8,6 +8,8 @@ var fuzzDeque = require("./deque-fuzz").fuzzDeque;
 module.exports = describeDeque;
 function describeDeque(Deque) {
 
+    describe('as Deque', function () {
+    
     describe("add(value)", function () {
         it("should be an alias for push", function () {
             var collection = Deque([1, 2, 3]);
@@ -336,5 +338,6 @@ function describeDeque(Deque) {
         });
     });
 
+    });
 }
 

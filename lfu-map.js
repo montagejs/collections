@@ -1,11 +1,12 @@
 "use strict";
 
-var Shim = require("./shim");
 var LfuSet = require("./lfu-set");
 var GenericCollection = require("./generic-collection");
 var GenericMap = require("./generic-map");
-var PropertyChanges = require("./listen/property-changes");
-var MapChanges = require("./listen/map-changes");
+var ObservableObject = require("./observable-object");
+var equalsOperator = require("./operators/equals");
+var hashOperator = require("./operators/hash");
+var addEach = require("./operators/add-each");
 
 module.exports = LfuMap;
 
@@ -13,9 +14,9 @@ function LfuMap(values, maxLength, equals, hash, getDefault) {
     if (!(this instanceof LfuMap)) {
         return new LfuMap(values, maxLength, equals, hash, getDefault);
     }
-    equals = equals || Object.equals;
-    hash = hash || Object.hash;
-    getDefault = getDefault || Function.noop;
+    equals = equals || equalsOperator;
+    hash = hash || hashOperator;
+    getDefault = getDefault || this.getDefault;
     this.contentEquals = equals;
     this.contentHash = hash;
     this.getDefault = getDefault;
@@ -35,13 +36,12 @@ function LfuMap(values, maxLength, equals, hash, getDefault) {
 
 LfuMap.LfuMap = LfuMap; // hack so require("lfu-map").LfuMap will work in MontageJS
 
-Object.addEach(LfuMap.prototype, GenericCollection.prototype);
-Object.addEach(LfuMap.prototype, GenericMap.prototype);
-Object.addEach(LfuMap.prototype, PropertyChanges.prototype);
-Object.addEach(LfuMap.prototype, MapChanges.prototype);
-
-Object.defineProperty(LfuMap.prototype,"size",GenericCollection._sizePropertyDescriptor);
 LfuMap.from = GenericCollection.from;
+
+addEach(LfuMap.prototype, GenericCollection.prototype);
+addEach(LfuMap.prototype, GenericMap.prototype);
+addEach(LfuMap.prototype, ObservableObject.prototype);
+Object.defineProperty(LfuMap.prototype,"size",GenericCollection._sizePropertyDescriptor);
 
 LfuMap.prototype.constructClone = function (values) {
     return new this.constructor(
@@ -62,22 +62,25 @@ LfuMap.prototype.stringify = function (item, leader) {
     return leader + JSON.stringify(item.key) + ": " + JSON.stringify(item.value);
 };
 
-LfuMap.prototype.addMapChangeListener = function () {
+LfuMap.prototype.observeMapChange = function () {
     if (!this.dispatchesMapChanges) {
-        // Detect LFU deletions in the LfuSet and emit as MapChanges.
+        // Detect LRU deletions in the LfuSet and emit as MapChanges.
         // Array and Heap have no store.
         // Dict and FastMap define no listeners on their store.
-        var self = this;
-        this.store.addBeforeRangeChangeListener(function(plus, minus) {
-            if (plus.length && minus.length) {  // LFU item pruned
-                self.dispatchBeforeMapChange(minus[0].key, undefined);
-            }
-        });
-        this.store.addRangeChangeListener(function(plus, minus) {
-            if (plus.length && minus.length) {
-                self.dispatchMapChange(minus[0].key, undefined);
-            }
-        });
+        this.store.observeRangeWillChange(this, "store");
+        this.store.observeRangeChange(this, "store");
     }
-    MapChanges.prototype.addMapChangeListener.apply(this, arguments);
+    return GenericMap.prototype.observeMapChange.apply(this, arguments);
+};
+
+LfuMap.prototype.handleStoreRangeWillChange = function (plus, minus, index) {
+    if (plus.length && minus.length) {  // LRU item pruned
+        this.dispatchMapWillChange("delete", minus[0].key, undefined, minus[0].value);
+    }
+};
+
+LfuMap.prototype.handleStoreRangeChange = function (plus, minus, index) {
+    if (plus.length && minus.length) {
+        this.dispatchMapChange("delete", minus[0].key, undefined, minus[0].value);
+    }
 };

@@ -1,11 +1,11 @@
 "use strict";
 
-module.exports = SortedArraySet;
-
-var Shim = require("./shim");
 var SortedArray = require("./sorted-array");
 var GenericSet = require("./generic-set");
-var PropertyChanges = require("./listen/property-changes");
+var ObservableObject = require("./observable-object");
+var addEach = require("./operators/add-each");
+
+module.exports = SortedArraySet;
 
 function SortedArraySet(values, equals, compare, getDefault) {
     if (!(this instanceof SortedArraySet)) {
@@ -21,8 +21,10 @@ SortedArraySet.prototype = Object.create(SortedArray.prototype);
 
 SortedArraySet.prototype.constructor = SortedArraySet;
 
-Object.addEach(SortedArraySet.prototype, GenericSet.prototype);
-Object.addEach(SortedArraySet.prototype, PropertyChanges.prototype);
+addEach(SortedArraySet.prototype, GenericSet.prototype);
+addEach(SortedArraySet.prototype, ObservableObject.prototype);
+
+SortedArraySet.prototype.isSorted = true;
 
 SortedArraySet.from = SortedArray.from;
 

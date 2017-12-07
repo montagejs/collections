@@ -7,7 +7,6 @@ var describeToJson = require("./to-json");
 
 describe("SortedArray-spec", function () {
 
-
     describeDeque(SortedArray);
     describeCollection(SortedArray, [1, 2, 3, 4]);
     describeOrder(SortedArray);
@@ -36,7 +35,4 @@ describe("SortedArray-spec", function () {
             expect(collection.length).toBe(3);
         });
     });
-
-    // TODO test stability
-
 });

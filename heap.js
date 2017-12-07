@@ -2,12 +2,14 @@
 // Adapted from Eloquent JavaScript by Marijn Haverbeke
 // http://eloquentjavascript.net/appendix2.html
 
-var ArrayChanges = require("./listen/array-changes");
-var Shim = require("./shim");
+var ObservableArray = require("./observable-array");
 var GenericCollection = require("./generic-collection");
-var MapChanges = require("./listen/map-changes");
-var RangeChanges = require("./listen/range-changes");
-var PropertyChanges = require("./listen/property-changes");
+var ObservableObject = require("./observable-object");
+var ObservableRange = require("./observable-range");
+var ObservableMap = require("./observable-map");
+var equalsOperator = require("./operators/equals");
+var compareOperator = require("./operators/compare");
+var addEach = require("./operators/add-each");
 
 // Max Heap by default.  Comparison can be reversed to produce a Min Heap.
 
@@ -17,8 +19,8 @@ function Heap(values, equals, compare) {
     if (!(this instanceof Heap)) {
         return new Heap(values, equals, compare);
     }
-    this.contentEquals = equals || Object.equals;
-    this.contentCompare = compare || Object.compare;
+    this.contentEquals = equals || equalsOperator;
+    this.contentCompare = compare || compareOperator;
     this.content = [];
     this.length = 0;
     this.addEach(values);
@@ -26,10 +28,10 @@ function Heap(values, equals, compare) {
 
 Heap.Heap = Heap; // hack so require("heap").Heap will work in MontageJS
 
-Object.addEach(Heap.prototype, GenericCollection.prototype);
-Object.addEach(Heap.prototype, PropertyChanges.prototype);
-Object.addEach(Heap.prototype, RangeChanges.prototype);
-Object.addEach(Heap.prototype, MapChanges.prototype);
+addEach(Heap.prototype, GenericCollection.prototype);
+addEach(Heap.prototype, ObservableObject.prototype);
+addEach(Heap.prototype, ObservableRange.prototype);
+addEach(Heap.prototype, ObservableMap.prototype);
 
 Heap.from = GenericCollection.from;
 
@@ -220,12 +222,14 @@ Heap.prototype.toJSON = function () {
     return this.toArray();
 };
 
-Heap.prototype.makeObservable = function () {
-    // TODO refactor dispatchers to allow direct forwarding
-    this.content.addRangeChangeListener(this, "content");
-    this.content.addBeforeRangeChangeListener(this, "content");
-    this.content.addMapChangeListener(this, "content");
-    this.content.addBeforeMapChangeListener(this, "content");
+Heap.prototype.makeMapChangesObservable = function () {
+    this.content.observeMapChange(this, "content");
+    this.content.observeMapWillChange(this, "content");
+};
+
+Heap.prototype.makeRangeChangesObservable = function () {
+    this.content.observeRangeChange(this, "content");
+    this.content.observeRangeWillChange(this, "content");
 };
 
 Heap.prototype.handleContentRangeChange = function (plus, minus, index) {
@@ -233,13 +237,13 @@ Heap.prototype.handleContentRangeChange = function (plus, minus, index) {
 };
 
 Heap.prototype.handleContentRangeWillChange = function (plus, minus, index) {
-    this.dispatchBeforeRangeChange(plus, minus, index);
+    this.dispatchRangeWillChange(plus, minus, index);
 };
 
-Heap.prototype.handleContentMapChange = function (value, key) {
-    this.dispatchMapChange(key, value);
+Heap.prototype.handleContentMapChange = function (plus, minus, key, type) {
+    this.dispatchMapChange(type, key, plus, minus);
 };
 
-Heap.prototype.handleContentMapWillChange = function (value, key) {
-    this.dispatchBeforeMapChange(key, value);
+Heap.prototype.handleContentMapWillChange = function (plus, minus, key, type) {
+    this.dispatchMapWillChange(type, key, plus, minus);
 };
