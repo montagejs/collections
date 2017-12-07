@@ -75,17 +75,45 @@ describe("Array-spec", function () {
 
     describe("find", function () {
 
-        it("should find equivalent objects", function () {
-            expect([{a:10}].find({a:10})).toEqual(0);
+        it("should find an object in an array by one of its properties", function () {
+            var inventory = [
+                {name: 'apples', quantity: 2},
+                {name: 'bananas', quantity: 0},
+                {name: 'cherries', quantity: 5}
+            ];
+
+            function isCherries(fruit) { 
+                return fruit.name === 'cherries';
+            }
+
+            expect(inventory.find(isCherries)).toEqual(inventory[2]);
         });
 
-        it("should allow equality comparison override", function () {
-            expect([{a:10}].find({a:10}, Object.is)).toEqual(-1);
+        describe("find (deprecated support)", function () {
+
+            it("should find equivalent objects", function () {
+                expect([{a:10}].find({a:10})).toEqual(0);
+            });
+
+            it("should allow equality comparison override", function () {
+                expect([{a:10}].find({a:10}, Object.is)).toEqual(-1);
+            });
         });
 
     });
 
-    describe("findLast", function () {
+    describe("findValue", function () {
+
+        it("should find equivalent objects", function () {
+            expect([{a:10}].findValue({a:10})).toEqual(0);
+        });
+
+        it("should allow equality comparison override", function () {
+            expect([{a:10}].findValue({a:10}, Object.is)).toEqual(-1);
+        });
+    });
+
+    describe("findLast (deprecated support)", function () {
 
         it("should find equivalent objects", function () {
             expect([{a:10}].findLast({a:10})).toEqual(0);
@@ -98,6 +126,23 @@ describe("Array-spec", function () {
         it("should find the last of equivalent objects", function () {
             var object = {a: 10};
             expect([object, {a: 10}].findLast(object)).toEqual(1);
+        });
+
+    });
+
+    describe("findLastValue", function () {
+
+        it("should find equivalent objects", function () {
+            expect([{a:10}].findLastValue({a:10})).toEqual(0);
+        });
+
+        it("should allow equality comparison override", function () {
+            expect([{a:10}].findLastValue({a:10}, Object.is)).toEqual(-1);
+        });
+
+        it("should find the last of equivalent objects", function () {
+            var object = {a: 10};
+            expect([object, {a: 10}].findLastValue(object)).toEqual(1);
         });
 
     });
