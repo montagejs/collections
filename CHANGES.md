@@ -1,5 +1,5 @@
 ## v5.1
-- Addresses a bug with Array#find and deprecate findValue|findLastValue API in collections.
+- Addresses a bug with Array#find and deprecate find|findLast in favor of findValue|findLastValue API in collections.
 
 ...
 
