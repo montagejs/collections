@@ -198,24 +198,48 @@ SortedArray.prototype.lastIndexOf = function (value) {
     return searchLast(this.array, value, this.contentCompare, this.contentEquals);
 };
 
+var deprecatedWarnNonce = {};
+function deprecatedWarn(msg, notOnce) {
+    if (
+        typeof console !== 'undefined' &&
+            typeof console.warn === 'function' &&
+                (notOnce !== true && deprecatedWarnNonce.hasOwnProperty(msg) === false)
+    ) {
+        console.warn(msg);
+        deprecatedWarnNonce[msg]++;
+    }
+}
+
+// TODO remove in v6 (not present in v2)
 SortedArray.prototype.find = function (value, equals, index) {
+    deprecatedWarn('This SortedArray#find usage is deprecated please use SortedArray#findValue');
+    return this.findValue.apply(this, arguments);
+};
+
+SortedArray.prototype.findValue = function (value, equals, index) {
     // TODO throw error if provided a start index
     if (equals) {
-        throw new Error("SortedArray#find does not support second argument: equals");
+        throw new Error("SortedArray#findValue does not support second argument: equals");
     }
     if (index) {
-        throw new Error("SortedArray#find does not support third argument: index");
+        throw new Error("SortedArray#findValue does not support third argument: index");
     }
     // TODO support initial partition index
     return searchFirst(this.array, value, this.contentCompare, this.contentEquals);
 };
 
+// TODO remove in v6 (not present in v2)
 SortedArray.prototype.findLast = function (value, equals, index) {
+    deprecatedWarn('This SortedArray#findLast usage is deprecated please use SortedArray#findLastValue');
+    return this.findLastValue.apply(this, arguments);
+};
+
+SortedArray.prototype.findLastValue = function (value, equals, index) {
     if (equals) {
-        throw new Error("SortedArray#findLast does not support second argument: equals");
+        throw new Error("SortedArray#findLastValue does not support second argument: equals");
     }
     if (index) {
-        throw new Error("SortedArray#findLast does not support third argument: index");
+        throw new Error("SortedArray#findLastValue does not support third argument: index");
     }
     // TODO support initial partition index
     return searchLast(this.array, value, this.contentCompare, this.contentEquals);

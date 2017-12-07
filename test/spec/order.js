@@ -147,7 +147,7 @@ function describeOrder(Collection) {
 
     });
 
-    describe("find", function () {
+    describe("find (deprecated support)", function () {
 
         it("finds equivalent values", function () {
             expect(Collection([10, 10, 10]).find(10)).toEqual(0);
@@ -159,10 +159,29 @@ function describeOrder(Collection) {
 
     });
 
-    describe("findLast", function () {
+    describe("findValue", function () {
+
+        it("finds equivalent values", function () {
+            expect(Collection([10, 10, 10]).findValue(10)).toEqual(0);
+        });
+
+        it("finds equivalent values", function () {
+            expect(Collection([10, 10, 10]).findValue(10)).toEqual(0);
+        });
+
+    });
+
+    describe("findLast (deprecated support)", function () {
 
         it("finds equivalent values", function () {
             expect(Collection([10, 10, 10]).findLast(10)).toEqual(2);
+        });
+    });
+
+    describe("findLastValue", function () {
+
+        it("finds equivalent values", function () {
+            expect(Collection([10, 10, 10]).findLastValue(10)).toEqual(2);
         });
 
     });

@@ -86,13 +86,13 @@ define("constructClone", function (values) {
 });
 
 define("has", function (value, equals) {
-    return this.find(value, equals) !== -1;
+    return this.findValue(value, equals) !== -1;
 });
 
 define("get", function (index, defaultValue) {
-    if (+index !== index)
+    if (+index !== index) {
         throw new Error("Indicies must be numbers");
-    if (!index in this) {
+    } else if (!index in this) {
         return defaultValue;
     } else {
         return this[index];
@@ -110,7 +110,7 @@ define("add", function (value) {
 });
 
 define("delete", function (value, equals) {
-    var index = this.find(value, equals);
+    var index = this.findValue(value, equals);
     if (index !== -1) {
         this.spliceOne(index);
         return true;
@@ -132,7 +132,81 @@ define("deleteAll", function (value, equals) {
     return count;
 });
 
-define("find", function (value, equals) {
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
+// https://tc39.github.io/ecma262/#sec-array.prototype.find
+if (!Array.prototype.find) {
+    Object.defineProperty(Array.prototype, 'find', {
+        value: function(predicate) {
+            // 1. Let O be ? ToObject(this value).
+            if (this == null) {
+                throw new TypeError('"this" is null or not defined');
+            }
+
+            var o = Object(this);
+
+            // 2. Let len be ? ToLength(? Get(O, "length")).
+            var len = o.length >>> 0;
+
+            // 3. If IsCallable(predicate) is false, throw a TypeError exception.
+            if (typeof predicate !== 'function') {
+                throw new TypeError('predicate must be a function');
+            }
+
+            // 4. If thisArg was supplied, let T be thisArg; else let T be undefined.
+            var thisArg = arguments[1];
+
+            // 5. Let k be 0.
+            var k = 0;
+
+            // 6. Repeat, while k < len
+            while (k < len) {
+                // a. Let Pk be ! ToString(k).
+                // b. Let kValue be ? Get(O, Pk).
+                // c. Let testResult be ToBoolean(? Call(predicate, T, « kValue, k, O »)).
+                // d. If testResult is true, return kValue.
+                var kValue = o[k];
+                if (predicate.call(thisArg, kValue, k, o)) {
+                    return kValue;
+                }
+                // e. Increase k by 1.
+                k++;
+            }
+        }
+    });
+}
+
+// TODO remove in v6 (not present in v2)
+var deprecatedWarnNonce = {};
+function deprecatedWarn(msg, notOnce) {
+    if (
+        typeof console !== 'undefined' &&
+            typeof console.warn === 'function' &&
+                (notOnce !== true && deprecatedWarnNonce.hasOwnProperty(msg) === false)
+    ) {
+        console.warn(msg);
+        deprecatedWarnNonce[msg]++;
+    }
+}
+
+// Save Array.prototype.find in order to support legacy and display warning.
+// TODO remove in v6 (not present in v2)
+var ArrayFindPrototype = Object.getOwnPropertyDescriptor(Array.prototype, 'find').value;
+define("find", function (value, equals, index) {
+    if (
+        typeof arguments[0] === 'function' && 
+            this instanceof Array
+    ) {
+        return ArrayFindPrototype.apply(this, arguments);
+    } else {
+        deprecatedWarn('Array#find usage is deprecated please use Array#findValue');
+        return this.findValue.apply(this, arguments);
+    }
+});
+
+define("findValue", function (value, equals, index) {
+    if (index) {
+        throw new Error("Array#findValue does not support third argument: index");
+    }
     equals = equals || this.contentEquals || Object.equals;
     for (var index = 0; index < this.length; index++) {
         if (index in this && equals(value, this[index])) {
@@ -142,7 +216,13 @@ define("find", function (value, equals) {
     return -1;
 });
 
+// TODO remove in v6 (not present in v2)
 define("findLast", function (value, equals) {
+    deprecatedWarn('Array#findLast function is deprecated please use Array#findLastValue instead.');
+    return this.findLastValue.apply(this, arguments);
+});
+
+define("findLastValue", function (value, equals) {
     equals = equals || this.contentEquals || Object.equals;
     var index = this.length;
     do {
@@ -358,7 +438,8 @@ function ArrayIterator(array, start, end) {
     this.array = array;
     this.start = start == null ? 0 : start;
     this.end = end;
-};
+}
+
 ArrayIterator.prototype.__iterationObject = null;
 Object.defineProperty(ArrayIterator.prototype,"_iterationObject", {
     get: function() {
