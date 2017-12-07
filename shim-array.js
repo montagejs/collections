@@ -55,7 +55,10 @@ Array.unzip = function (table) {
 function define(key, value) {
 
     if (Array.prototype.hasOwnProperty(key)) {
-        if (typeof console.warn === 'function') {
+        if (
+            typeof console !== 'undefined' &&
+                typeof console.warn === 'function'
+        ) {
             console.warn('Overrided Array.prototype.' + key, "Saved into _" + key);
         }
         define("_" + key, Object.getOwnPropertyDescriptor(Array.prototype, key).value);
@@ -139,13 +142,66 @@ define("deleteAll", function (value, equals) {
     }
     return count;
 });
+// https://tc39.github.io/ecma262/#sec-array.prototype.find
+if (!Array.prototype.find) {
+  Object.defineProperty(Array.prototype, 'find', {
+    value: function(predicate) {
+     // 1. Let O be ? ToObject(this value).
+      if (this == null) {
+        throw new TypeError('"this" is null or not defined');
+      }
+
+      var o = Object(this);
+
+      // 2. Let len be ? ToLength(? Get(O, "length")).
+      var len = o.length >>> 0;
+
+      // 3. If IsCallable(predicate) is false, throw a TypeError exception.
+      if (typeof predicate !== 'function') {
+        throw new TypeError('predicate must be a function');
+      }
+
+      // 4. If thisArg was supplied, let T be thisArg; else let T be undefined.
+      var thisArg = arguments[1];
+
+      // 5. Let k be 0.
+      var k = 0;
+
+      // 6. Repeat, while k < len
+      while (k < len) {
+        // a. Let Pk be ! ToString(k).
+        // b. Let kValue be ? Get(O, Pk).
+        // c. Let testResult be ToBoolean(? Call(predicate, T, « kValue, k, O »)).
+        // d. If testResult is true, return kValue.
+        var kValue = o[k];
+        if (predicate.call(thisArg, kValue, k, o)) {
+          return kValue;
+        }
+        // e. Increase k by 1.
+        k++;
+      }
+
+      // 7. Return undefined.
+      return undefined;
+    }
+  });
+}
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
-define("find", function (value, equals) {
-    if (typeof arguments[0] === 'function' && this instanceof Array) {
+define("find", function (value, equals, index) {
+    if (
+        typeof arguments[0] === 'function' 
+            && this instanceof Array
+    ) {
         return Array.prototype._find.apply(this, arguments);
     } else {
-        if (typeof console.warn === 'function') {
+        if (index) {
+            throw new Error("SortedArray#findLast does not support third argument: index");
+        }
+        if (
+            typeof console !== 'undefined' &&
+                typeof console.warn === 'function'
+        ) {
             console.warn('This find() usage is deprecated please use findValue()');
         }
         return Array.prototype.findValue.apply(this, arguments);
@@ -153,7 +209,10 @@ define("find", function (value, equals) {
 });
 
 
-define("findValue", function (value, equals) {
+define("findValue", function (value, equals, index) {
+    if (index) {
+        throw new Error("SortedArray#findLast does not support third argument: index");
+    }
     equals = equals || this.contentEquals || Object.equals;
     for (var index = 0; index < this.length; index++) {
         if (index in this && equals(value, this[index])) {
@@ -164,7 +223,10 @@ define("findValue", function (value, equals) {
 });
 
 define("findLast", function (value, equals) {
-    if (typeof console.warn === 'function') {
+    if (
+        typeof console !== 'undefined' &&
+            typeof console.warn === 'function'
+    ) {
         console.warn('.findLast function is deprecated please use findLastValue instead.');
     }  
     return Array.prototype.findLastValue.apply(this, arguments);

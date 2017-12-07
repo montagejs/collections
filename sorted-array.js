@@ -199,6 +199,16 @@ SortedArray.prototype.lastIndexOf = function (value) {
 };
 
 SortedArray.prototype.find = function (value, equals, index) {
+    if (
+        typeof console !== 'undefined' &&
+            typeof console.warn === 'function'
+    ) {
+        console.warn('This find() usage is deprecated please use findValue()');
+    }
+    return SortedArray.prototype.findValue.apply(this, arguments);
+};
+
+SortedArray.prototype.findValue = function (value, equals, index) {
     // TODO throw error if provided a start index
     if (equals) {
         throw new Error("SortedArray#find does not support second argument: equals");
@@ -211,6 +221,16 @@ SortedArray.prototype.find = function (value, equals, index) {
 };
 
 SortedArray.prototype.findLast = function (value, equals, index) {
+    if (
+        typeof console !== 'undefined' &&
+            typeof console.warn === 'function'
+    ) {
+        console.warn('This findLast() usage is deprecated please use findLastValue()');
+    }
+    return SortedArray.prototype.findLastValue.apply(this, arguments);
+};
+
+SortedArray.prototype.findLastValue = function (value, equals, index) {
     if (equals) {
         throw new Error("SortedArray#findLast does not support second argument: equals");
     }
