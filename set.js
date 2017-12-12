@@ -41,7 +41,7 @@ if( (global.Set !== void 0) && (typeof global.Set.prototype.values === "function
         "_dispatchEmptyArray": {
             value: []
         },
-        clear : {
+        "clear": {
             value: function () {
                 var clearing;
                 if (this.dispatchesRangeChanges) {
@@ -59,7 +59,7 @@ if( (global.Set !== void 0) && (typeof global.Set.prototype.values === "function
             configurable: true
 
         },
-        add : {
+        "add": {
             value: function (value) {
                 if (!this.has(value)) {
                     var index = this.size;
