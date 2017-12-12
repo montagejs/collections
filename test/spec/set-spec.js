@@ -3,7 +3,10 @@ var Set = require("collections/set");
 var describeCollection = require("./collection");
 var describeSet = require("./set");
 
-Set._setupCollectionSet();
+
+if (typeof Set._setupCollectionSet === 'function') {
+    Set._setupCollectionSet();
+}
 var CollectionsSet = Set.CollectionsSet;
 
 describe("CollectionsSet-spec", function () {
