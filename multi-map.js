@@ -1,6 +1,6 @@
 "use strict";
 
-var Map = require("./map").CollectionsMap;
+var Map = require("./map").Map;
 
 module.exports = MultiMap;
 function MultiMap(values, bucket, equals, hash) {
