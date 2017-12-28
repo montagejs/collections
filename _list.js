@@ -301,7 +301,7 @@ List.prototype.reverse = function () {
 };
 
 List.prototype.sort = function () {
-    this.swap(0, this.length, this.sorted.apply(this, arguments);
+    this.swap(0, this.length, this.sorted.apply(this, arguments));
 };
 
 // TODO account for missing basis argument
