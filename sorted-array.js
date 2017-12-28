@@ -53,19 +53,36 @@ function search(array, value, compare) {
     return -(first + 1);
 }
 
+function determineIncomparableRange(index, array, value, compare, equals) {
+    // Return the inclusive start and end indices of the incomparable streak containing value.
+    var start = index;
+    var end = index;
+
+    while (start > 0 && compare(value, array[start - 1]) === 0) {
+        start--;
+    }
+
+    while (end < array.length - 1 && compare(value, array[end + 1]) === 0) {
+        end++;
+    }
+
+    return {start: start, end: end};
+}
+
 function searchFirst(array, value, compare, equals) {
     var index = search(array, value, compare);
     if (index < 0) {
         return -1;
     } else {
-        while (index > 0 && equals(value, array[index - 1])) {
-            index--;
+        var range = determineIncomparableRange(index, array, value, compare, equals);
+
+        for (var i = range.start; i <= range.end; i++) {
+            if (equals(value, array[i])) {
+                return i;
+            }
         }
-        if (!equals(value, array[index])) {
-            return -1;
-        } else {
-            return index;
-        }
+
+        return -1;
     }
 }
 
@@ -74,14 +91,15 @@ function searchLast(array, value, compare, equals) {
     if (index < 0) {
         return -1;
     } else {
-        while (index < array.length - 1 && equals(value, array[index + 1])) {
-            index++;
+        var range = determineIncomparableRange(index, array, value, compare, equals);
+
+        for (var i = range.end; i >= range.start; i--) {
+            if (equals(value, array[i])) {
+                return i;
+            }
         }
-        if (!equals(value, array[index])) {
-            return -1;
-        } else {
-            return index;
-        }
+
+        return -1;
     }
 }
 
@@ -111,8 +129,8 @@ SortedArray.prototype.has = function (value, equals) {
     if (equals) {
         throw new Error("SortedSet#has does not support second argument: equals");
     }
-    var index = search(this.array, value, this.contentCompare);
-    return index >= 0 && this.contentEquals(this.array[index], value);
+    var index = searchFirst(this.array, value, this.contentCompare, this.contentEquals);
+    return index !== -1;
 };
 
 SortedArray.prototype.get = function (value, equals) {
