@@ -600,13 +600,13 @@ Node.prototype.reduce = function (callback, basis, index, thisp, tree, depth) {
 Node.prototype.reduceRight = function (callback, basis, index, thisp, tree, depth) {
     depth = depth || 0;
     if (this.right) {
-        basis = this.right.reduce(callback, basis, index, thisp, tree, depth + 1);
+        basis = this.right.reduceRight(callback, basis, index, thisp, tree, depth + 1);
         index -= this.right.length;
     }
     basis = callback.call(thisp, basis, this.value, this.value, tree, this, depth);
     index -= 1;
     if (this.left) {
-        basis = this.left.reduce(callback, basis, index, thisp, tree, depth + 1);
+        basis = this.left.reduceRight(callback, basis, index, thisp, tree, depth + 1);
     }
     return basis;
 };
