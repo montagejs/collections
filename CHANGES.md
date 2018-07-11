@@ -1,3 +1,6 @@
+## v5.1.4
+- fix Constructor Map requires 'new' in MultiMap
+
 ## v5.1.3
 - Fix Sorted-Set.reduceRight #206
 - Fix sorted array incomparable values bugs #171
