@@ -2,17 +2,18 @@
 
 var Map = require("./map").Map;
 
+
 module.exports = MultiMap;
 function MultiMap(values, bucket, equals, hash) {
     if (!(this instanceof MultiMap)) {
         return new MultiMap(values, bucket, equals, hash);
     }
     this.bucket = bucket || this.bucket;
-    Map.call(this, values, equals, hash, function getDefault(key) {
+    new (Function.prototype.bind.call(Map, this, values, equals, hash, function getDefault(key) {
         var bucket = this.bucket(key);
         Map.prototype.set.call(this, key, bucket);
         return bucket;
-    });
+    }));
 }
 
 MultiMap.MultiMap = MultiMap; // hack so require("multi-map").MultiMap will work in MontageJS

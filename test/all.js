@@ -16,6 +16,7 @@ module.exports = require("montage-testing").run(require, [
 	"spec/lru-map-spec",
 	"spec/lru-set-spec",
 	"spec/map-spec",
+	"spec/multi-map-spec",
 	"spec/regexp-spec",
 	"spec/set-spec",
 	"spec/shim-array-spec",
