@@ -1,4 +1,15 @@
-## v5.1
+## v5.1.3
+- Fix Sorted-Set.reduceRight #206
+- Fix sorted array incomparable values bugs #171
+
+## v5.1.2
+- Pass the this.sort arguments to this.sorted. #191
+- Add npm run build via browserify #190
+
+## v5.1.1
+- Fix SortedArray handles incomparable values poorly #27
+
+## v5.1.0
 - Addresses a bug with Array#find and deprecate find|findLast in favor of findValue|findLastValue API in collections.
 
 ...
