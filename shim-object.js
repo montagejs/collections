@@ -2,6 +2,8 @@
 
 var WeakMap = require("./weak-map");
 
+require("./shim-function");
+
 module.exports = Object;
 
 /*
