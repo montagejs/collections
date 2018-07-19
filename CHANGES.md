@@ -1,3 +1,6 @@
+## v5.1.5
+- fix object-shim missing Function.identity
+
 ## v5.1.4
 - fix Constructor Map requires 'new' in MultiMap
 
