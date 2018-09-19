@@ -22,7 +22,7 @@ if((global.Set !== void 0) && (typeof global.Set.prototype.values === "function"
     GlobalSet.prototype.reduceRight = function (callback, basis /*, thisp*/) {
         var thisp = arguments[2];
         var setIterator = this.values();
-        const size = this.size;
+        var size = this.size;
         var reverseOrder = new Array(this.size);
         var value, i = size;
         // Fill 'reverseOrder' with values of Set in inverted order.
