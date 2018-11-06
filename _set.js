@@ -24,12 +24,14 @@ if((global.Set !== void 0) && (typeof global.Set.prototype.values === "function"
         var setIterator = this.values();
         var size = this.size;
         var reverseOrder = new Array(this.size);
-        var value, i = 0;
+        var value, i = size;
+        // Fill 'reverseOrder' with values of Set in inverted order.
         while ((value = setIterator.next().value)) {
-            reverseOrder[--size] = value;
+            reverseOrder[--i] = value;
         }
-        while (i++ < size) {
-            basis = callback.call(thisp, basis, value, this);
+        // Iterate over reversed values and callback.
+        while (i < size) {
+            basis = callback.call(thisp, basis, reverseOrder[i++], this);
         }
         return basis;
     };
