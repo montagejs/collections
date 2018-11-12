@@ -38,7 +38,7 @@ jasmineEnv.addReporter({
 });
 
 // Execute
-var mrRequire = require('../node_modules/mr/bootstrap-node');
+var mrRequire = require('../node_modules/montage-testing/node_modules/montage/node_modules/mr/bootstrap-node');
 var PATH = require("path");
 mrRequire.loadPackage(PATH.join(__dirname, ".")).then(function (mr) {
     return mr.async("all");
