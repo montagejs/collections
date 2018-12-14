@@ -5,6 +5,7 @@ var PropertyChanges = require("./listen/property-changes");
 var RangeChanges = require("./listen/range-changes");
 var MapChanges = require("./listen/map-changes");
 var GlobalSet;
+var SIZE = "size";
 
 
 if( (global.Set !== void 0) && (typeof global.Set.prototype.values === "function")) {
@@ -43,16 +44,24 @@ if( (global.Set !== void 0) && (typeof global.Set.prototype.values === "function
         },
         "clear": {
             value: function () {
-                var clearing;
+                var size = this.size,
+                    clearing;
+                if (size) {
+                    this.dispatchBeforeOwnPropertyChange(SIZE, size);
+                }
                 if (this.dispatchesRangeChanges) {
                     clearing = this.toArray();
                     this.dispatchBeforeRangeChange(this._dispatchEmptyArray, clearing, 0);
+                    
                 }
 
                 set_clear.call(this);
 
                 if (this.dispatchesRangeChanges) {
                     this.dispatchRangeChange(this._dispatchEmptyArray, clearing, 0);
+                }
+                if (size) {
+                    this.dispatchOwnPropertyChange(SIZE, 0);
                 }
             },
             writable: true,
@@ -64,6 +73,7 @@ if( (global.Set !== void 0) && (typeof global.Set.prototype.values === "function
                 if (!this.has(value)) {
                     var index = this.size;
                     var dispatchValueArray = [value];
+                    this.dispatchBeforeOwnPropertyChange(SIZE, index);
                     if (this.dispatchesRangeChanges) {
                         this.dispatchBeforeRangeChange(dispatchValueArray, this._dispatchEmptyArray, index);
                     }
@@ -73,6 +83,7 @@ if( (global.Set !== void 0) && (typeof global.Set.prototype.values === "function
                     if (this.dispatchesRangeChanges) {
                         this.dispatchRangeChange(dispatchValueArray, this._dispatchEmptyArray, index);
                     }
+                    this.dispatchOwnPropertyChange(SIZE, index + 1);
                     return true;
                 }
                 return false;
@@ -84,6 +95,7 @@ if( (global.Set !== void 0) && (typeof global.Set.prototype.values === "function
         "delete": {
             value: function (value,index) {
                 if (this.has(value)) {
+                    var size = this.size;
                     if(index === undefined) {
                         var setIterator = this.values();
                         index = 0
@@ -91,16 +103,18 @@ if( (global.Set !== void 0) && (typeof global.Set.prototype.values === "function
                             index++;
                         }
                     }
+                    this.dispatchBeforeOwnPropertyChange(SIZE, size);
                     var dispatchValueArray = [value];
                     if (this.dispatchesRangeChanges) {
                         this.dispatchBeforeRangeChange(this._dispatchEmptyArray, dispatchValueArray, index);
                     }
 
-                    set_delete.call(this,value);
+                    set_delete.call(this, value);
 
                     if (this.dispatchesRangeChanges) {
                         this.dispatchRangeChange(this._dispatchEmptyArray, dispatchValueArray, index);
                     }
+                    this.dispatchOwnPropertyChange(SIZE, size - 1);
                     return true;
                 }
                 return false;
