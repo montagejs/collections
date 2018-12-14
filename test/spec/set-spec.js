@@ -179,4 +179,72 @@ describe("Set-spec", function () {
         expect(spy).toHaveBeenCalledWith([], [3], 0);
     });
 
+    it("should dispatch size property change on clear", function () {
+        // var set = new Set([1, 2, 3]);
+        var set = Set.from([1, 2, 3]);
+        var spy = jasmine.createSpy();
+        set.addBeforeOwnPropertyChangeListener("size", function (size) {
+            spy("size change from", size);
+        });
+
+        set.addOwnPropertyChangeListener("size", function (size) {
+            spy("size change to", size);
+        });
+
+        expect(set).toEqual(new Set([1, 2, 3]));
+        set.clear();
+        expect(set).toEqual(new Set());
+        
+        var argsForCall = spy.calls.all().map(function (call) { return call.args });
+        expect(argsForCall).toEqual([
+            ["size change from", 3],
+            ["size change to", 0]
+        ]);
+    });
+
+    it("should dispatch size property change on add", function () {
+        var set = new Set();
+        var spy = jasmine.createSpy();
+        set.addBeforeOwnPropertyChangeListener("size", function (size) {
+            spy("size change from", size);
+        });
+
+        set.addOwnPropertyChangeListener("size", function (size) {
+            spy("size change to", size);
+        });
+
+        set.add(10);
+        set.add(20);
+
+        var argsForCall = spy.calls.all().map(function (call) { return call.args });
+        expect(argsForCall).toEqual([
+            ["size change from", 0],
+            ["size change to", 1],
+            ["size change from", 1],
+            ["size change to", 2],
+        ]);
+    });
+
+    it("should dispatch size property change on delete", function () {
+        var set = new Set([1, 2, 3]);
+        var spy = jasmine.createSpy();
+        set.addBeforeOwnPropertyChangeListener("size", function (size) {
+            spy("size change from", size);
+        });
+
+        set.addOwnPropertyChangeListener("size", function (size) {
+            spy("size change to", size);
+        });
+
+        set.delete(2);
+        set.delete(1);
+        var argsForCall = spy.calls.all().map(function (call) { return call.args });
+        expect(argsForCall).toEqual([
+            ["size change from", 3],
+            ["size change to", 2],
+            ["size change from", 2],
+            ["size change to", 1],
+        ]);
+    });
+
 });
