@@ -201,28 +201,29 @@ MapChanges.prototype.dispatchMapChange = function (key, value, beforeChange) {
         if(listeners && listeners._current) {
 
             var tokenName = listeners.specificHandlerMethodName;
-            if(Array.isArray(listeners._current) && listeners._current.length) {
+            if(Array.isArray(listeners._current)) {
+                if(listeners._current.length) {
+                    //removeGostListenersIfNeeded returns listeners.current or a new filtered one when conditions are met
+                    var currentListeners = listeners.removeCurrentGostListenersIfNeeded(),
+                        i, countI, listener;
+                    descriptor.isActive = true;
 
-                //removeGostListenersIfNeeded returns listeners.current or a new filtered one when conditions are met
-                var currentListeners = listeners.removeCurrentGostListenersIfNeeded(),
-                    i, countI, listener;
-                descriptor.isActive = true;
-
-                try {
-                    for(i=0, countI = currentListeners.length;i<countI;i++) {
-                        // dispatch to each listener
-                        if ((listener = currentListeners[i]) !== Ghost) {
-                            if (listener[tokenName]) {
-                                listener[tokenName](value, key, this);
-                            } else if (listener.call) {
-                                listener.call(listener, value, key, this);
-                            } else {
-                                throw new Error("Handler " + listener + " has no method " + tokenName + " and is not callable");
+                    try {
+                        for(i=0, countI = currentListeners.length;i<countI;i++) {
+                            // dispatch to each listener
+                            if ((listener = currentListeners[i]) !== Ghost) {
+                                if (listener[tokenName]) {
+                                    listener[tokenName](value, key, this);
+                                } else if (listener.call) {
+                                    listener.call(listener, value, key, this);
+                                } else {
+                                    throw new Error("Handler " + listener + " has no method " + tokenName + " and is not callable");
+                                }
                             }
                         }
+                    } finally {
+                        descriptor.isActive = false;
                     }
-                } finally {
-                    descriptor.isActive = false;
                 }
             }
             else {
