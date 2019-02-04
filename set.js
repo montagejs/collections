@@ -179,6 +179,7 @@ function setupCollectionSet() {
         if (!this.store.has(node)) {
             var index = this.length;
             var dispatchValueArray = [value];
+            this.dispatchBeforeOwnPropertyChange(SIZE, index);
             if (this.dispatchesRangeChanges) {
                 this.dispatchBeforeRangeChange(dispatchValueArray, this._dispatchEmptyArray, index);
             }
@@ -189,6 +190,7 @@ function setupCollectionSet() {
             if (this.dispatchesRangeChanges) {
                 this.dispatchRangeChange(dispatchValueArray, this._dispatchEmptyArray, index);
             }
+            this.dispatchOwnPropertyChange(SIZE, index + 1);
             return true;
         }
         return false;
@@ -201,6 +203,7 @@ function setupCollectionSet() {
         if (this.store.has(node)) {
             node = this.store.get(node);
             var dispatchValueArray = [value];
+            this.dispatchBeforeOwnPropertyChange(SIZE, this.length);
             if (this.dispatchesRangeChanges) {
                 this.dispatchBeforeRangeChange(this._dispatchEmptyArray, dispatchValueArray, node.index);
             }
@@ -210,12 +213,17 @@ function setupCollectionSet() {
             if (this.dispatchesRangeChanges) {
                 this.dispatchRangeChange(this._dispatchEmptyArray, dispatchValueArray, node.index);
             }
+            this.dispatchOwnPropertyChange(SIZE, this.length);
             return true;
         }
         return false;
     };
     CollectionsSet.prototype.clear = function () {
         var clearing;
+        var length = this.length;
+        if (length) {
+            this.dispatchBeforeOwnPropertyChange(SIZE, length);
+        }
         if (this.dispatchesRangeChanges) {
             clearing = this.toArray();
             this.dispatchBeforeRangeChange(this._dispatchEmptyArray, clearing, 0);
@@ -223,6 +231,9 @@ function setupCollectionSet() {
         this._clear();
         if (this.dispatchesRangeChanges) {
             this.dispatchRangeChange(this._dispatchEmptyArray, clearing, 0);
+        }
+        if (length) {
+            this.dispatchOwnPropertyChange(SIZE, 0);
         }
     };
 
@@ -232,7 +243,7 @@ function setupCollectionSet() {
         this.order.makeObservable();
     };
 
-    module.exports = CollectionsSet
+    module.exports = CollectionsSet;
 }
 
 

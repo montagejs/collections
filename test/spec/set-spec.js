@@ -3,8 +3,10 @@ var Set = require("collections/set");
 var describeCollection = require("./collection");
 var describeSet = require("./set");
 
-Set._setupCollectionSet();
-var CollectionsSet = Set.CollectionsSet;
+if (Set._setupCollectionSet) {
+    Set._setupCollectionSet();
+}
+var CollectionsSet = Set.CollectionsSet || Set;
 
 describe("CollectionsSet-spec", function () {
     var Set = CollectionsSet;
@@ -180,8 +182,8 @@ describe("Set-spec", function () {
     });
 
     it("should dispatch size property change on clear", function () {
-        // var set = new Set([1, 2, 3]);
-        var set = Set.from([1, 2, 3]);
+        var set = new Set([1, 2, 3]);
+        // var set = Set.from([1, 2, 3]);
         var spy = jasmine.createSpy();
         set.addBeforeOwnPropertyChangeListener("size", function (size) {
             spy("size change from", size);
@@ -191,9 +193,15 @@ describe("Set-spec", function () {
             spy("size change to", size);
         });
 
-        expect(set).toEqual(new Set([1, 2, 3]));
+        expect(set.size).toBe(3);
+        expect(set.has(1)).toBe(true);
+        expect(set.has(2)).toBe(true);
+        expect(set.has(3)).toBe(true);
         set.clear();
-        expect(set).toEqual(new Set());
+        expect(set.size).toBe(0);
+        expect(set.has(1)).toBe(false);
+        expect(set.has(2)).toBe(false);
+        expect(set.has(3)).toBe(false);
         
         var argsForCall = spy.calls.all().map(function (call) { return call.args });
         expect(argsForCall).toEqual([
