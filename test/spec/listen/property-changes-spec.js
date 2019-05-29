@@ -139,6 +139,20 @@ describe("PropertyChanges", function () {
         expect(object.handlePropertyChange).toHaveBeenCalled();
     });
 
+    it("handles generic before own property change listeners", function () {
+        var object = {
+            foo: 12,
+            handlePropertyWillChange: function (value, key) {
+                expect(value).toBe(12);
+                expect(key).toBe("foo");
+            }
+        };
+        spyOn(object, "handlePropertyWillChange").and.callThrough();
+        PropertyChanges.addBeforeOwnPropertyChangeListener(object, "foo", object);
+        object.foo = 10;
+        expect(object.handlePropertyWillChange).toHaveBeenCalled();
+    });
+
     it("handles specific own property change listeners", function () {
         var object = {
             handleFooChange: function (value) {
@@ -149,6 +163,19 @@ describe("PropertyChanges", function () {
         PropertyChanges.addOwnPropertyChangeListener(object, "foo", object);
         object.foo = 10;
         expect(object.handleFooChange).toHaveBeenCalled();
+    });
+
+    it("handles specific before own property change listeners", function () {
+        var object = {
+            foo: 12,
+            handleFooWillChange: function (value) {
+                expect(value).toBe(12);
+            }
+        };
+        spyOn(object, "handleFooWillChange").and.callThrough();
+        PropertyChanges.addBeforeOwnPropertyChangeListener(object, "foo", object);
+        object.foo = 10;
+        expect(object.handleFooWillChange).toHaveBeenCalled();
     });
 
     it("calls later handlers if earlier ones remove themselves", function () {
