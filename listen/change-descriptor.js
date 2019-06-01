@@ -42,11 +42,11 @@ Object.defineProperties(ObjectChangeDescriptor.prototype,{
 		}
 	},
     changeListenersRecordConstructor: {
-        value:ChangeListenersRecord,
+        value: ChangeListenersRecord,
         writable: true
     },
     willChangeListenersRecordConstructor: {
-        value:ChangeListenersRecord,
+        value: WillChangeListenersRecord,
         writable: true
     }
 
