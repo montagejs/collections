@@ -23,11 +23,13 @@ if (Object.freeze) {
     Object.freeze(Array.empty);
 }
 
-Array.from = function (values) {
-    var array = [];
-    array.addEach(values);
-    return array;
-};
+if (!Array.from) {
+    Array.from = function (values) {
+        var array = [];
+        array.addEach(values);
+        return array;
+    };
+}
 
 Array.unzip = function (table) {
     var transpose = [];
