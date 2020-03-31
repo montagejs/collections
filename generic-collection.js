@@ -9,31 +9,61 @@ var DOMTokenList = global.DOMTokenList || function(){};
 
 GenericCollection.EmptyArray = Object.freeze([]);
 
-GenericCollection.prototype.addEach = function (values) {
+GenericCollection.prototype.addEach = function (values, mapFn, thisp) {
     //We want to eliminate everything but array like: Strings, Arrays, DOMTokenList
     if(values && (values instanceof Array || (values instanceof DOMTokenList) || values instanceof String)) {
-        for (var i = 0; i < values.length; i++) {
-            this.add(values[i], i);
+        if(mapFn) {
+            for (var i = 0; i < values.length; i++) {
+                this.add(mapFn.call(thisp,values[i]), i);
+            }
+        } else {
+            for (var i = 0; i < values.length; i++) {
+                this.add(values[i], i);
+            }
         }
     }
     else if (values && Object(values) === values) {
         if (typeof values.forEach === "function") {
-            values.forEach(this.add, this);
+            if(mapFn) {
+                values.map(mapFn, thisp).forEach(this.add, this);
+            } else {
+                values.forEach(this.add, this);
+            }
         } else if(typeof values.next === "function") {
             var value, i=0;
-            while ((value = values.next().value)) {
-                this.add(value, i++);
+            if(mapFn) {
+                while ((value = values.next().value)) {
+                    this.add(mapFn.call(thisp,value), i++);
+                }
+            }
+            else {
+                while ((value = values.next().value)) {
+                    this.add(value, i++);
+                }
             }
         } else if (typeof values.length === "number") {
             // Array-like objects that do not implement forEach, ergo,
             // Arguments
-            for (var i = 0; i < values.length; i++) {
-                this.add(values[i], i);
+            if(mapFn) {
+                for (var i = 0; i < values.length; i++) {
+                    this.add(mapFn.call(thisp,values[i]), i);
+                }
+            }
+            else {
+                for (var i = 0; i < values.length; i++) {
+                    this.add(values[i], i);
+                }
             }
         } else {
-            Object.keys(values).forEach(function (key) {
-                this.add(values[key], key);
-            }, this);
+            if(mapFn) {
+                Object.keys(values).forEach(function (key) {
+                    this.add(mapFn.call(thisp,values[key]), key);
+                }, this);
+            } else {
+                Object.keys(values).forEach(function (key) {
+                    this.add(values[key], key);
+                }, this);
+            }
         }
     }
     return this;
