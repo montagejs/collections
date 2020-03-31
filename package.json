@@ -41,6 +41,7 @@
     "weak-map": "~1.0.x"
   },
   "devDependencies": {
+    "mr": "git://github.com/montagejs/mr#master",
     "browserify": "^14.5.0",
     "concurrently": "^3.4.0",
     "http-server": "^0.9.0",

@@ -150,14 +150,14 @@ GenericMap.prototype.keysArray = function () {
     });
 };
 GenericMap.prototype.keys = function () {
-    return new Iterator(this.keysArray());
+    return new Iterator(this.keysArray(), true);
 };
 
 GenericMap.prototype.valuesArray = function () {
     return this.map(Function.identity);
 };
 GenericMap.prototype.values = function () {
-    return new Iterator(this.valuesArray());
+    return new Iterator(this.valuesArray(), true);
 };
 
 GenericMap.prototype.entriesArray = function () {
@@ -166,7 +166,7 @@ GenericMap.prototype.entriesArray = function () {
     });
 };
 GenericMap.prototype.entries = function () {
-    return new Iterator(this.entriesArray());
+    return new Iterator(this.entriesArray(), true);
 };
 
 // XXX deprecated

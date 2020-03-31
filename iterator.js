@@ -6,9 +6,15 @@ var Object = require("./shim-object");
 var GenericCollection = require("./generic-collection");
 
 // upgrades an iterable to a Iterator
-function Iterator(iterable) {
+function Iterator(iterable, standardMode) {
 
-    var values = iterable && iterable.values && iterable.values();
+    /*
+        standardMode should be passed as true by a collection that uses Iterator
+        to provide a polyfill of standard iterations methods like entries() and values(),
+        as Collection's iterator behaves differently than standards ones when it comes to sparse arrays.
+        without passing standardMode, new Iterator instances will behave as intended independently of standards.
+    */
+    var values = standardMode && iterable && iterable.values && iterable.values();
     if(values && typeof values.next === "function" ) {
         return values;
     }

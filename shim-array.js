@@ -23,7 +23,13 @@ if (Object.freeze) {
     Object.freeze(Array.empty);
 }
 
-Array.from = function (values) {
+Array.nativeFrom = Array.from;
+
+Array.from = function (values, mapFn, thisArg) {
+    if(Symbol && values && typeof values[Symbol.iterator] === "function") {
+        return Array.nativeFrom(values, mapFn, thisArg);
+    }
+    //Now we add support for values that implement forEach:
     var array = [];
     array.addEach(values);
     return array;
@@ -191,7 +197,7 @@ function deprecatedWarn(msg, notOnce) {
 var ArrayFindPrototype = Object.getOwnPropertyDescriptor(Array.prototype, 'find').value;
 define("find", function (value, equals, index) {
     if (
-        typeof arguments[0] === 'function' && 
+        typeof arguments[0] === 'function' &&
             this instanceof Array
     ) {
         return ArrayFindPrototype.apply(this, arguments);
