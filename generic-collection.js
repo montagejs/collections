@@ -9,7 +9,6 @@ var DOMTokenList = global.DOMTokenList || function(){};
 
 GenericCollection.EmptyArray = Object.freeze([]);
 
-/* TODO: optimize for DOMTokenList and Array to use for() instead of forEach */
 GenericCollection.prototype.addEach = function (values) {
     //We want to eliminate everything but array like: Strings, Arrays, DOMTokenList
     if(values && (values instanceof Array || (values instanceof DOMTokenList) || values instanceof String)) {
@@ -20,6 +19,11 @@ GenericCollection.prototype.addEach = function (values) {
     else if (values && Object(values) === values) {
         if (typeof values.forEach === "function") {
             values.forEach(this.add, this);
+        } else if(typeof values.next === "function") {
+            var value, i=0;
+            while ((value = values.next().value)) {
+                this.add(value, i++);
+            }
         } else if (typeof values.length === "number") {
             // Array-like objects that do not implement forEach, ergo,
             // Arguments
