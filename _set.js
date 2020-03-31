@@ -261,7 +261,7 @@ if((global.Set !== void 0) && (typeof global.Set.prototype.values === "function"
     };
 
     CollectionsSet.prototype.values = function () {
-        return new Iterator(this.valuesArray());
+        return new Iterator(this.valuesArray(), true);
     };
 
     CollectionsSet.prototype.log = function () {
