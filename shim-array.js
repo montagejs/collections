@@ -25,8 +25,9 @@ if (Object.freeze) {
 
 Array.nativeFrom = Array.from;
 
+var isSymbolDefined = typeof Symbol !== "undefined";
 Array.from = function (values, mapFn, thisArg) {
-    if(Symbol && values && typeof values[Symbol.iterator] === "function") {
+    if (isSymbolDefined && values && typeof values[Symbol.iterator] === "function") {
         return Array.nativeFrom(values, mapFn, thisArg);
     }
     //Now we add support for values that implement forEach:
