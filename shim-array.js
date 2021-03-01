@@ -17,13 +17,17 @@ module.exports = Array;
 var array_splice = Array.prototype.splice;
 var array_slice = Array.prototype.slice;
 
-Array.empty = [];
+if (!Array.empty) {
+    Array.empty = [];
 
-if (Object.freeze) {
-    Object.freeze(Array.empty);
+    if (Object.freeze) {
+        Object.freeze(Array.empty);
+    }
 }
 
-Array.nativeFrom = Array.from;
+if(!Array.nativeFrom ) {
+    Array.nativeFrom = Array.from;
+}
 
 var isSymbolDefined = typeof Symbol !== "undefined";
 Array.from = function (values, mapFn, thisArg) {
