@@ -308,3 +308,5 @@ if((global.Map !== void 0) && (typeof global.Set.prototype.values === "function"
         module.exports = GlobalMap;
         GlobalMap.CollectionsMap = CollectionsMap;
     }
+
+    
