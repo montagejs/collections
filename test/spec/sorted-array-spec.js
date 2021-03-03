@@ -37,6 +37,30 @@ describe("SortedArray-spec", function () {
         });
     });
 
+    describe("stable", function () {
+        let collection;
+
+        beforeEach(() => {
+            collection = new SortedArray([{k:0, v:"a"}, {k:1, v:"b"}], null, function(a, b) {
+                return a.k - b.k;
+            });
+        });
+
+        it("should add at the end of sequence", function () {
+            collection.add({k:1, v:"q"});
+            expect(collection.toArray()[0].v).toBe("a")
+            expect(collection.toArray()[1].v).toBe("b")
+            expect(collection.toArray()[2].v).toBe("q")
+        });
+
+        it("should add at the end of subsequence", function () {
+            collection.add({k:0, v:"q"});
+            expect(collection.toArray()[0].v).toBe("a")
+            expect(collection.toArray()[1].v).toBe("q")
+            expect(collection.toArray()[2].v).toBe("b")
+        });
+    })
+
     describe("incomparable values", function () {
         function customEquals(one, two) {
             return one.id === two.id;

@@ -108,8 +108,7 @@ function searchForInsertionIndex(array, value, compare) {
     if (index < 0) {
         return -index - 1;
     } else {
-        var last = array.length - 1;
-        while (index < last && compare(value, array[index + 1]) === 0) {
+        while (index < array.length && compare(value, array[index]) === 0) {
             index++;
         }
         return index;
