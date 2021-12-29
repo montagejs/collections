@@ -493,15 +493,31 @@ SortedSet.prototype.splayIndex = function (index) {
 };
 
 SortedSet.prototype.reduce = function (callback, basis, thisp) {
-    if (this.root) {
-        basis = this.root.reduce(callback, basis, 0, thisp, this);
+    const iter = new this.Iterator(this, undefined, undefined, false);
+    let index = 0;
+    while (true)
+    {
+        const result = iter.next();
+        if (result.done) break;
+        index++;
+        const node = result.value;
+        //Depth always 0 as splay brings current node to the root.
+        basis = callback.call(thisp, basis, node, index, this, node, 0);
     }
     return basis;
 };
 
 SortedSet.prototype.reduceRight = function (callback, basis, thisp) {
-    if (this.root) {
-        basis = this.root.reduceRight(callback, basis, this.length - 1, thisp, this);
+    const iter = new this.Iterator(this, undefined, undefined, true);
+    let index = this.length - 1;
+    while (true)
+    {
+        const result = iter.next();
+        if (result.done) break;
+        index--;
+        const node = result.value;
+        //Depth always 0 as splay brings current node to the root.
+        basis = callback.call(thisp, basis, node, index, this, node, 0);
     }
     return basis;
 };
@@ -732,26 +748,46 @@ Node.prototype.log = function (charmap, logNode, log, logAbove) {
     );
 };
 
-function Iterator(set, start, end) {
+function Iterator(set, start, end, reverse) {
     this.set = set;
     this.prev = null;
-    this.end = end;
-    if (start) {
-        var next = this.set.findLeastGreaterThanOrEqual(start);
-        if (next) {
-            this.set.splay(next.value);
-            this.prev = next.getPrevious();
+    if (reverse)
+    {
+        this.start = start;
+        if (end) {
+            var next = this.set.findGreatestLessThanOrEqual(end);
+            if (next) {
+                this.set.splay(next.value);
+                this.prev = next.getNext();
+            }
         }
+        this.method = this.nextReverse;
+    }
+    else
+    {
+        this.end = end;
+        if (start) {
+            var next = this.set.findLeastGreaterThanOrEqual(start);
+            if (next) {
+                this.set.splay(next.value);
+                this.prev = next.getPrevious();
+            }
+        }
+        this.method = this.nextForward;
     }
 }
 Iterator.prototype.__iterationObject = null;
 Object.defineProperty(Iterator.prototype,"_iterationObject", {
     get: function() {
-        return this.__iterationObject || (this.__iterationObject = { done: false, value:null});
+        return this.__iterationObject || (this.__iterationObject = { done: false, value:null });
     }
 });
 
 Iterator.prototype.next = function () {
+    return this.method();
+};
+
+Iterator.prototype.nextForward = function () {
     var next;
     if (this.prev) {
         next = this.set.findLeastGreaterThan(this.prev.value);
@@ -766,6 +802,34 @@ Iterator.prototype.next = function () {
         if (
             this.end !== undefined &&
             this.set.contentCompare(next.value, this.end) >= 0
+        ) {
+            this._iterationObject.done = true;
+            this._iterationObject.value = void 0;
+        }
+        else {
+            this.prev = next;
+            this._iterationObject.value =  next.value;
+        }
+
+    }
+    return this._iterationObject;
+};
+
+Iterator.prototype.nextReverse = function () {
+    var next;
+    if (this.prev) {
+        next = this.set.findGreatestLessThan(this.prev.value);
+    } else {
+        next = this.set.findGreatest();
+    }
+    if (!next) {
+        this._iterationObject.done = true;
+        this._iterationObject.value = void 0;
+    }
+    else {
+        if (
+            this.start !== undefined &&
+            this.set.contentCompare(next.value, this.start) <= 0
         ) {
             this._iterationObject.done = true;
             this._iterationObject.value = void 0;
