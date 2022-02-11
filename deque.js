@@ -306,6 +306,22 @@ Deque.prototype.get = function (index) {
     return this[(this.front + index) & (this.capacity - 1)];
 };
 
+Deque.prototype.set = function (index, value) {
+    // Domain only includes integers
+    if (index !== (index | 0)) {
+        return;
+    }
+    // Support negative indicies
+    if (index < 0) {
+        index = index + this.length;
+    }
+    // Out of bounds
+    if (index < 0 || index >= this.length) {
+        return;
+    }
+    this[(this.front + index) & (this.capacity - 1)] = value;
+};
+
 Deque.prototype.indexOf = function (value, index) {
     // Default start index at beginning
     if (index == null) {
