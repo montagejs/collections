@@ -41,7 +41,7 @@
     "weak-map": "~1.0.x"
   },
   "devDependencies": {
-    "mr": "git://github.com/montagejs/mr#master",
+    "mr": "github:montagejs/mr#master",
     "browserify": "^14.5.0",
     "concurrently": "^3.4.0",
     "http-server": "^0.9.0",
@@ -53,8 +53,8 @@
     "karma-firefox-launcher": "^1.0.1",
     "karma-jasmine": "^1.1.0",
     "karma-phantomjs-launcher": "^1.0.2",
-    "montage-testing": "git://github.com/montagejs/montage-testing#master",
-    "mop-integration": "git://github.com/montagejs/mop-integration.git#master",
+    "montage-testing": "github:montagejs/montage-testing#master",
+    "mop-integration": "github:montagejs/mop-integration.git#master",
     "open": "0.0.5",
     "uglify-js": "^3.2.2"
   },
